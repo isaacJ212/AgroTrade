@@ -1,0 +1,24 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+
+namespace Meseta_Verda.Domain.Entities
+{
+    public class DetallePedido
+    {
+        [Key]
+        public int IdDetallePedido { get; set; }
+        
+        public int IdPedido { get; set; }
+        public Pedido Pedido { get; set; } = null!;
+        
+        public int IdInventario { get; set; }
+        public InventarioProveedor Inventario { get; set; } = null!;
+        
+        public float Cantidad { get; set; }
+        public float PrecioUnitario { get; set; }
+        public float Subtotal { get; set; }
+    }
+}
