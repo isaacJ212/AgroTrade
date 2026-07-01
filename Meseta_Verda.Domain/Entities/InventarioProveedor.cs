@@ -18,8 +18,8 @@ namespace Meseta_Verda.Domain.Entities
         public string? VideoUrl { get; set; }
         
         public float StockActual { get; set; }
-        public float CostoProduccion { get; set; }
-        public float PrecioVenta { get; set; }
+        public decimal CostoProduccion { get; set; }
+        public decimal PrecioVenta { get; set; }
         
         public bool EsOfertaExcedente { get; set; } = false;
         public float? PorcentajeDescuento { get; set; }

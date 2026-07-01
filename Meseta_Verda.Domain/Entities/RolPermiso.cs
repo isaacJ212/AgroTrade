@@ -11,6 +11,6 @@ namespace Meseta_Verda.Domain.Entities
         public Rol Rol { get; set; } = null!;
 
         public int IdPermisos { get; set; }
-        public Permiso Permiso { get; set; }
+        public Permiso Permiso { get; set; } = null!;
     }
 }

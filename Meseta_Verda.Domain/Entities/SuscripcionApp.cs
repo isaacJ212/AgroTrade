@@ -17,7 +17,7 @@ namespace Meseta_Verda.Domain.Entities
         
         [Required]
         public string TipoPlan { get; set; } = null!;
-        public float TarifaPago { get; set; }
+        public decimal TarifaPago { get; set; }
         public string? Estado { get; set; }
         public DateTime FechaInicio { get; set; }
         public DateTime? FechaFin { get; set; }

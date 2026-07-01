@@ -16,7 +16,7 @@ namespace Meseta_Verda.Domain.Entities
         public Usuario UsuarioCliente { get; set; } = null!;
         
         public DateTime FechaPedido { get; set; }
-        public float Total { get; set; }
+        public decimal Total { get; set; }
         public string? MetodoPago { get; set; }
         public string? EstadoPago { get; set; }
         public string? EstadoEnvio { get; set; }

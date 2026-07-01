@@ -11,6 +11,8 @@ namespace Meseta_Verda.Domain.Entities
     {
         [Key]
         public int IdConversacion { get; set; }
+        public int IdPedido { get; set; }
+        public Pedido Pedido { get; set; } = null!;
         public DateTime CreadaEn { get; set; } = DateTime.UtcNow;
         
         // Navegación

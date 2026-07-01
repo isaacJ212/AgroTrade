@@ -13,6 +13,8 @@ namespace Meseta_Verda.Domain.Entities
         public int IdEntrega { get; set; }
         public int IdPedido { get; set; }
         public Pedido Pedido { get; set; } = null!;
+        public int IdUsuarioRepartidor { get; set; }
+        public Usuario UsuarioRepartidor { get; set; } = null!;
         
         public string? EstadoActual { get; set; } 
         public string? UbicacionActual { get; set; }

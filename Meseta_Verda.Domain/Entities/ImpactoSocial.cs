@@ -10,11 +10,14 @@ namespace Meseta_Verda.Domain.Entities
     {
         [Key]
         public int IdImpacto { get; set; }
+        public int IdProveedor { get; set; }
+        public Proveedor Proveedor { get; set; } = null!;
         public int IdPedido { get; set; }
         public Pedido Pedido { get; set; } = null!;
-        
-        public float KgCarbonoReducido { get; set; }
-        public float ApoyoEconomicoLocal { get; set; } 
-        public string? DescripcionLogro { get; set; }
+        public int IdDetallePedido { get; set; }
+        public DetallePedido DetallePedido { get; set; } = null!;
+
+        public float ProductosSalvados { get; set; }
+        public float BeneficioExtraProductor { get; set; }
     }
 }
