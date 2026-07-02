@@ -1,3 +1,9 @@
+using EFCore.NamingConventions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Builder;
+using Meseta_Verde.Infrastructure.Persistence;
+
 
 namespace Meseta_Verde
 {
@@ -8,6 +14,9 @@ namespace Meseta_Verde
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddDbContext<MesetaVerdeDbContext>(options =>
+                options.UseNpgsql(builder.Configuration.GetConnectionString("MesetaVerdeDatabase"))
+                       .UseSnakeCaseNamingConvention());
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

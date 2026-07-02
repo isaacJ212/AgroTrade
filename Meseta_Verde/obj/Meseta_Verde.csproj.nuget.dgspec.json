@@ -4,14 +4,14 @@
     "C:\\Users\\hack4\\3D Objects\\MESETA_VERDE\\BACKEND\\Meseta_Verde\\Meseta_Verde\\Meseta_Verde.csproj": {}
   },
   "projects": {
-    "C:\\Users\\hack4\\3D Objects\\MESETA_VERDE\\BACKEND\\Meseta_Verde\\Meseta_Verde\\Meseta_Verde.csproj": {
+    "C:\\Users\\hack4\\3D Objects\\MESETA_VERDE\\BACKEND\\Meseta_Verde\\Meseta_Verda.Domain\\Meseta_Verda.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\hack4\\3D Objects\\MESETA_VERDE\\BACKEND\\Meseta_Verde\\Meseta_Verde\\Meseta_Verde.csproj",
-        "projectName": "Meseta_Verde",
-        "projectPath": "C:\\Users\\hack4\\3D Objects\\MESETA_VERDE\\BACKEND\\Meseta_Verde\\Meseta_Verde\\Meseta_Verde.csproj",
+        "projectUniqueName": "C:\\Users\\hack4\\3D Objects\\MESETA_VERDE\\BACKEND\\Meseta_Verde\\Meseta_Verda.Domain\\Meseta_Verda.Domain.csproj",
+        "projectName": "Meseta_Verda.Domain",
+        "projectPath": "C:\\Users\\hack4\\3D Objects\\MESETA_VERDE\\BACKEND\\Meseta_Verde\\Meseta_Verda.Domain\\Meseta_Verda.Domain.csproj",
         "packagesPath": "C:\\Users\\hack4\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\hack4\\3D Objects\\MESETA_VERDE\\BACKEND\\Meseta_Verde\\Meseta_Verde\\obj\\",
+        "outputPath": "C:\\Users\\hack4\\3D Objects\\MESETA_VERDE\\BACKEND\\Meseta_Verde\\Meseta_Verda.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -48,10 +48,160 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.315/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\hack4\\3D Objects\\MESETA_VERDE\\BACKEND\\Meseta_Verde\\Meseta_Verde.Infrastructure\\Meseta_Verde.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\hack4\\3D Objects\\MESETA_VERDE\\BACKEND\\Meseta_Verde\\Meseta_Verde.Infrastructure\\Meseta_Verde.Infrastructure.csproj",
+        "projectName": "Meseta_Verde.Infrastructure",
+        "projectPath": "C:\\Users\\hack4\\3D Objects\\MESETA_VERDE\\BACKEND\\Meseta_Verde\\Meseta_Verde.Infrastructure\\Meseta_Verde.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\hack4\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\hack4\\3D Objects\\MESETA_VERDE\\BACKEND\\Meseta_Verde\\Meseta_Verde.Infrastructure\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\hack4\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\Users\\hack4\\3D Objects\\MESETA_VERDE\\BACKEND\\Meseta_Verde\\Meseta_Verda.Domain\\Meseta_Verda.Domain.csproj": {
+                "projectPath": "C:\\Users\\hack4\\3D Objects\\MESETA_VERDE\\BACKEND\\Meseta_Verde\\Meseta_Verda.Domain\\Meseta_Verda.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
           "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.11, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[8.0.11, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.315/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\hack4\\3D Objects\\MESETA_VERDE\\BACKEND\\Meseta_Verde\\Meseta_Verde\\Meseta_Verde.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\hack4\\3D Objects\\MESETA_VERDE\\BACKEND\\Meseta_Verde\\Meseta_Verde\\Meseta_Verde.csproj",
+        "projectName": "Meseta_Verde",
+        "projectPath": "C:\\Users\\hack4\\3D Objects\\MESETA_VERDE\\BACKEND\\Meseta_Verde\\Meseta_Verde\\Meseta_Verde.csproj",
+        "packagesPath": "C:\\Users\\hack4\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\hack4\\3D Objects\\MESETA_VERDE\\BACKEND\\Meseta_Verde\\Meseta_Verde\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\hack4\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\Users\\hack4\\3D Objects\\MESETA_VERDE\\BACKEND\\Meseta_Verde\\Meseta_Verde.Infrastructure\\Meseta_Verde.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\hack4\\3D Objects\\MESETA_VERDE\\BACKEND\\Meseta_Verde\\Meseta_Verde.Infrastructure\\Meseta_Verde.Infrastructure.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "EFCore.NamingConventions": {
+              "target": "Package",
+              "version": "[8.0.2, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
-              "version": "[6.4.0, )"
+              "version": "[6.6.2, )"
             }
           },
           "imports": [
