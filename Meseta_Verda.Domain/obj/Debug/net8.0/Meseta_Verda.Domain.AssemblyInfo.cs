@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Meseta_Verda.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+732b67d5eadc1173364f02542679eab6e16e5bed")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2ae22e812c1c30040ea6b96ce48e28d0fb53eb3e")]
 [assembly: System.Reflection.AssemblyProductAttribute("Meseta_Verda.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Meseta_Verda.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
