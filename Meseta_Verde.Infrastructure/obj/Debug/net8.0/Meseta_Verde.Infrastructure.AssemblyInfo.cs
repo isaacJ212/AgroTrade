@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Meseta_Verde.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c8b0c5545e8ff7a88e435e4ffc1cc5a05c0e9e9d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+732b67d5eadc1173364f02542679eab6e16e5bed")]
 [assembly: System.Reflection.AssemblyProductAttribute("Meseta_Verde.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Meseta_Verde.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
