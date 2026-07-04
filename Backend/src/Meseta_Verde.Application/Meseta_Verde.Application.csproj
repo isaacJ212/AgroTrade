@@ -13,4 +13,13 @@
     <Folder Include="Features\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Meseta_Verda.Domain\Meseta_Verda.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="12.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
+  </ItemGroup>
+
 </Project>

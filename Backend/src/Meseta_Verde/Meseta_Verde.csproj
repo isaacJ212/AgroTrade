@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <!-- NUEVO -->
+    <PackageReference Include="MediatR" Version="12.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
 
     <!-- NUEVO -->
@@ -24,6 +25,8 @@
   </ItemGroup>
 
   <ItemGroup>
+  
+    <ProjectReference Include="..\Meseta_Verde.Application\Meseta_Verde.Application.csproj" />
   
     <ProjectReference Include="..\Meseta_Verde.Infrastructure\Meseta_Verde.Infrastructure.csproj" />
   </ItemGroup>
