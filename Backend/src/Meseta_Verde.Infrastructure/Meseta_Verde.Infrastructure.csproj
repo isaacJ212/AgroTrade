@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Folder Include="Indentity\" />
-    <Folder Include="Repository\" />
     <Folder Include="Services\" />
     <Folder Include="Persistence\Migrations\" />
     <Folder Include="Persistence\Configurations\" />
@@ -16,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Meseta_Verda.Domain\Meseta_Verda.Domain.csproj" />
+    <ProjectReference Include="..\Meseta_Verde.Application\Meseta_Verde.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>
