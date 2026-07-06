@@ -21,10 +21,12 @@ namespace Meseta_Verde
             builder.Services.AddDbContext<MesetaVerdeDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("MesetaVerdeDatabase"))
                        .UseSnakeCaseNamingConvention());
-            builder.Services.AddApplication();
-            builder.Services.AddInfrastructure();
+
+            // Inyección de Dependencias
+            builder.Services.AddApplicationServices();
+            builder.Services.AddInfrastructureServices(builder.Configuration);
+
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 

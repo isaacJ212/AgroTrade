@@ -1,0 +1,28 @@
+using MediatR;
+using Meseta_Verde.Application.Common;
+using Meseta_Verde.Application.Common.DTOs;
+using Meseta_Verde.Application.Common.Interface;
+using Microsoft.EntityFrameworkCore;
+
+namespace Meseta_Verde.Application.Features.Categorias.Queries
+{
+    public record GetCategoriasQuery : IRequest<Result<List<CategoriaDto>>>;
+
+    public class GetCategoriasQueryHandler : IRequestHandler<GetCategoriasQuery, Result<List<CategoriaDto>>>
+    {
+        private readonly IUnitOfWork _unitOfWork;
+
+        public GetCategoriasQueryHandler(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
+
+        public async Task<Result<List<CategoriaDto>>> Handle(GetCategoriasQuery request, CancellationToken cancellationToken)
+        {
+            var categorias = await _unitOfWork.Categorias.GetAllAsync(cancellationToken);
+            var data = categorias.Select(c => new CategoriaDto { IdCategoria = c.IdCategoria, Nombre = c.Nombre }).ToList();
+
+            return Result<List<CategoriaDto>>.Succes(200, data, "Categorías obtenidas correctamente.", true);
+        }
+    }
+}
