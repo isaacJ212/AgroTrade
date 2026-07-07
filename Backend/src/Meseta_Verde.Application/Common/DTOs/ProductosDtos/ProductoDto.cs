@@ -10,9 +10,9 @@ namespace Meseta_Verde.Application.Common.DTOs.ProductosDtos
         public int IdProducto { get; set; }
         public int IdCategoria { get; set; }
         public int IdProveedor { get; set; }
-        public string Nombre { get; set; }
-        public string Descripcion { get; set; }
-        public string UnidadMedida { get; set; }
+        public string? Nombre { get; set; }
+        public string? Descripcion { get; set; }
+        public string? UnidadMedida { get; set; }
 
         
     }
