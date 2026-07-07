@@ -107,6 +107,20 @@ namespace Meseta_Verde.Controllers
 
             return Ok(Result<bool>.Succes(200, true, "Producto actualizado parcialmente correctamente.", true));
         }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Result<ProductoDto?>>> GetById(int id)
+        {
+            var result = await _mediator.Send(new GetProductoByIdQuery(id));
+            return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, result);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<Result<bool>>> Delete(int id)
+        {
+            var result = await _mediator.Send(new DeleteProductoCommand(id));
+            return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, result);
+        }
         
     }
 }
