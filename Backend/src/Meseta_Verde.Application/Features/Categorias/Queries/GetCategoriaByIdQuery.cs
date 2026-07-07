@@ -1,6 +1,6 @@
 using MediatR;
 using Meseta_Verde.Application.Common;
-using Meseta_Verde.Application.Common.DTOs;
+using Meseta_Verde.Application.Common.DTOs.CategoriasDtos;
 using Meseta_Verde.Application.Common.Interface;
 
 namespace Meseta_Verde.Application.Features.Categorias.Queries

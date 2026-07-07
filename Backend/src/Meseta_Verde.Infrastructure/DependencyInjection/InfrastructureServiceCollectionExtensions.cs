@@ -19,8 +19,8 @@ namespace Meseta_Verde.Infrastructure.DependencyInjection
                 options.UseNpgsql(connectionString)
                        .UseSnakeCaseNamingConvention());
 
-            services.AddScoped<IApplicationDbContext>(provider =>
-                provider.GetRequiredService<MesetaVerdeDbContext>());
+            
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 

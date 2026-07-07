@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Meseta_Verde.Infrastructure.Persistence;
 using Meseta_Verde.Application.DependencyInjection;
 using Meseta_Verde.Infrastructure.DependencyInjection;
+using Meseta_Verde.Middlewares;
 
 
 namespace Meseta_Verde
@@ -16,6 +17,8 @@ namespace Meseta_Verde
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddHttpContextAccessor();
+
             builder.Services.AddDbContext<MesetaVerdeDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("MesetaVerdeDatabase"))
                        .UseSnakeCaseNamingConvention());
@@ -38,6 +41,8 @@ namespace Meseta_Verde
             }
 
             app.UseHttpsRedirection();
+
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             app.UseAuthorization();
 
