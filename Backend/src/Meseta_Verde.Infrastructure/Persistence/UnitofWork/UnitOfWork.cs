@@ -15,17 +15,20 @@ namespace Meseta_Verde.Infrastructure.Repository
     public class UnitOfWork : IUnitOfWork
     {        private readonly IServiceProvider _serviceProvider;
         private readonly IRepository<Categoria> _categoriaRepository;
+        private readonly IRepository<Producto> _productoRepository;
         private readonly MesetaVerdeDbContext _context;
         private IDbContextTransaction? _transaction;
-        public UnitOfWork(MesetaVerdeDbContext context, IServiceProvider serviceProvider, IRepository<Categoria> categoriaRepository)
+        public UnitOfWork(MesetaVerdeDbContext context, IServiceProvider serviceProvider, IRepository<Categoria> categoriaRepository, IRepository<Producto> productoRepository)
         {
             _context = context;
             _serviceProvider = serviceProvider;
             _categoriaRepository = categoriaRepository;
+            _productoRepository = productoRepository;
         }
         //PROPIEDADES DE NAVEGACION DE CONTEXTO
        /// comento esto por que me va a dar erro public IUserRepository Users => _serviceProvider.GetRequiredService<IUserRepository>();
         public IRepository<Categoria> Categorias => _categoriaRepository;
+        public IRepository<Producto> Productos => _productoRepository;
         
         //CONFIGURACIONES DE PERSISTENCIA
         public async Task BeginTransactionAsync(CancellationToken ct)
