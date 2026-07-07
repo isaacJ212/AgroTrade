@@ -14,5 +14,6 @@ namespace Meseta_Verde.Application.Common.Interface
         // NAVEGACION PARA REPOSITORIOS
         IRepository<Categoria> Categorias { get; }
         IRepository<Producto> Productos {get;}
+        IRepository<Proveedor> Proveedores {get;}
     }
 }

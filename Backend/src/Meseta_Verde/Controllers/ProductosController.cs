@@ -79,6 +79,11 @@ namespace Meseta_Verde.Controllers
 
             if (dto.IdProveedor.HasValue)
             {
+                var proveedorExiste = await _unitOfWork.Proveedores.AnyAsync(p => p.IdProveedor == dto.IdProveedor.Value, CancellationToken.None);
+                if (!proveedorExiste)
+                {
+                    return NotFound(Result<bool>.Failure(404, "El proveedor especificado no existe."));
+                }
                 producto.IdProveedor = dto.IdProveedor.Value;
             }
 

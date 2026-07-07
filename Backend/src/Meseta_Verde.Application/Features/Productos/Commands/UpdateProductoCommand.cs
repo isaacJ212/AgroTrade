@@ -28,10 +28,18 @@ namespace Meseta_Verde.Application.Features.Productos.Commands
                 return Result<bool>.Failure(404, "No se encontró el producto.");
             }
 
+            // Validar que la categoría exista
             var categoriaExiste = await _unitOfWork.Categorias.AnyAsync(c => c.IdCategoria == request.IdCategoria, cancellationToken);
             if (!categoriaExiste)
             {
                 return Result<bool>.Failure(404, "La categoría especificada no existe.");
+            }
+
+            // Validar que el proveedor exista
+            var proveedorExiste = await _unitOfWork.Proveedores.AnyAsync(p => p.IdProveedor == request.IdProveedor, cancellationToken);
+            if (!proveedorExiste)
+            {
+                return Result<bool>.Failure(404, "El proveedor especificado no existe.");
             }
 
             producto.IdCategoria = request.IdCategoria;

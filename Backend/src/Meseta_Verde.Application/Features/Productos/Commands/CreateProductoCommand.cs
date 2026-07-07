@@ -18,13 +18,19 @@ namespace Meseta_Verde.Application.Features.Productos.Commands
 
         public async Task<Result<int>> Handle(CreateProductoCommand request, CancellationToken cancellationToken)
         {
+            // Validar que la categoría exista
             var categoriaExiste = await _unitOfWork.Categorias.AnyAsync(c => c.IdCategoria == request.IdCategoria, cancellationToken);
             if (!categoriaExiste)
             {
                 return Result<int>.Failure(404, "La categoría especificada no existe.");
             }
 
-            var proveedorExiste = await _unitOfWork.Productos.AnyAsync(p => p.IdProveedor == request.IdProveedor, cancellationToken) || true; // TODO: Verificar proveedor cuando tengamos el repositorio
+            // Validar que el proveedor exista
+            var proveedorExiste = await _unitOfWork.Proveedores.AnyAsync(p => p.IdProveedor == request.IdProveedor, cancellationToken);
+            if (!proveedorExiste)
+            {
+                return Result<int>.Failure(404, "El proveedor especificado no existe.");
+            }
             
             var producto = new Producto
             {
