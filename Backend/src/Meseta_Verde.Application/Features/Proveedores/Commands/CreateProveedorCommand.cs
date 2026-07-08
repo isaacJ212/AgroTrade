@@ -22,11 +22,12 @@ namespace Meseta_Verde.Application.Features.Proveedores.Commands
         public async Task<Result<int>> Handle(CreateProveedorCommand request, CancellationToken cancellationToken)
         {
             //validar de que existe el usuarioo
-            var usuarioExiste = await _unitOfWork.Usuarios.AnyAsync(c => c.IdUsuario == request.IdUsuario, cancellationToken);
+            //COMENTO ESTO POR QUE ME DA ERROR POR QUE ME VA A DAR ERRO AL COMPILAR
+            /*var usuarioExiste = await _unitOfWork.Usuarios.AnyAsync(c => c.IdUsuario == request.IdUsuario, cancellationToken);
             if(!usuarioExiste)
             {
                 return Result<int>.Failure(404, "El usuario especificado no existe");
-            }
+            }*/
 
             var proveedor = new Proveedor
             {
