@@ -44,7 +44,7 @@ namespace Meseta_Verde.Controllers
         {
             if (id <= 0)
             {
-                return BadRequest(Result<bool>.Failure(400, "El ID de la categoría es inválido."));
+                return BadRequest(Result<bool>.Failure(400, "El ID de la categorï¿½a es invï¿½lido."));
             }
 
             var result = await _mediator.Send(new UpdateCategoriaCommand(id, dto.Nombre ));
