@@ -9,9 +9,9 @@ namespace Meseta_Verde.Application.Features.Categorias.Commands
 
     public class CreateCategoriaCommandHandler : IRequestHandler<CreateCategoriaCommand, Result<int>>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitofWork _unitOfWork;
 
-        public CreateCategoriaCommandHandler(IUnitOfWork unitOfWork)
+        public CreateCategoriaCommandHandler(IUnitofWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }

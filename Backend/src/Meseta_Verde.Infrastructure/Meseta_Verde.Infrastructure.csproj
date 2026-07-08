@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Folder Include="Indentity\" />
-    <Folder Include="Services\" />
     <Folder Include="Persistence\Migrations\" />
     <Folder Include="Persistence\Configurations\" />
   </ItemGroup>
@@ -26,6 +25,7 @@
     </PackageReference>
     <PackageReference Include="EFCore.NamingConventions" Version="8.0.2" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.1.2" />
   </ItemGroup>
 
 </Project>

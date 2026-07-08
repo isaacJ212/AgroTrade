@@ -2,7 +2,7 @@
 using Meseta_Verda.Domain.Entities;
 using Meseta_Verde.Application.Common;
 using Meseta_Verde.Application.Common.DTOs.UsersDtos;
-using Meseta_Verde.Application.Interfaces;
+using Meseta_Verde.Application.Common.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace Meseta_Verde.Application.Features.Usuarios.Commands
 {
     public record AddUserCommand(CreateUserDto dto) : IRequest<Result<UserDto>>;
-    public class AddUserHandler(IUnitofWork context) : IRequestHandler<AddUserCommand, Result<UserDto>>
+    public class AddUserHandler(IUnitofWork context, IRepository<UsuarioRol> rol) : IRequestHandler<AddUserCommand, Result<UserDto>>
     {
         public async Task<Result<UserDto>> Handle(AddUserCommand request, CancellationToken ct)
         {
@@ -36,6 +36,16 @@ namespace Meseta_Verde.Application.Features.Usuarios.Commands
 
             };
             var user = await context.Users.AddAsync(newUser, ct);
+
+            await context.SaveChangesAsync(ct);
+
+            var userRol = new UsuarioRol
+            {
+                IdUsuario = user.IdUsuario,
+                IdRol = 1 //id de rol cliente
+            };
+
+            await rol.AddAsync(userRol, ct);
 
             await context.SaveChangesAsync(ct);
             if (user != null)

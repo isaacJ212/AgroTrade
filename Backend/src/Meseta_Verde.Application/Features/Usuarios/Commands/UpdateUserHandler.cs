@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Meseta_Verde.Application.Common;
 using Meseta_Verde.Application.Common.DTOs.UsersDtos;
-using Meseta_Verde.Application.Interfaces;
+using Meseta_Verde.Application.Common.Interface;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;

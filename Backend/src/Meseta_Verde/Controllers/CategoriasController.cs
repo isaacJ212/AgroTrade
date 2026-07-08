@@ -1,6 +1,6 @@
 using MediatR;
 using Meseta_Verde.Application.Common;
-using Meseta_Verde.Application.Common.DTOs;
+using Meseta_Verde.Application.Common.DTOs.CategoriasDtos;
 using Meseta_Verde.Application.Features.Categorias.Commands;
 using Meseta_Verde.Application.Features.Categorias.Queries;
 using Microsoft.AspNetCore.Mvc;
@@ -40,14 +40,14 @@ namespace Meseta_Verde.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Result<bool>>> Update(int id, [FromBody] UpdateCategoriaCommand command)
+        public async Task<ActionResult<Result<bool>>> Update([FromRoute] int id, [FromBody]  UpdateCategoryDto dto)
         {
-            if (id != command.IdCategoria)
+            if (id <= 0)
             {
-                return BadRequest(Result<bool>.Failure(400, "Los IDs no coinciden."));
+                return BadRequest(Result<bool>.Failure(400, "El ID de la categoría es inválido."));
             }
 
-            var result = await _mediator.Send(command);
+            var result = await _mediator.Send(new UpdateCategoriaCommand(id, dto.Nombre ));
             return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, result);
         }
 

@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Meseta_Verde.Application.Interfaces
+namespace Meseta_Verde.Application.Common.Interface
 {
     public interface IUserRepository
     {
@@ -20,7 +20,9 @@ namespace Meseta_Verde.Application.Interfaces
         Task<Usuario?> GetToUpdateAsync(int id, CancellationToken ct);
         Task<bool> AnyAsync(Expression<Func<Usuario,bool>> predicate, CancellationToken ct);
         Task RemoveUserAsync(int id,CancellationToken ct);
-        
+
+        Task<IEnumerable<string>> GetRolesByUserIdAsync(int userId, CancellationToken ct);
+
 
     }
 }

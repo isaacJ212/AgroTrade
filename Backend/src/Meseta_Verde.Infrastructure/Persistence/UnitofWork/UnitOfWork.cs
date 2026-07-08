@@ -1,4 +1,5 @@
-﻿using Meseta_Verde.Application.Interfaces;
+﻿using Meseta_Verda.Domain.Entities;
+using Meseta_Verde.Application.Common.Interface;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -13,16 +14,19 @@ namespace Meseta_Verde.Infrastructure.Persistence.UnitofWork
     public class UnitOfWork: IUnitofWork
     {
         private readonly IServiceProvider _serviceProvider;
+        private readonly IRepository<Categoria> _categoriaRepository;
         private readonly MesetaVerdeDbContext _context;
         private IDbContextTransaction? _transaction;
-        public UnitOfWork(MesetaVerdeDbContext context, IServiceProvider serviceProvider)
+        public UnitOfWork(MesetaVerdeDbContext context, IServiceProvider serviceProvider, IRepository<Categoria> categoriaRepository)
         {
             _context = context;
             _serviceProvider = serviceProvider;
+            _categoriaRepository = categoriaRepository;
         }
         //PROPIEDADES DE NAVEGACION DE CONTEXTO
         public IUserRepository Users => _serviceProvider.GetRequiredService<IUserRepository>();
-
+        public IRepository<Categoria> Categorias => _categoriaRepository;
+        
         //CONFIGURACIONES DE PERSISTENCIA
         public async Task BeginTransactionAsync(CancellationToken ct)
         {

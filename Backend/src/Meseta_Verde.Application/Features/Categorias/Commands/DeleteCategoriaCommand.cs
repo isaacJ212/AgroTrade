@@ -8,9 +8,9 @@ namespace Meseta_Verde.Application.Features.Categorias.Commands
 
     public class DeleteCategoriaCommandHandler : IRequestHandler<DeleteCategoriaCommand, Result<bool>>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitofWork _unitOfWork;
 
-        public DeleteCategoriaCommandHandler(IUnitOfWork unitOfWork)
+        public DeleteCategoriaCommandHandler(IUnitofWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }

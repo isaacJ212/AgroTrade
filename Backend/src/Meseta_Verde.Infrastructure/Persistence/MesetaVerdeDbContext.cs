@@ -4,7 +4,7 @@ using Meseta_Verde.Application.Common.Interface; //
 
 namespace Meseta_Verde.Infrastructure.Persistence
 {
-    public class MesetaVerdeDbContext : DbContext, IApplicationDbContext
+    public class MesetaVerdeDbContext : DbContext
     {
         public MesetaVerdeDbContext(DbContextOptions<MesetaVerdeDbContext> options)
             : base(options)

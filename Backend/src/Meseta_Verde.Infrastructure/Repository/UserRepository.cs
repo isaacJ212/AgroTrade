@@ -1,5 +1,5 @@
 ﻿using Meseta_Verda.Domain.Entities;
-using Meseta_Verde.Application.Interfaces;
+using Meseta_Verde.Application.Common.Interface;
 using Meseta_Verde.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -61,6 +61,14 @@ namespace Meseta_Verde.Infrastructure.Repository
                 _context.Usuarios.Remove(user);
                 await _context.SaveChangesAsync(ct);
             }
+        }
+
+        public async Task<IEnumerable<string>> GetRolesByUserIdAsync(int userId, CancellationToken ct)
+        {
+            return await _context.UsuariosRoles
+                .Where(ur => ur.IdUsuario == userId)
+                .Select(ur => ur.Rol.NombreRol)
+                .ToListAsync(ct);
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Meseta_Verde.Application.Common.DTOs
+namespace Meseta_Verde.Application.Common.DTOs.CategoriasDtos
 {
     public class CategoriaDto
     {
