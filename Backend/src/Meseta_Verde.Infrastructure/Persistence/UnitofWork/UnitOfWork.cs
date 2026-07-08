@@ -1,6 +1,5 @@
 using Meseta_Verda.Domain.Entities;
 using Meseta_Verde.Application.Common.Interface;
-using Meseta_Verde.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -10,10 +9,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Meseta_Verde.Infrastructure.Repository
+namespace Meseta_Verde.Infrastructure.Persistence.UnitofWork
 {
-    public class UnitOfWork : IUnitOfWork
-    {        private readonly IServiceProvider _serviceProvider;
+    public class UnitOfWork: IUnitofWork
+    {
+        private readonly IServiceProvider _serviceProvider;
         private readonly IRepository<Categoria> _categoriaRepository;
         private readonly MesetaVerdeDbContext _context;
         private IDbContextTransaction? _transaction;
@@ -24,7 +24,7 @@ namespace Meseta_Verde.Infrastructure.Repository
             _categoriaRepository = categoriaRepository;
         }
         //PROPIEDADES DE NAVEGACION DE CONTEXTO
-       /// comento esto por que me va a dar erro public IUserRepository Users => _serviceProvider.GetRequiredService<IUserRepository>();
+        public IUserRepository Users => _serviceProvider.GetRequiredService<IUserRepository>();
         public IRepository<Categoria> Categorias => _categoriaRepository;
         
         //CONFIGURACIONES DE PERSISTENCIA

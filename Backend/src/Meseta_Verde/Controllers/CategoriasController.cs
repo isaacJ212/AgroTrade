@@ -40,14 +40,14 @@ namespace Meseta_Verde.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Result<bool>>> Update([FromRoute] int id, [FromBody] UpdateCategoryDto dto)
+        public async Task<ActionResult<Result<bool>>> Update([FromRoute] int id, [FromBody]  UpdateCategoryDto dto)
         {
             if (id <= 0)
             {
-                return BadRequest(Result<bool>.Failure(400, "El ID de la categoría es inválido."));
+                return BadRequest(Result<bool>.Failure(400, "El ID de la categor�a es inv�lido."));
             }
 
-            var result = await _mediator.Send(new UpdateCategoriaCommand(id, dto.Nombre));
+            var result = await _mediator.Send(new UpdateCategoriaCommand(id, dto.Nombre ));
             return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, result);
         }
 

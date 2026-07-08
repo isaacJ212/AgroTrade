@@ -9,9 +9,9 @@ namespace Meseta_Verde.Application.Features.Categorias.Queries
 
     public class GetCategoriaByIdQueryHandler : IRequestHandler<GetCategoriaByIdQuery, Result<CategoriaDto?>>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitofWork _unitOfWork;
 
-        public GetCategoriaByIdQueryHandler(IUnitOfWork unitOfWork)
+        public GetCategoriaByIdQueryHandler(IUnitofWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }

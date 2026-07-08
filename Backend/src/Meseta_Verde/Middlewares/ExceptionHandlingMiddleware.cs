@@ -1,3 +1,5 @@
+﻿using System.Runtime.CompilerServices;
+
 namespace Meseta_Verde.Middlewares
 {
     public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
@@ -7,8 +9,7 @@ namespace Meseta_Verde.Middlewares
             try
             {
                 await next(context);
-            }
-            catch (Exception ex)
+            }catch(Exception ex)
             {
                 logger.LogError("Ocurrio un error no controlado en la Aplicacion");
                 Console.WriteLine(ex.ToString());

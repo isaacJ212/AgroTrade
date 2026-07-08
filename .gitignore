@@ -10,6 +10,11 @@
 **/x64/
 **/x86/
 
+bin/
+obj/
+*.user
+*.suo
+.vs/
 
 
 .vs/

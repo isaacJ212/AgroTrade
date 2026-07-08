@@ -14,7 +14,7 @@ namespace Meseta_Verda.Domain.Entities
 
         public string NombreCompleto { get; set; } 
         public string Email { get; set; } 
-        public string PasswordHash { get; set; } 
+        public string? PasswordHash { get; set; } 
         public bool IdentidadVerificada { get; set; }
         
         public string? OAuthProvider { get; set; }
