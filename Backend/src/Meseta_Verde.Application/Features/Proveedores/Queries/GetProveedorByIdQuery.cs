@@ -19,6 +19,11 @@ namespace Meseta_Verde.Application.Features.Proveedores.Queries
 
         public async Task<Result<ProveedorDto?>> Handle(GetProveedorByIdQuery request, CancellationToken cancellationToken)
         {
+            if (request.IdProveedor <= 0)
+            {
+                return Result<ProveedorDto?>.Failure(400, "El ID del proveedor es inválido.");
+            }
+
             var proveedor = await _unitOfWork.Proveedores.GetByIdAsync(request.IdProveedor, cancellationToken);
             if (proveedor is null)
             {

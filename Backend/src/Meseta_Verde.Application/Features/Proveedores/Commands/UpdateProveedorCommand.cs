@@ -23,6 +23,19 @@ namespace Meseta_Verde.Application.Features.Proveedores.Commands
                 return Result<bool>.Failure(400, "El ID del proveedor es inválido.");
             }
 
+            // Validar que el usuario exista
+            var usuarioExiste = await _unitOfWork.Usuarios.AnyAsync(c => c.IdUsuario == request.IdUsuario, cancellationToken);
+            if (!usuarioExiste)
+            {
+                return Result<bool>.Failure(404, "El usuario especificado no existe");
+            }
+
+            // Validar que el nombre del proveedor no esté vacío
+            if (string.IsNullOrWhiteSpace(request.NombreProveedor))
+            {
+                return Result<bool>.Failure(400, "El nombre del proveedor es obligatorio.");
+            }
+
             var proveedor = await _unitOfWork.Proveedores.GetByIdAsync(request.IdProveedor, cancellationToken);
             if (proveedor is null)
             {

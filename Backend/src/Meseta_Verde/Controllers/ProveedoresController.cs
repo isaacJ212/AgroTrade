@@ -75,24 +75,35 @@ namespace Meseta_Verde.Controllers
 
             if (dto.IdUsuario.HasValue)
             {
+                // Validar que el usuario exista
+                var usuarioExiste = await _unitOfWork.Usuarios.AnyAsync(c => c.IdUsuario == dto.IdUsuario.Value, CancellationToken.None);
+                if (!usuarioExiste)
+                {
+                    return NotFound(Result<bool>.Failure(404, "El usuario especificado no existe"));
+                }
                 proveedor.IdUsuario = dto.IdUsuario.Value;
             }
+
             if (!string.IsNullOrEmpty(dto.NombreProveedor))
             {
                 proveedor.NombreProveedor = dto.NombreProveedor;
             }
+
             if (dto.NombreFinca is not null)
             {
                 proveedor.NombreFinca = dto.NombreFinca;
             }
+
             if (dto.UbicacionGps is not null)
             {
                 proveedor.UbicacionGps = dto.UbicacionGps;
             }
+
             if (dto.Biografia is not null)
             {
                 proveedor.Biografia = dto.Biografia;
             }
+
             if (dto.CalificacionPromedio.HasValue)
             {
                 proveedor.CalificacionPromedio = dto.CalificacionPromedio.Value;
