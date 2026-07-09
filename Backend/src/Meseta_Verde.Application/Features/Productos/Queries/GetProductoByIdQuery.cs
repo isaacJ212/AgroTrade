@@ -9,9 +9,9 @@ namespace Meseta_Verde.Application.Features.Productos.Queries
 
     public class GetProductoByIdQueryHandler : IRequestHandler<GetProductoByIdQuery, Result<ProductoDto?>>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitofWork _unitOfWork;
 
-        public GetProductoByIdQueryHandler(IUnitOfWork unitOfWork)
+        public GetProductoByIdQueryHandler(IUnitofWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }

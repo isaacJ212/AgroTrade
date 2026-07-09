@@ -9,9 +9,9 @@ namespace Meseta_Verde.Application.Features.Proveedores.Commands
 
     public class DeleteProveedorCommandHandler : IRequestHandler<DeleteProveedorCommand, Result<bool>>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitofWork _unitOfWork;
 
-        public DeleteProveedorCommandHandler(IUnitOfWork unitOfWork)
+        public DeleteProveedorCommandHandler(IUnitofWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }

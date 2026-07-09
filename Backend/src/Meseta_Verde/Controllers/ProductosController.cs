@@ -13,9 +13,9 @@ namespace Meseta_Verde.Controllers
     public class ProductosController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitofWork _unitOfWork;
 
-        public ProductosController(IMediator mediator, IUnitOfWork unitOfWork)
+        public ProductosController(IMediator mediator, IUnitofWork unitOfWork)
         {
             _mediator = mediator;
             _unitOfWork = unitOfWork;

@@ -9,9 +9,9 @@ namespace Meseta_Verde.Application.Features.Proveedores.Commands
 
     public class UpdateProveedorCommandHandler : IRequestHandler<UpdateProveedorCommand, Result<bool>>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitofWork _unitOfWork;
 
-        public UpdateProveedorCommandHandler(IUnitOfWork unitOfWork)
+        public UpdateProveedorCommandHandler(IUnitofWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }

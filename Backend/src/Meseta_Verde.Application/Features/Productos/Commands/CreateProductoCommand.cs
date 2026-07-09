@@ -9,9 +9,9 @@ namespace Meseta_Verde.Application.Features.Productos.Commands
 
     public class CreateProductoCommandHandler : IRequestHandler<CreateProductoCommand, Result<int>>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitofWork _unitOfWork;
 
-        public CreateProductoCommandHandler(IUnitOfWork unitOfWork)
+        public CreateProductoCommandHandler(IUnitofWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }

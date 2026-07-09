@@ -10,9 +10,9 @@ namespace Meseta_Verde.Application.Features.Proveedores.Queries
 
     public class GetProveedorByIdQueryHandler : IRequestHandler<GetProveedorByIdQuery, Result<ProveedorDto?>>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitofWork _unitOfWork;
 
-        public GetProveedorByIdQueryHandler(IUnitOfWork unitOfWork)
+        public GetProveedorByIdQueryHandler(IUnitofWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }

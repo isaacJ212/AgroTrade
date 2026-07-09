@@ -13,10 +13,10 @@ namespace Meseta_Verde.Application.Features.Proveedores.Queries
     public record GetProveedoresQuery : IRequest<Result<List<ProveedorDto>>>;
     public class GetProveedoresQueryHandler : IRequestHandler<GetProveedoresQuery, Result<List<ProveedorDto>>>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitofWork _unitOfWork;
 
 
-        public GetProveedoresQueryHandler(IUnitOfWork unitOfWork)
+        public GetProveedoresQueryHandler(IUnitofWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
