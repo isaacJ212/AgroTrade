@@ -17,21 +17,24 @@ namespace Meseta_Verde.Infrastructure.Persistence.UnitofWork
         private readonly IRepository<Categoria> _categoriaRepository;
         private readonly IRepository<Producto> _productoRepository;
         private readonly IRepository<Proveedor> _proveedorRepository;
+        private readonly IRepository<Usuario> _usuarioRepository;
         private readonly MesetaVerdeDbContext _context;
         private IDbContextTransaction? _transaction;
-        public UnitOfWork(MesetaVerdeDbContext context, IServiceProvider serviceProvider, IRepository<Categoria> categoriaRepository, IRepository<Producto> productoRepository, IRepository<Proveedor> proveedorRepository)
+        public UnitOfWork(MesetaVerdeDbContext context, IServiceProvider serviceProvider, IRepository<Categoria> categoriaRepository, IRepository<Producto> productoRepository, IRepository<Proveedor> proveedorRepository, IRepository<Usuario> usuarioRepository)
         {
             _context = context;
             _serviceProvider = serviceProvider;
             _categoriaRepository = categoriaRepository;
             _productoRepository = productoRepository;
             _proveedorRepository = proveedorRepository;
+            _usuarioRepository = usuarioRepository;
         }
         //PROPIEDADES DE NAVEGACION DE CONTEXTO
         public IUserRepository Users => _serviceProvider.GetRequiredService<IUserRepository>();
         public IRepository<Categoria> Categorias => _categoriaRepository;
         public IRepository<Producto> Productos => _productoRepository;
         public IRepository<Proveedor> Proveedores => _proveedorRepository;
+        public IRepository<Usuario> Usuarios => _usuarioRepository;
         
         //CONFIGURACIONES DE PERSISTENCIA
         public async Task BeginTransactionAsync(CancellationToken ct)
