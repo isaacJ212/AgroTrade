@@ -8,6 +8,7 @@ using Meseta_Verde.Application.Common.DTOs.InventarioDtos;
 using MediatR;
 using Meseta_Verde.Application.Features.Inventarios;
 using Microsoft.AspNetCore.Components.Forms;
+using Meseta_Verde.Application.Features.Inventarios.Queries;
 
 
 
@@ -37,6 +38,17 @@ namespace Meseta_Verde.Controllers
             
             var result = await _mediator.Send(command, ct);
 
+            return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, result);
+        }
+
+
+
+        [HttpGet]
+        public async Task<ActionResult<Result<List<InventarioDtos>>>> Get(CancellationToken ct)
+        {
+            var query = new GetInventariosQuery();
+            var result = await _mediator.Send(query, ct);
+    
             return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, result);
         }
 
