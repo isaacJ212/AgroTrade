@@ -47,7 +47,7 @@ namespace Meseta_Verde.Application.Features.Inventarios
                 return Result<int>.Failure(404, "Producto no encontrado.");
 
             // 2. Subir imagen a Storage
-            string bucketName = "inventario-fotos"; // O inyectarlo desde configuración
+            string bucketName = "imagenes_meseta_verde"; // O inyectarlo desde configuración
             string uniqueFileName = $"{Guid.NewGuid()}{extension}";
             string fotoUrl = await _storageService.UploadFileAsync(file, bucketName, uniqueFileName, ct);
 
