@@ -47,7 +47,7 @@ namespace Meseta_Verde.Application.Features.Proveedores.Commands
             await _unitOfWork.Proveedores.AddAsync(proveedor, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Result<int>.Succes(201, proveedor.IdProveedor, "Proveedor creado correctamente", true);
+            return Result<int>.Success(201, proveedor.IdProveedor, "Proveedor creado correctamente", true);
 
         }
     }

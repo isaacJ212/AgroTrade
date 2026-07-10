@@ -52,7 +52,7 @@ namespace Meseta_Verde.Application.Features.Proveedores.Commands
             await _unitOfWork.Proveedores.UpdateAsync(proveedor, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Result<bool>.Succes(200, true, "Proveedor actualizado correctamente.", true);
+            return Result<bool>.Success(200, true, "Proveedor actualizado correctamente.", true);
         }
     }
 }

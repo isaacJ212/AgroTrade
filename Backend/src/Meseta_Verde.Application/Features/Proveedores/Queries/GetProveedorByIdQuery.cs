@@ -40,7 +40,7 @@ namespace Meseta_Verde.Application.Features.Proveedores.Queries
                 Biografia = proveedor.Biografia,
                 CalificacionPromedio = proveedor.CalificacionPromedio
             };
-            return Result<ProveedorDto?>.Succes(200, data, "Proveedor obtenido correctamente.", true);
+            return Result<ProveedorDto?>.Success(200, data, "Proveedor obtenido correctamente.", true);
         }
     }
 }

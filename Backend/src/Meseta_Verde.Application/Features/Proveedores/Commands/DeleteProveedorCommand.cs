@@ -41,7 +41,7 @@ namespace Meseta_Verde.Application.Features.Proveedores.Commands
             await _unitOfWork.Proveedores.DeleteAsync(proveedor, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Result<bool>.Succes(200, true, "Proveedor eliminado correctamente.", true);
+            return Result<bool>.Success(200, true, "Proveedor eliminado correctamente.", true);
         }
     }
 }

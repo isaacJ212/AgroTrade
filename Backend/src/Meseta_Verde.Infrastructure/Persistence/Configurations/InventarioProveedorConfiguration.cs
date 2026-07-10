@@ -20,7 +20,7 @@ namespace Meseta_Verde.Infrastructure.Persistence.Configurations
                .HasForeignKey(i => i.IdProducto);
 
             builder.HasOne(i => i.Proveedor)
-               .WithMany()
+               .WithMany(p => p.Inventarios)
                .HasForeignKey(i => i.IdProveedor);
 
             builder.HasMany(i => i.DetallesPedido)

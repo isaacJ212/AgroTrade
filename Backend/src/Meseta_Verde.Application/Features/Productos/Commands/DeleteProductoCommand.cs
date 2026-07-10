@@ -34,7 +34,7 @@ namespace Meseta_Verde.Application.Features.Productos.Commands
             await _unitOfWork.Productos.DeleteAsync(producto, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Result<bool>.Succes(200, true, "Producto eliminado correctamente.", true);
+            return Result<bool>.Success(200, true, "Producto eliminado correctamente.", true);
         }
     }
 }

@@ -27,9 +27,8 @@ namespace Meseta_Verde.Infrastructure.DependencyInjection
            // Configuración de Supabase
             var supabaseUrl = configuration["Supabase:Url"];
             var supabaseKey = configuration["Supabase:ServiceRoleKey"]; // Usamos ServiceRole para escritura interna
-            var options = new SupabaseOptions { AutoConnectRealtime = false };
     
-            services.AddSingleton(provider => new Supabase.Client(supabaseUrl, supabaseKey, options));
+            services.AddSingleton(provider => new Supabase.Client(supabaseUrl, supabaseKey));
             
             //registramos servicio de supabase
             services.AddScoped<IStorageService, SupabaseStorageService>();

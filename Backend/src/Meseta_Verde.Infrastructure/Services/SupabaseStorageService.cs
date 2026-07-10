@@ -19,7 +19,7 @@ namespace Meseta_Verde.Infrastructure.Services
 
         //https://www.youtube.com/watch?v=P8PrW09ZWjw
 
-        public async Task<string> UploadFileAsync(IFormFile file, string bucketName, string fileName, CancellationToken ct)
+        public async Task<string> UploadFileAsync(Stream file, string bucketName, string fileName, CancellationToken ct)
         {
             using var memoryStream = new MemoryStream();
             await file.CopyToAsync(memoryStream, ct);

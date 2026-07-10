@@ -11,7 +11,7 @@ using MediatR;
 
 namespace Meseta_Verde.Application.Features.Inventarios
 {
-    public record CreateInventarioCommand(CreateInventarioDto Dto, IFormFile Foto) : IRequest<Result<int>>;
+    public record CreateInventarioCommand(CreateInventarioDto Dto, Stream Foto, string FileName) : IRequest<Result<int>>;
     public class CreateInventarioCommandHandler : IRequestHandler<CreateInventarioCommand, Result<int>>
     {
         private readonly IUnitofWork _unitOfWork;
@@ -28,13 +28,14 @@ namespace Meseta_Verde.Application.Features.Inventarios
         {
             var dto = request.Dto;
             var file = request.Foto;
+            var fileName = request.FileName;
 
             // 1. Validaciones de la imagen
             if (file == null || file.Length == 0)
                 return Result<int>.Failure(400, "La imagen es obligatoria.");
 
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
-            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            var extension = Path.GetExtension(fileName).ToLowerInvariant();
             if (!allowedExtensions.Contains(extension))
                 return Result<int>.Failure(400, "Formato de imagen no válido.");
 
@@ -75,7 +76,7 @@ namespace Meseta_Verde.Application.Features.Inventarios
             {
                 await _unitOfWork.InventarioProveedor.AddAsync(inventario, ct);
                 await _unitOfWork.CommitAsync(ct);
-                return Result<int>.Succes(201, inventario.IdInventario, "Inventario creado exitosamente.", true);
+                return Result<int>.Success(201, inventario.IdInventario, "Inventario creado exitosamente.", true);
             }
             catch (Exception)
             {

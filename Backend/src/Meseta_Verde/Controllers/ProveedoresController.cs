@@ -112,7 +112,7 @@ namespace Meseta_Verde.Controllers
             await _unitOfWork.Proveedores.UpdateAsync(proveedor, CancellationToken.None);
             await _unitOfWork.SaveChangesAsync(CancellationToken.None);
 
-            return Ok(Result<bool>.Succes(200, true, "Proveedor actualizado parcialmente correctamente.", true));
+            return Ok(Result<bool>.Success(200, true, "Proveedor actualizado parcialmente correctamente.", true));
         }
 
         [HttpDelete("{id}")]

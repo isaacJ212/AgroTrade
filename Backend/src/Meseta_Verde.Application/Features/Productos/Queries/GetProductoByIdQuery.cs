@@ -33,7 +33,7 @@ namespace Meseta_Verde.Application.Features.Productos.Queries
                 Descripcion = producto.Descripcion,
                 UnidadMedida = producto.UnidadMedida
             };
-            return Result<ProductoDto?>.Succes(200, data, "Producto obtenido correctamente.", true);
+            return Result<ProductoDto?>.Success(200, data, "Producto obtenido correctamente.", true);
         }
     }
 }

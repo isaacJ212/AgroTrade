@@ -32,7 +32,7 @@ namespace Meseta_Verde.Application.Features.Productos.Queries
                
             }).ToList();
 
-            return Result<List<ProductoDto>>.Succes(200, data, "Productos obtenidos correctamente.", true);
+            return Result<List<ProductoDto>>.Success(200, data, "Productos obtenidos correctamente.", true);
         }
     }
 }

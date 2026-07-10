@@ -1,4 +1,4 @@
-ï»¿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -15,7 +15,7 @@ namespace Meseta_Verde.Application.Common.DTOs.UsersDtos
         
         public string? Email { get; set; }
 
-        [RegularExpression(@"^[578]\d{7}$", ErrorMessage = "El nÃºmero debe tener 8 dÃ­gitos y comenzar con 5, 7 u 8.")]
+        [RegularExpression(@"^[578]\d{7}$", ErrorMessage = "El número debe tener 8 dígitos y comenzar con 5, 7 u 8.")]
         public string? Telefono { get; set; }
         [MaxLength(200, ErrorMessage = "La Direccion no debe sobrepasar los 200 caracteres")]
         public string? DireccionBase

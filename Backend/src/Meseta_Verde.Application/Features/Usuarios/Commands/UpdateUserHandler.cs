@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Meseta_Verde.Application.Common;
 using Meseta_Verde.Application.Common.DTOs.UsersDtos;
 using Meseta_Verde.Application.Common.Interface;
@@ -32,7 +32,7 @@ namespace Meseta_Verde.Application.Features.Usuarios.Commands
 
                 if (emailOcupado)
                 {
-                    return Result<Unit>.Failure(409, "Email ya está en uso");
+                    return Result<Unit>.Failure(409, "Email ya est� en uso");
                 }
 
                 user.Email = dto.Email;
@@ -43,7 +43,7 @@ namespace Meseta_Verde.Application.Features.Usuarios.Commands
 
             await context.SaveChangesAsync(ct);
 
-            return Result<Unit>.Succes(204, Unit.Value, "Exito", true);
+            return Result<Unit>.Success(204, Unit.Value, "Exito", true);
         }
     }
 }

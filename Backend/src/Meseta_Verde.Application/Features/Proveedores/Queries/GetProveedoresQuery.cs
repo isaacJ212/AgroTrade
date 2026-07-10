@@ -38,7 +38,7 @@ namespace Meseta_Verde.Application.Features.Proveedores.Queries
                 
             }).ToList();
 
-            return Result<List<ProveedorDto>>.Succes(200, data, "Productos Obtenido Correctamente", true);
+            return Result<List<ProveedorDto>>.Success(200, data, "Productos Obtenido Correctamente", true);
 
         }
         

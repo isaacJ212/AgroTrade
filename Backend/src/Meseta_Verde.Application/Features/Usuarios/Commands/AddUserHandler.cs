@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Meseta_Verda.Domain.Entities;
 using Meseta_Verde.Application.Common;
 using Meseta_Verde.Application.Common.DTOs.UsersDtos;
@@ -60,7 +60,7 @@ namespace Meseta_Verde.Application.Features.Usuarios.Commands
                     FechaRegistro = user.FechaRegistro
                 };
 
-                return Result<UserDto>.Succes(201, mapped, "Usuario Registrado", true);
+                return Result<UserDto>.Success(201, mapped, "Usuario Registrado", true);
 
             }
 

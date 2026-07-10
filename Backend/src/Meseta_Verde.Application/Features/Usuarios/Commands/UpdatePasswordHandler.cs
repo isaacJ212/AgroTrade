@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Meseta_Verde.Application.Common;
 using Meseta_Verde.Application.Common.DTOs.UsersDtos;
 using Meseta_Verde.Application.Common.Interface;
@@ -22,11 +22,11 @@ namespace Meseta_Verde.Application.Features.Usuarios.Commands
 
             var isValidPassword = BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, userToUpdate.PasswordHash);
             if (!isValidPassword)
-                return Result<Unit>.Failure(400, "Contraseña Incorrecta");
+                return Result<Unit>.Failure(400, "Contrase�a Incorrecta");
 
             userToUpdate.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
 
-            return Result<Unit>.Succes(204, Unit.Value, "Exito", true);
+            return Result<Unit>.Success(204, Unit.Value, "Exito", true);
         }
     }
 }
