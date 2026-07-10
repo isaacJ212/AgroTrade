@@ -53,5 +53,17 @@ namespace Meseta_Verde.Controllers
         }
 
 
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Result<InventarioDtos?>>> GetById(int id, CancellationToken ct)
+        {
+            var query = new GetInventarioByIdQuery(id);
+            var result = await _mediator.Send(query, ct);
+    
+    
+            return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, result);
+        }
+
+
     }
 }
