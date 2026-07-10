@@ -9,6 +9,7 @@ using MediatR;
 using Meseta_Verde.Application.Features.Inventarios;
 using Microsoft.AspNetCore.Components.Forms;
 using Meseta_Verde.Application.Features.Inventarios.Queries;
+using Meseta_Verde.Application.Features.Inventarios.Commands;
 
 
 
@@ -60,6 +61,17 @@ namespace Meseta_Verde.Controllers
             var query = new GetInventarioByIdQuery(id);
             var result = await _mediator.Send(query, ct);
     
+    
+            return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, result);
+        }
+
+
+
+        [HttpPatch("{id}")]
+        public async Task<ActionResult<Result<bool>>> Patch([FromRoute] int id, [FromBody] PatchInventarioDto dto, CancellationToken ct)
+        {
+            var command = new PatchInventarioCommand(id, dto);
+            var result = await _mediator.Send(command, ct);
     
             return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, result);
         }
