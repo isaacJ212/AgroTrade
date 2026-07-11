@@ -77,5 +77,16 @@ namespace Meseta_Verde.Controllers
         }
 
 
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Result<bool>>> Update([FromRoute] int id, [FromBody] UpdateInventarioDto dto, CancellationToken ct)
+        {
+            var command = new UpdateInventarioCommand(id, dto);
+            var result = await _mediator.Send(command, ct);
+    
+            return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, result);
+        }
+
+
     }
 }
