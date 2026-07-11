@@ -88,5 +88,16 @@ namespace Meseta_Verde.Controllers
         }
 
 
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<Result<bool>>> Delete([FromRoute] int id, CancellationToken ct)
+        {
+            var command = new DeleteInventarioCommand(id);
+            var result = await _mediator.Send(command, ct);
+    
+            return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, result);
+        }
+
+
     }
 }
