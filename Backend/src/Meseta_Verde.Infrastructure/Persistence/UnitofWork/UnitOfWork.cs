@@ -19,9 +19,10 @@ namespace Meseta_Verde.Infrastructure.Persistence.UnitofWork
         private readonly IRepository<Proveedor> _proveedorRepository;
         private readonly IRepository<Usuario> _usuarioRepository;
         private readonly IRepository<InventarioProveedor> _inventarioProveedorRepository;
+        private readonly IRepository<ImpactoSocial> _impactoSocialRepository;
         private readonly MesetaVerdeDbContext _context;
         private IDbContextTransaction? _transaction;
-        public UnitOfWork(MesetaVerdeDbContext context, IServiceProvider serviceProvider, IRepository<Categoria> categoriaRepository, IRepository<Producto> productoRepository, IRepository<Proveedor> proveedorRepository, IRepository<Usuario> usuarioRepository, IRepository<InventarioProveedor> inventarioProveedorRepository)
+        public UnitOfWork(MesetaVerdeDbContext context, IServiceProvider serviceProvider, IRepository<Categoria> categoriaRepository, IRepository<Producto> productoRepository, IRepository<Proveedor> proveedorRepository, IRepository<Usuario> usuarioRepository, IRepository<InventarioProveedor> inventarioProveedorRepository, IRepository<ImpactoSocial> impactoSocialRepository)
         {
             _context = context;
             _serviceProvider = serviceProvider;
@@ -30,6 +31,7 @@ namespace Meseta_Verde.Infrastructure.Persistence.UnitofWork
             _proveedorRepository = proveedorRepository;
             _usuarioRepository = usuarioRepository;
             _inventarioProveedorRepository = inventarioProveedorRepository;
+            _impactoSocialRepository = impactoSocialRepository;
         }
         //PROPIEDADES DE NAVEGACION DE CONTEXTO
         public IUserRepository Users => _serviceProvider.GetRequiredService<IUserRepository>();
@@ -38,6 +40,7 @@ namespace Meseta_Verde.Infrastructure.Persistence.UnitofWork
         public IRepository<Proveedor> Proveedores => _proveedorRepository;
         public IRepository<Usuario> Usuarios => _usuarioRepository;
         public IRepository<InventarioProveedor> InventarioProveedor => _inventarioProveedorRepository;
+        public IRepository<ImpactoSocial> ImpactosSociales => _impactoSocialRepository;
         
         //CONFIGURACIONES DE PERSISTENCIA
         public async Task BeginTransactionAsync(CancellationToken ct)
