@@ -34,6 +34,22 @@ namespace Meseta_Verde.Controllers
             var result = await _mediator.Send(query, ct);
             return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, result);
         }
+
+
+
+
+        [HttpGet("proveedor/{id}")] 
+        public async Task<ActionResult<Result<ImpactoProveedorDto>>> GetByProveedor(int id, CancellationToken ct)
+        {
+            var query = new GetImpactoProveedorQuery(id);
+            var result = await _mediator.Send(query, ct);
+    
+            return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, result);
+        }
+
+
+
+
         
     }
 }
