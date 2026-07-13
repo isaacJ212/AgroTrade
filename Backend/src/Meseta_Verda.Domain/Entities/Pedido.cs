@@ -23,5 +23,6 @@ namespace Meseta_Verda.Domain.Entities
         
        
         public ICollection<DetallePedido> Detalles { get; set; } = new List<DetallePedido>();
+        public ICollection<ImpactoSocial> ImpactosSociales { get; set; } = new List<ImpactoSocial>();
     }
 }

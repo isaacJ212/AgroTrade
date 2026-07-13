@@ -20,5 +20,6 @@ namespace Meseta_Verda.Domain.Entities
         public float Cantidad { get; set; }
         public float PrecioUnitario { get; set; }
         public decimal Subtotal { get; set; }
+        public ImpactoSocial? ImpactoSocial { get; set; }
     }
 }
