@@ -13,9 +13,9 @@ namespace Meseta_Verde.Controllers
     public class ProveedoresController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitofWork _unitOfWork;
 
-        public ProveedoresController(IMediator mediator, IUnitOfWork unitOfWork)
+        public ProveedoresController(IMediator mediator, IUnitofWork unitOfWork)
         {
             _mediator = mediator;
             _unitOfWork = unitOfWork;
@@ -112,7 +112,7 @@ namespace Meseta_Verde.Controllers
             await _unitOfWork.Proveedores.UpdateAsync(proveedor, CancellationToken.None);
             await _unitOfWork.SaveChangesAsync(CancellationToken.None);
 
-            return Ok(Result<bool>.Succes(200, true, "Proveedor actualizado parcialmente correctamente.", true));
+            return Ok(Result<bool>.Success(200, true, "Proveedor actualizado parcialmente correctamente.", true));
         }
 
         [HttpDelete("{id}")]

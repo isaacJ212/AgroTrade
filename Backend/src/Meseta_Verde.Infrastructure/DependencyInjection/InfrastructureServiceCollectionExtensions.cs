@@ -14,6 +14,7 @@ namespace Meseta_Verde.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
+            //configuracion de posgres``
             var connectionString = configuration.GetConnectionString("MesetaVerdeDatabase")
                 ?? configuration.GetConnectionString("DefaultConnection");
 
@@ -21,7 +22,17 @@ namespace Meseta_Verde.Infrastructure.DependencyInjection
                 options.UseNpgsql(connectionString)
                        .UseSnakeCaseNamingConvention());
 
-           
+         
+
+           // Configuración de Supabase
+            var supabaseUrl = configuration["Supabase:Url"];
+            var supabaseKey = configuration["Supabase:ServiceRoleKey"]; // Usamos ServiceRole para escritura interna
+    
+            services.AddSingleton(provider => new Supabase.Client(supabaseUrl, supabaseKey));
+            
+            //registramos servicio de supabase
+            services.AddScoped<IStorageService, SupabaseStorageService>();
+
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<ITokenServices, TokenServices>();
             services.AddScoped<IUnitofWork, UnitOfWork>();

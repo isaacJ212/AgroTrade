@@ -29,7 +29,7 @@ namespace Meseta_Verde.Application.Features.Categorias.Commands
             await _unitOfWork.Categorias.AddAsync(categoria, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Result<int>.Succes(201, categoria.IdCategoria, "Categoría creada correctamente.", true);
+            return Result<int>.Success(201, categoria.IdCategoria, "Categoría creada correctamente.", true);
         }
     }
 }

@@ -8,9 +8,9 @@ namespace Meseta_Verde.Application.Features.Productos.Commands
 
     public class UpdateProductoCommandHandler : IRequestHandler<UpdateProductoCommand, Result<bool>>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitofWork _unitOfWork;
 
-        public UpdateProductoCommandHandler(IUnitOfWork unitOfWork)
+        public UpdateProductoCommandHandler(IUnitofWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -51,7 +51,7 @@ namespace Meseta_Verde.Application.Features.Productos.Commands
             await _unitOfWork.Productos.UpdateAsync(producto, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Result<bool>.Succes(200, true, "Producto actualizado correctamente.", true);
+            return Result<bool>.Success(200, true, "Producto actualizado correctamente.", true);
         }
     }
 }

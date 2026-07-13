@@ -1,4 +1,4 @@
-﻿using Meseta_Verda.Domain.Entities;
+using Meseta_Verda.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;

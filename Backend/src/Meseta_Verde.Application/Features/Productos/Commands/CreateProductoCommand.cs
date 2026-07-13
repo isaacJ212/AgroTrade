@@ -9,9 +9,9 @@ namespace Meseta_Verde.Application.Features.Productos.Commands
 
     public class CreateProductoCommandHandler : IRequestHandler<CreateProductoCommand, Result<int>>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitofWork _unitOfWork;
 
-        public CreateProductoCommandHandler(IUnitOfWork unitOfWork)
+        public CreateProductoCommandHandler(IUnitofWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -44,7 +44,7 @@ namespace Meseta_Verde.Application.Features.Productos.Commands
             await _unitOfWork.Productos.AddAsync(producto, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Result<int>.Succes(201, producto.IdProducto, "Producto creado correctamente.", true);
+            return Result<int>.Success(201, producto.IdProducto, "Producto creado correctamente.", true);
         }
     }
 }

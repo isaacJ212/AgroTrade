@@ -39,7 +39,7 @@ namespace Meseta_Verde.Application.Features.Categorias.Commands
             await _unitOfWork.Categorias.UpdateAsync(categoria, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Result<bool>.Succes(200, true, "Categoría actualizada correctamente.", true);
+            return Result<bool>.Success(200, true, "Categoría actualizada correctamente.", true);
         }
     }
 }

@@ -9,9 +9,9 @@ namespace Meseta_Verde.Application.Features.Proveedores.Commands
 
     public class DeleteProveedorCommandHandler : IRequestHandler<DeleteProveedorCommand, Result<bool>>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitofWork _unitOfWork;
 
-        public DeleteProveedorCommandHandler(IUnitOfWork unitOfWork)
+        public DeleteProveedorCommandHandler(IUnitofWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -41,7 +41,7 @@ namespace Meseta_Verde.Application.Features.Proveedores.Commands
             await _unitOfWork.Proveedores.DeleteAsync(proveedor, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Result<bool>.Succes(200, true, "Proveedor eliminado correctamente.", true);
+            return Result<bool>.Success(200, true, "Proveedor eliminado correctamente.", true);
         }
     }
 }

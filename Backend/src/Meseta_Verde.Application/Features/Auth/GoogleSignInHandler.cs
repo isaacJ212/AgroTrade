@@ -1,4 +1,4 @@
-﻿using Google.Apis.Auth;
+using Google.Apis.Auth;
 using MediatR;
 using Meseta_Verda.Domain.Entities;
 using Meseta_Verde.Application.Common;
@@ -66,7 +66,7 @@ namespace Meseta_Verde.Application.Features.Auth
             }
             var jwtToken = await _tokenServices.GenerateTokenAsync(user);
 
-            return Result<LoginResponse>.Succes(200, new LoginResponse { UserName = user.NombreCompleto, Token = jwtToken }, "Usuario Registrado Con Google Exitosamente", true);
+            return Result<LoginResponse>.Success(200, new LoginResponse { UserName = user.NombreCompleto, Token = jwtToken }, "Usuario Registrado Con Google Exitosamente", true);
         }
     }
 }

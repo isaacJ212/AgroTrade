@@ -13,9 +13,9 @@ namespace Meseta_Verde.Controllers
     public class ProductosController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitofWork _unitOfWork;
 
-        public ProductosController(IMediator mediator, IUnitOfWork unitOfWork)
+        public ProductosController(IMediator mediator, IUnitofWork unitOfWork)
         {
             _mediator = mediator;
             _unitOfWork = unitOfWork;
@@ -105,7 +105,7 @@ namespace Meseta_Verde.Controllers
             await _unitOfWork.Productos.UpdateAsync(producto, CancellationToken.None);
             await _unitOfWork.SaveChangesAsync(CancellationToken.None);
 
-            return Ok(Result<bool>.Succes(200, true, "Producto actualizado parcialmente correctamente.", true));
+            return Ok(Result<bool>.Success(200, true, "Producto actualizado parcialmente correctamente.", true));
         }
 
         [HttpGet("{id}")]

@@ -9,9 +9,9 @@ namespace Meseta_Verde.Application.Features.Productos.Queries
 
     public class GetProductoByIdQueryHandler : IRequestHandler<GetProductoByIdQuery, Result<ProductoDto?>>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitofWork _unitOfWork;
 
-        public GetProductoByIdQueryHandler(IUnitOfWork unitOfWork)
+        public GetProductoByIdQueryHandler(IUnitofWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -33,7 +33,7 @@ namespace Meseta_Verde.Application.Features.Productos.Queries
                 Descripcion = producto.Descripcion,
                 UnidadMedida = producto.UnidadMedida
             };
-            return Result<ProductoDto?>.Succes(200, data, "Producto obtenido correctamente.", true);
+            return Result<ProductoDto?>.Success(200, data, "Producto obtenido correctamente.", true);
         }
     }
 }
