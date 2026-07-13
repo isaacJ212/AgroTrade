@@ -49,6 +49,15 @@ namespace Meseta_Verde.Controllers
 
 
 
+        [HttpGet("historial/{idProveedor}")]
+        public async Task<ActionResult<Result<List<HistorialImpactoDto>>>> GetHistorial(int idProveedor, CancellationToken ct)
+        {
+            var query = new GetHistorialImpactoQuery(idProveedor);
+            var result = await _mediator.Send(query, ct);
+            return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, result);
+        }
+
+
 
         
     }
