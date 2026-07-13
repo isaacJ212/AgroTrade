@@ -70,6 +70,15 @@ namespace Meseta_Verde.Controllers
         }
 
 
+        [HttpGet("estadisticas")]
+        public async Task<ActionResult<Result<List<EstadisticaImpactoDto>>>> GetEstadisticas([FromQuery] DateTime fechaInicio, [FromQuery] DateTime fechaFin, CancellationToken ct)
+        {
+            var query = new GetEstadisticasImpactoQuery(fechaInicio, fechaFin);
+            var result = await _mediator.Send(query, ct);
+            return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, result);
+        }
+
+
 
         
     }
