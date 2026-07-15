@@ -23,5 +23,7 @@ namespace Meseta_Verde.Application.Common.Interface
         IRepository<Proveedor> Proveedores {get;}
         IRepository<Usuario> Usuarios{get;}
         IRepository<InventarioProveedor> InventarioProveedor{get;}
+    
+        IRepository<ImpactoSocial> ImpactosSociales { get; }
     }
 }
