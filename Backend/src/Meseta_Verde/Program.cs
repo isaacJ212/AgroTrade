@@ -77,9 +77,25 @@ namespace Meseta_Verde
                     }
                 });
             });
+
+            //uso de corqs
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+            });
+
+
+
+
+
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+          
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -87,6 +103,7 @@ namespace Meseta_Verde
             }
 
             app.UseHttpsRedirection();
+            app.UseCors("AllowAll");
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseMiddleware<ExceptionHandlingMiddleware>();
