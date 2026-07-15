@@ -33,6 +33,7 @@ namespace Meseta_Verde.Infrastructure.Persistence.UnitofWork
         }
         //PROPIEDADES DE NAVEGACION DE CONTEXTO
         public IUserRepository Users => _serviceProvider.GetRequiredService<IUserRepository>();
+        public IDeliveryRequestRepository SolicitudRepartidor => _serviceProvider.GetRequiredService<IDeliveryRequestRepository>();
         public IRepository<Categoria> Categorias => _categoriaRepository;
         public IRepository<Producto> Productos => _productoRepository;
         public IRepository<Proveedor> Proveedores => _proveedorRepository;
@@ -77,6 +78,15 @@ namespace Meseta_Verde.Infrastructure.Persistence.UnitofWork
         public async Task RollbackAsync(CancellationToken ct)
         {
             await _transaction.RollbackAsync(ct);
+        }
+
+        public async Task DisposeAsync()
+        {
+            if (_transaction != null)
+            {
+                await _transaction.DisposeAsync();
+            }
+            await _context.DisposeAsync();
         }
     }
 }

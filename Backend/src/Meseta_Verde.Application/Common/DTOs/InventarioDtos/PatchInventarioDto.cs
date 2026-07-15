@@ -24,7 +24,7 @@ namespace Meseta_Verde.Application.Common.DTOs.InventarioDtos
         public bool? EsOfertaExcedente { get; set; }
         
         public float? PorcentajeDescuento { get; set; }
-        
+  
         public DateTime? FechaCosecha { get; set; }
         
         public bool? Disponible { get; set; }
