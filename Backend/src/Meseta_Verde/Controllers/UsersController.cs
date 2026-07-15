@@ -13,6 +13,7 @@ namespace Meseta_Verde.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class UsersController : ControllerBase
     {
         private readonly IHttpContextAccessor _contextAccessor;
@@ -53,7 +54,7 @@ namespace Meseta_Verde.Controllers
         /// </summary>
         /// <param name="dto">Objeto con los datos básicos (Nombre, Email, Password, etc).</param>
         /// <param name="ct">Token de cancelación.</param>
-        [Authorize]
+        
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateUserDto dto, CancellationToken ct)
         {
