@@ -4,6 +4,7 @@ using Meseta_Verda.Domain.Events;
 using Meseta_Verde.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Meseta_Verde.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(MesetaVerdeDbContext))]
-    partial class MesetaVerdeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260711221831_Cola_SOlicitudes")]
+    partial class Cola_SOlicitudes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -145,10 +148,6 @@ namespace Meseta_Verde.Infrastructure.Persistence.Migrations
                         .HasColumnType("real")
                         .HasColumnName("beneficio_extra_productor");
 
-                    b.Property<DateTime>("FechaRegistro")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("fecha_registro");
-
                     b.Property<int>("IdDetallePedido")
                         .HasColumnType("integer")
                         .HasColumnName("id_detalle_pedido");
@@ -169,7 +168,6 @@ namespace Meseta_Verde.Infrastructure.Persistence.Migrations
                         .HasName("pk_impacto_social");
 
                     b.HasIndex("IdDetallePedido")
-                        .IsUnique()
                         .HasDatabaseName("ix_impacto_social_id_detalle_pedido");
 
                     b.HasIndex("IdPedido")
@@ -857,21 +855,21 @@ namespace Meseta_Verde.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Meseta_Verda.Domain.Entities.ImpactoSocial", b =>
                 {
                     b.HasOne("Meseta_Verda.Domain.Entities.DetallePedido", "DetallePedido")
-                        .WithOne("ImpactoSocial")
-                        .HasForeignKey("Meseta_Verda.Domain.Entities.ImpactoSocial", "IdDetallePedido")
+                        .WithMany()
+                        .HasForeignKey("IdDetallePedido")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_impacto_social_detalles_pedido_id_detalle_pedido");
 
                     b.HasOne("Meseta_Verda.Domain.Entities.Pedido", "Pedido")
-                        .WithMany("ImpactosSociales")
+                        .WithMany()
                         .HasForeignKey("IdPedido")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_impacto_social_pedidos_id_pedido");
 
                     b.HasOne("Meseta_Verda.Domain.Entities.Proveedor", "Proveedor")
-                        .WithMany("ImpactosSociales")
+                        .WithMany()
                         .HasForeignKey("IdProveedor")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
@@ -1103,11 +1101,6 @@ namespace Meseta_Verde.Infrastructure.Persistence.Migrations
                     b.Navigation("Participantes");
                 });
 
-            modelBuilder.Entity("Meseta_Verda.Domain.Entities.DetallePedido", b =>
-                {
-                    b.Navigation("ImpactoSocial");
-                });
-
             modelBuilder.Entity("Meseta_Verda.Domain.Entities.InventarioProveedor", b =>
                 {
                     b.Navigation("DetallesPedido");
@@ -1116,8 +1109,6 @@ namespace Meseta_Verde.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Meseta_Verda.Domain.Entities.Pedido", b =>
                 {
                     b.Navigation("Detalles");
-
-                    b.Navigation("ImpactosSociales");
                 });
 
             modelBuilder.Entity("Meseta_Verda.Domain.Entities.Permiso", b =>
@@ -1132,10 +1123,6 @@ namespace Meseta_Verde.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Meseta_Verda.Domain.Entities.Proveedor", b =>
                 {
-
-                    b.Navigation("ImpactosSociales");
-
-
                     b.Navigation("Inventarios");
 
                     b.Navigation("Productos");

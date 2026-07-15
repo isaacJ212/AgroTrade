@@ -14,8 +14,10 @@ namespace Meseta_Verde.Application.Common.Interface
         Task<int> SaveChangesAsync(CancellationToken ct);
         Task CommitAsync(CancellationToken ct);
         Task RollbackAsync(CancellationToken ct);
+        Task DisposeAsync();
         // NAVEGACION PARA REPOSITORIOS 
         public IUserRepository Users { get; }
+        public IDeliveryRequestRepository SolicitudRepartidor { get; }
         IRepository<Categoria> Categorias { get; }
         IRepository<Producto> Productos {get;}
         IRepository<Proveedor> Proveedores {get;}
