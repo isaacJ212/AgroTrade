@@ -55,5 +55,21 @@ namespace Meseta_Verde.Infrastructure.Repository
 
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
             => await _dbSet.AsNoTracking().Where(predicate).ToListAsync(cancellationToken);
+
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken, params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = _dbSet;
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            return await query.AsNoTracking().Where(predicate).ToListAsync(cancellationToken);
+        }
+
+        public IQueryable<T> GetQueryable()
+        {
+            return _dbSet;
+        }
     }
 }
