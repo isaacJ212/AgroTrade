@@ -33,5 +33,22 @@ namespace Meseta_Verde.Controllers
             var result = await _mediator.Send(new StartConversacionCommand(dto), ct);
             return StatusCode(result.StatusCode, result);
         }
+
+
+
+        /// <summary>
+        /// Envía un nuevo mensaje dentro de una conversación activa.
+        /// </summary>
+        [HttpPost("{idConversacion}/mensajes")]
+        public async Task<IActionResult> SendMessage([FromRoute] int idConversacion, [FromBody] SendMessageDto dto, CancellationToken ct)
+        {
+            if (idConversacion != dto.IdConversacion)
+                return BadRequest(Result<int>.Failure(400, "El ID de la ruta no coincide con el cuerpo de la petición."));
+
+            var result = await _mediator.Send(new SendMessageCommand(dto), ct);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        
     }
 }
