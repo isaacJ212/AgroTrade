@@ -30,5 +30,6 @@ namespace Meseta_Verde.Application.Common.Interface
         IRepository<DetallePedido> DetallesPedido { get; }
         IRepository<Conversacion> Conversaciones {get;}
         IRepository<ConversacionParticipante> ConversacionParticipantes {get;}
+        IRepository<Mensaje> Mensajes {get;}
     }
 }
