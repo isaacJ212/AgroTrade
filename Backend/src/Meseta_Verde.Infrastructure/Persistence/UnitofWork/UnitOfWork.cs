@@ -20,9 +20,12 @@ namespace Meseta_Verde.Infrastructure.Persistence.UnitofWork
         private readonly IRepository<Usuario> _usuarioRepository;
         private readonly IRepository<InventarioProveedor> _inventarioProveedorRepository;
         private readonly IRepository<ImpactoSocial> _impactoSocialRepository;
+        private readonly IRepository<Valoracion> _valoracionRepository;
+        private readonly IRepository<Pedido> _pedidoRepository;
+        private readonly IRepository<DetallePedido> _detallePedidoRepository;
         private readonly MesetaVerdeDbContext _context;
         private IDbContextTransaction? _transaction;
-        public UnitOfWork(MesetaVerdeDbContext context, IServiceProvider serviceProvider, IRepository<Categoria> categoriaRepository, IRepository<Producto> productoRepository, IRepository<Proveedor> proveedorRepository, IRepository<Usuario> usuarioRepository, IRepository<InventarioProveedor> inventarioProveedorRepository, IRepository<ImpactoSocial> impactoSocialRepository)
+        public UnitOfWork(MesetaVerdeDbContext context, IServiceProvider serviceProvider, IRepository<Categoria> categoriaRepository, IRepository<Producto> productoRepository, IRepository<Proveedor> proveedorRepository, IRepository<Usuario> usuarioRepository, IRepository<InventarioProveedor> inventarioProveedorRepository, IRepository<ImpactoSocial> impactoSocialRepository, IRepository<Valoracion> valoracionRepository, IRepository<Pedido> pedidoRepository, IRepository<DetallePedido> detallePedidoRepository)
         {
             _context = context;
             _serviceProvider = serviceProvider;
@@ -32,6 +35,9 @@ namespace Meseta_Verde.Infrastructure.Persistence.UnitofWork
             _usuarioRepository = usuarioRepository;
             _inventarioProveedorRepository = inventarioProveedorRepository;
             _impactoSocialRepository = impactoSocialRepository;
+            _valoracionRepository = valoracionRepository;
+            _pedidoRepository = pedidoRepository;
+            _detallePedidoRepository = detallePedidoRepository;
         }
         //PROPIEDADES DE NAVEGACION DE CONTEXTO
         public IUserRepository Users => _serviceProvider.GetRequiredService<IUserRepository>();
@@ -42,6 +48,9 @@ namespace Meseta_Verde.Infrastructure.Persistence.UnitofWork
         public IRepository<Usuario> Usuarios => _usuarioRepository;
         public IRepository<InventarioProveedor> InventarioProveedor => _inventarioProveedorRepository;
         public IRepository<ImpactoSocial> ImpactosSociales => _impactoSocialRepository;
+        public IRepository<Valoracion> Valoraciones => _valoracionRepository;
+        public IRepository<Pedido> Pedidos => _pedidoRepository;
+        public IRepository<DetallePedido> DetallesPedido => _detallePedidoRepository;
         
         //CONFIGURACIONES DE PERSISTENCIA
         public async Task BeginTransactionAsync(CancellationToken ct)

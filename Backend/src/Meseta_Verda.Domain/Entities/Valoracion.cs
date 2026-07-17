@@ -16,8 +16,12 @@ namespace Meseta_Verda.Domain.Entities
         public int IdUsuarioCliente { get; set; }
         public Usuario UsuarioCliente { get; set; } = null!;
 
+        public int IdProveedor { get; set; }
+        public Proveedor Proveedor { get; set; } = null!;
+
         public string? TipoValoracion { get; set; }
-        public int Puntuacion { get; set; }
+        public int Puntuacion { get; set; } // 1-5
         public string? Comentario { get; set; }
+        public DateTime FechaValoracion { get; set; } = DateTime.UtcNow;
     }
 }
