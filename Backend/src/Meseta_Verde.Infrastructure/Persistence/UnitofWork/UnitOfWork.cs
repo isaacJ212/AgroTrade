@@ -23,9 +23,11 @@ namespace Meseta_Verde.Infrastructure.Persistence.UnitofWork
         private readonly IRepository<Valoracion> _valoracionRepository;
         private readonly IRepository<Pedido> _pedidoRepository;
         private readonly IRepository<DetallePedido> _detallePedidoRepository;
+        private readonly IRepository<Conversacion> _conversacionRepository;//
+        private readonly IRepository<ConversacionParticipante> _ConversacionParticipanteRepository;
         private readonly MesetaVerdeDbContext _context;
         private IDbContextTransaction? _transaction;
-        public UnitOfWork(MesetaVerdeDbContext context, IServiceProvider serviceProvider, IRepository<Categoria> categoriaRepository, IRepository<Producto> productoRepository, IRepository<Proveedor> proveedorRepository, IRepository<Usuario> usuarioRepository, IRepository<InventarioProveedor> inventarioProveedorRepository, IRepository<ImpactoSocial> impactoSocialRepository, IRepository<Valoracion> valoracionRepository, IRepository<Pedido> pedidoRepository, IRepository<DetallePedido> detallePedidoRepository)
+        public UnitOfWork(MesetaVerdeDbContext context, IServiceProvider serviceProvider, IRepository<Categoria> categoriaRepository, IRepository<Producto> productoRepository, IRepository<Proveedor> proveedorRepository, IRepository<Usuario> usuarioRepository, IRepository<InventarioProveedor> inventarioProveedorRepository, IRepository<ImpactoSocial> impactoSocialRepository, IRepository<Valoracion> valoracionRepository, IRepository<Pedido> pedidoRepository, IRepository<DetallePedido> detallePedidoRepository, IRepository<Conversacion> conversacionRepository, IRepository<ConversacionParticipante> ConversacionParticpanteRepository)
         {
             _context = context;
             _serviceProvider = serviceProvider;
@@ -38,6 +40,8 @@ namespace Meseta_Verde.Infrastructure.Persistence.UnitofWork
             _valoracionRepository = valoracionRepository;
             _pedidoRepository = pedidoRepository;
             _detallePedidoRepository = detallePedidoRepository;
+            _conversacionRepository = conversacionRepository;
+            _ConversacionParticipanteRepository = ConversacionParticpanteRepository;
         }
         //PROPIEDADES DE NAVEGACION DE CONTEXTO
         public IUserRepository Users => _serviceProvider.GetRequiredService<IUserRepository>();
@@ -51,6 +55,8 @@ namespace Meseta_Verde.Infrastructure.Persistence.UnitofWork
         public IRepository<Valoracion> Valoraciones => _valoracionRepository;
         public IRepository<Pedido> Pedidos => _pedidoRepository;
         public IRepository<DetallePedido> DetallesPedido => _detallePedidoRepository;
+        public IRepository<Conversacion> Conversaciones => _conversacionRepository;
+        public IRepository<ConversacionParticipante> ConversacionParticipantes => _ConversacionParticipanteRepository;
         
         //CONFIGURACIONES DE PERSISTENCIA
         public async Task BeginTransactionAsync(CancellationToken ct)
