@@ -8,6 +8,7 @@ using Meseta_Verde.Application.Common;
 using Meseta_Verde.Application.Common.DTOs.ConversacionesDtos;
 using Meseta_Verde.Application.Features.Conversaciones.Commands;
 using Microsoft.AspNetCore.Authorization;
+using Meseta_Verde.Application.Features.Conversaciones.Queries;
 
 
 namespace Meseta_Verde.Controllers
@@ -48,6 +49,19 @@ namespace Meseta_Verde.Controllers
             var result = await _mediator.Send(new SendMessageCommand(dto), ct);
             return StatusCode(result.StatusCode, result);
         }
+
+
+
+        /// <summary>
+        /// Obtiene el historial paginado de mensajes de una conversación.
+        /// </summary>
+        [HttpGet("{idConversacion}/mensajes")]
+        public async Task<IActionResult> GetHistorial([FromRoute] int idConversacion, CancellationToken ct, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 20)
+        {
+            var result = await _mediator.Send(new GetHistorialConversacionQuery(idConversacion, pageIndex, pageSize), ct);
+            return StatusCode(result.StatusCode, result);
+        }
+        
 
         
     }
