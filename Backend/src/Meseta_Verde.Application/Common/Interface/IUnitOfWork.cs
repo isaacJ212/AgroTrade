@@ -23,5 +23,12 @@ namespace Meseta_Verde.Application.Common.Interface
         IRepository<InventarioProveedor> InventarioProveedor{get;}
     
         IRepository<ImpactoSocial> ImpactosSociales { get; }
+
+
+
+
+
+
+        IRepository<Suscripcion> Suscripciones{get;}
     }
 }
