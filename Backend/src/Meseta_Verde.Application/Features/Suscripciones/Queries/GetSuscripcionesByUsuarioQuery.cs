@@ -2,6 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediatR;
+using Meseta_Verde.Application.Common;
+using Meseta_Verde.Application.Common.DTOs.SuscripcionesDtos;
+using Meseta_Verde.Application.Common.Interface;
+
 
 namespace Meseta_Verde.Application.Features.Suscripciones.Queries
 {
@@ -45,7 +50,7 @@ namespace Meseta_Verde.Application.Features.Suscripciones.Queries
                     RenovacionAutomatica = s.RenovacionAutomatica,
                     CreadaEn = s.CreadaEn
                 }).ToList();
-                
+
 
             return Result<List<SuscripcionDto>>.Success(200, historial, "Historial de suscripciones obtenido con éxito.", true);
         }
