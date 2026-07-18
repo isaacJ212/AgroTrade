@@ -6,6 +6,7 @@ using MediatR;
 using Meseta_Verde.Application.Common;
 using Meseta_Verde.Application.Common.DTOs.SuscripcionesDtos;
 using Meseta_Verde.Application.Features.Suscripciones.Commands;
+using Meseta_Verde.Application.Features.Suscripciones.Queries;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -43,6 +44,19 @@ namespace Meseta_Verde.Controllers
             var result = await _mediator.Send(new CancelSuscripcionCommand(idSuscripcion), ct);
             return StatusCode(result.StatusCode, result);
         }
+
+
+         /// <summary>
+        /// Obtiene todo el historial de suscripciones de un usuario específico.
+        /// </summary>
+        [HttpGet("usuario/{idUsuario}")]
+        public async Task<IActionResult> GetByUsuario([FromRoute] int idUsuario, CancellationToken ct = default)
+        {
+            var result = await _mediator.Send(new GetSuscripcionesByUsuarioQuery(idUsuario), ct);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        
         
     }
 }
