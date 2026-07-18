@@ -32,6 +32,17 @@ namespace Meseta_Verde.Controllers
             var result = await _mediator.Send(new CreateSuscripcionCommand(dto), ct);
             return StatusCode(result.StatusCode, result);
         }
+
+
+        /// <summary>
+        /// Cancela una suscripción activa (desactiva la renovación automática).
+        /// </summary>
+        [HttpPut("{idSuscripcion}/cancelar")]
+        public async Task<IActionResult> Cancel([FromRoute] int idSuscripcion, CancellationToken ct = default)
+        {
+            var result = await _mediator.Send(new CancelSuscripcionCommand(idSuscripcion), ct);
+            return StatusCode(result.StatusCode, result);
+        }
         
     }
 }
