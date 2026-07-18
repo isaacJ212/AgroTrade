@@ -29,6 +29,6 @@ namespace Meseta_Verde.Application.Common.Interface
 
 
 
-        IRepository<Suscripcion> Suscripciones{get;}
+        IRepository<SuscripcionApp> Suscripciones{get;}
     }
 }
