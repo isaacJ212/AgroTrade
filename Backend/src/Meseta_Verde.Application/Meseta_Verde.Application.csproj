@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Common\DTOs\SolicitudesRoles\**" />
+    <EmbeddedResource Remove="Common\DTOs\SolicitudesRoles\**" />
+    <None Remove="Common\DTOs\SolicitudesRoles\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Common\Exception\" />
   </ItemGroup>
 

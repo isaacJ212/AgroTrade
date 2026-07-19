@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
+using Npgsql;
 
 
 namespace Meseta_Verde
@@ -19,11 +20,13 @@ namespace Meseta_Verde
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            var dataSourceBuilder = new NpgsqlDataSourceBuilder(builder.Configuration.GetConnectionString("MesetaVerdeDatabase"));
+            dataSourceBuilder.EnableDynamicJson(); 
+            var dataSource = dataSourceBuilder.Build();
             // Add services to the container.
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddDbContext<MesetaVerdeDbContext>(options =>
-                options.UseNpgsql(builder.Configuration.GetConnectionString("MesetaVerdeDatabase"))
+                options.UseNpgsql(dataSource)
                        .UseSnakeCaseNamingConvention());
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             // Inyección de Dependencias

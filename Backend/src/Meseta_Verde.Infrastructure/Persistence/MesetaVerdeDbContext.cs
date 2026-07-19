@@ -29,6 +29,8 @@ namespace Meseta_Verde.Infrastructure.Persistence
         public DbSet<Conversacion> Conversaciones { get; set; } = null!;
         public DbSet<ConversacionParticipante> ConversacionParticipantes { get; set; } = null!;
         public DbSet<Mensaje> Mensajes { get; set; } = null!;
+        public DbSet<SolicitudRepartidor> SolicitudRepartidor { get; set; } = null!;
+        public DbSet<Repartidor> Repartidor { get; set; } = null!;  
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
