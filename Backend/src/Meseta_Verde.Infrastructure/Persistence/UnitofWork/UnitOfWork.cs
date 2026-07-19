@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace Meseta_Verde.Infrastructure.Persistence.UnitofWork
 {
     public class UnitOfWork: IUnitofWork
@@ -20,21 +21,17 @@ namespace Meseta_Verde.Infrastructure.Persistence.UnitofWork
         private readonly IRepository<Usuario> _usuarioRepository;
         private readonly IRepository<InventarioProveedor> _inventarioProveedorRepository;
         private readonly IRepository<ImpactoSocial> _impactoSocialRepository;
-
-
         private readonly IRepository<SuscripcionApp> _suscripcionAppRepository;
-        private readonly MesetaVerdeDbContext _context;
-        private IDbContextTransaction? _transaction;
-        public UnitOfWork(MesetaVerdeDbContext context, IServiceProvider serviceProvider, IRepository<Categoria> categoriaRepository,IRepository<SuscripcionApp> suscripcionAppRepository, IRepository<Producto> productoRepository, IRepository<Proveedor> proveedorRepository, IRepository<Usuario> usuarioRepository, IRepository<InventarioProveedor> inventarioProveedorRepository, IRepository<ImpactoSocial> impactoSocialRepository)
         private readonly IRepository<Valoracion> _valoracionRepository;
         private readonly IRepository<Pedido> _pedidoRepository;
         private readonly IRepository<DetallePedido> _detallePedidoRepository;
         private readonly IRepository<Conversacion> _conversacionRepository;//
         private readonly IRepository<ConversacionParticipante> _ConversacionParticipanteRepository;
         private readonly IRepository<Mensaje> _mensajeRepository;
+
         private readonly MesetaVerdeDbContext _context;
         private IDbContextTransaction? _transaction;
-        public UnitOfWork(MesetaVerdeDbContext context, IServiceProvider serviceProvider, IRepository<Categoria> categoriaRepository, IRepository<Producto> productoRepository, IRepository<Proveedor> proveedorRepository, IRepository<Usuario> usuarioRepository, IRepository<InventarioProveedor> inventarioProveedorRepository, IRepository<ImpactoSocial> impactoSocialRepository, IRepository<Valoracion> valoracionRepository, IRepository<Pedido> pedidoRepository, IRepository<DetallePedido> detallePedidoRepository, IRepository<Conversacion> conversacionRepository, IRepository<ConversacionParticipante> ConversacionParticpanteRepository, IRepository<Mensaje> mensajeRepository)
+        public UnitOfWork(MesetaVerdeDbContext context, IServiceProvider serviceProvider, IRepository<Categoria> categoriaRepository, IRepository<Producto> productoRepository, IRepository<Proveedor> proveedorRepository, IRepository<Usuario> usuarioRepository, IRepository<InventarioProveedor> inventarioProveedorRepository, IRepository<ImpactoSocial> impactoSocialRepository, IRepository<Valoracion> valoracionRepository, IRepository<Pedido> pedidoRepository, IRepository<DetallePedido> detallePedidoRepository, IRepository<Conversacion> conversacionRepository, IRepository<ConversacionParticipante> ConversacionParticpanteRepository, IRepository<Mensaje> mensajeRepository,IRepository<SuscripcionApp> suscripcionAppRepository)
         {
             _context = context;
             _serviceProvider = serviceProvider;
