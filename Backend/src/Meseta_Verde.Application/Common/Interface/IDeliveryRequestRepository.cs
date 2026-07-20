@@ -16,7 +16,7 @@ namespace Meseta_Verde.Application.Common.Interface
         Task<SolicitudRepartidor> ReviewRequestAsync(CancellationToken ct);
         Task<SolicitudRepartidor> GetByIdAsync(int id, CancellationToken ct);
         Task<bool> hasPendingRequest(int userId, CancellationToken ct);
-
+        Task<SolicitudRepartidor> GetToUpdateAsync(int id,CancellationToken ct);
         void ConfirmarRevision();
 
     }
