@@ -1,4 +1,5 @@
 ﻿using BCrypt.Net;
+using EFCore.NamingConventions.Internal;
 using Meseta_Verda.Domain.Entities;
 using Meseta_Verde.Application.Common.Interface;
 using Meseta_Verde.Infrastructure.Persistence;
@@ -105,6 +106,14 @@ namespace Meseta_Verde.Infrastructure.Repository
             _colaDeSolicitudes.Enqueue(solicitud);
             return newEntity.Entity.IdSolicitud;
 
+        }
+
+        public async Task<SolicitudRepartidor> GetToUpdateAsync(int id, CancellationToken ct)
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<MesetaVerdeDbContext>();
+            var solicitud = await context.SolicitudRepartidor.Include(d => d.Usuario).FirstOrDefaultAsync(x => x.IdSolicitud == id, ct);
+            return solicitud;
         }
 
         public async Task<bool> hasPendingRequest(int userId, CancellationToken ct)

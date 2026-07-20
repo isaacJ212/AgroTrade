@@ -55,13 +55,23 @@ namespace Meseta_Verde.Controllers
         }
 
         [HttpPatch("review")]
-        //[Authorize(Roles = "Admin")] 
+        [Authorize(Roles = "Admin")] 
         public async Task<IActionResult> ReviewDeliveryRequest([FromBody] ReviewRequestDto dto, CancellationToken ct)
         {
            
             var result = await _mediator.Send(new ReviewRequestCommand(dto), ct);
 
           
+            return StatusCode(result.StatusCode, result);
+        }
+        [HttpPatch("review/{id}")]
+        public async Task<IActionResult> ReviewDeliveryRequestById([FromRoute] int id, [FromBody] ReviewRequestDto dto, CancellationToken ct)
+        {
+            if (id <= 0)
+            {
+                return BadRequest("Id Invalido");
+            }
+            var result = await _mediator.Send(new ReviewRequestByIdCommand(id, dto), ct);
             return StatusCode(result.StatusCode, result);
         }
 
