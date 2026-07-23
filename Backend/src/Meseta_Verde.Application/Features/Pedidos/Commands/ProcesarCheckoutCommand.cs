@@ -19,7 +19,7 @@ namespace Meseta_Verde.Application.Features.Pedidos.Commands
         IRepository<NotificacionEntrega> notificacionEntregaRepository,
         IUnitofWork unitOfWork) : IRequestHandler<ProcesarCheckoutCommand, Result<CheckoutResponseDto>>
     {
-        private const decimal ComisionPorcentaje = 0.12m;
+        
         private const string EstadoTransferenciaExitosa = "LIQUIDADO_ACH_EXITOSO";
         private const decimal ComisionRepartidorFija = 50.00m;
 
@@ -109,7 +109,7 @@ namespace Meseta_Verde.Application.Features.Pedidos.Commands
                         linea.Inventario.Disponible = false;
                     await inventarioRepository.UpdateAsync(linea.Inventario, cancellationToken);
 
-                    var montoProveedor = Math.Round(linea.Subtotal * (1m - ComisionPorcentaje), 2, MidpointRounding.AwayFromZero);
+                    
                     var transferencia = new RegistroTransferenciaMock
                     {
                         IdTransferencia = Guid.NewGuid().ToString("N"),
@@ -117,7 +117,7 @@ namespace Meseta_Verde.Application.Features.Pedidos.Commands
                         Proveedor = linea.Producto.Proveedor.NombreProveedor,
                         BancoDestino = linea.Producto.Proveedor.Banco,
                         Cuenta = linea.Producto.Proveedor.CuentaBancaria,
-                        MontoEnviado = montoProveedor,
+                        MontoEnviado = linea.Subtotal,
                         Estado = EstadoTransferenciaExitosa
                     };
                     await transferenciaRepository.AddAsync(transferencia, cancellationToken);
@@ -138,7 +138,6 @@ namespace Meseta_Verde.Application.Features.Pedidos.Commands
                 {
                     PedidoId = pedido.IdPedido,
                     Total = total,
-                    ComisionPlataforma = total - totalProductores,
                     TotalProductores = totalProductores,
                     MetodoPago = pedido.MetodoPago,
                     RepartidoresNotificados = repartidoresNotificados,

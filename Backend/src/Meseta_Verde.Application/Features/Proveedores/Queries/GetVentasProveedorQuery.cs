@@ -18,7 +18,7 @@ namespace Meseta_Verde.Application.Features.Proveedores.Queries
         {
             if (request.UserId <= 0)
                 return Result<List<VentaProveedorDto>>.Failure(400, "El usuario es invalido.");
-
+            
             var proveedor = await proveedorRepository.FirstOrDefaultAsync(p => p.IdUsuario == request.UserId, cancellationToken);
             if (proveedor is null)
                 return Result<List<VentaProveedorDto>>.Failure(404, "No existe un proveedor asociado al usuario.");

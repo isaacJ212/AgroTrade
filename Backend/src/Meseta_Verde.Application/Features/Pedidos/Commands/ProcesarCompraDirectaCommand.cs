@@ -89,7 +89,7 @@ namespace Meseta_Verde.Application.Features.Pedidos.Commands
                     }
                 }
 
-                var montoProveedor = Math.Round(subtotal * 0.88m, 2, MidpointRounding.AwayFromZero);
+               
                 var transferencia = new RegistroTransferenciaMock
                 {
                     IdTransferencia = Guid.NewGuid().ToString("N"),
@@ -97,7 +97,7 @@ namespace Meseta_Verde.Application.Features.Pedidos.Commands
                     Proveedor = producto.Proveedor.NombreProveedor,
                     BancoDestino = producto.Proveedor.Banco,
                     Cuenta = producto.Proveedor.CuentaBancaria,
-                    MontoEnviado = montoProveedor,
+                    MontoEnviado = subtotal,
                     Estado = "LIQUIDADO_ACH_EXITOSO"
                 };
                 await transferenciaRepository.AddAsync(transferencia, cancellationToken);
@@ -108,15 +108,14 @@ namespace Meseta_Verde.Application.Features.Pedidos.Commands
                 {
                     PedidoId = pedido.IdPedido,
                     Total = subtotal,
-                    ComisionPlataforma = subtotal - montoProveedor,
-                    TotalProductores = montoProveedor,
+                    TotalProductores = subtotal,
                     MetodoPago = pedido.MetodoPago!,
                     RepartidoresNotificados = repartidoresNotificados,
                     Transferencias = [new TransferenciaCheckoutDto
                     {
                         IdTransferencia = transferencia.IdTransferencia,
                         Proveedor = transferencia.Proveedor,
-                        MontoEnviado = montoProveedor,
+                        MontoEnviado = subtotal,
                         Estado = transferencia.Estado
                     }]
                 }, "Compra directa procesada correctamente.", true);

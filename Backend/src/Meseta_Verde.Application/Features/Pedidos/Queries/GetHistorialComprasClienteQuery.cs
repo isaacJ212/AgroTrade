@@ -4,6 +4,7 @@ using Meseta_Verde.Application.Common;
 using Meseta_Verde.Application.Common.DTOs.ComprasDtos;
 using Meseta_Verde.Application.Common.Interface;
 
+
 namespace Meseta_Verde.Application.Features.Pedidos.Queries
 {
     public record GetHistorialComprasClienteQuery(int UserId) : IRequest<Result<List<PedidoClienteDto>>>;
@@ -15,7 +16,7 @@ namespace Meseta_Verde.Application.Features.Pedidos.Queries
             if (request.UserId <= 0)
                 return Result<List<PedidoClienteDto>>.Failure(400, "El usuario es invalido.");
 
-            var pedidos = await pedidoRepository.FindAsync(p => p.IdUsuarioCliente == request.UserId, cancellationToken, p => p.Detalles);
+            var pedidos = await pedidoRepository.FindAsync(p => p.IdUsuarioCliente == request.UserId, cancellationToken, "Detalles.Inventario.Producto");
             var data = pedidos.OrderByDescending(p => p.FechaPedido).Select(p => new PedidoClienteDto
             {
                 IdPedido = p.IdPedido,

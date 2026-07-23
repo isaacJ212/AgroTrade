@@ -30,6 +30,15 @@ namespace Meseta_Verde.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById([FromRoute] int id, CancellationToken cancellationToken)
+        {
+            if (!TryGetUserId(out var userId)) return Unauthorized(Result<List<PedidoClienteDto>>.Failure(401, "JWT invalido."));
+            var result = await mediator.Send(new GetPedidoByIdCommand(id));
+            return StatusCode(result.StatusCode, result);
+
+        }
+
         private bool TryGetUserId(out int userId)
         {
             try { return int.TryParse(User.GetUserId(), out userId); }

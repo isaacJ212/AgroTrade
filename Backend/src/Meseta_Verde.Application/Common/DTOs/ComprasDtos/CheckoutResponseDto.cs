@@ -4,7 +4,6 @@ namespace Meseta_Verde.Application.Common.DTOs.ComprasDtos
     {
         public int PedidoId { get; set; }
         public decimal Total { get; set; }
-        public decimal ComisionPlataforma { get; set; }
         public decimal TotalProductores { get; set; }
         public string MetodoPago { get; set; } = string.Empty;
         public int RepartidoresNotificados { get; set; }
