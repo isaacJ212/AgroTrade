@@ -50,6 +50,7 @@ namespace Meseta_Verde.Application.Features.ColasRoles.Repartidores.Commands
                         CuentaBancaria = solicitud.DatosRepartidor.NumeroCuenta,
                         ZonaOperaciones = solicitud.DatosRepartidor.ZonaOperaciones,
                         UrlFotoPerfil = solicitud.DatosRepartidor.UrlFotoPerfil,
+                        Departamento = solicitud.DatosRepartidor.Departamento
                         
                     };
 

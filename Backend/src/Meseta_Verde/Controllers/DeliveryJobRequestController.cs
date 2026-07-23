@@ -21,7 +21,7 @@ namespace Meseta_Verde.Controllers
         }
 
         [HttpGet]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> GetUnseenRequest(CancellationToken ct, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 8)
         {
             var request = await _mediator.Send(new GetUnSeenRequestQuery(pageIndex, pageSize), ct);
@@ -55,7 +55,7 @@ namespace Meseta_Verde.Controllers
         }
 
         [HttpPatch("review")]
-        [Authorize(Roles = "Admin")] 
+        [Authorize(Roles = "admin")] 
         public async Task<IActionResult> ReviewDeliveryRequest([FromBody] ReviewRequestDto dto, CancellationToken ct)
         {
            
@@ -64,7 +64,9 @@ namespace Meseta_Verde.Controllers
           
             return StatusCode(result.StatusCode, result);
         }
+
         [HttpPatch("review/{id}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> ReviewDeliveryRequestById([FromRoute] int id, [FromBody] ReviewRequestDto dto, CancellationToken ct)
         {
             if (id <= 0)

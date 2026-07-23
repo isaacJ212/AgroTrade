@@ -47,7 +47,8 @@ namespace Meseta_Verde.Application.Features.ColasRoles.Repartidores.Queries
                     NumeroCedula = s.DatosRepartidor.NumeroCedula,
                     NumeroCuenta = s.DatosRepartidor.NumeroCuenta,
                     MarcaVehiculo = s.DatosRepartidor.MarcaVehiculo,
-                    ZonaOperaciones = s.DatosRepartidor.ZonaOperaciones
+                    ZonaOperaciones = s.DatosRepartidor.ZonaOperaciones,
+                    Departamento = s.DatosRepartidor.Departamento?? ""
                 },
                 Estado = s.Estado,
                 FechaSolicitud = s.FechaSolicitud

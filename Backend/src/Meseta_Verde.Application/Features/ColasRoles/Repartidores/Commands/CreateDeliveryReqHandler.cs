@@ -68,7 +68,8 @@ namespace Meseta_Verde.Application.Features.ColasRoles.Repartidores.Commands
                 MarcaVehiculo = dto.MarcaVehiculo,
                 ZonaOperaciones = dto.ZonaOperaciones,
                 BancoNombre = dto.BancoNombre,
-                NumeroCuenta = dto.NumeroCuenta
+                NumeroCuenta = dto.NumeroCuenta,
+                Departamento = dto.Departamento
             };
         }
 
@@ -81,7 +82,8 @@ namespace Meseta_Verde.Application.Features.ColasRoles.Repartidores.Commands
                 NombreUsuario = solicitud.Usuario?.NombreCompleto ?? string.Empty,
                 DatosRepartidor = solicitud.DatosRepartidor,
                 Estado = solicitud.Estado,
-                FechaSolicitud = solicitud.FechaSolicitud
+                FechaSolicitud = solicitud.FechaSolicitud,
+                Departamento = solicitud.DatosRepartidor.Departamento
             };
         }
     }

@@ -13,6 +13,8 @@ namespace Meseta_Verde.Application.Features.Pedidos.Commands
         IRepository<Producto> productoRepository,
         IRepository<InventarioProveedor> inventarioRepository,
         IRepository<Pedido> pedidoRepository,
+        IRepository<NotificacionEntrega> notificacionRepository,
+        IRepository<Repartidor> repartidorRepository,
         IRepository<DetallePedido> detallePedidoRepository,
         IRepository<RegistroTransferenciaMock> transferenciaRepository,
         IUnitofWork unitOfWork) : IRequestHandler<ProcesarCompraDirectaCommand, Result<CheckoutResponseDto>>
@@ -69,6 +71,24 @@ namespace Meseta_Verde.Application.Features.Pedidos.Commands
                 if (inventario.StockActual <= 0) inventario.Disponible = false;
                 await inventarioRepository.UpdateAsync(inventario, cancellationToken);
 
+                int repartidoresNotificados = 0;
+                var cliente = await usuarioRepository.FirstOrDefaultAsync(u => u.IdUsuario == request.UserId, cancellationToken);
+                var zonaEntrega = cliente.Departamento?.Trim();
+                if (!string.IsNullOrEmpty(zonaEntrega))
+                {
+                  var  repartidoresDisponibles = await  repartidorRepository.FindAsync(r => r.Estado == "DISPONIBLE" && r.Departamento.ToLower().Contains(zonaEntrega.ToLower()), cancellationToken);
+                    foreach(var rep in repartidoresDisponibles)
+                    {
+                        await notificacionRepository.AddAsync(new NotificacionEntrega
+                        {
+                            IdPedido = pedido.IdPedido,
+                            IdUsuarioRepartidor = rep.IdUsuario,
+                            ZonaEntrega = cliente.DireccionBase?? $"En {cliente.Departamento}"
+                        }, cancellationToken);
+                        repartidoresNotificados++;
+                    }
+                }
+
                 var montoProveedor = Math.Round(subtotal * 0.88m, 2, MidpointRounding.AwayFromZero);
                 var transferencia = new RegistroTransferenciaMock
                 {
@@ -91,6 +111,7 @@ namespace Meseta_Verde.Application.Features.Pedidos.Commands
                     ComisionPlataforma = subtotal - montoProveedor,
                     TotalProductores = montoProveedor,
                     MetodoPago = pedido.MetodoPago!,
+                    RepartidoresNotificados = repartidoresNotificados,
                     Transferencias = [new TransferenciaCheckoutDto
                     {
                         IdTransferencia = transferencia.IdTransferencia,
