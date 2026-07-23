@@ -34,6 +34,8 @@ namespace Meseta_Verde.Infrastructure.DependencyInjection
             services.AddScoped<IStorageService, SupabaseStorageService>();
 
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddMemoryCache();
+            services.AddScoped<ICartRepository, CartRepository>();
             services.AddScoped<ITokenServices, TokenServices>();
             services.AddScoped<IUnitofWork, UnitOfWork>();
 

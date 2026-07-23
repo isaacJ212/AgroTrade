@@ -24,6 +24,7 @@ namespace Meseta_Verda.Domain.Entities
         public string CuentaBancaria { get; set; } = string.Empty;
         public string UrlFotoPerfil { get; set; } = string.Empty;
         public string ZonaOperaciones { get; set; } = string.Empty;
+        public string Departamento { get; set;} = string.Empty;
 
 
 

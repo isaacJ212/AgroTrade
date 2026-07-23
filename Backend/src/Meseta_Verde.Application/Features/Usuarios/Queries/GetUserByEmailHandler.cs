@@ -27,7 +27,8 @@ namespace Meseta_Verde.Application.Features.Usuarios.Queries
                 IdentidadVerificada = user.IdentidadVerificada,
                 Telefono = user.Telefono,
                 DireccionBase = user.DireccionBase,
-                FechaRegistro = user.FechaRegistro
+                FechaRegistro = user.FechaRegistro,
+                Departamento = user.Departamento
             };
 
             return Result<UserDto>.Success(200, dto, "Exit", true);

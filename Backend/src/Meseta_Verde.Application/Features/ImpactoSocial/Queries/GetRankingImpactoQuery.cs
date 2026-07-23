@@ -43,7 +43,7 @@ namespace Meseta_Verde.Application.Features.ImpactoSocial.Queries
                 .GroupBy(i => new { i.IdProveedor, i.Proveedor?.NombreProveedor })
                 .Select(grupo => new 
                 {
-                    IdProveedor = grupo.Key.IdProveedor,
+                    grupo.Key.IdProveedor,
                     NombreProveedor = grupo.Key.NombreProveedor ?? "Agricultor Anónimo",
                     TotalSalvado = grupo.Sum(i => i.ProductosSalvados)
                 })

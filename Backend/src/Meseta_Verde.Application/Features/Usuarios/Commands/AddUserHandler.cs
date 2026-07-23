@@ -33,6 +33,7 @@ namespace Meseta_Verde.Application.Features.Usuarios.Commands
                 FechaRegistro = DateTime.UtcNow,
                 Telefono = dto.Telefono,
                 DireccionBase = dto.DireccionBase
+                ,Departamento = dto.Departamento
 
             };
             var user = await context.Users.AddAsync(newUser, ct);
@@ -57,7 +58,8 @@ namespace Meseta_Verde.Application.Features.Usuarios.Commands
                     IdentidadVerificada = user.IdentidadVerificada,
                     Telefono = user.Telefono,
                     DireccionBase = user.DireccionBase,
-                    FechaRegistro = user.FechaRegistro
+                    FechaRegistro = user.FechaRegistro,
+                    Departamento = user.Departamento
                 };
 
                 return Result<UserDto>.Success(201, mapped, "Usuario Registrado", true);

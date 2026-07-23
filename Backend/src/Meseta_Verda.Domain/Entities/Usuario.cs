@@ -21,6 +21,7 @@ namespace Meseta_Verda.Domain.Entities
         public string? OAuthProviderId { get; set; }
         public string? Telefono { get; set; }
         public string? DireccionBase { get; set; }
+        public string? Departamento { get; set; }
         public DateTime? FechaRegistro { get; set; }
 
         
