@@ -42,6 +42,7 @@ namespace Meseta_Verde.Infrastructure.Repository
         public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
             => await _dbSet.AnyAsync(predicate, cancellationToken);
 
+        
         public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken, params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = _dbSet;

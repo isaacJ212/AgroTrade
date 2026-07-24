@@ -20,7 +20,7 @@ namespace Meseta_Verde.Application.Features.Pedidos.Commands
         IUnitofWork unitOfWork) : IRequestHandler<ProcesarCheckoutCommand, Result<CheckoutResponseDto>>
     {
         
-        private const string EstadoTransferenciaExitosa = "LIQUIDADO_ACH_EXITOSO";
+        private const string EstadoTransferenciaExitosa = "A ESPERA DE PAGO";
         private const decimal ComisionRepartidorFija = 50.00m;
 
         public async Task<Result<CheckoutResponseDto>> Handle(ProcesarCheckoutCommand request, CancellationToken cancellationToken)
@@ -37,42 +37,56 @@ namespace Meseta_Verde.Application.Features.Pedidos.Commands
                 return Result<CheckoutResponseDto>.Failure(404, "El usuario cliente no existe.");
 
             var lineas = new List<CheckoutLine>();
+            var detallesPedido = new List<DetallePedido>(); // Para guardarlos en el Pedido inicial
+
             foreach (var item in cart.Items)
             {
                 if (item.Quantity <= 0)
                     return Result<CheckoutResponseDto>.Failure(400, "La cantidad de cada producto debe ser mayor que cero.");
 
                 var producto = await productoRepository.FirstOrDefaultAsync(
-                    p => p.IdProducto == item.ProductId,
-                    cancellationToken,
-                    p => p.Proveedor,
-                    p => p.Inventarios);
+                    p => p.IdProducto == item.ProductId, cancellationToken, p => p.Proveedor, p => p.Inventarios);
 
                 if (producto is null)
                     return Result<CheckoutResponseDto>.Failure(404, $"No se encontro el producto {item.ProductId}.");
 
-                var inventario = producto.Inventarios.FirstOrDefault(i =>
-                    i.IdProveedor == producto.IdProveedor && i.Disponible);
+                var inventario = producto.Inventarios.FirstOrDefault(i => i.IdProveedor == producto.IdProveedor && i.Disponible);
                 if (inventario is null)
                     return Result<CheckoutResponseDto>.Failure(409, $"El producto {producto.Nombre} no esta disponible.");
+
+                // Validación preventiva de Stock
                 if (inventario.StockActual < item.Quantity)
                     return Result<CheckoutResponseDto>.Failure(409, $"Stock insuficiente para {producto.Nombre}.");
 
                 var descuento = Math.Clamp((decimal)(inventario.PorcentajeDescuento ?? 0), 0m, 100m);
                 var precioUnitario = inventario.PrecioVenta * (1m - descuento / 100m);
-                lineas.Add(new CheckoutLine(producto, inventario, item.Quantity, precioUnitario * item.Quantity));
+                var subtotalLinea = precioUnitario * item.Quantity;
+
+                lineas.Add(new CheckoutLine(producto, inventario, item.Quantity, subtotalLinea));
+
+                // Agregamos el detalle al pedido (asumiendo que tu entidad Pedido tiene una colección de Detalles)
+                detallesPedido.Add(new DetallePedido
+                {
+                    IdInventario = inventario.IdInventario,
+                    Cantidad = item.Quantity,
+                    PrecioUnitario = (float)precioUnitario,
+                    Subtotal = subtotalLinea
+                });
             }
 
-            var subtotal = lineas.Sum(linea => linea.Subtotal); 
-            var total = subtotal - ComisionRepartidorFija;
+            var subtotal = lineas.Sum(linea => linea.Subtotal);
+            // Nota: Si vas a SUMAR la comisión del repartidor al cliente, debería ser + ComisionRepartidorFija
+            var total = subtotal + ComisionRepartidorFija;
+
             var pedido = new Pedido
             {
                 IdUsuarioCliente = request.UserId,
                 FechaPedido = DateTime.UtcNow,
                 MetodoPago = request.MetodoPago.Trim(),
-                EstadoPago = "PAGADO",
+                EstadoPago = "PENDIENTE", // <--- Esencial: Nace pendiente de pasarela
                 EstadoEnvio = "PENDIENTE",
-                Total = total
+                Total = total,
+                Detalles = detallesPedido // Guardamos la estructura completa del carrito congelada en el pedido
             };
 
             try
@@ -80,74 +94,23 @@ namespace Meseta_Verde.Application.Features.Pedidos.Commands
                 await unitOfWork.BeginTransactionAsync(cancellationToken);
                 await pedidoRepository.AddAsync(pedido, cancellationToken);
                 await unitOfWork.SaveChangesAsync(cancellationToken);
-
-                var repartidoresNotificados = 0;
-                var zonaEntrega = cliente.Departamento?.Trim();
-                if (!string.IsNullOrWhiteSpace(zonaEntrega))
-                {
-                    var repartidoresDisponibles = await repartidorRepository.FindAsync(
-                        r => r.Estado == "DISPONIBLE" && r.Departamento.ToLower().Contains(zonaEntrega.ToLower()),
-                        cancellationToken);
-
-                    foreach (var repartidor in repartidoresDisponibles)
-                    {
-                        await notificacionEntregaRepository.AddAsync(new NotificacionEntrega
-                        {
-                            IdPedido = pedido.IdPedido,
-                            IdUsuarioRepartidor = repartidor.IdUsuario,
-                            ZonaEntrega = zonaEntrega
-                        }, cancellationToken);
-                        repartidoresNotificados++;
-                    }
-                }
-
-                var transferencias = new List<TransferenciaCheckoutDto>();
-                foreach (var linea in lineas)
-                {
-                    linea.Inventario.StockActual -= linea.Cantidad;
-                    if (linea.Inventario.StockActual <= 0)
-                        linea.Inventario.Disponible = false;
-                    await inventarioRepository.UpdateAsync(linea.Inventario, cancellationToken);
-
-                    
-                    var transferencia = new RegistroTransferenciaMock
-                    {
-                        IdTransferencia = Guid.NewGuid().ToString("N"),
-                        IdPedido = pedido.IdPedido,
-                        Proveedor = linea.Producto.Proveedor.NombreProveedor,
-                        BancoDestino = linea.Producto.Proveedor.Banco,
-                        Cuenta = linea.Producto.Proveedor.CuentaBancaria,
-                        MontoEnviado = linea.Subtotal,
-                        Estado = EstadoTransferenciaExitosa
-                    };
-                    await transferenciaRepository.AddAsync(transferencia, cancellationToken);
-                    transferencias.Add(new TransferenciaCheckoutDto
-                    {
-                        IdTransferencia = transferencia.IdTransferencia,
-                        Proveedor = transferencia.Proveedor,
-                        MontoEnviado = transferencia.MontoEnviado,
-                        Estado = transferencia.Estado
-                    });
-                }
-
                 await unitOfWork.CommitAsync(cancellationToken);
-                await cartRepository.ClearCart(request.UserId);
 
-                var totalProductores = transferencias.Sum(t => t.MontoEnviado);
+                // Devolvemos los datos para que el frontend arme el botón de PayPal con el Total exacto y el PedidoId
                 return Result<CheckoutResponseDto>.Success(201, new CheckoutResponseDto
                 {
                     PedidoId = pedido.IdPedido,
                     Total = total,
-                    TotalProductores = totalProductores,
+                    TotalProductores = subtotal, // Los productores cobran sobre el subtotal de productos
                     MetodoPago = pedido.MetodoPago,
-                    RepartidoresNotificados = repartidoresNotificados,
-                    Transferencias = transferencias
-                }, "Checkout procesado correctamente.", true);
+                    RepartidoresNotificados = 0, // Se notificarán real y formalmente en el paso 2
+                    Transferencias = new List<TransferenciaCheckoutDto>() // Se calculan en la confirmación
+                }, "Checkout pre-procesado correctamente. En espera de pago.", true);
             }
             catch
             {
                 await unitOfWork.RollbackAsync(cancellationToken);
-                return Result<CheckoutResponseDto>.Failure(500, "No fue posible procesar el checkout.");
+                return Result<CheckoutResponseDto>.Failure(500, "No fue posible pre-procesar el checkout.");
             }
         }
 
