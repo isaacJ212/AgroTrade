@@ -24,6 +24,8 @@ namespace Meseta_Verde.Infrastructure.DependencyInjection
            
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<ITokenServices, TokenServices>();
+            services.AddScoped<IEmailService, SmtpEmailService>();
+            services.AddScoped<IVerificationCodeRepository, InMemoryVerificationCodeRepository>();
             services.AddScoped<IUnitofWork, UnitOfWork>();
 
             return services;

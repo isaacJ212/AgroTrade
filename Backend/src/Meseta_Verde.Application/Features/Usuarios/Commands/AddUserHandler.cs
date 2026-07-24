@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace Meseta_Verde.Application.Features.Usuarios.Commands
 {
     public record AddUserCommand(CreateUserDto dto) : IRequest<Result<UserDto>>;
-    public class AddUserHandler(IUnitofWork context, IRepository<UsuarioRol> rol) : IRequestHandler<AddUserCommand, Result<UserDto>>
+    public class AddUserHandler(IUnitofWork context, IRepository<UsuarioRol> rol, IEmailService emailService, IVerificationCodeRepository verificationCodeRepository) : IRequestHandler<AddUserCommand, Result<UserDto>>
     {
         public async Task<Result<UserDto>> Handle(AddUserCommand request, CancellationToken ct)
         {
@@ -50,6 +50,10 @@ namespace Meseta_Verde.Application.Features.Usuarios.Commands
             await context.SaveChangesAsync(ct);
             if (user != null)
             {
+                var verificationCode = GenerateVerificationCode();
+                await verificationCodeRepository.SaveCodeAsync(user.IdUsuario, verificationCode, TimeSpan.FromMinutes(10), ct);
+                await emailService.SendVerificationCodeAsync(user.Email, verificationCode, ct);
+
                 var mapped = new UserDto {
                     Id = user.IdUsuario,
                     Name = user.NombreCompleto,
@@ -60,12 +64,18 @@ namespace Meseta_Verde.Application.Features.Usuarios.Commands
                     FechaRegistro = user.FechaRegistro
                 };
 
-                return Result<UserDto>.Succes(201, mapped, "Usuario Registrado", true);
+                return Result<UserDto>.Succes(201, mapped, "Usuario Registrado. Se envió un código de verificación a tu correo.", true);
 
             }
 
             return Result<UserDto>.Failure(400, "Algo fallo al crear el usuario, por favor intente mas tarde");
 
+        }
+
+        private static string GenerateVerificationCode()
+        {
+            var random = new Random();
+            return random.Next(100000, 999999).ToString();
         }
 
     } }
