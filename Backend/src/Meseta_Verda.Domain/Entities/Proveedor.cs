@@ -29,5 +29,8 @@ namespace Meseta_Verda.Domain.Entities
 
        
         public ICollection<Producto> Productos { get; set; } = new List<Producto>();
+        public ICollection<InventarioProveedor> Inventarios { get; set; } = new List<InventarioProveedor>();
+        public ICollection<ImpactoSocial> ImpactosSociales { get; set; } = new List<ImpactoSocial>();
+        public ICollection<Valoracion> ValoracionesRecibidas { get; set; } = new List<Valoracion>();
     }
 }

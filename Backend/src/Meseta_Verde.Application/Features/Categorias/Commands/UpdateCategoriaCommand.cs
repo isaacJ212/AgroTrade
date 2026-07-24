@@ -28,11 +28,18 @@ namespace Meseta_Verde.Application.Features.Categorias.Commands
                 return Result<bool>.Failure(404, "No se encontró la categoría.");
             }
 
+            var nombreExistente = await _unitOfWork.Categorias.AnyAsync(
+                c => c.IdCategoria != request.IdCategoria && c.Nombre.ToLower() == request.Nombre.ToLower(), cancellationToken);
+            if (nombreExistente)
+            {
+                return Result<bool>.Failure(409, "Ya existe una categoría con ese nombre.");
+            }
+
             categoria.Nombre = request.Nombre;
             await _unitOfWork.Categorias.UpdateAsync(categoria, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Result<bool>.Succes(200, true, "Categoría actualizada correctamente.", true);
+            return Result<bool>.Success(200, true, "Categoría actualizada correctamente.", true);
         }
     }
 }

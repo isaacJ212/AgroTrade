@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Meseta_Verde.Application.Common;
 using Meseta_Verde.Application.Common.Interface;
 using System;
@@ -20,7 +20,7 @@ namespace Meseta_Verde.Application.Features.Usuarios.Commands
 
             await context.Users.RemoveUserAsync(request.id, ct);
 
-            return Result<Unit>.Succes(204, Unit.Value, "Exito", true);
+            return Result<Unit>.Success(204, Unit.Value, "Exito", true);
         }
     }
 }

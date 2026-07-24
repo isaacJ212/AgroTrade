@@ -1,4 +1,4 @@
-ï»¿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -10,8 +10,8 @@ namespace Meseta_Verde.Application.Common.DTOs.UsersDtos
     public class UpdatePasswordDto
     {
         [Required] public string CurrentPassword { get; set; }
-        [Required(ErrorMessage = "La nueva contraseÃ±a es obligatoria")]
-        [MinLength(6, ErrorMessage = "La contraseÃ±a debe tener al menos 6 caracteres")]
+        [Required(ErrorMessage = "La nueva contraseña es obligatoria")]
+        [MinLength(6, ErrorMessage = "La contraseña debe tener al menos 6 caracteres")]
         public string NewPassword { get; set; }
     }
 }

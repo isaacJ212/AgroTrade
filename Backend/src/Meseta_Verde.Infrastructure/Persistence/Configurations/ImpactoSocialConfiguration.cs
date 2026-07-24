@@ -16,16 +16,16 @@ namespace Meseta_Verde.Infrastructure.Persistence.Configurations
             builder.HasKey(i => i.IdImpacto);
 
             builder.HasOne(i => i.Pedido)
-               .WithMany()
+               .WithMany(p => p.ImpactosSociales)
                .HasForeignKey(i => i.IdPedido);
 
             builder.HasOne(i => i.Proveedor)
-               .WithMany()
+               .WithMany(p => p.ImpactosSociales)
                .HasForeignKey(i => i.IdProveedor);
 
             builder.HasOne(i => i.DetallePedido)
-               .WithMany()
-               .HasForeignKey(i => i.IdDetallePedido);
+               .WithOne(d => d.ImpactoSocial)
+               .HasForeignKey<ImpactoSocial>(i => i.IdDetallePedido);
         }
     }
 }

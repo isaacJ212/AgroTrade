@@ -1,4 +1,4 @@
-锘縰sing MediatR;
+using MediatR;
 using Meseta_Verde.Application.Common;
 using Meseta_Verde.Application.Common.DTOs.AuthServices;
 using Meseta_Verde.Application.Common.DTOs.UsersDtos;
@@ -15,6 +15,7 @@ namespace Meseta_Verde.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class UsersController : ControllerBase
     {
         private readonly IHttpContextAccessor _contextAccessor;
@@ -26,10 +27,10 @@ namespace Meseta_Verde.Controllers
             _contextAccessor = con;
         }
         /// <summary>
-        /// Obtiene los datos de un usuario mediante su ID 煤nico.
+        /// Obtiene los datos de un usuario mediante su ID 鷑ico.
         /// </summary>
-        /// <param name="id">ID num茅rico del usuario.</param>
-        /// <param name="ct">Token de cancelaci贸n.</param>
+        /// <param name="id">ID num閞ico del usuario.</param>
+        /// <param name="ct">Token de cancelaci髇.</param>
         [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id, CancellationToken ct)
@@ -39,10 +40,10 @@ namespace Meseta_Verde.Controllers
             return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, new { ErrorMesagge = result.Message });
         }
         /// <summary>
-        /// Busca un usuario en el sistema utilizando su correo electr贸nico.
+        /// Busca un usuario en el sistema utilizando su correo electr髇ico.
         /// </summary>
         /// <param name="email">Email registrado del usuario.</param>
-        /// <param name="ct">Token de cancelaci贸n.</param>
+        /// <param name="ct">Token de cancelaci髇.</param>
         [Authorize]
         [HttpGet("email")]
         public async Task<IActionResult> GetByEmail([FromQuery] string email, CancellationToken ct)
@@ -61,9 +62,9 @@ namespace Meseta_Verde.Controllers
         /// <summary>
         /// Registra un nuevo usuario en la base de datos.
         /// </summary>
-        /// <param name="dto">Objeto con los datos b谩sicos (Nombre, Email, Password, etc).</param>
-        /// <param name="ct">Token de cancelaci贸n.</param>
-        [Authorize]
+        /// <param name="dto">Objeto con los datos b醩icos (Nombre, Email, Password, etc).</param>
+        /// <param name="ct">Token de cancelaci髇.</param>
+        
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateUserDto dto, CancellationToken ct)
         {
@@ -73,11 +74,11 @@ namespace Meseta_Verde.Controllers
             return CreatedAtAction(nameof(GetById), new { Id = resutl.Data.Id }, resutl);
         }
         /// <summary>
-        /// Actualiza la informaci贸n del perfil del usuario (Nombre, Tel茅fono, etc).
+        /// Actualiza la informaci髇 del perfil del usuario (Nombre, Tel閒ono, etc).
         /// </summary>
         /// <param name="id">ID del usuario a modificar.</param>
         /// <param name="dto">Datos a actualizar.</param>
-        /// <param name="ct">Token de cancelaci贸n.</param>
+        /// <param name="ct">Token de cancelaci髇.</param>
         [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromRoute]int id, [FromBody] UpdateUserDto dto, CancellationToken ct)
@@ -93,11 +94,11 @@ namespace Meseta_Verde.Controllers
             return result.IsSuccess ? NoContent() : StatusCode(result.StatusCode, new { ErrorMesagge = result.Message });
         }
         /// <summary>
-        /// Cambia la contrase帽a actual por una nueva. Requiere validaci贸n de sesi贸n.
+        /// Cambia la contrase馻 actual por una nueva. Requiere validaci髇 de sesi髇.
         /// </summary>
         /// <param name="id">ID del usuario.</param>
-        /// <param name="dto">Contrase帽a actual y nueva contrase帽a.</param>
-        /// <param name="ct">Token de cancelaci贸n.</param>
+        /// <param name="dto">Contrase馻 actual y nueva contrase馻.</param>
+        /// <param name="ct">Token de cancelaci髇.</param>
         [Authorize]
         [HttpPatch("{id}/Password")]
         public async Task<IActionResult> UpdatePassword([FromRoute] int id, [FromBody] UpdatePasswordDto dto, CancellationToken ct)
@@ -120,7 +121,7 @@ namespace Meseta_Verde.Controllers
         /// Elimina permanentemente a un usuario del sistema (Requiere permisos de administrador o ser el mismo usuario).
         /// </summary>
         /// <param name="id">ID del usuario a eliminar.</param>
-        /// <param name="ct">Token de cancelaci贸n.</param>
+        /// <param name="ct">Token de cancelaci髇.</param>
         [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id, CancellationToken ct)

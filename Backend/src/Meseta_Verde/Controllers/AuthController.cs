@@ -1,4 +1,4 @@
-Ôªøusing MediatR;
+using MediatR;
 using Meseta_Verde.Application.Common.DTOs.AuthServices;
 using Meseta_Verde.Application.Features.Auth;
 using Microsoft.AspNetCore.Authorization;
@@ -20,7 +20,7 @@ namespace Meseta_Verde.Controllers
         }
 
         /// <summary>
-        /// Inicio de sesi√≥n tradicional mediante Correo y Contrase√±a.
+        /// Inicio de sesiÛn tradicional mediante Correo y ContraseÒa.
         /// </summary>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto, CancellationToken ct)
@@ -37,7 +37,7 @@ namespace Meseta_Verde.Controllers
         }
 
         /// <summary>
-        /// Inicio de sesi√≥n y registro autom√°tico mediante Google Sign-In.
+        /// Inicio de sesiÛn y registro autom·tico mediante Google Sign-In.
         /// </summary>
         [HttpPost("google-signin")]
         public async Task<IActionResult> GoogleSignIn([FromBody] OAuthSignInDto dto, CancellationToken ct)
