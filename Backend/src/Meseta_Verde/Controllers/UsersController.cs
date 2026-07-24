@@ -1,6 +1,8 @@
 using MediatR;
 using Meseta_Verde.Application.Common;
+using Meseta_Verde.Application.Common.DTOs.AuthServices;
 using Meseta_Verde.Application.Common.DTOs.UsersDtos;
+using Meseta_Verde.Application.Features.Auth;
 using Meseta_Verde.Application.Features.Usuarios.Commands;
 using Meseta_Verde.Application.Features.Usuarios.Queries;
 using Microsoft.AspNetCore.Authorization;
@@ -48,6 +50,14 @@ namespace Meseta_Verde.Controllers
         {
             var result = await mediator.Send(new GetUserByEmailQuery(email), ct);
             return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, new { ErrorMesagge = result.Message });
+        }
+
+        [AllowAnonymous]
+        [HttpPost("verify-code")]
+        public async Task<IActionResult> VerifyCode([FromBody] VerifyCodeDto dto, CancellationToken ct)
+        {
+            var result = await mediator.Send(new VerifyCodeCommand(dto), ct);
+            return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, new { ErrorMessage = result.Message });
         }
         /// <summary>
         /// Registra un nuevo usuario en la base de datos.
