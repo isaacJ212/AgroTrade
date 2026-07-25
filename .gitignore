@@ -68,6 +68,8 @@ ScaffoldingReadMe.txt
 appsettings.Development.json
 appsettings.Local.json
 appsettings.Production.json
+appsettings.json
+
 
 
 .env
