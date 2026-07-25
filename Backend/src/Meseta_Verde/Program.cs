@@ -115,6 +115,25 @@ namespace Meseta_Verde
 
             app.MapControllers();
 
+
+            // Aplicar migraciones de EF Core automáticamente al iniciar el contenedor
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                try
+                {
+                    var dbContext = services.GetRequiredService<MesetaVerdeDbContext>();
+                    dbContext.Database.Migrate();
+                }
+                catch (Exception ex)
+                {
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "Ocurrió un error al aplicar las migraciones en PostgreSQL.");
+                }
+            }
+
+
+
             app.Run();
 
         } } }

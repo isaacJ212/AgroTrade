@@ -1,41 +1,40 @@
 # ----------------------------------------------------
-# ETAPA 1: Compilación (Build Stage)
+# ETAPA 1: Build (Compilación)
 # ----------------------------------------------------
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# 1. Copiar los archivos .csproj para restaurar dependencias y aprovechar el caché de Docker
+# Copiar archivos .csproj para restaurar dependencias
 COPY ["src/Meseta_Verde/Meseta_Verde.csproj", "src/Meseta_Verde/"]
-COPY ["src/Meseta_Verde.Domain/Meseta_Verde.Domain.csproj", "src/Meseta_Verde.Domain/"]
+COPY ["src/Meseta_Verda.Domain/Meseta_Verda.Domain.csproj", "src/Meseta_Verda.Domain/"]
 COPY ["src/Meseta_Verde.Application/Meseta_Verde.Application.csproj", "src/Meseta_Verde.Application/"]
 COPY ["src/Meseta_Verde.Infrastructure/Meseta_Verde.Infrastructure.csproj", "src/Meseta_Verde.Infrastructure/"]
 
-# Restaurar paquetes NuGet
+# Restaurar paquetes NuGet (incluyendo Npgsql, EF Core y NamingConventions)
 RUN dotnet restore "src/Meseta_Verde/Meseta_Verde.csproj"
 
-# 2. Copiar todo el código fuente del proyecto
+# Copiar todo el código fuente del backend
 COPY . .
 
-# 3. Compilar la aplicación en modo Release
+# Compilar proyecto en Release
 WORKDIR "/src/src/Meseta_Verde"
 RUN dotnet build "Meseta_Verde.csproj" -c Release -o /app/build
 
 # ----------------------------------------------------
-# ETAPA 2: Publicación (Publish Stage)
+# ETAPA 2: Publish
 # ----------------------------------------------------
 FROM build AS publish
 RUN dotnet publish "Meseta_Verde.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # ----------------------------------------------------
-# ETAPA 3: Imagen Final de Ejecución (Runtime Stage)
+# ETAPA 3: Final Runtime
 # ----------------------------------------------------
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
+
 EXPOSE 8080
 EXPOSE 8081
 
-# Copiar los binarios optimizados desde la etapa de publicación
 COPY --from=publish /app/publish .
 
-# Definir el comando de inicio
 ENTRYPOINT ["dotnet", "Meseta_Verde.dll"]
