@@ -64,7 +64,7 @@ namespace Meseta_Verde.Application.Features.Usuarios.Commands
                     FechaRegistro = user.FechaRegistro
                 };
 
-                return Result<UserDto>.Succes(201, mapped, "Usuario Registrado. Se envió un código de verificación a tu correo.", true);
+                return Result<UserDto>.Success(201, mapped, "Usuario Registrado. Se envió un código de verificación a tu correo.", true);
 
             }
 
