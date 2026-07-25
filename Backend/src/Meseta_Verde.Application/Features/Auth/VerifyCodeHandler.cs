@@ -42,7 +42,7 @@ namespace Meseta_Verde.Application.Features.Auth
                 UserName = user.NombreCompleto
             };
 
-            return Result<LoginResponse>.Succes(200, response, "Identidad verificada correctamente.", true);
+            return Result<LoginResponse>.Success(200, response, "Identidad verificada correctamente.", true);
         }
     }
 }
