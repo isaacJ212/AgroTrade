@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  backend_api:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: meseta_verde_api
+    restart: always
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      # Reemplaza los valores con la URL/Credenciales reales de tu PostgreSQL en la nube
+      - environment:
+  - ConnectionStrings__MesetaVerdeDatabase=Host=${DB_HOST};Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASS};
+      # Configuración de JWT
+      - Jwt__Issuer=MesetaVerdeApi
+      - Jwt__Audience=MesetaVerdeApp
+      - Jwt__Key=EstaEsUnaClaveSuperSecretaYLarga12345!
+      
