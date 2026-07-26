@@ -20,7 +20,7 @@ namespace Meseta_Verde.Controllers
         }
 
         /// <summary>
-        /// Inicio de sesión tradicional mediante Correo y Contraseña.
+        /// Inicio de sesiÃ³n tradicional mediante Correo y ContraseÃ±a.
         /// </summary>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto, CancellationToken ct)
@@ -37,7 +37,7 @@ namespace Meseta_Verde.Controllers
         }
 
         /// <summary>
-        /// Inicio de sesión y registro automático mediante Google Sign-In.
+        /// Inicio de sesiÃ³n y registro automÃ¡tico mediante Google Sign-In.
         /// </summary>
         [HttpPost("google-signin")]
         public async Task<IActionResult> GoogleSignIn([FromBody] OAuthSignInDto dto, CancellationToken ct)
@@ -52,6 +52,7 @@ namespace Meseta_Verde.Controllers
 
             return StatusCode(result.StatusCode, new { ErrorMessage = result.Message });
         }
+
 
         [HttpPost("verify-code")]
         public async Task<IActionResult> VerifyCode([FromBody] VerifyCodeDto dto, CancellationToken ct)

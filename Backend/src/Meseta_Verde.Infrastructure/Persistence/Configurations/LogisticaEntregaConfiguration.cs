@@ -14,6 +14,7 @@ namespace Meseta_Verde.Infrastructure.Persistence.Configurations
         {
             builder.ToTable("logistica_entregas");
             builder.HasKey(l => l.IdEntrega);
+            builder.HasIndex(l => l.IdPedido).IsUnique();
 
             builder.HasOne(l => l.Pedido)
                .WithMany()

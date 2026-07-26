@@ -22,5 +22,7 @@ namespace Meseta_Verde.Application.Common.DTOs.UsersDtos
         {
             get; set;
         }
+        [MaxLength(30, ErrorMessage = "El Departamento no debe sobrepasar los 30 caracteres ")]
+        public string? Departamento { get; set; }
     }
 }

@@ -40,6 +40,8 @@ namespace Meseta_Verde.Application.Features.Usuarios.Commands
             if (!string.IsNullOrEmpty(dto.NombreCompleto)) user.NombreCompleto = dto.NombreCompleto;
             if (!string.IsNullOrEmpty(dto.DireccionBase)) user.DireccionBase = dto.DireccionBase;
             if (!string.IsNullOrEmpty(dto.Telefono)) user.Telefono = dto.Telefono;
+            if (!string.IsNullOrEmpty(dto.Departamento)) user.Departamento = dto.Departamento;
+
 
             await context.SaveChangesAsync(ct);
 

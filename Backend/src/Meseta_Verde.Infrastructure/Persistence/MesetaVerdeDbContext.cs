@@ -22,8 +22,10 @@ namespace Meseta_Verde.Infrastructure.Persistence
         public DbSet<InventarioProveedor> InventarioProveedor { get; set; } = null!;
         public DbSet<SuscripcionApp> SuscripcionesApp { get; set; } = null!;
         public DbSet<Pedido> Pedidos { get; set; } = null!;
+        public DbSet<RegistroTransferenciaMock> RegistrosTransferenciaMock { get; set; } = null!;
         public DbSet<DetallePedido> DetallesPedido { get; set; } = null!;
         public DbSet<LogisticaEntrega> LogisticaEntregas { get; set; } = null!;
+        public DbSet<NotificacionEntrega> NotificacionesEntrega { get; set; } = null!;
         public DbSet<Valoracion> Valoraciones { get; set; } = null!;
         public DbSet<ImpactoSocial> ImpactosSociales { get; set; } = null!;
         public DbSet<Conversacion> Conversaciones { get; set; } = null!;

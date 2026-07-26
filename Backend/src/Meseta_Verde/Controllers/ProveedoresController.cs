@@ -4,6 +4,8 @@ using Meseta_Verde.Application.Common.DTOs.ProveedoresDtos;
 using Meseta_Verde.Application.Common.Interface;
 using Meseta_Verde.Application.Features.Proveedores.Commands;
 using Meseta_Verde.Application.Features.Proveedores.Queries;
+using Meseta_Verde.Application.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Meseta_Verde.Controllers
@@ -120,6 +122,25 @@ namespace Meseta_Verde.Controllers
         {
             var result = await _mediator.Send(new DeleteProveedorCommand(id));
             return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, result);
+        }
+
+        [HttpGet("ventas")]
+        [Authorize]
+        public async Task<ActionResult<Result<List<VentaProveedorDto>>>> GetVentas()
+        {
+            int userId;
+            try
+            {
+                if (!int.TryParse(User.GetUserId(), out userId))
+                    return Unauthorized(Result<List<VentaProveedorDto>>.Failure(401, "JWT invalido."));
+            }
+            catch (InvalidOperationException)
+            {
+                return Unauthorized(Result<List<VentaProveedorDto>>.Failure(401, "JWT invalido."));
+            }
+
+            var result = await _mediator.Send(new GetVentasProveedorQuery(userId));
+            return StatusCode(result.StatusCode, result);
         }
     }
 }

@@ -27,5 +27,7 @@ namespace Meseta_Verde.Application.Common.DTOs.UsersDtos
        
         [MaxLength(200, ErrorMessage = "La Direccion no debe sobrepasar los 200 caracteres")]
         public string? DireccionBase { get; set; }
+        [MaxLength(30, ErrorMessage = "El Departamento no debe sobrepasar los 30 caracteres ")]
+        public string? Departamento { get; set; }
     }
 }
