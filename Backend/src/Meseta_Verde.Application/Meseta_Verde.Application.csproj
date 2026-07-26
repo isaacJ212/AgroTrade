@@ -24,9 +24,6 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Meseta_Verda.Domain\Meseta_Verda.Domain.csproj" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Meseta_Verda.Domain\Meseta_Verda.Domain.csproj" />

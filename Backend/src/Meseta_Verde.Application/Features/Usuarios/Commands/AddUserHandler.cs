@@ -12,9 +12,7 @@
 
 namespace Meseta_Verde.Application.Features.Usuarios.Commands
 {
-    public record AddUserCommand(CreateUserDto dto) : IRequest<Result<UserDto>>;
-    public class AddUserHandler(IUnitofWork context, IRepository<UsuarioRol> rol, IEmailService emailService, IVerificationCodeRepository verificationCodeRepository) : IRequestHandler<AddUserCommand, Result<UserDto>>
-    {
+   
         public record AddUserCommand(CreateUserDto dto) : IRequest<Result<UserDto>>;
         public class AddUserHandler(IUnitofWork context, IRepository<UsuarioRol> rol, IEmailService emailService, IVerificationCodeRepository verificationCodeRepository) : IRequestHandler<AddUserCommand, Result<UserDto>>
         {
@@ -83,3 +81,4 @@ namespace Meseta_Verde.Application.Features.Usuarios.Commands
             }
 
         } }
+        

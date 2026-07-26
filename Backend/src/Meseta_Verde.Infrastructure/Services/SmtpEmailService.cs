@@ -4,10 +4,10 @@ using MailKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MailKit.Security;
-using Meseta_Verde.Application.Common.Interface;
 using Meseta_Verde.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
+using Meseta_Verde.Application.Common.Interface;
 using System.Net;
 
 namespace Meseta_Verde.Infrastructure.Services
