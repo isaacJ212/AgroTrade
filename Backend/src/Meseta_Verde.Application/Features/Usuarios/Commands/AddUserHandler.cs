@@ -10,7 +10,10 @@
     using System.Text;
     using System.Threading.Tasks;
 
-    namespace Meseta_Verde.Application.Features.Usuarios.Commands
+namespace Meseta_Verde.Application.Features.Usuarios.Commands
+{
+    public record AddUserCommand(CreateUserDto dto) : IRequest<Result<UserDto>>;
+    public class AddUserHandler(IUnitofWork context, IRepository<UsuarioRol> rol, IEmailService emailService, IVerificationCodeRepository verificationCodeRepository) : IRequestHandler<AddUserCommand, Result<UserDto>>
     {
         public record AddUserCommand(CreateUserDto dto) : IRequest<Result<UserDto>>;
         public class AddUserHandler(IUnitofWork context, IRepository<UsuarioRol> rol, IEmailService emailService, IVerificationCodeRepository verificationCodeRepository) : IRequestHandler<AddUserCommand, Result<UserDto>>
