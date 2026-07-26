@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Meseta_Verde.Application.Common;
 using Meseta_Verde.Application.Common.DTOs.AuthServices;
 using Meseta_Verde.Application.Common.DTOs.UsersDtos;
@@ -15,6 +15,7 @@ namespace Meseta_Verde.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class UsersController : ControllerBase
     {
         private readonly IHttpContextAccessor _contextAccessor;
@@ -54,8 +55,8 @@ namespace Meseta_Verde.Controllers
         /// <summary>
         /// Registra un nuevo usuario en la base de datos.
         /// </summary>
-        /// <param name="dto">Objeto con los datos básicos (Nombre, Email, Password, etc).</param>
-        /// <param name="ct">Token de cancelación.</param>
+        /// <param name="dto">Objeto con los datos bÃ¡sicos (Nombre, Email, Password, etc).</param>
+        /// <param name="ct">Token de cancelaciÃ³n.</param>
         [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateUserDto dto, CancellationToken ct)

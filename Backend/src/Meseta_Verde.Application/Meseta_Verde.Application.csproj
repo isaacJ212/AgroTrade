@@ -7,7 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Common\DTOs\SolicitudesRoles\**" />
+    <EmbeddedResource Remove="Common\DTOs\SolicitudesRoles\**" />
+    <None Remove="Common\DTOs\SolicitudesRoles\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Common\Exception\" />
+    <Folder Include="Features\Pedidos\CarritoServices\Commands\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,7 +33,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MediatR" Version="12.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
   </ItemGroup>
 

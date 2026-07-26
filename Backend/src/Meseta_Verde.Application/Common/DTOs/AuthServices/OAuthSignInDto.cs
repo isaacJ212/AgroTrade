@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -9,7 +9,7 @@ namespace Meseta_Verde.Application.Common.DTOs.AuthServices
 {
     public class OAuthSignInDto
     {
-        [Required(ErrorMessage = "El token de Autenticación es obligatorio.")]
+        [Required(ErrorMessage = "El token de Autenticaci�n es obligatorio.")]
         public string IdToken { get; set; }
     }
 }

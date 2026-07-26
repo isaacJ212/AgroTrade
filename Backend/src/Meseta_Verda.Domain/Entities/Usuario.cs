@@ -21,11 +21,13 @@ namespace Meseta_Verda.Domain.Entities
         public string? OAuthProviderId { get; set; }
         public string? Telefono { get; set; }
         public string? DireccionBase { get; set; }
+        public string? Departamento { get; set; }
         public DateTime? FechaRegistro { get; set; }
 
         
         public virtual ICollection<UsuarioRol> UsuariosRoles { get; set; } = new List<UsuarioRol>();
         public virtual ICollection<Pedido> Pedidos { get; set; } = new List<Pedido>();
         public virtual ICollection<ConversacionParticipante> ConversacionParticipantes { get; set; } = new List<ConversacionParticipante>();
+        public virtual ICollection<Valoracion> ValoracionesRealizadas { get; set; } = new List<Valoracion>();
     }
 }

@@ -24,7 +24,7 @@ namespace Meseta_Verde.Application.Features.Categorias.Queries
                 return Result<List<CategoriaDto>>.Failure(200, "No se encontraron categorías.");
             var data = categorias.Select(c => new CategoriaDto { IdCategoria = c.IdCategoria, Nombre = c.Nombre }).ToList();
 
-            return Result<List<CategoriaDto>>.Succes(200, data, "Categorías obtenidas correctamente.", true);
+            return Result<List<CategoriaDto>>.Success(200, data, "Categorías obtenidas correctamente.", true);
         }
     }
 }

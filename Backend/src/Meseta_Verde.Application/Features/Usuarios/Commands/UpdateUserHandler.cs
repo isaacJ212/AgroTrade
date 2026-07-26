@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Meseta_Verde.Application.Common;
 using Meseta_Verde.Application.Common.DTOs.UsersDtos;
 using Meseta_Verde.Application.Common.Interface;
@@ -32,7 +32,7 @@ namespace Meseta_Verde.Application.Features.Usuarios.Commands
 
                 if (emailOcupado)
                 {
-                    return Result<Unit>.Failure(409, "Email ya está en uso");
+                    return Result<Unit>.Failure(409, "Email ya est� en uso");
                 }
 
                 user.Email = dto.Email;
@@ -40,10 +40,12 @@ namespace Meseta_Verde.Application.Features.Usuarios.Commands
             if (!string.IsNullOrEmpty(dto.NombreCompleto)) user.NombreCompleto = dto.NombreCompleto;
             if (!string.IsNullOrEmpty(dto.DireccionBase)) user.DireccionBase = dto.DireccionBase;
             if (!string.IsNullOrEmpty(dto.Telefono)) user.Telefono = dto.Telefono;
+            if (!string.IsNullOrEmpty(dto.Departamento)) user.Departamento = dto.Departamento;
+
 
             await context.SaveChangesAsync(ct);
 
-            return Result<Unit>.Succes(204, Unit.Value, "Exito", true);
+            return Result<Unit>.Success(204, Unit.Value, "Exito", true);
         }
     }
 }

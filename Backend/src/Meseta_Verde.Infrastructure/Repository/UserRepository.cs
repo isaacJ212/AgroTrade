@@ -1,4 +1,4 @@
-﻿using Meseta_Verda.Domain.Entities;
+using Meseta_Verda.Domain.Entities;
 using Meseta_Verde.Application.Common.Interface;
 using Meseta_Verde.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;

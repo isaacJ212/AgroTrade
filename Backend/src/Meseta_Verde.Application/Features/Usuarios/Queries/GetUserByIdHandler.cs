@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Meseta_Verde.Application.Common;
 using Meseta_Verde.Application.Common.DTOs.UsersDtos;
 using Meseta_Verde.Application.Common.Interface;
@@ -26,9 +26,10 @@ namespace Meseta_Verde.Application.Features.Usuarios.Queries
                 IdentidadVerificada = user.IdentidadVerificada,
                 Telefono = user.Telefono,
                 DireccionBase = user.DireccionBase,
-                FechaRegistro = user.FechaRegistro
+                FechaRegistro = user.FechaRegistro,
+                Departamento = user.Departamento,
             };
-            return Result<UserDto>.Succes(200, dto, "User found", true);
+            return Result<UserDto>.Success(200, dto, "User found", true);
         }
     }
 }

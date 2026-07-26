@@ -1,4 +1,4 @@
-ï»¿using MediatR;
+using MediatR;
 using Meseta_Verde.Application.Common;
 using Meseta_Verde.Application.Common.DTOs.AuthServices;
 using Meseta_Verde.Application.Common.Interface;
@@ -27,11 +27,11 @@ namespace Meseta_Verde.Application.Features.Auth
             var user = await _unitOfWork.Users.GetByEmailAsync(request.loginDto.Email, cancellationToken);
             if (user == null)
             {
-                return Result<LoginResponse>.Failure(401, "ContraseÃ±a o Usuario incorrectos.");
+                return Result<LoginResponse>.Failure(401, "Contraseña o Usuario incorrectos.");
             }
             if (!BCrypt.Net.BCrypt.Verify(request.loginDto.Password, user.PasswordHash))
             {
-                return Result<LoginResponse>.Failure(401, "ContraseÃ±a o Usuario incorrectos.");
+                return Result<LoginResponse>.Failure(401, "Contraseña o Usuario incorrectos.");
             }
             var token = await _token.GenerateTokenAsync(user);
             var response = new LoginResponse
@@ -40,7 +40,7 @@ namespace Meseta_Verde.Application.Features.Auth
                 UserName = user.NombreCompleto
 
             };
-            return Result<LoginResponse>.Succes(200, response, "Inicio de sesiÃ³n exitoso.", true);
+            return Result<LoginResponse>.Success(200, response, "Inicio de sesión exitoso.", true);
         }
     }
 }

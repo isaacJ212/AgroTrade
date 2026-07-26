@@ -1,4 +1,4 @@
-﻿using Meseta_Verda.Domain.Entities;
+using Meseta_Verda.Domain.Entities;
 using Meseta_Verde.Application.Common.Interface;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -43,7 +43,7 @@ namespace Meseta_Verde.Infrastructure.Services
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
+                expires: DateTime.UtcNow.AddDays(1),
                 signingCredentials: creds
             );
 

@@ -17,6 +17,7 @@ namespace Meseta_Verda.Domain.Entities
         public int IdDetallePedido { get; set; }
         public DetallePedido DetallePedido { get; set; } = null!;
 
+        public DateTime FechaRegistro { get; set; } = DateTime.UtcNow;
         public float ProductosSalvados { get; set; }
         public float BeneficioExtraProductor { get; set; }
     }

@@ -42,6 +42,7 @@ namespace Meseta_Verde.Infrastructure.Repository
         public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
             => await _dbSet.AnyAsync(predicate, cancellationToken);
 
+        
         public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken, params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = _dbSet;
@@ -52,8 +53,47 @@ namespace Meseta_Verde.Infrastructure.Repository
 
             return await query.FirstOrDefaultAsync(predicate, cancellationToken);
         }
+        public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken, params string[] includes)
+        {
+            IQueryable<T> query = _dbSet;
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            return await query.FirstOrDefaultAsync(predicate, cancellationToken);
+        }
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken, params string[] includes)
+        {
+            IQueryable<T> query = _dbSet;
+            foreach (var include in includes)
+            {
+                query = query.Include(include); 
+            }
+            return await query.AsNoTracking().Where(predicate).ToListAsync(cancellationToken);
+        }
+
+
 
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
             => await _dbSet.AsNoTracking().Where(predicate).ToListAsync(cancellationToken);
+
+        public async Task<T?>FirstOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken) => await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
+
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken, params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = _dbSet;
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            return await query.AsNoTracking().Where(predicate).ToListAsync(cancellationToken);
+        }
+
+        public IQueryable<T> GetQueryable()
+        {
+            return _dbSet;
+        }
     }
 }

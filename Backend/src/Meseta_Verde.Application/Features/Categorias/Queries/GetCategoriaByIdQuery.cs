@@ -25,7 +25,7 @@ namespace Meseta_Verde.Application.Features.Categorias.Queries
             }
 
             var data = new CategoriaDto { IdCategoria = categoria.IdCategoria, Nombre = categoria.Nombre };
-            return Result<CategoriaDto?>.Succes(200, data, "Categoría obtenida correctamente.", true);
+            return Result<CategoriaDto?>.Success(200, data, "Categoría obtenida correctamente.", true);
         }
     }
 }
