@@ -52,6 +52,20 @@ namespace Meseta_Verde.Controllers
 
             return StatusCode(result.StatusCode, new { ErrorMessage = result.Message });
         }
+
+
+        [HttpPost("verify-code")]
+        public async Task<IActionResult> VerifyCode([FromBody] VerifyCodeDto dto, CancellationToken ct)
+        {
+            var result = await _mediator.Send(new VerifyCodeCommand(dto), ct);
+
+            if (result.IsSuccess)
+            {
+                return Ok(result);
+            }
+
+            return StatusCode(result.StatusCode, new { ErrorMessage = result.Message });
+        }
     }
 }
 

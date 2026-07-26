@@ -7,6 +7,8 @@ using Meseta_Verde.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+
 
 namespace Meseta_Verde.Infrastructure.DependencyInjection
 {
@@ -22,6 +24,8 @@ namespace Meseta_Verde.Infrastructure.DependencyInjection
                 options.UseNpgsql(connectionString)
                        .UseSnakeCaseNamingConvention());
 
+ 
+      
          
 
            // Configuración de Supabase
@@ -37,9 +41,12 @@ namespace Meseta_Verde.Infrastructure.DependencyInjection
             services.AddMemoryCache();
             services.AddScoped<ICartRepository, CartRepository>();
             services.AddScoped<ITokenServices, TokenServices>();
+            services.AddScoped<IEmailService, SmtpEmailService>();
+            services.AddScoped<IVerificationCodeRepository, InMemoryVerificationCodeRepository>();
             services.AddScoped<IUnitofWork, UnitOfWork>();
 
             return services;
         }
     }
+
 }
