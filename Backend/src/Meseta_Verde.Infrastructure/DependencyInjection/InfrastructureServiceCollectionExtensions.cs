@@ -7,6 +7,8 @@ using Meseta_Verde.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+
 
 namespace Meseta_Verde.Infrastructure.DependencyInjection
 {
@@ -21,7 +23,8 @@ namespace Meseta_Verde.Infrastructure.DependencyInjection
                 options.UseNpgsql(connectionString)
                        .UseSnakeCaseNamingConvention());
 
-           
+ 
+      
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<ITokenServices, TokenServices>();
             services.AddScoped<IEmailService, SmtpEmailService>();
@@ -31,4 +34,5 @@ namespace Meseta_Verde.Infrastructure.DependencyInjection
             return services;
         }
     }
+
 }

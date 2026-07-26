@@ -51,19 +51,12 @@ namespace Meseta_Verde.Controllers
             return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, new { ErrorMesagge = result.Message });
         }
 
-        [AllowAnonymous]
-        [HttpPost("verify-code")]
-        public async Task<IActionResult> VerifyCode([FromBody] VerifyCodeDto dto, CancellationToken ct)
-        {
-            var result = await mediator.Send(new VerifyCodeCommand(dto), ct);
-            return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, new { ErrorMessage = result.Message });
-        }
         /// <summary>
         /// Registra un nuevo usuario en la base de datos.
         /// </summary>
         /// <param name="dto">Objeto con los datos básicos (Nombre, Email, Password, etc).</param>
         /// <param name="ct">Token de cancelación.</param>
-        [Authorize]
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateUserDto dto, CancellationToken ct)
         {
