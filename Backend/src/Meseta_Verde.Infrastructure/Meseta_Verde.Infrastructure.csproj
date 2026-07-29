@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Meseta_Verda.Domain\Meseta_Verda.Domain.csproj" />
+    <ProjectReference Include="..\Meseta_Verde.Application\Meseta_Verde.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,6 +25,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="EFCore.NamingConventions" Version="8.0.2" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
   </ItemGroup>
 

@@ -1,5 +1,6 @@
 using Meseta_Verda.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Meseta_Verde.Application.Common.Interface; //
 
 namespace Meseta_Verde.Infrastructure.Persistence
 {
