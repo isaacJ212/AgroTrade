@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚜 Meseta Verde
+# 🚜 AgroTrade
 ### *El campo a un clic de distancia.*
 
 [![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
@@ -29,11 +29,11 @@
 
 ## 1. Descripción General del Proyecto
 
-Meseta Verde es una plataforma Marketplace agroalimentaria que reestructura la cadena de suministro en Nicaragua. Conecta directamente a pequeños productores con consumidores finales y negocios, eliminando intermediarios para que el agricultor reciba un precio justo y el consumidor acceda a productos frescos con origen transparente.
+AgroTrade es una plataforma Marketplace agroalimentaria que reestructura la cadena de suministro en Nicaragua. Conecta directamente a pequeños productores con consumidores finales y negocios, eliminando intermediarios para que el agricultor reciba un precio justo y el consumidor acceda a productos frescos con origen transparente.
 
 ### Problema que resuelve
 
-Los pequeños productores agrícolas en Nicaragua enfrentan tres problemas críticos: precios injustos impuestos por intermediarios, merma de productos por falta de canales de venta directa, y nula visibilidad ante el consumidor final. Meseta Verde ataca los tres frentes simultáneamente.
+Los pequeños productores agrícolas en Nicaragua enfrentan tres problemas críticos: precios injustos impuestos por intermediarios, merma de productos por falta de canales de venta directa, y nula visibilidad ante el consumidor final. Agro ataca los tres frentes simultáneamente.
 
 ### Funcionalidades principales
 
@@ -110,34 +110,34 @@ El backend sigue **Clean Architecture** combinada con el patrón **CQRS** (Comma
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                  Meseta_Verde (API)                      │
-│        Controllers · Middleware · Swagger · Program      │
+│                  Agro_Trade (API)                       │
+│        Controllers · Middleware · Swagger · Program     │
 └────────────────────────┬────────────────────────────────┘
                          │ depende de
 ┌────────────────────────▼────────────────────────────────┐
-│              Meseta_Verde.Application                    │
-│   Commands · Queries · Handlers · DTOs · Interfaces      │
+│              Agro_Trade.Application                     │
+│   Commands · Queries · Handlers · DTOs · Interfaces     │
 └──────────┬──────────────────────────┬───────────────────┘
            │ depende de               │ es implementada por
 ┌──────────▼──────────┐   ┌──────────▼───────────────────┐
-│  Meseta_Verda.Domain│   │  Meseta_Verde.Infrastructure  │
-│  Entities · Enums   │   │  EF Core · Repos · Services   │
-│  Value Objects      │   │  Supabase · SMTP · JWT · UoW  │
+│  Agro_Trade.Domain  │   │  Agro_Trade.Infrastructurecc │
+│  Entities · Enums   │   │  EF Core · Repos · Services  │
+│  Value Objects      │   │  Supabase · SMTP · JWT · UoW │
 └─────────────────────┘   └──────────────────────────────┘
 ```
 
 ### Capas y responsabilidades
 
-**Domain** (`Meseta_Verda.Domain`)
+**Domain** (`Agro_Trade.Domain`)
 Núcleo del sistema. Contiene las entidades de negocio y no tiene ninguna dependencia externa. Es el corazón del modelo: `Usuario`, `Producto`, `Pedido`, `Proveedor`, `Inventario`, `Mensaje`, etc.
 
-**Application** (`Meseta_Verde.Application`)
+**Application** (`Agro_Trade.Application`)
 Orquesta los casos de uso mediante el patrón CQRS. Cada funcionalidad tiene su `Command` o `Query` y su `Handler` correspondiente. Define interfaces (`IUnitofWork`, `ITokenServices`, `IEmailService`, `IStorageService`) que son implementadas en Infrastructure, nunca al revés.
 
-**Infrastructure** (`Meseta_Verde.Infrastructure`)
+**Infrastructure** (`Agro_Trade.Infrastructure`)
 Implementaciones concretas: EF Core + PostgreSQL (con naming convention snake_case), repositorio genérico, Unit of Work, generación de tokens JWT, envío de emails SMTP, almacenamiento en Supabase Storage, y repositorio en memoria para códigos de verificación.
 
-**API** (`Meseta_Verde`)
+**API** (`Agro_Trade`)
 Capa de entrada. Controladores REST, middleware de manejo de excepciones (`ExceptionHandlingMiddleware`), configuración de JWT Bearer, CORS, Swagger con soporte Bearer, y auto-aplicación de migraciones de EF Core al arrancar.
 
 ### Patrón CQRS con MediatR
@@ -454,7 +454,7 @@ erDiagram
 ### Estructura del repositorio (monorepo)
 
 ```
-Meseta_Verde/
+Agro_Trade/
 ├── README.md
 ├── .env                          # Variables de entorno (no subir a producción)
 ├── docker-compose.yml            # Orquestación de contenedores
@@ -462,14 +462,14 @@ Meseta_Verde/
 │
 ├── Backend/
 │   ├── Dockerfile                # Build multi-etapa SDK → Runtime
-│   ├── Meseta_Verde.sln          # Solución .NET
+│   ├── Agro_Trade.sln          # Solución .NET
 │   └── src/
-│       ├── Meseta_Verda.Domain/              # Capa de Dominio
+│       ├── Agro_Trade.Domain/                # Capa de Dominio
 │       │   ├── Entities/                     # Entidades de negocio (21 entidades)
 │       │   ├── Events/                       # DTOs de dominio
 │       │   └── Common/                       # Interfaces base (IEntity, etc.)
 │       │
-│       ├── Meseta_Verde.Application/         # Capa de Aplicación (CQRS)
+│       ├── Agro_Trade.Application/           # Capa de Aplicación (CQRS)
 │       │   ├── Common/
 │       │   │   ├── DTOs/                     # Data Transfer Objects
 │       │   │   ├── Interface/                # Contratos (IUnitOfWork, IRepository, etc.)
@@ -488,10 +488,10 @@ Meseta_Verde/
 │       │       ├── Usuarios/
 │       │       └── Valoraciones/
 │       │
-│       ├── Meseta_Verde.Infrastructure/      # Capa de Infraestructura
+│       ├── Agro_Trade.Infrastructure/        # Capa de Infraestructura
 │       │   ├── DependencyInjection/          # Extensión AddInfrastructureServices()
 │       │   ├── Persistence/
-│       │   │   ├── MesetaVerdeDbContext.cs   # DbContext con 21 DbSets
+│       │   │   ├── AgroTradeDbContext.cs   # DbContext con 21 DbSets
 │       │   │   ├── UnitofWork/               # Implementación Unit of Work
 │       │   │   └── Migrations/               # 5 migraciones EF Core
 │       │   ├── Repository/                   # Repositorio genérico + especializados
@@ -501,14 +501,14 @@ Meseta_Verde/
 │       │       ├── SupabaseStorageService.cs # Upload a Supabase Storage
 │       │       └── InMemoryVerificationCodeRepository.cs
 │       │
-│       ├── Meseta_Verde/                     # Capa de API (Punto de entrada)
+│       ├── Agro_Trade/                       # Capa de API (Punto de entrada)
 │       │   ├── Program.cs                    # Bootstrap de la aplicación
 │       │   ├── appsettings.json              # Configuración por ambiente
 │       │   ├── Controllers/                  # 11 controladores REST
 │       │   ├── Middlewares/                  # ExceptionHandlingMiddleware
-│       │   └── meseta_backend.sql            # DDL completo de referencia
+│       │   └── agro_backend.sql            # DDL completo de referencia
 │       │
-│       └── meseta_backend.sql                # Script SQL de la base de datos
+│       └── agro_backend.sql                # Script SQL de la base de datos
 │
 └── Frontend/
     └── (Flutter — en desarrollo)
@@ -533,8 +533,8 @@ Tener instalados: .NET 8 SDK, Docker, Docker Compose y Git.
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/isaacJ212/Meseta-Verde.git
-cd Meseta_Verde
+git clone https://github.com/isaacJ212/AgroTrade.git
+cd Agro_Trade
 ```
 
 ### 2. Configurar variables de entorno
@@ -551,21 +551,21 @@ Variables requeridas en `.env`:
 # Base de datos PostgreSQL
 DB_HOST=tu_host_postgres
 DB_PORT=5432
-DB_NAME=meseta_verde
+DB_NAME=Agro_Trade
 DB_USER=tu_usuario
 DB_PASS=tu_contraseña_segura
 ```
 
-Variables en `Backend/src/Meseta_Verde/appsettings.json`:
+Variables en `Backend/src/Agro_Trade/appsettings.json`:
 
 ```json
 {
   "ConnectionStrings": {
-    "MesetaVerdeDatabase": "Host=...;Port=5432;Database=meseta_verde;Username=...;Password=..."
+    "AgroTradeDatabase": "Host=...;Port=5432;Database=Agro_Trade;Username=...;Password=..."
   },
   "Jwt": {
-    "Issuer": "MesetaVerdeApi",
-    "Audience": "MesetaVerdeApp",
+    "Issuer": "AgroTradeApi",
+    "Audience": "AgroTradeApp",
     "Key": "clave-secreta-minimo-32-caracteres"
   },
   "Supabase": {
@@ -599,18 +599,22 @@ La API arrancará en `http://localhost:5000`. Las migraciones de EF Core se apli
 **Backend:**
 
 ```bash
-cd Backend/src/Meseta_Verde
+cd Backend/src/Agro_Trade
 
 # Restaurar paquetes
 dotnet restore
 
 # Aplicar migraciones manualmente
-dotnet ef database update --project ../Meseta_Verde.Infrastructure
+dotnet ef database update --project ../Agro_Trade.Infrastructure
 
 # Ejecutar el servidor
 dotnet run
 ```
 
+La API estará disponible en `https://localhost:5001`.  
+Swagger UI: `https://localhost:5001/swagger`
+
+**Frontend Flutter:**
 La API estará disponible en `https://localhost:5001`.  
 Swagger UI: `https://localhost:5001/swagger`
 
@@ -641,8 +645,8 @@ Etapa 2 (final)  → Runtime ASP.NET 8 → imagen final ~200MB
 
 ```bash
 # 1. Clonar el repositorio en el servidor
-git clone https://github.com/isaacJ212/Meseta-Verde.git
-cd Meseta_Verde
+git clone https://github.com/isaacJ212/AgroTrade.git
+cd Agro_Trade
 
 # 2. Configurar las variables de entorno reales
 nano .env
@@ -652,7 +656,7 @@ docker compose up -d --build
 
 # 4. Verificar que el contenedor está corriendo
 docker ps
-docker logs meseta_verde_api
+docker logs Agro_Trade_api
 ```
 
 ### Variables de entorno en producción (docker-compose.yml)
@@ -662,9 +666,9 @@ El `docker-compose.yml` lee las variables del archivo `.env` y las pasa al conte
 ```yaml
 environment:
   - ASPNETCORE_ENVIRONMENT=Production
-  - ConnectionStrings__MesetaVerdeDatabase=Host=${DB_HOST};Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASS}
-  - Jwt__Issuer=MesetaVerdeApi
-  - Jwt__Audience=MesetaVerdeApp
+  - ConnectionStrings__AgroTradeDatabase=Host=${DB_HOST};Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASS}
+  - Jwt__Issuer=AgroTradeApi
+  - Jwt__Audience=AgroTradeApp
   - Jwt__Key=${JWT_KEY}
 ```
 
@@ -714,5 +718,5 @@ dbContext.Database.Migrate();
 ---
 
 <div align="center">
-  <strong>Meseta Verde</strong> — Hackathon Nicaragua 2026 · UNAN-Managua
+  <strong>AgroTrade</strong> — Hackathon Nicaragua 2026 · UNAN-Managua
 </div>

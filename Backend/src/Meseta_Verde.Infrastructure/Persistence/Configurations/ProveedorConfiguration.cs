@@ -17,6 +17,8 @@ namespace Meseta_Verde.Infrastructure.Persistence.Configurations
 
             builder.Property(p => p.NombreProveedor).IsRequired().HasMaxLength(150);
             builder.Property(p => p.NombreFinca).HasMaxLength(150);
+            builder.Property(p => p.Banco).HasMaxLength(100);
+            builder.Property(p => p.CuentaBancaria).HasMaxLength(100);
 
             builder.HasOne(p => p.Usuario)
                .WithMany()

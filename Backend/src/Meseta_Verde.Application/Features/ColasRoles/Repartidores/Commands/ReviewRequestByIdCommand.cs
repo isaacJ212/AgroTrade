@@ -97,7 +97,8 @@ namespace Meseta_Verde.Application.Features.ColasRoles.Repartidores.Commands
                 NombreUsuario = solicitud.Usuario?.NombreCompleto ?? string.Empty,
                 DatosRepartidor = solicitud.DatosRepartidor,
                 Estado = solicitud.Estado,
-                FechaSolicitud = solicitud.FechaSolicitud
+                FechaSolicitud = solicitud.FechaSolicitud,
+                Departamento = solicitud.DatosRepartidor?.Departamento ?? string.Empty,
             };
         }
     }

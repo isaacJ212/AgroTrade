@@ -9,7 +9,7 @@ using Meseta_Verda.Domain.Entities;
 
 namespace Meseta_Verde.Application.Features.Proveedores.Commands
 {
-    public record CreateProveedorCommand(int IdUsuario, string NombreProveedor, string? NombreFinca, string? UbicacionGps, string? Biografia) : IRequest<Result<int>>;
+    public record CreateProveedorCommand(int IdUsuario, string NombreProveedor, string? NombreFinca, string? UbicacionGps, string? Biografia, string Banco, string CuentaBancaria) : IRequest<Result<int>>;
     public class CreateProveedorCommandHandler : IRequestHandler<CreateProveedorCommand, Result<int>>
     {
         private readonly IUnitofWork _unitOfWork;
@@ -41,7 +41,10 @@ namespace Meseta_Verde.Application.Features.Proveedores.Commands
                 NombreFinca = request.NombreFinca,
                 UbicacionGps = request.UbicacionGps,
                 Biografia = request.Biografia,
-                CalificacionPromedio = null
+                CalificacionPromedio = null,
+                Banco = request.Banco,
+                CuentaBancaria = request.CuentaBancaria
+                
             };
 
             await _unitOfWork.Proveedores.AddAsync(proveedor, cancellationToken);

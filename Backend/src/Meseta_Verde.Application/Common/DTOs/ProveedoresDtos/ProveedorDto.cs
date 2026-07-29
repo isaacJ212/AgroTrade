@@ -6,8 +6,8 @@ namespace Meseta_Verde.Application.Common.DTOs.ProveedoresDtos
     {
         public int IdProveedor { get; set; }
         public int IdUsuario { get; set; }
-
-        [Required(ErrorMessage = "El nombre del proveedor es obligatorio.")]
+[Required(ErrorMessage = "El nombre del proveedor es obligatorio.")]
+        
         [MaxLength(150, ErrorMessage = "El nombre del proveedor no puede exceder los 150 caracteres.")]
         public string NombreProveedor { get; set; } = null!;
 
@@ -19,5 +19,6 @@ namespace Meseta_Verde.Application.Common.DTOs.ProveedoresDtos
         public string? Biografia { get; set; }
 
         public float? CalificacionPromedio { get; set; }
+        
     }
 }

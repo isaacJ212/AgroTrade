@@ -15,5 +15,6 @@ namespace Meseta_Verde.Application.Common.DTOs.DatosSolicitudRoles
         public DatosRepartidorDto DatosRepartidor { get; set; }
         public string Estado { get; set; }
         public DateTime FechaSolicitud { get; set; }
+        public string Departamento { get; set; }
     }
 }

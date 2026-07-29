@@ -1,14 +1,15 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35027.167
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Meseta_Verde", "src\Meseta_Verde\Meseta_Verde.csproj", "{EFA9E45D-8CA1-44D2-A935-955BC459C9C5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meseta_Verde.Application", "src\Meseta_Verde.Application\Meseta_Verde.Application.csproj", "{24F84B95-301B-4986-8A8D-3399CB1F10A4}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meseta_Verda.Domain", "src\Meseta_Verda.Domain\Meseta_Verda.Domain.csproj", "{632582F3-72A0-4202-A544-8B903B1F1339}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meseta_Verde.Infrastructure", "src\Meseta_Verde.Infrastructure\Meseta_Verde.Infrastructure.csproj", "{AC549742-13F4-42E2-B89F-50202B08E653}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meseta_Verde.Application", "src\Meseta_Verde.Application\Meseta_Verde.Application.csproj", "{13929149-D7B5-89D0-AD80-4352A6F319DE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,10 +21,6 @@ Global
 		{EFA9E45D-8CA1-44D2-A935-955BC459C9C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EFA9E45D-8CA1-44D2-A935-955BC459C9C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EFA9E45D-8CA1-44D2-A935-955BC459C9C5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{24F84B95-301B-4986-8A8D-3399CB1F10A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{24F84B95-301B-4986-8A8D-3399CB1F10A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{24F84B95-301B-4986-8A8D-3399CB1F10A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{24F84B95-301B-4986-8A8D-3399CB1F10A4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{632582F3-72A0-4202-A544-8B903B1F1339}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{632582F3-72A0-4202-A544-8B903B1F1339}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{632582F3-72A0-4202-A544-8B903B1F1339}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -32,6 +29,10 @@ Global
 		{AC549742-13F4-42E2-B89F-50202B08E653}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AC549742-13F4-42E2-B89F-50202B08E653}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AC549742-13F4-42E2-B89F-50202B08E653}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13929149-D7B5-89D0-AD80-4352A6F319DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13929149-D7B5-89D0-AD80-4352A6F319DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13929149-D7B5-89D0-AD80-4352A6F319DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13929149-D7B5-89D0-AD80-4352A6F319DE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -287,6 +287,7 @@ namespace Meseta_Verde.Infrastructure.Persistence.Migrations
                         .HasName("pk_logistica_entregas");
 
                     b.HasIndex("IdPedido")
+                        .IsUnique()
                         .HasDatabaseName("ix_logistica_entregas_id_pedido");
 
                     b.HasIndex("IdUsuarioRepartidor")
@@ -339,6 +340,52 @@ namespace Meseta_Verde.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_mensajes_id_emisor");
 
                     b.ToTable("mensajes", (string)null);
+                });
+
+            modelBuilder.Entity("Meseta_Verda.Domain.Entities.NotificacionEntrega", b =>
+                {
+                    b.Property<int>("IdNotificacion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id_notificacion");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdNotificacion"));
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("estado");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_creacion");
+
+                    b.Property<int>("IdPedido")
+                        .HasColumnType("integer")
+                        .HasColumnName("id_pedido");
+
+                    b.Property<int>("IdUsuarioRepartidor")
+                        .HasColumnType("integer")
+                        .HasColumnName("id_usuario_repartidor");
+
+                    b.Property<string>("ZonaEntrega")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("zona_entrega");
+
+                    b.HasKey("IdNotificacion")
+                        .HasName("pk_notificaciones_entrega");
+
+                    b.HasIndex("IdUsuarioRepartidor")
+                        .HasDatabaseName("ix_notificaciones_entrega_id_usuario_repartidor");
+
+                    b.HasIndex("IdPedido", "IdUsuarioRepartidor")
+                        .IsUnique()
+                        .HasDatabaseName("ix_notificaciones_entrega_id_pedido_id_usuario_repartidor");
+
+                    b.ToTable("notificaciones_entrega", (string)null);
                 });
 
             modelBuilder.Entity("Meseta_Verda.Domain.Entities.Pedido", b =>
@@ -457,6 +504,12 @@ namespace Meseta_Verde.Infrastructure.Persistence.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdProveedor"));
 
+                    b.Property<string>("Banco")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("banco");
+
                     b.Property<string>("Biografia")
                         .HasColumnType("text")
                         .HasColumnName("biografia");
@@ -464,6 +517,12 @@ namespace Meseta_Verde.Infrastructure.Persistence.Migrations
                     b.Property<float?>("CalificacionPromedio")
                         .HasColumnType("real")
                         .HasColumnName("calificacion_promedio");
+
+                    b.Property<string>("CuentaBancaria")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("cuenta_bancaria");
 
                     b.Property<int>("IdUsuario")
                         .HasColumnType("integer")
@@ -493,6 +552,55 @@ namespace Meseta_Verde.Infrastructure.Persistence.Migrations
                     b.ToTable("proveedores", (string)null);
                 });
 
+            modelBuilder.Entity("Meseta_Verda.Domain.Entities.RegistroTransferenciaMock", b =>
+                {
+                    b.Property<string>("IdTransferencia")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("id_transferencia");
+
+                    b.Property<string>("BancoDestino")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("banco_destino");
+
+                    b.Property<string>("Cuenta")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("cuenta");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("estado");
+
+                    b.Property<int>("IdPedido")
+                        .HasColumnType("integer")
+                        .HasColumnName("id_pedido");
+
+                    b.Property<decimal>("MontoEnviado")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("monto_enviado");
+
+                    b.Property<string>("Proveedor")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("proveedor");
+
+                    b.HasKey("IdTransferencia")
+                        .HasName("pk_registros_transferencia_mock");
+
+                    b.HasIndex("IdPedido")
+                        .HasDatabaseName("ix_registros_transferencia_mock_id_pedido");
+
+                    b.ToTable("registros_transferencia_mock", (string)null);
+                });
+
             modelBuilder.Entity("Meseta_Verda.Domain.Entities.Repartidor", b =>
                 {
                     b.Property<int>("Id")
@@ -506,6 +614,11 @@ namespace Meseta_Verde.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("cuenta_bancaria");
+
+                    b.Property<string>("Departamento")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("departamento");
 
                     b.Property<string>("Estado")
                         .IsRequired()
@@ -689,6 +802,10 @@ namespace Meseta_Verde.Infrastructure.Persistence.Migrations
                         .HasColumnName("id_usuario");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdUsuario"));
+
+                    b.Property<string>("Departamento")
+                        .HasColumnType("text")
+                        .HasColumnName("departamento");
 
                     b.Property<string>("DireccionBase")
                         .HasColumnType("text")
@@ -958,6 +1075,27 @@ namespace Meseta_Verde.Infrastructure.Persistence.Migrations
                     b.Navigation("Emisor");
                 });
 
+            modelBuilder.Entity("Meseta_Verda.Domain.Entities.NotificacionEntrega", b =>
+                {
+                    b.HasOne("Meseta_Verda.Domain.Entities.Pedido", "Pedido")
+                        .WithMany()
+                        .HasForeignKey("IdPedido")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_notificaciones_entrega_pedidos_id_pedido");
+
+                    b.HasOne("Meseta_Verda.Domain.Entities.Usuario", "UsuarioRepartidor")
+                        .WithMany()
+                        .HasForeignKey("IdUsuarioRepartidor")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_notificaciones_entrega_usuarios_id_usuario_repartidor");
+
+                    b.Navigation("Pedido");
+
+                    b.Navigation("UsuarioRepartidor");
+                });
+
             modelBuilder.Entity("Meseta_Verda.Domain.Entities.Pedido", b =>
                 {
                     b.HasOne("Meseta_Verda.Domain.Entities.Usuario", "UsuarioCliente")
@@ -1001,6 +1139,18 @@ namespace Meseta_Verde.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_proveedores_usuarios_id_usuario");
 
                     b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("Meseta_Verda.Domain.Entities.RegistroTransferenciaMock", b =>
+                {
+                    b.HasOne("Meseta_Verda.Domain.Entities.Pedido", "Pedido")
+                        .WithMany("TransferenciasDistribuidas")
+                        .HasForeignKey("IdPedido")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_registros_transferencia_mock_pedidos_id_pedido");
+
+                    b.Navigation("Pedido");
                 });
 
             modelBuilder.Entity("Meseta_Verda.Domain.Entities.Repartidor", b =>
@@ -1138,6 +1288,8 @@ namespace Meseta_Verde.Infrastructure.Persistence.Migrations
                     b.Navigation("Detalles");
 
                     b.Navigation("ImpactosSociales");
+
+                    b.Navigation("TransferenciasDistribuidas");
 
                     b.Navigation("Valoraciones");
                 });
