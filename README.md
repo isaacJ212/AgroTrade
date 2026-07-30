@@ -71,7 +71,7 @@ Los pequeños productores agrícolas en Nicaragua enfrentan tres problemas crít
 |---|---|---|
 | .NET SDK | 8.0 | https://dotnet.microsoft.com/download/dotnet/8.0 |
 | Flutter SDK | 3.x | https://flutter.dev/docs/get-started/install |
-| PostgreSQL | 14+ | https://www.postgresql.org/download/ |
+| PostgreSQL | 17 | https://www.postgresql.org/download/ |
 | Docker | 24+ | https://docs.docker.com/get-docker/ |
 | Docker Compose | 2.x | https://docs.docker.com/compose/install/ |
 | Git | 2.x | https://git-scm.com/ |
@@ -239,7 +239,7 @@ POST /api/auth/google
 
 ## 5. Base de Datos
 
-**Motor:** PostgreSQL 14+
+**Motor:** PostgreSQL 17
 **ORM:** Entity Framework Core 8 con Npgsql y snake_case naming convention
 **Migraciones:** EF Core Migrations (se aplican automáticamente al iniciar el contenedor)
 
@@ -258,10 +258,10 @@ erDiagram
         int id_usuario PK
         varchar nombre_completo
         varchar email
-        varchar password_hash
+        text password_hash
         boolean identidad_verificada
-        varchar OAuthProvider
-        varchar OAuthProviderId
+        varchar o_auth_provider
+        varchar o_auth_provider_id
         varchar telefono
         text direccion_base
         timestamp fecha_registro
@@ -289,10 +289,10 @@ erDiagram
 
     proveedores {
         int id_proveedor PK
-        varchar nombre_proveedor
         int id_usuario FK
+        varchar nombre_proveedor
         varchar nombre_finca
-        varchar ubicacion_gps
+        text ubicacion_gps
         text biografia
         float calificacion_promedio
     }
@@ -315,14 +315,14 @@ erDiagram
         int id_inventario PK
         int id_proveedor FK
         int id_producto FK
-        varchar foto_url
-        varchar video_url
+        text foto_url
+        text video_url
         float stock_actual
-        float costo_produccion
-        float precio_venta
+        numeric costo_produccion
+        numeric precio_venta
         boolean es_oferta_excedente
         float porcentaje_descuento
-        date fecha_cosecha
+        timestamp fecha_cosecha
         boolean disponible
     }
 
@@ -330,10 +330,10 @@ erDiagram
         int id_suscripcion_app PK
         int id_usuario FK
         varchar tipo_plan
-        float tarifa_pago
+        numeric tarifa_pago
         varchar estado
-        date fecha_inicio
-        date fecha_fin
+        timestamp fecha_inicio
+        timestamp fecha_fin
         boolean renovacion_automatica
         timestamp creada_en
     }
@@ -342,7 +342,7 @@ erDiagram
         int id_pedido PK
         int id_usuario_cliente FK
         timestamp fecha_pedido
-        float total
+        numeric total
         varchar metodo_pago
         varchar estado_pago
         varchar estado_envio
@@ -354,15 +354,37 @@ erDiagram
         int id_inventario FK
         float cantidad
         float precio_unitario
-        float subtotal
+        numeric subtotal
     }
 
     logistica_entregas {
         int id_entrega PK
         int id_pedido FK
         int id_usuario_repartidor FK
-        text ruta_optimizada
-        timestamp fecha_entrega_estimada
+        varchar estado_actual
+        varchar ubicacion_actual
+        timestamp fecha_estimada
+        timestamp fecha_entrega_real
+    }
+
+    repartidor {
+        int id PK
+        int id_usuario FK
+        varchar placa_vehiculo
+        varchar estado
+        varchar vehiculo
+        numeric promedio_calificacion
+        varchar cuenta_bancaria
+        text url_foto_perfil
+        varchar zona_operaciones
+    }
+
+    solicitud_repartidor {
+        int id_solicitud PK
+        int id_usuario FK
+        jsonb datos_repartidor
+        varchar estado
+        timestamp fecha_solicitud
     }
 
     valoraciones {
@@ -372,6 +394,8 @@ erDiagram
         varchar tipo_valoracion
         int puntuacion
         text comentario
+        timestamp fecha_valoracion
+        int id_proveedor FK
     }
 
     impacto_social {
@@ -381,6 +405,7 @@ erDiagram
         int id_detalle_pedido FK
         float productos_salvados
         float beneficio_extra_productor
+        timestamp fecha_registro
     }
 
     conversaciones {
@@ -414,9 +439,12 @@ erDiagram
     usuarios ||--o{ valoraciones : "hace"
     usuarios ||--o{ conversacion_participantes : "participa en"
     usuarios ||--o{ mensajes : "envia"
+    usuarios ||--o{ repartidor : "es"
+    usuarios ||--o{ solicitud_repartidor : "envia"
     proveedores ||--o{ productos : "ofrece"
     proveedores ||--o{ inventario_proveedor : "gestiona"
     proveedores ||--o{ impacto_social : "genera"
+    proveedores ||--o{ valoraciones : "recibe"
     categorias ||--o{ productos : "clasifica"
     productos ||--o{ inventario_proveedor : "tiene stock en"
     inventario_proveedor ||--o{ detalles_pedido : "incluido en"
@@ -428,7 +456,8 @@ erDiagram
     detalles_pedido ||--o{ impacto_social : "detalla"
     conversaciones ||--o{ conversacion_participantes : "incluye"
     conversaciones ||--o{ mensajes : "contiene"
-```
+    repartidor ||--o{ logistica_entregas : "atiende"
+```º
 
 ### Descripción de tablas principales
 
@@ -441,7 +470,9 @@ erDiagram
 | `inventario_proveedor` | Stock, precio, multimedia y ofertas de excedente por producto |
 | `pedidos` | Cabecera del pedido con estado de pago y envío |
 | `detalles_pedido` | Líneas de pedido (item + cantidad + precio unitario) |
-| `logistica_entregas` | Asignación de repartidor y ruta estimada por pedido |
+| `logistica_entregas` | Estado, ubicación y seguimiento de la entrega por pedido |
+| `repartidor` | Datos operativos y perfil del repartidor asignado a entregas |
+| `solicitud_repartidor` | Solicitudes de ingreso al programa de repartidores con datos estructurados |
 | `valoraciones` | Puntuación y comentario del cliente tras recibir el pedido |
 | `impacto_social` | Métricas de productos salvados y beneficio extra al productor |
 | `conversaciones` / `mensajes` | Chat interno asociado a cada pedido |
