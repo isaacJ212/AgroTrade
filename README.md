@@ -457,7 +457,7 @@ erDiagram
     conversaciones ||--o{ conversacion_participantes : "incluye"
     conversaciones ||--o{ mensajes : "contiene"
     repartidor ||--o{ logistica_entregas : "atiende"
-```º
+```
 
 ### Descripción de tablas principales
 
