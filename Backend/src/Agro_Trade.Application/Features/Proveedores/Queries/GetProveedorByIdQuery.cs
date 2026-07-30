@@ -1,0 +1,46 @@
+
+using MediatR;
+using Agro_Trade.Application.Common;
+using Agro_Trade.Application.Common.DTOs.ProveedoresDtos;
+using Agro_Trade.Application.Common.Interface;
+
+namespace Agro_Trade.Application.Features.Proveedores.Queries
+{
+    public record GetProveedorByIdQuery(int IdProveedor) : IRequest<Result<ProveedorDto?>>;
+
+    public class GetProveedorByIdQueryHandler : IRequestHandler<GetProveedorByIdQuery, Result<ProveedorDto?>>
+    {
+        private readonly IUnitofWork _unitOfWork;
+
+        public GetProveedorByIdQueryHandler(IUnitofWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
+
+        public async Task<Result<ProveedorDto?>> Handle(GetProveedorByIdQuery request, CancellationToken cancellationToken)
+        {
+            if (request.IdProveedor <= 0)
+            {
+                return Result<ProveedorDto?>.Failure(400, "El ID del proveedor es inválido.");
+            }
+
+            var proveedor = await _unitOfWork.Proveedores.GetByIdAsync(request.IdProveedor, cancellationToken);
+            if (proveedor is null)
+            {
+                return Result<ProveedorDto?>.Failure(404, "No se encontró el proveedor.");
+            }
+
+            var data = new ProveedorDto 
+            { 
+                IdProveedor = proveedor.IdProveedor,
+                IdUsuario = proveedor.IdUsuario,
+                NombreProveedor = proveedor.NombreProveedor,
+                NombreFinca = proveedor.NombreFinca,
+                UbicacionGps = proveedor.UbicacionGps,
+                Biografia = proveedor.Biografia,
+                CalificacionPromedio = proveedor.CalificacionPromedio
+            };
+            return Result<ProveedorDto?>.Success(200, data, "Proveedor obtenido correctamente.", true);
+        }
+    }
+}
