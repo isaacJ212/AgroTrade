@@ -1,14 +1,13 @@
 <div align="center">
+  <img src="https://frxxlbxlglvbgcvigpxa.supabase.co/storage/v1/object/public/imagenes_meseta_verde/logo.jpeg" alt="AgroTrade Logo" width="400" style="border-radius: 15px; box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3); border: 3px solid #4CAF50;">
+  
+  <h1 style="color: #2E7D32; font-family: 'Segoe UI', sans-serif; margin-top: 15px;">🚜 AgroTrade</h1>
+  <h3 style="color: #4CAF50;"><i>Cultivando Conexiones.</i></h3>
 
-# 🚜 AgroTrade
-### *El campo a un clic de distancia.*
-
-[![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
-[![Flutter](https://img.shields.io/badge/Flutter-Mobile-02569B?logo=flutter)](https://flutter.dev)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql)](https://www.postgresql.org/)
-[![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker)](https://www.docker.com/)
-
-
+  [![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
+  [![Flutter](https://img.shields.io/badge/Flutter-Mobile-02569B?logo=flutter)](https://flutter.dev)
+  [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql)](https://www.postgresql.org/)
+  [![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker)](https://www.docker.com/)
 </div>
 
 ---
