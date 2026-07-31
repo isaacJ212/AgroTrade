@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://frxxlbxlglvbgcvigpxa.supabase.co/storage/v1/object/public/imagenes_meseta_verde/logo-removebg-preview.png" alt="AgroTrade Logo" width="400" style="border-radius: 15px; box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3); border: 3px solid #4CAF50;">
+  <img src="https://frxxlbxlglvbgcvigpxa.supabase.co/storage/v1/object/public/imagenes_meseta_verde/logo2-removebg-preview.png" alt="AgroTrade Logo" width="400" style="border-radius: 15px; box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3); border: 3px solid #4CAF50;">
   
   <h1 style="color: #2E7D32; font-family: 'Segoe UI', sans-serif; margin-top: 15px;">🚜 AgroTrade</h1>
   <h3 style="color: #4CAF50;"><i>Cultivando Conexiones.</i></h3>
