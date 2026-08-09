@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:agrotrade_frontend/screens/registro.dart';
+import 'ui/app_theme.dart';
+import 'screens/splash.dart';
 
-void main() {
-  runApp(MyApp());
-}
+void main() => runApp(const AgroTradeApp());
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class AgroTradeApp extends StatelessWidget {
+  const AgroTradeApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'AgroTrade',
       debugShowCheckedModeBanner: false,
-      home: Scaffold(body: Center(child: Text("AgroTrade"))),
+      theme: ThemeData(
+        useMaterial3: true,
+        scaffoldBackgroundColor: Colors.white,
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primaryColor),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          iconTheme: IconThemeData(color: AppColors.TextMain),
+        ),
+      ),
+      home: const Splash(),
     );
   }
 }

@@ -66,6 +66,49 @@ class PrimaryButton extends StatelessWidget {
   }
 }
 
+class SecondaryButton extends StatelessWidget {
+  final String label;
+  final VoidCallback? onPressed;
+  final IconData? icon;
+  const SecondaryButton({
+    super.key,
+    required this.label,
+    this.onPressed,
+    this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: OutlinedButton(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.TextMain,
+          side: const BorderSide(color: AppColors.inputBorderColor),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 22),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              label,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // esto es para poner los iconos por ejemplo de email o lupas en los inputs
 InputDecoration appInputDecoration({String? hint, Widget? suffixIcon}) {
   return InputDecoration(
@@ -101,6 +144,7 @@ class AppTextField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: AppTextStyles.label),
+        const SizedBox(height: 6),
         TextField(
           keyboardType: keyboard,
           decoration: appInputDecoration(hint: hint),
@@ -142,7 +186,7 @@ class _PasswordTextFieldState extends State<PasswordField> {
                     : Icons.visibility_off_outlined,
                 color: AppColors.TextSoft,
               ),
-              onPressed: () => setState(() => _obscuro != _obscuro),
+              onPressed: () => setState(() => _obscuro = !_obscuro),
             ),
           ),
         ),
@@ -213,12 +257,27 @@ class RoleCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: selected ? AppColors.primarySoft : AppColors.White,
+          color: selected ? AppColors.primarySoftBg : AppColors.White,
+          border: Border.all(
+            color: selected
+                ? AppColors.primaryColor
+                : AppColors.inputBorderColor.withOpacity(0.4),
+            width: selected ? 1.5 : 1,
+          ),
         ),
-        child: Row(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: AppColors.primaryColor, size: 28),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: AppColors.primarySoftBg,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: AppColors.primaryColor, size: 22),
+            ),
+            const SizedBox(height: 10),
+            Text(title, style: AppTextStyles.Title.copyWith(fontSize: 16)),
             const SizedBox(height: 4),
             Text(description, style: AppTextStyles.SubTitle),
           ],
