@@ -169,3 +169,61 @@ class OrDivider extends StatelessWidget {
     );
   }
 }
+
+class Dot extends StatelessWidget {
+  final bool activo;
+
+  const Dot({super.key, this.activo = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 8,
+      height: 8,
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: activo ? AppColors.primaryColor : AppColors.inputBorderColor,
+      ),
+    );
+  }
+}
+
+class RoleCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String description;
+  final bool selected;
+  final VoidCallback onTap;
+  const RoleCard({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.description,
+    required this.onTap,
+    this.selected = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: selected ? AppColors.primarySoft : AppColors.White,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: AppColors.primaryColor, size: 28),
+            const SizedBox(height: 4),
+            Text(description, style: AppTextStyles.SubTitle),
+          ],
+        ),
+      ),
+    );
+  }
+}
