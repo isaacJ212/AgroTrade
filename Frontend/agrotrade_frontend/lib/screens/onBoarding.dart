@@ -1,3 +1,4 @@
+import 'package:agrotrade_frontend/screens/roleSelection.dart';
 import 'package:flutter/material.dart';
 import '../ui/app_theme.dart';
 import '../ui/components.dart';
@@ -36,8 +37,11 @@ class _OnBoardingState extends State<OnBoarding> {
     super.dispose();
   }
 
-  void _irLogin() {
-    //Navigator.pushReplacement(context, Builder(builder: (_)=> const Login()));
+  void _irSelect() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const Roleselection()),
+    );
   }
 
   void siguiente() {
@@ -47,7 +51,7 @@ class _OnBoardingState extends State<OnBoarding> {
         curve: Curves.easeOut,
       );
     } else {
-      //_irLogin();
+      _irSelect();
     }
   }
 
@@ -61,7 +65,7 @@ class _OnBoardingState extends State<OnBoarding> {
             Align(
               alignment: Alignment.topRight,
               child: TextButton(
-                onPressed: _irLogin,
+                onPressed: _irSelect,
                 child: const Text(
                   "Omitir",
                   style: TextStyle(color: AppColors.TextSoft),

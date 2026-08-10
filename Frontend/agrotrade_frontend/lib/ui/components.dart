@@ -249,37 +249,45 @@ class RoleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 14),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: selected ? AppColors.primarySoftBg : AppColors.White,
-          border: Border.all(
-            color: selected
-                ? AppColors.primaryColor
-                : AppColors.inputBorderColor.withOpacity(0.4),
-            width: selected ? 1.5 : 1,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: const BoxDecoration(
-                color: AppColors.primarySoftBg,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: AppColors.primaryColor, size: 22),
+    return Focus(
+      canRequestFocus: true,
+      onFocusChange: (hasFocus) {
+        if (hasFocus) {
+          onTap();
+        }
+      },
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 14),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: selected ? AppColors.primarySoftBg : AppColors.White,
+            border: Border.all(
+              color: selected
+                  ? AppColors.primaryColor
+                  : AppColors.inputBorderColor.withOpacity(0.4),
+              width: selected ? 1.5 : 1,
             ),
-            const SizedBox(height: 10),
-            Text(title, style: AppTextStyles.Title.copyWith(fontSize: 16)),
-            const SizedBox(height: 4),
-            Text(description, style: AppTextStyles.SubTitle),
-          ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(
+                  color: AppColors.primarySoftBg,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: AppColors.primaryColor, size: 22),
+              ),
+              const SizedBox(height: 10),
+              Text(title, style: AppTextStyles.Title.copyWith(fontSize: 16)),
+              const SizedBox(height: 4),
+              Text(description, style: AppTextStyles.SubTitle),
+            ],
+          ),
         ),
       ),
     );
