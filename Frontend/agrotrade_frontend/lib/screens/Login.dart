@@ -1,0 +1,209 @@
+import 'package:agrotrade_frontend/screens/onBoarding.dart';
+import 'package:agrotrade_frontend/screens/registro.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/src/foundation/diagnostics.dart';
+import '../ui/app_theme.dart';
+import '../ui/components.dart';
+
+class Login extends StatefulWidget {
+  const Login({super.key});
+
+  @override
+  State<Login> createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
+  // los controllers son como los inputs.value
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  String? _emailError;
+  String? _passwordError;
+
+  bool _remember = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  bool _validar() {
+    setState(() {
+      _emailError = null;
+      _passwordError = null;
+    });
+
+    bool esValido = true;
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty) {
+      _emailError = "El correo es obligatorio";
+      esValido = false;
+    } else if (!email.contains("@") || !email.contains(".")) {
+      _emailError = "Correo inválido";
+      esValido = false;
+    }
+
+    if (password.isEmpty) {
+      _passwordError = "La contraseña es obligatoria";
+      esValido = false;
+    } else if (password.length < 6) {
+      _passwordError = "Mínimo 6 caracteres";
+      esValido = false;
+    }
+
+    return esValido;
+  }
+
+  void _iniciarSesion() {
+    if (_validar()) {
+      //Navigator.pushReplacement(
+      //  context,
+      //  MaterialPageRoute(builder: (_) => const RoleSelection()),
+      //);
+      return;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 24),
+                  Center(child: Image.asset("lib/assets/images/Brand.png")),
+
+                  Text(
+                    "Bienvenido de nuevo",
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.Title,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Accede a tu cuenta para gestionar tus cultivos",
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.SubTitle,
+                  ),
+                  const SizedBox(height: 32),
+                  AppTextField(
+                    hint: "ejemplo@email.com",
+                    label: "Correo electronico",
+                    keyboard: TextInputType.emailAddress,
+                    controller: _emailController,
+                    errorText: _emailError,
+                  ),
+                  const SizedBox(height: 16),
+                  PasswordField(
+                    hint: "********",
+                    label: "Contraseña",
+                    controller: _passwordController,
+                    errorText: _passwordError,
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Checkbox(
+                              value: _remember,
+                              onChanged: (v) =>
+                                  setState(() => _remember = v ?? false),
+                            ),
+                            const Flexible(
+                              child: Text(
+                                "Recordar mi sesión",
+                                style: AppTextStyles.SubTitle,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const OnBoarding(),
+                                ),
+                              ),
+                              child: Text(
+                                "¿Olvidaste tu contraseña?",
+                                style: AppTextStyles.SubTitle.copyWith(
+                                  color: AppColors.primaryColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                textAlign: TextAlign.right,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  PrimaryButton(
+                    label: "Iniciar Sesion",
+                    radius: 10,
+                    onPressed: _iniciarSesion,
+                  ),
+                  const SizedBox(height: 16),
+                  const OrDivider(),
+                  const SizedBox(height: 16),
+                  const SecondaryButton(
+                    label: "Continuar Con Google",
+                    icon: Icons.g_mobiledata,
+                    onPressed: null,
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "¿No Tienes Cuenta?  ",
+                        style: AppTextStyles.SubTitle,
+                      ),
+                      GestureDetector(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const Registro()),
+                        ),
+                        child: Text(
+                          " Registrate",
+                          style: AppTextStyles.SubTitle.copyWith(
+                            color: AppColors.primaryColor,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

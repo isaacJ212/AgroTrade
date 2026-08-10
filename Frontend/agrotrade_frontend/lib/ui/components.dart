@@ -8,36 +8,25 @@ class Logo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text.rich(
-      TextSpan(
-        children: [
-          TextSpan(
-            text: "Agro",
-            style: TextStyle(
-              fontSize: size,
-              fontWeight: FontWeight.w800,
-              color: AppColors.primaryColor,
-            ),
-          ),
-          TextSpan(
-            text: "Trade",
-            style: TextStyle(
-              fontSize: size,
-              fontWeight: FontWeight.w800,
-              color: AppColors.primaryColor,
-            ),
-          ),
-        ],
-      ),
+    return Image.asset(
+      "lib/assets/images/logo.png",
+      height: size,
+      fit: BoxFit.contain,
     );
   }
 }
 
 // para los botones verdes
 class PrimaryButton extends StatelessWidget {
+  final double radius;
   final String label;
   final VoidCallback? onPressed;
-  const PrimaryButton({super.key, required this.label, this.onPressed});
+  const PrimaryButton({
+    super.key,
+    required this.label,
+    this.onPressed,
+    required this.radius,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +43,7 @@ class PrimaryButton extends StatelessWidget {
           foregroundColor: AppColors.White,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(radius),
           ),
         ),
         child: Text(
@@ -66,10 +55,59 @@ class PrimaryButton extends StatelessWidget {
   }
 }
 
+class SecondaryButton extends StatelessWidget {
+  final String label;
+  final VoidCallback? onPressed;
+  final IconData? icon;
+  const SecondaryButton({
+    super.key,
+    required this.label,
+    this.onPressed,
+    this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: OutlinedButton(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.TextMain,
+          side: const BorderSide(color: AppColors.inputBorderColor),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 22),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              label,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // esto es para poner los iconos por ejemplo de email o lupas en los inputs
-InputDecoration appInputDecoration({String? hint, Widget? suffixIcon}) {
+InputDecoration appInputDecoration({
+  String? label,
+  String? hint,
+  Widget? suffixIcon,
+}) {
   return InputDecoration(
+    labelText: label,
     hintText: hint,
+    floatingLabelBehavior: FloatingLabelBehavior.always,
     suffixIcon: suffixIcon,
     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
     border: OutlineInputBorder(
@@ -88,24 +126,26 @@ class AppTextField extends StatelessWidget {
   final String label;
   final String hint;
   final TextInputType keyboard;
+  final TextEditingController? controller;
+  final String? errorText;
   const AppTextField({
     super.key,
     required this.hint,
     required this.label,
     this.keyboard = TextInputType.text,
+    this.errorText,
+    this.controller,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: AppTextStyles.label),
-        TextField(
-          keyboardType: keyboard,
-          decoration: appInputDecoration(hint: hint),
-        ),
-      ],
+    return TextField(
+      controller: controller,
+      keyboardType: keyboard,
+      decoration: appInputDecoration(
+        label: label,
+        hint: hint,
+      ).copyWith(errorText: errorText),
     );
   }
 }
@@ -115,7 +155,15 @@ class AppTextField extends StatelessWidget {
 class PasswordField extends StatefulWidget {
   final String hint;
   final String label;
-  const PasswordField({super.key, required this.hint, required this.label});
+  final TextEditingController? controller;
+  final String? errorText;
+  const PasswordField({
+    super.key,
+    required this.hint,
+    required this.label,
+    this.errorText,
+    this.controller,
+  });
 
   @override
   State<PasswordField> createState() => _PasswordTextFieldState();
@@ -126,27 +174,22 @@ class _PasswordTextFieldState extends State<PasswordField> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(widget.label, style: AppTextStyles.label),
-        const SizedBox(height: 6),
-        TextField(
-          obscureText: _obscuro,
-          decoration: appInputDecoration(
-            hint: widget.hint, //por ejemplo aqui
-            suffixIcon: IconButton(
-              icon: Icon(
-                _obscuro
-                    ? Icons.visibility_outlined
-                    : Icons.visibility_off_outlined,
-                color: AppColors.TextSoft,
-              ),
-              onPressed: () => setState(() => _obscuro != _obscuro),
-            ),
+    return TextField(
+      controller: widget.controller,
+      obscureText: _obscuro,
+      decoration: appInputDecoration(
+        label: widget.label,
+        hint: widget.hint,
+        suffixIcon: IconButton(
+          icon: Icon(
+            _obscuro
+                ? Icons.visibility_outlined
+                : Icons.visibility_off_outlined,
+            color: AppColors.TextSoft,
           ),
+          onPressed: () => setState(() => _obscuro = !_obscuro),
         ),
-      ],
+      ).copyWith(errorText: widget.errorText),
     );
   }
 }
@@ -206,22 +249,45 @@ class RoleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 14),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: selected ? AppColors.primarySoft : AppColors.White,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, color: AppColors.primaryColor, size: 28),
-            const SizedBox(height: 4),
-            Text(description, style: AppTextStyles.SubTitle),
-          ],
+    return Focus(
+      canRequestFocus: true,
+      onFocusChange: (hasFocus) {
+        if (hasFocus) {
+          onTap();
+        }
+      },
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 14),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: selected ? AppColors.primarySoftBg : AppColors.White,
+            border: Border.all(
+              color: selected
+                  ? AppColors.primaryColor
+                  : AppColors.inputBorderColor.withOpacity(0.4),
+              width: selected ? 1.5 : 1,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(
+                  color: AppColors.primarySoftBg,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: AppColors.primaryColor, size: 22),
+              ),
+              const SizedBox(height: 10),
+              Text(title, style: AppTextStyles.Title.copyWith(fontSize: 16)),
+              const SizedBox(height: 4),
+              Text(description, style: AppTextStyles.SubTitle),
+            ],
+          ),
         ),
       ),
     );
