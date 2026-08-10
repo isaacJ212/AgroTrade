@@ -79,13 +79,7 @@ class _OnBoardingState extends State<OnBoarding> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(
-                          Icons.eco,
-                          size: 90,
-                          color: AppColors.primaryColor,
-                        ),
-                        const SizedBox(height: 8),
-                        const Logo(size: 38),
+                        const Logo(size: 250),
                         const SizedBox(height: 32),
                         Text(
                           _paginas[index]["titulo"]!,
@@ -113,7 +107,11 @@ class _OnBoardingState extends State<OnBoarding> {
             const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-              child: PrimaryButton(label: _esUltima ? "Comenzar" : "Siguiente"),
+              child: PrimaryButton(
+                label: _esUltima ? "Comenzar" : "Siguiente",
+                radius: 100,
+                onPressed: siguiente,
+              ),
             ),
           ],
         ),

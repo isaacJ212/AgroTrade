@@ -12,6 +12,7 @@ class AgroTradeApp extends StatelessWidget {
       title: 'AgroTrade',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        fontFamily: 'Raleway',
         useMaterial3: true,
         scaffoldBackgroundColor: Colors.white,
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primaryColor),
