@@ -1,4 +1,5 @@
 import 'package:agrotrade_frontend/screens/onBoarding.dart';
+import 'package:agrotrade_frontend/screens/registro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/diagnostics.dart';
 import '../ui/app_theme.dart';
@@ -185,7 +186,7 @@ class _LoginState extends State<Login> {
                       GestureDetector(
                         onTap: () => Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const OnBoarding()),
+                          MaterialPageRoute(builder: (_) => const Registro()),
                         ),
                         child: Text(
                           " Registrate",
