@@ -53,6 +53,12 @@ class AppTextStyles {
     color: AppColors.titleDark,
   );
 
+  static const TextStyle sectionTitle = TextStyle(
+    fontSize: 20,
+    fontWeight: FontWeight.w700,
+    color: AppColors.titleDark,
+  );
+
   static const TextStyle cardTitle = TextStyle(
     fontSize: 28,
     color: AppColors.bodyText,
@@ -67,6 +73,12 @@ class AppTextStyles {
     fontSize: 12,
     fontWeight: FontWeight.w600,
   );
+
+  static const TextStyle statValue = TextStyle(
+  fontSize: 32,
+  fontWeight: FontWeight.w700,
+  color: AppColors.primaryColor,
+);
 
 
 }
