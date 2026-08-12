@@ -14,6 +14,7 @@ class AppColors {
   static const disabledbtn = Color(0x1A191C1D);
   static const primarySoftBg = Color(0xFFE9F5EC);
   static const primaryGlow = Color(0x40006E2C);
+  static const screenBg = Color(0xFFF1F3F1);
 }
 
 class AppTextStyles {

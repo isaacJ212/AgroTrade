@@ -51,6 +51,7 @@ class _RoleSelection extends State<Roleselection> {
   ];
 
   void _continuar() {
+    FocusScope.of(context).unfocus();
     var RolSeleccionado = _Roles.firstWhere((r) => r.RolId == _rolSeleccionado);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
