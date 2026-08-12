@@ -74,7 +74,7 @@ class _InicioProductorState extends State<InicioProductor>{
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
           children: [
-            Text('$_saludo, Carlos', style: AppTextStyles.headline),
+            Text('$_saludo, Isaac', style: AppTextStyles.headline),
             const SizedBox(height: 8),
             Text(
               'Aquí tienes un resumen de tu actividad de hoy.',
