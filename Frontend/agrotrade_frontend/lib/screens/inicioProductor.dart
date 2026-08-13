@@ -34,6 +34,14 @@ class InicioProductor extends StatefulWidget {
 class _InicioProductorState extends State<InicioProductor>{
     int _tabActual = 0;
 
+    //esta es la lista de los tabs 
+    static const List<NavElemento> _navItems = [
+      NavElemento(label: 'Inicio', icon: Icons.home_outlined, activeIcon: Icons.home),
+      NavElemento(label: 'Explorar', icon: Icons.explore_outlined, activeIcon: Icons.explore),
+      NavElemento(label: 'Pedidos', icon: Icons.shopping_bag_outlined, activeIcon: Icons.shopping_bag, badge: true),
+      NavElemento(label: 'Perfil', icon: Icons.person_outline, activeIcon: Icons.person),
+    ];
+
     static const List<Pedido> _pedidosRecientes = [
         Pedido(id: 4829, comprador: 'Mercado Central', monto: '\$1,250', estado: 'Preparado'),
         Pedido(id: 4830, comprador: 'Restaurante El cielo', monto: '\$12,250', estado: 'Listo'),
@@ -169,10 +177,12 @@ class _InicioProductorState extends State<InicioProductor>{
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 8),
         child: SupportFab(
+          icono: Icons.smart_toy_outlined,
           onPressed: () => _mostrarSnack('Chat de soporte próximamente 🤖'),
         ),
       ),
       bottomNavigationBar: ProductorBottomNav(
+        items: _navItems,
         currentIndex: _tabActual,
         onTap: _cambiarTab,
       ),
@@ -213,6 +223,7 @@ class _InicioProductorState extends State<InicioProductor>{
     );
   }
 }
+
 
 
 
