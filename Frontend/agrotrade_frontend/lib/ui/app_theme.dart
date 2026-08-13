@@ -78,7 +78,22 @@ class AppTextStyles {
   fontSize: 32,
   fontWeight: FontWeight.w700,
   color: AppColors.primaryColor,
-);
+  );
+
+  //clasese para la pantalla de inventarios
+
+  static const TextStyle wordmark = TextStyle(
+    fontSize: 26,
+    fontWeight: FontWeight.w800,
+    color: AppColors.primaryColor,
+  );
+
+  static const TextStyle productoTitle = TextStyle(
+    fontSize: 22,
+    fontWeight: FontWeight.w700,
+    color: AppColors.titleDark,
+
+  );
 
 
 }
