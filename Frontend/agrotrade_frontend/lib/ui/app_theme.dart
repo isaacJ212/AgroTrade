@@ -14,6 +14,20 @@ class AppColors {
   static const disabledbtn = Color(0x1A191C1D);
   static const primarySoftBg = Color(0xFFE9F5EC);
   static const primaryGlow = Color(0x40006E2C);
+
+  // colores para la pantalla del productor 
+  static const scaffoldBg = Color(0xFFF8F9FA); 
+  static const cardBorder = Color(0xFFE1E3E4); 
+  static const tileBg = Color(0xFFEDEEEF);     
+  static const titleDark = Color(0xFF191C1D);  
+  static const bodyText = Color(0xFF3F493E);   
+  static const amber = Color(0xFFF9A825);      
+  static const errorDark = Color(0xFF93000A);  
+  static const errorBg = Color(0xFFFFDAD6);    
+  static const navPill = Color(0xFFE6F4EA);   
+  static const fabIcon = Color(0xFF91EE9C);    
+  static const chipGrey = Color(0xFFBECABB);   
+  
 }
 
 class AppTextStyles {
@@ -31,4 +45,40 @@ class AppTextStyles {
     color: AppColors.TextMain,
     fontWeight: FontWeight.w600,
   );
+
+  // esto es solo para pesos de pubpec
+  static const TextStyle headline = TextStyle(
+    fontSize: 28,
+    fontWeight: FontWeight.w800,
+    color: AppColors.titleDark,
+  );
+
+  static const TextStyle sectionTitle = TextStyle(
+    fontSize: 20,
+    fontWeight: FontWeight.w700,
+    color: AppColors.titleDark,
+  );
+
+  static const TextStyle cardTitle = TextStyle(
+    fontSize: 28,
+    color: AppColors.bodyText,
+  );
+
+  static const TextStyle startValue = TextStyle(
+    fontSize: 28,
+    fontWeight: FontWeight.w800,
+  );
+
+  static const TextStyle chip = TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.w600,
+  );
+
+  static const TextStyle statValue = TextStyle(
+  fontSize: 32,
+  fontWeight: FontWeight.w700,
+  color: AppColors.primaryColor,
+);
+
+
 }
