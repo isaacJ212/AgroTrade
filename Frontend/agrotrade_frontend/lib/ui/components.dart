@@ -293,3 +293,330 @@ class RoleCard extends StatelessWidget {
     );
   }
 }
+
+
+
+
+// Tarjeta de métricas reutilizable (ventas, pedidos, alertas).
+
+class StatCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color accent;     
+  final Color? iconColor; 
+  final Color titleColor;
+  final Color background;
+  final Color border;
+  final bool glow;    
+  final Widget? footer;
+
+  const StatCard({
+    super.key,
+    required this.title,
+    required this.value,
+    required this.icon,
+    this.accent = AppColors.primaryColor,
+    this.iconColor,
+    this.titleColor = AppColors.bodyText,
+    this.background = AppColors.White,
+    this.border = AppColors.cardBorder,
+    this.glow = false,
+    this.footer,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      // clipBehavior recorta el glow
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: border),
+        boxShadow: const [
+          BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1)),
+        ],
+      ),
+      
+      child: Stack(
+        children: [
+          if (glow)
+            Positioned(
+              top: 4,
+              right: -16,
+              child: Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      AppColors.fabIcon.withOpacity(0.35),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          Positioned(
+            top: 16,
+            right: 16,
+            child: Icon(icon, color: iconColor ?? accent, size: 26),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(title, style: AppTextStyles.cardTitle.copyWith(color: titleColor)),
+                const SizedBox(height: 14),
+                Text(value, style: AppTextStyles.statValue.copyWith(color: accent)),
+                if (footer != null) ...[
+                  const SizedBox(height: 14),
+                  footer!,
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Etiqueta de estado de un pedido
+class StatusChip extends StatelessWidget {
+  final String label;
+  final Color background;
+  final Color color;
+
+  const StatusChip({
+    super.key,
+    required this.label,
+    required this.background,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(label, style: AppTextStyles.chip.copyWith(color: color)),
+    );
+  }
+}
+
+// Fila de pedido reciente
+class PedidoTile extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String titulo;
+  final String comprador;
+  final String monto;
+  final String estado;
+
+  const PedidoTile({
+    super.key,
+    required this.icon,
+    this.iconColor = AppColors.primaryColor,
+    required this.titulo,
+    required this.comprador,
+    required this.monto,
+    required this.estado,
+  });
+
+  bool get _completado => estado.toLowerCase() == 'completado';
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppColors.tileBg,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Icon(icon, color: iconColor, size: 24),
+          ),
+          const SizedBox(width: 12),
+          // Expanded evita desbordes si el comprador tiene nombre largo
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  titulo,
+                  style: AppTextStyles.label.copyWith(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.titleDark,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Comprador: $comprador',
+                  style: AppTextStyles.SubTitle.copyWith(color: AppColors.bodyText),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                monto,
+                style: AppTextStyles.label.copyWith(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.titleDark,
+                ),
+              ),
+              const SizedBox(height: 6),
+              StatusChip(
+                label: estado,
+                background: _completado
+                    ? AppColors.chipGrey
+                    : AppColors.primaryColor.withOpacity(0.2),
+                color: _completado ? AppColors.bodyText : AppColors.primaryColor,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Botón flotante de 
+class SupportFab extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const SupportFab({super.key, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.primaryColor,
+      borderRadius: BorderRadius.circular(16),
+      elevation: 8,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onPressed,
+        child: const SizedBox(
+          width: 56,
+          height: 56,
+          child: Icon(Icons.smart_toy_outlined, color: AppColors.fabIcon, size: 28),
+        ),
+      ),
+    );
+  }
+}
+
+// Barra de navegación inferior del productor.
+// Así la lógica de navegación queda en la pantalls
+class ProductorBottomNav extends StatelessWidget {
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+
+  const ProductorBottomNav({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.White,
+        border: Border(top: BorderSide(color: AppColors.cardBorder)),
+      ),
+      
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      child: Row(
+        children: [
+          _item(0, Icons.home_outlined, Icons.home, 'Inicio'),
+          _item(1, Icons.explore_outlined, Icons.explore, 'Explorar'),
+          _item(2, Icons.shopping_bag_outlined, Icons.shopping_bag, 'Pedidos', badge: true),
+          _item(3, Icons.person_outline, Icons.person, 'Perfil'),
+        ],
+      ),
+    );
+  }
+
+  Widget _item(
+    int index,
+    IconData icon,
+    IconData activeIcon,
+    String label, {
+    bool badge = false,
+  }) {
+    final bool activo = index == currentIndex;
+    return Expanded(
+      child: InkWell(
+        onTap: () => onTap(index),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 10),
+            
+            Container(
+              width: 64,
+              height: 32,
+              decoration: BoxDecoration(
+                color: activo ? AppColors.navPill : Colors.transparent,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Stack(
+                children: [
+                  Center(
+                    child: Icon(
+                      activo ? activeIcon : icon,
+                      color: activo ? AppColors.primarySoft : AppColors.bodyText,
+                      size: 22,
+                    ),
+                  ),
+                  if (badge)
+                    Positioned(
+                      top: 5,
+                      right: 17,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: AppColors.inputErrorColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: activo ? FontWeight.w600 : FontWeight.w400,
+                color: activo ? AppColors.titleDark : AppColors.bodyText,
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+}
