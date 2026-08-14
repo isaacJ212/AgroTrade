@@ -34,7 +34,7 @@ class _DetalleProductoState extends State<DetalleProducto> {
   void _irATab(int index) {
     if (index == 2) return; // seguimos en el mundo "Inventario"
     if (index == 0) {
-      // 📚 pushReplacement: saca el detalle del stack y pone el Inicio.
+      
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const InicioProductor()),
@@ -89,11 +89,11 @@ class _DetalleProductoState extends State<DetalleProducto> {
                   PrimaryButton(
                     label: 'Editar producto',
                     icon: Icons.edit_outlined,
-                    radius: 26, // 📚 pill redondeada como el mockup
+                    radius: 26, 
                     onPressed: () => _mostrarSnack('Editor próximamente 🌱'),
                   ),
                   const SizedBox(height: 12),
-                  OutlineButton(
+                  SecondaryButton(
                     label: 'Actualizar inventario',
                     icon: Icons.update,
                     onPressed: () =>

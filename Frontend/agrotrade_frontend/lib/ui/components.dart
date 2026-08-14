@@ -68,13 +68,13 @@ class PrimaryButton extends StatelessWidget {
   }
 }
 
-class OutlinedButtonextends StatelessWidget {
-   final String label;
+class SecondaryButton extends StatelessWidget {
+  final String label;
   final IconData? icon;
   final VoidCallback? onPressed;
   final Color color;
 
-  const OutlineButton({
+  const SecondaryButton({
     super.key,
     required this.label,
     this.icon,
@@ -88,8 +88,6 @@ class OutlinedButtonextends StatelessWidget {
       width: double.infinity,
       height: 52,
       child: OutlinedButton(
-        // 📚 styleFrom: forma rápida de estilizar botones de Material.
-        // `side` controla el borde (color y grosor).
         style: OutlinedButton.styleFrom(
           side: BorderSide(color: color, width: 1.5),
           shape: RoundedRectangleBorder(
@@ -610,7 +608,7 @@ class ProductorBottomNav extends StatelessWidget {
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
       child: Row(
         children: [
-          // 📚 collection-for con índice para saber cuál es el activo
+         
           for (int i = 0; i < items.length; i++) _item(i, items[i]),
         ],
       ),

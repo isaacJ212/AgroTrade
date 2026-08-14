@@ -263,6 +263,7 @@ class _InventarioProductorState extends State<InventarioProductor> {
         ],
       ),
     );
+    
   }
 
  
@@ -464,7 +465,7 @@ class _ProductoCard extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 
  
