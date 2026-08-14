@@ -15,18 +15,22 @@ class AppColors {
   static const primarySoftBg = Color(0xFFE9F5EC);
   static const primaryGlow = Color(0x40006E2C);
 
-  // colores para la pantalla del productor 
-  static const scaffoldBg = Color(0xFFF8F9FA); 
-  static const cardBorder = Color(0xFFE1E3E4); 
-  static const tileBg = Color(0xFFEDEEEF);     
-  static const titleDark = Color(0xFF191C1D);  
-  static const bodyText = Color(0xFF3F493E);   
-  static const amber = Color(0xFFF9A825);      
-  static const errorDark = Color(0xFF93000A);  
-  static const errorBg = Color(0xFFFFDAD6);    
-  static const navPill = Color(0xFFE6F4EA);   
-  static const fabIcon = Color(0xFF91EE9C);    
-  static const chipGrey = Color(0xFFBECABB);   
+  // colores para la pantalla del productor
+  static const scaffoldBg = Color(0xFFF8F9FA);
+  static const cardBorder = Color(0xFFE1E3E4);
+  static const tileBg = Color(0xFFEDEEEF);
+  static const titleDark = Color(0xFF191C1D);
+  static const bodyText = Color(0xFF3F493E);
+  static const amber = Color(0xFFF9A825);
+  static const errorDark = Color(0xFF93000A);
+  static const errorBg = Color(0xFFFFDAD6);
+  static const navPill = Color(0xFFE6F4EA);
+  static const fabIcon = Color(0xFF91EE9C);
+  static const chipGrey = Color(0xFFBECABB);
+
+  static const screenBg = Color(0xFFF1F3F1);
+ 
+
 
 
   // esto son los colores para lo que es detalle producto
@@ -79,32 +83,8 @@ class AppTextStyles {
   );
 
   static const TextStyle statValue = TextStyle(
-  fontSize: 32,
-  fontWeight: FontWeight.w700,
-  color: AppColors.primaryColor,
-  );
-
-  //clasese para la pantalla de inventarios
-
-  static const TextStyle wordmark = TextStyle(
-    fontSize: 26,
-    fontWeight: FontWeight.w800,
-    color: AppColors.primaryColor,
-  );
-
-  static const TextStyle productoTitle = TextStyle(
-    fontSize: 22,
+    fontSize: 32,
     fontWeight: FontWeight.w700,
-    color: AppColors.titleDark,
-
-  );
-
-  //clases para lo que es el detalle del prducto
-  static const TextStyle price = TextStyle(
-    fontSize: 38,
-    fontWeight:  FontWeight.w700,
     color: AppColors.primaryColor,
   );
-
-
 }

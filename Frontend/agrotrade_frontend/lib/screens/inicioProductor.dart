@@ -1,25 +1,7 @@
 import 'package:flutter/material.dart';
 import '../ui/app_theme.dart';
 import '../ui/components.dart';
-
-// se crea clase de pedido
-
-class Pedido{
-    final int id;
-    final String comprador;
-    final String monto;
-    final String estado;
-
-
-    const Pedido({
-        required this.id,
-        required this.comprador,
-        required this.monto,
-        required this.estado,
-
-    });
-}
-
+import 'package:agrotrade_frontend/models/pedido.dart';
 
 //creacion de la clase de InicioProductor
 
@@ -27,8 +9,7 @@ class InicioProductor extends StatefulWidget {
   const InicioProductor({super.key});
 
   @override
-  State<InicioProductor> createState()=> _InicioProductorState();
-
+  State<InicioProductor> createState() => _InicioProductorState();
 }
 
 class _InicioProductorState extends State<InicioProductor>{
@@ -66,14 +47,24 @@ class _InicioProductorState extends State<InicioProductor>{
         );
     }
 
-    
-    void _cambiarTab(int index) {
-        setState(() => _tabActual = index);
-        if (index != 0) _mostrarSnack('Esta sección estará disponible pronto 🌱');
-    } 
+  void _mostrarSnack(String mensaje) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensaje),
+        backgroundColor: AppColors.primaryColor,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
 
+  void _cambiarTab(int index) {
+    setState(() => _tabActual = index);
+    if (index != 0) _mostrarSnack('Esta sección estará disponible pronto 🌱');
+  }
 
-    @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldBg,
@@ -121,7 +112,7 @@ class _InicioProductorState extends State<InicioProductor>{
             ),
             const SizedBox(height: 16),
 
-            // pedidos pendientes 
+            // pedidos pendientes
             StatCard(
               title: 'Pedidos Pendientes',
               value: '14',
@@ -143,7 +134,11 @@ class _InicioProductorState extends State<InicioProductor>{
                       ),
                     ),
                     SizedBox(width: 6),
-                    Icon(Icons.arrow_forward, size: 16, color: AppColors.primarySoft),
+                    Icon(
+                      Icons.arrow_forward,
+                      size: 16,
+                      color: AppColors.primarySoft,
+                    ),
                   ],
                 ),
               ),
@@ -162,7 +157,9 @@ class _InicioProductorState extends State<InicioProductor>{
               border: AppColors.inputErrorColor.withOpacity(0.2),
               footer: Text(
                 'Tomates (Bajo stock)',
-                style: AppTextStyles.cardTitle.copyWith(color: AppColors.errorDark),
+                style: AppTextStyles.cardTitle.copyWith(
+                  color: AppColors.errorDark,
+                ),
               ),
             ),
             const SizedBox(height: 32),
@@ -202,7 +199,6 @@ class _InicioProductorState extends State<InicioProductor>{
       ),
       child: Column(
         children: [
-         
           for (int i = 0; i < _pedidosRecientes.length; i++) ...[
             if (i > 0) const Divider(height: 1, color: AppColors.cardBorder),
             PedidoTile(
