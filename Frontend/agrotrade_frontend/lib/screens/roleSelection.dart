@@ -5,6 +5,7 @@ import 'onBoarding.dart';
 import 'package:flutter/material.dart';
 import '../ui/app_theme.dart';
 import '../ui/components.dart';
+import 'inicioProductor.dart';
 
 class Rol {
   final int RolId;
@@ -52,6 +53,19 @@ class _RoleSelection extends State<Roleselection> {
 
   void _continuar() {
     var RolSeleccionado = _Roles.firstWhere((r) => r.RolId == _rolSeleccionado);
+
+    if (RolSeleccionado.RolId == 2) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const InicioProductor()),
+
+      );
+
+      return;
+      
+    }
+
+    // los demas roles aun no tiene sus pantallas
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("Continuar Como ${RolSeleccionado.NombreRol}"),
