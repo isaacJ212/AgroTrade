@@ -22,34 +22,47 @@ class PrimaryButton extends StatelessWidget {
   final double radius;
   final String label;
   final VoidCallback? onPressed;
+  final IconData? icon;
+
+
   const PrimaryButton({
     super.key,
     required this.label,
     this.onPressed,
     required this.radius,
+    this.icon,
   });
 
   @override
   Widget build(BuildContext context) {
-    final enabled = onPressed != null;
     return SizedBox(
       width: double.infinity,
-      height: 50,
+      height: 52,
       child: ElevatedButton(
-        onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: enabled
-              ? AppColors.primaryColor
-              : AppColors.disabledbtn,
-          foregroundColor: AppColors.White,
-          elevation: 0,
+          backgroundColor: AppColors.primaryColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radius),
           ),
         ),
-        child: Text(
-          label,
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+        onPressed: onPressed,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, color: AppColors.White, size: 20),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              label,
+              style: const TextStyle(
+                color: AppColors.White,
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -58,25 +71,34 @@ class PrimaryButton extends StatelessWidget {
 
 class SecondaryButton extends StatelessWidget {
   final String label;
-  final VoidCallback? onPressed;
   final IconData? icon;
+//<<<<<<< feat-frontend-DetalleProductor
+  final VoidCallback? onPressed;
+  final Color color;
+
+
+
   const SecondaryButton({
     super.key,
     required this.label,
-    this.onPressed,
     this.icon,
+    this.onPressed,
+    this.color = AppColors.accentBlue,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 50,
+      height: 52,
       child: OutlinedButton(
-        onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.TextMain,
-          side: const BorderSide(color: AppColors.inputBorderColor),
+//<<<<<<< feat-frontend-DetalleProductor
+          side: BorderSide(color: color, width: 1.5),
+
+          foregroundColor: AppColors.accentBlue,
+          backgroundColor: AppColors.White,
+          side: const BorderSide(color: AppColors.accentBlue, width: 1.2),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
@@ -91,6 +113,58 @@ class SecondaryButton extends StatelessWidget {
             Text(
               label,
               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class TertiaryButton extends StatelessWidget {
+  final String label;
+  final VoidCallback? onPressed;
+  final IconData? icon;
+
+  const TertiaryButton({
+    super.key,
+    required this.label,
+    this.onPressed,
+    this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: OutlinedButton(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.errorColor,
+          backgroundColor: AppColors.White,
+          side: const BorderSide(color: AppColors.errorColor, width: 1.2),
+//>>>>>>> Development
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(26),
+          ),
+        ),
+        onPressed: onPressed,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, color: color, size: 20),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+              ),
             ),
           ],
         ),
@@ -295,8 +369,123 @@ class RoleCard extends StatelessWidget {
   }
 }
 
-// Tarjeta de métricas reutilizable (ventas, pedidos, alertas).
+class AgroBottomNavBar extends StatelessWidget {
+  final int currentIndex;
+  final ValueChanged<int> onTap;
 
+  const AgroBottomNavBar({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const items = [
+      _NavBarItem(
+        icon: Icons.home_outlined,
+        selectedIcon: Icons.home_rounded,
+        label: 'Inicio',
+      ),
+      _NavBarItem(
+        icon: Icons.explore_outlined,
+        selectedIcon: Icons.explore,
+        label: 'Explorar',
+      ),
+      _NavBarItem(
+        icon: Icons.bar_chart_outlined,
+        selectedIcon: Icons.bar_chart_rounded,
+        label: 'Ventas',
+      ),
+      _NavBarItem(
+        icon: Icons.person_outline,
+        selectedIcon: Icons.person,
+        label: 'Perfil',
+      ),
+    ];
+
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: Color(0xFFE4E7E5), width: 1)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 78,
+          child: Row(
+            children: List.generate(items.length, (index) {
+              final item = items[index];
+              final bool selected = currentIndex == index;
+
+              return Expanded(
+                child: InkWell(
+                  onTap: () => onTap(index),
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 180),
+                        width: 72,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: selected
+                              ? const Color(0xFFE3F3E8)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(22),
+                        ),
+                        alignment: Alignment.center,
+                        child: Icon(
+                          selected ? item.selectedIcon : item.icon,
+                          size: 24,
+                          color: selected
+                              ? AppColors.primaryColor
+                              : const Color(0xFF4E5A53),
+                        ),
+                      ),
+
+                      const SizedBox(height: 4),
+
+                      Text(
+                        item.label,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: selected
+                              ? FontWeight.w600
+                              : FontWeight.w500,
+                          color: selected
+                              ? AppColors.primaryColor
+                              : const Color(0xFF58615C),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Elemento individual de la barra de navegación
+class _NavBarItem {
+  final IconData icon;
+  final IconData selectedIcon;
+  final String label;
+
+  const _NavBarItem({
+    required this.icon,
+    required this.selectedIcon,
+    required this.label,
+  });
+}
+
+// Tarjeta de métricas reutilizable
 class StatCard extends StatelessWidget {
   final String title;
   final String value;
@@ -327,8 +516,10 @@ class StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
+
       // clipBehavior recorta el glow
       clipBehavior: Clip.antiAlias,
+
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(12),
@@ -340,6 +531,7 @@ class StatCard extends StatelessWidget {
 
       child: Stack(
         children: [
+          // Glow decorativo
           if (glow)
             Positioned(
               top: 4,
@@ -358,11 +550,15 @@ class StatCard extends StatelessWidget {
                 ),
               ),
             ),
+
+          // Icono
           Positioned(
             top: 16,
             right: 16,
             child: Icon(icon, color: iconColor ?? accent, size: 26),
           ),
+
+          // Contenido
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -373,11 +569,14 @@ class StatCard extends StatelessWidget {
                   title,
                   style: AppTextStyles.cardTitle.copyWith(color: titleColor),
                 ),
+
                 const SizedBox(height: 14),
+
                 Text(
                   value,
                   style: AppTextStyles.statValue.copyWith(color: accent),
                 ),
+
                 if (footer != null) ...[const SizedBox(height: 14), footer!],
               ],
             ),
@@ -386,19 +585,23 @@ class StatCard extends StatelessWidget {
       ),
     );
   }
-}
+} // Etiqueta de estado de un pedido
 
-// Etiqueta de estado de un pedido
 class StatusChip extends StatelessWidget {
   final String label;
   final Color background;
   final Color color;
+  //eaqui se agrega lo que es una restructuracion
+  final IconData? icon;
+  final double radius;
 
   const StatusChip({
     super.key,
     required this.label,
     required this.background,
     required this.color,
+    this.icon,
+    this.radius = 10,
   });
 
   @override
@@ -407,9 +610,17 @@ class StatusChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(radius),
       ),
-      child: Text(label, style: AppTextStyles.chip.copyWith(color: color)),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 14, color: color),
+            const SizedBox(width: 4),
+          ],
+        ],
+      ),
     );
   }
 }
@@ -506,9 +717,17 @@ class PedidoTile extends StatelessWidget {
 
 // Botón flotante de
 class SupportFab extends StatelessWidget {
+  //FAB cuadrada generica
+  final IconData icono;
+  final Color colorIcono;
   final VoidCallback onPressed;
 
-  const SupportFab({super.key, required this.onPressed});
+  const SupportFab({
+    super.key,
+    required this.icono,
+    required this.onPressed,
+    this.colorIcono = AppColors.fabIcon,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -519,7 +738,7 @@ class SupportFab extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: onPressed,
-        child: const SizedBox(
+        child: SizedBox(
           width: 56,
           height: 56,
           child: Icon(
@@ -533,14 +752,33 @@ class SupportFab extends StatelessWidget {
   }
 }
 
+//este es para el modela de la barra asica cada antalla puede
+//declara sus propio TABS
+
+class NavElemento {
+  final String label;
+  final IconData icon;
+  final IconData? activeIcon;
+  final bool badge;
+
+  const NavElemento({
+    required this.label,
+    required this.icon,
+    this.activeIcon,
+    this.badge = false,
+  });
+}
+
 // Barra de navegación inferior del productor.
 // Así la lógica de navegación queda en la pantalls
 class ProductorBottomNav extends StatelessWidget {
+  final List<NavElemento> items; // ahora lo que es la liosta viene de afuerta
   final int currentIndex;
   final ValueChanged<int> onTap;
 
   const ProductorBottomNav({
     super.key,
+    required this.items,
     required this.currentIndex,
     required this.onTap,
   });
@@ -571,13 +809,7 @@ class ProductorBottomNav extends StatelessWidget {
     );
   }
 
-  Widget _item(
-    int index,
-    IconData icon,
-    IconData activeIcon,
-    String label, {
-    bool badge = false,
-  }) {
+  Widget _item(int index, NavElemento elemento) {
     final bool activo = index == currentIndex;
     return Expanded(
       child: InkWell(
@@ -586,7 +818,6 @@ class ProductorBottomNav extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: 10),
-
             Container(
               width: 64,
               height: 32,
@@ -605,7 +836,7 @@ class ProductorBottomNav extends StatelessWidget {
                       size: 22,
                     ),
                   ),
-                  if (badge)
+                  if (elemento.badge)
                     Positioned(
                       top: 5,
                       right: 17,
@@ -623,7 +854,7 @@ class ProductorBottomNav extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              label,
+              elemento.label,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: activo ? FontWeight.w600 : FontWeight.w400,

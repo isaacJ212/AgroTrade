@@ -29,6 +29,13 @@ class AppColors {
   static const chipGrey = Color(0xFFBECABB);
 
   static const screenBg = Color(0xFFF1F3F1);
+ 
+
+
+
+  // esto son los colores para lo que es detalle producto
+  static const amberSoft = Color(0xFFFDF0D5);
+  
 }
 
 class AppTextStyles {
