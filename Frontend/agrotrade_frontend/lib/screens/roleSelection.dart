@@ -1,3 +1,4 @@
+import 'package:agrotrade_frontend/screens/homeRepartidor.dart';
 import 'package:flutter/foundation.dart';
 
 import 'Login.dart';
@@ -6,19 +7,7 @@ import 'package:flutter/material.dart';
 import '../ui/app_theme.dart';
 import '../ui/components.dart';
 import 'inicioProductor.dart';
-
-class Rol {
-  final int RolId;
-  final String NombreRol;
-  final String Description;
-  final IconData icono;
-  const Rol({
-    required this.RolId,
-    required this.NombreRol,
-    required this.Description,
-    required this.icono,
-  });
-}
+import 'package:agrotrade_frontend/models/rol.dart';
 
 class Roleselection extends StatefulWidget {
   const Roleselection({super.key});
@@ -59,11 +48,12 @@ class _RoleSelection extends State<Roleselection> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const InicioProductor()),
-
       );
-
-      return;
-      
+    } else if (RolSeleccionado.RolId == 3) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const InicioRepartidor()),
+      );
     }
 
     // los demas roles aun no tiene sus pantallas

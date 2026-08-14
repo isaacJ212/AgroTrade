@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'app_theme.dart';
+import '../models/entrega.dart';
 
 // esto es para el logo de agrotrade pero lo podemos cambiar por el png
 class Logo extends StatelessWidget {
@@ -294,21 +295,18 @@ class RoleCard extends StatelessWidget {
   }
 }
 
-
-
-
 // Tarjeta de métricas reutilizable (ventas, pedidos, alertas).
 
 class StatCard extends StatelessWidget {
   final String title;
   final String value;
   final IconData icon;
-  final Color accent;     
-  final Color? iconColor; 
+  final Color accent;
+  final Color? iconColor;
   final Color titleColor;
   final Color background;
   final Color border;
-  final bool glow;    
+  final bool glow;
   final Widget? footer;
 
   const StatCard({
@@ -339,7 +337,7 @@ class StatCard extends StatelessWidget {
           BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1)),
         ],
       ),
-      
+
       child: Stack(
         children: [
           if (glow)
@@ -371,13 +369,16 @@ class StatCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(title, style: AppTextStyles.cardTitle.copyWith(color: titleColor)),
+                Text(
+                  title,
+                  style: AppTextStyles.cardTitle.copyWith(color: titleColor),
+                ),
                 const SizedBox(height: 14),
-                Text(value, style: AppTextStyles.statValue.copyWith(color: accent)),
-                if (footer != null) ...[
-                  const SizedBox(height: 14),
-                  footer!,
-                ],
+                Text(
+                  value,
+                  style: AppTextStyles.statValue.copyWith(color: accent),
+                ),
+                if (footer != null) ...[const SizedBox(height: 14), footer!],
               ],
             ),
           ),
@@ -466,7 +467,9 @@ class PedidoTile extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'Comprador: $comprador',
-                  style: AppTextStyles.SubTitle.copyWith(color: AppColors.bodyText),
+                  style: AppTextStyles.SubTitle.copyWith(
+                    color: AppColors.bodyText,
+                  ),
                 ),
               ],
             ),
@@ -489,7 +492,9 @@ class PedidoTile extends StatelessWidget {
                 background: _completado
                     ? AppColors.chipGrey
                     : AppColors.primaryColor.withOpacity(0.2),
-                color: _completado ? AppColors.bodyText : AppColors.primaryColor,
+                color: _completado
+                    ? AppColors.bodyText
+                    : AppColors.primaryColor,
               ),
             ],
           ),
@@ -499,7 +504,7 @@ class PedidoTile extends StatelessWidget {
   }
 }
 
-// Botón flotante de 
+// Botón flotante de
 class SupportFab extends StatelessWidget {
   final VoidCallback onPressed;
 
@@ -517,7 +522,11 @@ class SupportFab extends StatelessWidget {
         child: const SizedBox(
           width: 56,
           height: 56,
-          child: Icon(Icons.smart_toy_outlined, color: AppColors.fabIcon, size: 28),
+          child: Icon(
+            Icons.smart_toy_outlined,
+            color: AppColors.fabIcon,
+            size: 28,
+          ),
         ),
       ),
     );
@@ -543,13 +552,19 @@ class ProductorBottomNav extends StatelessWidget {
         color: AppColors.White,
         border: Border(top: BorderSide(color: AppColors.cardBorder)),
       ),
-      
+
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
       child: Row(
         children: [
           _item(0, Icons.home_outlined, Icons.home, 'Inicio'),
           _item(1, Icons.explore_outlined, Icons.explore, 'Explorar'),
-          _item(2, Icons.shopping_bag_outlined, Icons.shopping_bag, 'Pedidos', badge: true),
+          _item(
+            2,
+            Icons.shopping_bag_outlined,
+            Icons.shopping_bag,
+            'Pedidos',
+            badge: true,
+          ),
           _item(3, Icons.person_outline, Icons.person, 'Perfil'),
         ],
       ),
@@ -571,7 +586,7 @@ class ProductorBottomNav extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: 10),
-            
+
             Container(
               width: 64,
               height: 32,
@@ -584,7 +599,9 @@ class ProductorBottomNav extends StatelessWidget {
                   Center(
                     child: Icon(
                       activo ? activeIcon : icon,
-                      color: activo ? AppColors.primarySoft : AppColors.bodyText,
+                      color: activo
+                          ? AppColors.primarySoft
+                          : AppColors.bodyText,
                       size: 22,
                     ),
                   ),
@@ -615,6 +632,407 @@ class ProductorBottomNav extends StatelessWidget {
             ),
             const SizedBox(height: 8),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class RepartidorBottomNav extends StatelessWidget {
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+
+  const RepartidorBottomNav({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.White,
+        border: Border(top: BorderSide(color: AppColors.cardBorder)),
+      ),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      child: Row(
+        children: [
+          _item(0, Icons.home_outlined, Icons.home, 'Inicio'),
+          _item(
+            1,
+            Icons.local_shipping_outlined,
+            Icons.local_shipping,
+            'Entregas',
+            badge: true,
+          ),
+          _item(2, Icons.person_outline, Icons.person, 'Perfil'),
+        ],
+      ),
+    );
+  }
+
+  Widget _item(
+    int index,
+    IconData icon,
+    IconData activeIcon,
+    String label, {
+    bool badge = false,
+  }) {
+    final bool activo = index == currentIndex;
+    return Expanded(
+      child: InkWell(
+        onTap: () => onTap(index),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 10),
+            Container(
+              width: 64,
+              height: 32,
+              decoration: BoxDecoration(
+                color: activo ? AppColors.navPill : Colors.transparent,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Stack(
+                children: [
+                  Center(
+                    child: Icon(
+                      activo ? activeIcon : icon,
+                      color: activo
+                          ? AppColors.primarySoft
+                          : AppColors.bodyText,
+                      size: 22,
+                    ),
+                  ),
+                  if (badge)
+                    Positioned(
+                      top: 5,
+                      right: 17,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: AppColors.inputErrorColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: activo ? FontWeight.w600 : FontWeight.w400,
+                color: activo ? AppColors.titleDark : AppColors.bodyText,
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class NotificacionEntregaTile extends StatelessWidget {
+  final NotificacionEntrega notificacion; // el modelo que viene del backend
+  final VoidCallback? onTap; // qué hacer al tocarla
+
+  const NotificacionEntregaTile({
+    super.key,
+    required this.notificacion,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.White,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.cardBorder),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 2,
+              offset: Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // 1) Ícono circular verde
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: const BoxDecoration(
+                color: AppColors.primarySoftBg,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.local_shipping_outlined,
+                color: AppColors.primaryColor,
+              ),
+            ),
+            const SizedBox(width: 12),
+
+            // 2) Textos principales (Expanded para que no desborden)
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Pedido #${notificacion.pedidoId}',
+                    style: AppTextStyles.label.copyWith(fontSize: 14),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    notificacion.zonaEntrega,
+                    style: AppTextStyles.SubTitle.copyWith(fontSize: 13),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    notificacion.tiempoTranscurrido, // "Hace 5 min"
+                    style: AppTextStyles.SubTitle.copyWith(fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+
+            // 3) Monto + flecha a la derecha
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  notificacion.totalFormateado, // "$1250.50"
+                  style: AppTextStyles.label.copyWith(
+                    fontSize: 14,
+                    color: AppColors.primaryColor,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                const Icon(
+                  Icons.chevron_right,
+                  color: AppColors.bodyText,
+                  size: 20,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class EntregaDetalleCard extends StatelessWidget {
+  final NotificacionEntrega entrega;
+  final VoidCallback? onVerDetalle;
+  final VoidCallback? onContinuar;
+
+  const EntregaDetalleCard({
+    super.key,
+    required this.entrega,
+    this.onVerDetalle,
+    this.onContinuar,
+  });
+
+  Color get _colorEstado {
+    switch (entrega.estado) {
+      case 'Completado':
+        return AppColors.bodyText;
+      case 'En curso':
+        return AppColors.accentBlue;
+      default:
+        return AppColors.warning;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.White,
+        borderRadius: BorderRadius.circular(12),
+
+        border: Border(
+          left: BorderSide(color: _colorEstado, width: 4),
+          top: BorderSide(color: AppColors.cardBorder),
+          right: BorderSide(color: AppColors.cardBorder),
+          bottom: BorderSide(color: AppColors.cardBorder),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const SizedBox(width: 8),
+              ChipEstado(texto: entrega.estado, color: _colorEstado),
+              const Spacer(), // empuja la hora a la derecha
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    entrega.horaLabel,
+                    style: AppTextStyles.SubTitle.copyWith(fontSize: 11),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // ---- Título ----
+          Text(
+            entrega.zonaEntrega,
+            style: AppTextStyles.cardTitle.copyWith(fontSize: 18),
+          ),
+          const SizedBox(height: 12),
+
+          // ---- Zona 2: caja gris de ruta ----
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.scaffoldBg,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              children: [
+                _filaRuta(
+                  Icons.location_on_outlined,
+                  'Recogida',
+                  entrega.zonaEntrega,
+                ),
+                const SizedBox(height: 10),
+                _filaRuta(Icons.flag_outlined, 'Destino', entrega.zonaEntrega),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // ---- Zona 3: footer según estado ----
+          _footer(),
+        ],
+      ),
+    );
+  }
+
+  // Fila ícono + label + valor (se usa 2 veces → se extrae)
+  Widget _filaRuta(IconData icono, String label, String valor) {
+    return Row(
+      children: [
+        Icon(icono, size: 16, color: AppColors.primaryColor),
+        const SizedBox(width: 10),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: AppTextStyles.SubTitle.copyWith(fontSize: 12)),
+            const SizedBox(height: 2),
+            Text(valor, style: AppTextStyles.label.copyWith(fontSize: 13)),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // EL PORQUÉ MÁS IMPORTANTE: la UI cambia según el estado con un switch
+  Widget _footer() {
+    switch (entrega.estado) {
+      case 'En curso':
+        return SizedBox(
+          width: double.infinity,
+          height: 44,
+          child: ElevatedButton(
+            onPressed: onContinuar ?? () {},
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryColor,
+              foregroundColor: AppColors.White,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text(
+              'Continuar entrega',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+          ),
+        );
+      case 'Completado':
+        return Row(
+          children: [
+            const Icon(
+              Icons.verified_outlined,
+              size: 16,
+              color: AppColors.bodyText,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Entregada a ${entrega.pedidoId ?? '—'} (Firma registrada)',
+                style: AppTextStyles.SubTitle.copyWith(fontSize: 12),
+              ),
+            ),
+          ],
+        );
+      default: // Pendiente
+        return Align(
+          alignment: Alignment.centerRight,
+          child: SizedBox(
+            height: 40,
+            child: OutlinedButton(
+              onPressed: onVerDetalle ?? () {},
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.accentBlue,
+                side: const BorderSide(color: AppColors.accentBlue),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text(
+                'Ver detalle',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+        );
+    }
+  }
+}
+
+/// La "pastilla" que muestra estados: Pendiente, En curso, Completado,
+/// y también los códigos como #AT-2021.
+class ChipEstado extends StatelessWidget {
+  final String texto;
+  final Color color;
+
+  const ChipEstado({super.key, required this.texto, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        // EL TRUCO: el fondo es el MISMO color pero al 12% de opacidad
+        color: color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(20), // bordes de píldora
+      ),
+      child: Text(
+        texto,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: color, // el texto va con el color full
         ),
       ),
     );
