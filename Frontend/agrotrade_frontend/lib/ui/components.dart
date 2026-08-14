@@ -349,35 +349,6 @@ class AgroBottomNavBar extends StatelessWidget {
     super.key,
     required this.currentIndex,
     required this.onTap,
-
-
-
-// Tarjeta de métricas reutilizable (ventas, pedidos, alertas).
-
-class StatCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final IconData icon;
-  final Color accent;     
-  final Color? iconColor; 
-  final Color titleColor;
-  final Color background;
-  final Color border;
-  final bool glow;    
-  final Widget? footer;
-
-  const StatCard({
-    super.key,
-    required this.title,
-    required this.value,
-    required this.icon,
-    this.accent = AppColors.primaryColor,
-    this.iconColor,
-    this.titleColor = AppColors.bodyText,
-    this.background = AppColors.White,
-    this.border = AppColors.cardBorder,
-    this.glow = false,
-    this.footer,
   });
 
   @override
@@ -431,7 +402,6 @@ class StatCard extends StatelessWidget {
                         duration: const Duration(milliseconds: 180),
                         width: 72,
                         height: 38,
-
                         decoration: BoxDecoration(
                           color: selected
                               ? const Color(0xFFE3F3E8)
@@ -442,7 +412,6 @@ class StatCard extends StatelessWidget {
                         child: Icon(
                           selected ? item.selectedIcon : item.icon,
                           size: 24,
-
                           color: selected
                               ? AppColors.primaryColor
                               : const Color(0xFF4E5A53),
@@ -475,6 +444,7 @@ class StatCard extends StatelessWidget {
   }
 }
 
+// Elemento individual de la barra de navegación
 class _NavBarItem {
   final IconData icon;
   final IconData selectedIcon;
@@ -486,10 +456,42 @@ class _NavBarItem {
     required this.label,
   });
 }
+
+// Tarjeta de métricas reutilizable
+class StatCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color accent;
+  final Color? iconColor;
+  final Color titleColor;
+  final Color background;
+  final Color border;
+  final bool glow;
+  final Widget? footer;
+
+  const StatCard({
+    super.key,
+    required this.title,
+    required this.value,
+    required this.icon,
+    this.accent = AppColors.primaryColor,
+    this.iconColor,
+    this.titleColor = AppColors.bodyText,
+    this.background = AppColors.White,
+    this.border = AppColors.cardBorder,
+    this.glow = false,
+    this.footer,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
+
       // clipBehavior recorta el glow
       clipBehavior: Clip.antiAlias,
+
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(12),
@@ -498,9 +500,10 @@ class _NavBarItem {
           BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1)),
         ],
       ),
-      
+
       child: Stack(
         children: [
+          // Glow decorativo
           if (glow)
             Positioned(
               top: 4,
@@ -519,24 +522,34 @@ class _NavBarItem {
                 ),
               ),
             ),
+
+          // Icono
           Positioned(
             top: 16,
             right: 16,
             child: Icon(icon, color: iconColor ?? accent, size: 26),
           ),
+
+          // Contenido
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(title, style: AppTextStyles.cardTitle.copyWith(color: titleColor)),
+                Text(
+                  title,
+                  style: AppTextStyles.cardTitle.copyWith(color: titleColor),
+                ),
+
                 const SizedBox(height: 14),
-                Text(value, style: AppTextStyles.statValue.copyWith(color: accent)),
-                if (footer != null) ...[
-                  const SizedBox(height: 14),
-                  footer!,
-                ],
+
+                Text(
+                  value,
+                  style: AppTextStyles.statValue.copyWith(color: accent),
+                ),
+
+                if (footer != null) ...[const SizedBox(height: 14), footer!],
               ],
             ),
           ),
@@ -544,9 +557,8 @@ class _NavBarItem {
       ),
     );
   }
-}
+} // Etiqueta de estado de un pedido
 
-// Etiqueta de estado de un pedido
 class StatusChip extends StatelessWidget {
   final String label;
   final Color background;
@@ -575,9 +587,9 @@ class StatusChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if(icon != null) ...[
-            Icon(icon, size: 14, color: color,),
-            const SizedBox(width: 4,),
+          if (icon != null) ...[
+            Icon(icon, size: 14, color: color),
+            const SizedBox(width: 4),
           ],
         ],
       ),
@@ -638,7 +650,9 @@ class PedidoTile extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'Comprador: $comprador',
-                  style: AppTextStyles.SubTitle.copyWith(color: AppColors.bodyText),
+                  style: AppTextStyles.SubTitle.copyWith(
+                    color: AppColors.bodyText,
+                  ),
                 ),
               ],
             ),
@@ -661,7 +675,9 @@ class PedidoTile extends StatelessWidget {
                 background: _completado
                     ? AppColors.chipGrey
                     : AppColors.primaryColor.withOpacity(0.2),
-                color: _completado ? AppColors.bodyText : AppColors.primaryColor,
+                color: _completado
+                    ? AppColors.bodyText
+                    : AppColors.primaryColor,
               ),
             ],
           ),
@@ -671,7 +687,7 @@ class PedidoTile extends StatelessWidget {
   }
 }
 
-// Botón flotante de 
+// Botón flotante de
 class SupportFab extends StatelessWidget {
   //FAB cuadrada generica
   final IconData icono;
@@ -679,10 +695,10 @@ class SupportFab extends StatelessWidget {
   final VoidCallback onPressed;
 
   const SupportFab({
-  super.key, 
-  required this.icono,
-  required this.onPressed,
-  this.colorIcono = AppColors.fabIcon,
+    super.key,
+    required this.icono,
+    required this.onPressed,
+    this.colorIcono = AppColors.fabIcon,
   });
 
   @override
@@ -703,12 +719,11 @@ class SupportFab extends StatelessWidget {
     );
   }
 }
- 
 
- //este es para el modela de la barra asica cada antalla puede 
- //declara sus propio TABS
+//este es para el modela de la barra asica cada antalla puede
+//declara sus propio TABS
 
-class NavElemento{
+class NavElemento {
   final String label;
   final IconData icon;
   final IconData? activeIcon;
@@ -719,14 +734,13 @@ class NavElemento{
     required this.icon,
     this.activeIcon,
     this.badge = false,
-
   });
- }
+}
 
 // Barra de navegación inferior del productor.
 // Así la lógica de navegación queda en la pantalls
 class ProductorBottomNav extends StatelessWidget {
-  final List<NavElemento> items;// ahora lo que es la liosta viene de afuerta
+  final List<NavElemento> items; // ahora lo que es la liosta viene de afuerta
   final int currentIndex;
   final ValueChanged<int> onTap;
 
@@ -754,7 +768,6 @@ class ProductorBottomNav extends StatelessWidget {
     );
   }
 
-
   Widget _item(int index, NavElemento elemento) {
     final bool activo = index == currentIndex;
     return Expanded(
@@ -775,8 +788,12 @@ class ProductorBottomNav extends StatelessWidget {
                 children: [
                   Center(
                     child: Icon(
-                      activo ? (elemento.activeIcon ?? elemento.icon) : elemento.icon,
-                      color: activo ? AppColors.primarySoft : AppColors.bodyText,
+                      activo
+                          ? (elemento.activeIcon ?? elemento.icon)
+                          : elemento.icon,
+                      color: activo
+                          ? AppColors.primarySoft
+                          : AppColors.bodyText,
                       size: 22,
                     ),
                   ),
@@ -813,12 +830,10 @@ class ProductorBottomNav extends StatelessWidget {
   }
 }
 
-
-
-// esto son parte del inventario 
+// esto son parte del inventario
 //en este caso se hace lo que fila valor
 
-class InfoRow extends StatelessWidget{
+class InfoRow extends StatelessWidget {
   final String label;
   final String value;
   final Color valueColor;
@@ -827,36 +842,35 @@ class InfoRow extends StatelessWidget{
     super.key,
     required this.label,
     required this.value,
-    this.valueColor = AppColors.titleDark
+    this.valueColor = AppColors.titleDark,
   });
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: AppTextStyles.cardTitle),
         // lo quees el Flexible eevita overflow si n este caso el valor es largo
-        Flexible(child: Text(
-          value,
-          textAlign: TextAlign.right,
-          style: AppTextStyles.label.copyWith(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: valueColor,
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.right,
+            style: AppTextStyles.label.copyWith(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: valueColor,
+            ),
           ),
-        )),
+        ),
       ],
     );
-
   }
-  
 }
-
 
 // este es para lo que wes el boton gris de accion secundaria
 
-class NeutralButton extends StatelessWidget{
+class NeutralButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final Color background;
@@ -879,9 +893,7 @@ class NeutralButton extends StatelessWidget{
         onPressed: onPressed,
         style: TextButton.styleFrom(
           backgroundColor: background,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
         child: Text(
           label,
@@ -895,5 +907,3 @@ class NeutralButton extends StatelessWidget{
     );
   }
 }
-
-
