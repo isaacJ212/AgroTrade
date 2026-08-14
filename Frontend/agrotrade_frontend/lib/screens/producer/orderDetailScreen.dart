@@ -111,7 +111,6 @@ class OrderDetailsScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
 
                       children: [
-                        // Avatar
                         const CircleAvatar(
                           radius: 22,
                           backgroundColor: Color(0xFF546167),
@@ -173,7 +172,6 @@ class OrderDetailsScreen extends StatelessWidget {
 
                           child: OutlinedButton(
                             onPressed: () {
-                              // Más adelante integraremos el chat.
                             },
 
                             style: OutlinedButton.styleFrom(
@@ -330,21 +328,18 @@ class OrderDetailsScreen extends StatelessWidget {
                 label: 'Confirmar pedido',
                 radius: 8,
                 onPressed: () {
-                  // mas adelante se conectara
                 },
               ),
               const SizedBox(height: 10),
               SecondaryButton(
                 label: 'Ver preparacion',
                 onPressed: () {
-                  //mas adelante se conectara
                 },
               ),
               const SizedBox(height: 10),
               TertiaryButton(
                 label: 'Rechazar pedido',
                 onPressed: () {
-                  //mas adelante se conectara
                 },
               ),
             ],

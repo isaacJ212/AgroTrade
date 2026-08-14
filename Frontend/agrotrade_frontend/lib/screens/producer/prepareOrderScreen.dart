@@ -1,5 +1,6 @@
 import 'package:agrotrade_frontend/screens/producer/orderDetailScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:agrotrade_frontend/screens/sales.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
 
@@ -27,7 +28,7 @@ class PrepareOrderScreen extends StatelessWidget {
 
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 30),
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -249,7 +250,10 @@ class PrepareOrderScreen extends StatelessWidget {
                 label: 'Enviar mensaje al comprador',
                 icon: Icons.chat_outlined,
                 onPressed: () {
-                  // Navegación al chat se conectará posteriormente.
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Sales()),
+                  );
                 },
               ),
 
