@@ -21,34 +21,47 @@ class PrimaryButton extends StatelessWidget {
   final double radius;
   final String label;
   final VoidCallback? onPressed;
+  final IconData? icon;
+
+
   const PrimaryButton({
     super.key,
     required this.label,
     this.onPressed,
     required this.radius,
+    this.icon,
   });
 
   @override
   Widget build(BuildContext context) {
-    final enabled = onPressed != null;
     return SizedBox(
       width: double.infinity,
-      height: 50,
+      height: 52,
       child: ElevatedButton(
-        onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: enabled
-              ? AppColors.primaryColor
-              : AppColors.disabledbtn,
-          foregroundColor: AppColors.White,
-          elevation: 0,
+          backgroundColor: AppColors.primaryColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radius),
           ),
         ),
-        child: Text(
-          label,
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+        onPressed: onPressed,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, color: AppColors.White, size: 20),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              label,
+              style: const TextStyle(
+                color: AppColors.White,
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -57,24 +70,31 @@ class PrimaryButton extends StatelessWidget {
 
 class SecondaryButton extends StatelessWidget {
   final String label;
-  final VoidCallback? onPressed;
   final IconData? icon;
+//<<<<<<< feat-frontend-DetalleProductor
+  final VoidCallback? onPressed;
+  final Color color;
+
+
 
   const SecondaryButton({
     super.key,
     required this.label,
-    this.onPressed,
     this.icon,
+    this.onPressed,
+    this.color = AppColors.accentBlue,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 50,
+      height: 52,
       child: OutlinedButton(
-        onPressed: onPressed,
         style: OutlinedButton.styleFrom(
+//<<<<<<< feat-frontend-DetalleProductor
+          side: BorderSide(color: color, width: 1.5),
+
           foregroundColor: AppColors.accentBlue,
           backgroundColor: AppColors.White,
           side: const BorderSide(color: AppColors.accentBlue, width: 1.2),
@@ -123,20 +143,27 @@ class TertiaryButton extends StatelessWidget {
           foregroundColor: AppColors.errorColor,
           backgroundColor: AppColors.White,
           side: const BorderSide(color: AppColors.errorColor, width: 1.2),
+//>>>>>>> Development
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(26),
           ),
         ),
+        onPressed: onPressed,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 22),
+              Icon(icon, color: color, size: 20),
               const SizedBox(width: 8),
             ],
             Text(
               label,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+              ),
             ),
           ],
         ),
@@ -761,7 +788,7 @@ class ProductorBottomNav extends StatelessWidget {
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
       child: Row(
         children: [
-          // 📚 collection-for con índice para saber cuál es el activo
+         
           for (int i = 0; i < items.length; i++) _item(i, items[i]),
         ],
       ),

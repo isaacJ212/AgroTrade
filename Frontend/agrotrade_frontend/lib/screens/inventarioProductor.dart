@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../ui/app_theme.dart';
 import '../ui/components.dart';
 import 'inicioProductor.dart';
+import 'detalleProducto.dart';
 
 enum EstadoProducto{
 
@@ -47,6 +48,11 @@ class Producto{
   final String? cosecha;
   final EstadoProducto estado;
   final String imagenUrl;
+  //
+  final String etiqueta;
+  final String? ubicacion;
+  final String? descripcion;
+  final List<Costo> costos;
 
   const Producto({
     required this.id,
@@ -58,12 +64,28 @@ class Producto{
     required this.imagenUrl,
     this.sufijoPrecio = '',
     this.cosecha,
+    //
+    this.etiqueta = 'Fresco',   
+    this.ubicacion,             
+    this.descripcion,           
+    this.costos = const [], 
 
   });
 
   String get cantidadTexto => '${cantidad.toStringAsFixed(0)} $unidad';
   String get precioTexto => '\$${precio.toStringAsFixed(2)}$sufijoPrecio';
 
+}
+
+//clase ara el desgloce de los cstes
+class Costo{
+  final String concepto;
+  final String monto;
+
+  const Costo({
+    required this.concepto,
+    required this.monto,
+  });
 }
 
 class InventarioProductor extends StatefulWidget {
@@ -75,21 +97,31 @@ class InventarioProductor extends StatefulWidget {
 
 class _InventarioProductorState extends State<InventarioProductor> {
   String _busqueda = '';
-  EstadoProducto? _filtroActual; // 📚 null significa "Todos"
+  EstadoProducto? _filtroActual; 
 
-  // TODO: reemplazar por la respuesta del backend
+
   static const List<Producto> _productos = [
     Producto(
       id: 1,
-      nombre: 'Tomate Cherry Orgánico',
-      cantidad: 150,
-      unidad: 'Cajas',
-      precio: 12.50,
+      nombre: 'Tomate Híbrido Saladette',
+      cantidad: 1200,
+      unidad: 'kg',
+      precio: 18.50,
       cosecha: '15 Oct 2023',
       estado: EstadoProducto.disponible,
       imagenUrl:
-          'https://images.unsplash.com/photo-1546094096-0df9bdkaaadd?auto=format&fit=crop&w=900&q=60',
+        'https://images.unsplash.com/photo-1546094096-0df9bdcaaadd?auto=format&fit=crop&w=900&q=60',
+      etiqueta: 'Fresco',
+      ubicacion: "Finca 'El Sol', Sinaloa, MX",
+      descripcion:
+        'Tomate saladette de primera calidad, cultivado bajo invernadero con sistema de riego por goteo para optimizar recursos hídricos. Calibre uniforme, ideal para mercado fresco o procesamiento. Libre de pesticidas restringidos.',
+      costos: const [
+        Costo(concepto: 'Costo Producción', monto: '\$12.00/kg'),
+        Costo(concepto: 'Empaque', monto: '\$2.50/kg'),
+        Costo(concepto: 'Margen', monto: '\$4.00/kg'),
+        ],
     ),
+
     Producto(
       id: 2,
       nombre: 'Aguacate Hass Exportación',
@@ -121,9 +153,7 @@ class _InventarioProductorState extends State<InventarioProductor> {
     NavElemento(label: 'Perfil', icon: Icons.person_outline, activeIcon: Icons.person),
   ];
 
-  /// 📚 Getter computado: aplica filtro de tab + búsqueda.
-  /// `where` recorre la lista y conserva los elementos que
-  /// cumplen la condición; `toList()` lo vuelve List de nuevo.
+
   List<Producto> get _filtrados => _productos.where((p) {
         final porEstado = _filtroActual == null || p.estado == _filtroActual;
         final texto = _busqueda.trim().toLowerCase();
@@ -188,8 +218,7 @@ class _InventarioProductorState extends State<InventarioProductor> {
             const SizedBox(height: 8),
             _tabsFiltro(),
             const Divider(height: 1, color: AppColors.cardBorder),
-            // 📚 Expanded: la lista ocupa el espacio restante
-            // y el header/tabs quedan fijos arriba.
+            
             Expanded(child: _lista()),
           ],
         ),
@@ -209,7 +238,7 @@ class _InventarioProductorState extends State<InventarioProductor> {
     );
   }
 
-  // ---- Header con wordmark y acciones ----
+ 
   Widget _barraSuperior() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 8, 0),
@@ -234,9 +263,10 @@ class _InventarioProductorState extends State<InventarioProductor> {
         ],
       ),
     );
+    
   }
 
-  // ---- Buscador ----
+ 
   Widget _buscador() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -247,8 +277,7 @@ class _InventarioProductorState extends State<InventarioProductor> {
           border: Border.all(color: AppColors.cardBorder),
         ),
         child: TextField(
-          // 📚 onChanged dispara con cada tecla => búsqueda en vivo.
-          // No necesitamos TextEditingController para solo LEER.
+
           onChanged: (valor) => setState(() => _busqueda = valor),
           decoration: InputDecoration(
             hintText: 'Buscar por nombre, categoría o ID...',
@@ -265,12 +294,12 @@ class _InventarioProductorState extends State<InventarioProductor> {
     );
   }
 
-  // ---- Tabs de filtro (scroll horizontal) ----
+ 
   Widget _tabsFiltro() {
-    // 📚 null al inicio = "Todos"; luego cada valor del enum.
+    
     final filtros = <EstadoProducto?>[null, ...EstadoProducto.values];
     return SingleChildScrollView(
-      scrollDirection: Axis.horizontal, // 📚 "Agotados" no cabe: scroll
+      scrollDirection: Axis.horizontal, 
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: [
@@ -309,7 +338,6 @@ class _InventarioProductorState extends State<InventarioProductor> {
     );
   }
 
-  // ---- Lista de productos o estado vacío ----
   Widget _lista() {
     final productos = _filtrados;
 
@@ -333,20 +361,29 @@ class _InventarioProductorState extends State<InventarioProductor> {
       separatorBuilder: (_, __) => const SizedBox(height: 20),
       itemBuilder: (context, i) => _ProductoCard(
         producto: productos[i],
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => DetalleProducto(producto: productos[i]),
+          ),
+        ),
         onAccion: () => _mostrarSnack('Disponible al conectar el backend 🌱'),
       ),
     );
   }
 }
 
-// ==========================================================
-// CARD DE PRODUCTO (privada de esta pantalla por ahora)
-// ==========================================================
+
 class _ProductoCard extends StatelessWidget {
   final Producto producto;
   final VoidCallback onAccion;
+  final VoidCallback? onTap;
 
-  const _ProductoCard({required this.producto, required this.onAccion});
+  const _ProductoCard({
+    required this.producto, 
+    required this.onAccion,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -356,20 +393,23 @@ class _ProductoCard extends StatelessWidget {
         ? AppColors.errorColor
         : colorBase;
 
-    return Container(
-      clipBehavior: Clip.antiAlias, // 📚 recorta la foto a las esquinas redondas
-      decoration: BoxDecoration(
-        color: AppColors.White,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.cardBorder),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1)),
-        ],
-      ),
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        clipBehavior: Clip.antiAlias, 
+        decoration: BoxDecoration(
+          color: AppColors.White,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.cardBorder),
+          boxShadow: const [
+            BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1)),
+          ],
+        ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 📚 Stack: el chip de estado FLOTA sobre la imagen
+         
           Stack(
             children: [
               _imagen(),
@@ -425,13 +465,10 @@ class _ProductoCard extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 
-  /// 📚 Image.network con dos "builders":
-  /// - loadingBuilder: muestra spinner mientras descarga.
-  /// - errorBuilder: si falla (o no hay internet), muestra un
-  ///   placeholder elegante en vez de romper la pantalla.
+ 
   Widget _imagen() {
     return Image.network(
       producto.imagenUrl,

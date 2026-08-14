@@ -27,6 +27,10 @@ class AppColors {
   static const navPill = Color(0xFFE6F4EA);   
   static const fabIcon = Color(0xFF91EE9C);    
   static const chipGrey = Color(0xFFBECABB);   
+
+
+  // esto son los colores para lo que es detalle producto
+  static const amberSoft = Color(0xFFFDF0D5);
   
 }
 
@@ -93,6 +97,13 @@ class AppTextStyles {
     fontWeight: FontWeight.w700,
     color: AppColors.titleDark,
 
+  );
+
+  //clases para lo que es el detalle del prducto
+  static const TextStyle price = TextStyle(
+    fontSize: 38,
+    fontWeight:  FontWeight.w700,
+    color: AppColors.primaryColor,
   );
 
 
