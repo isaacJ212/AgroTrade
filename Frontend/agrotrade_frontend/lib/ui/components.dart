@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'app_theme.dart';
+import '../models/entrega.dart';
 
 // esto es para el logo de agrotrade pero lo podemos cambiar por el png
 class Logo extends StatelessWidget {
@@ -21,34 +22,46 @@ class PrimaryButton extends StatelessWidget {
   final double radius;
   final String label;
   final VoidCallback? onPressed;
+  final IconData? icon;
+
   const PrimaryButton({
     super.key,
     required this.label,
     this.onPressed,
     required this.radius,
+    this.icon,
   });
 
   @override
   Widget build(BuildContext context) {
-    final enabled = onPressed != null;
     return SizedBox(
       width: double.infinity,
-      height: 50,
+      height: 52,
       child: ElevatedButton(
-        onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: enabled
-              ? AppColors.primaryColor
-              : AppColors.disabledbtn,
-          foregroundColor: AppColors.White,
-          elevation: 0,
+          backgroundColor: AppColors.primaryColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radius),
           ),
         ),
-        child: Text(
-          label,
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+        onPressed: onPressed,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, color: AppColors.White, size: 20),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              label,
+              style: const TextStyle(
+                color: AppColors.White,
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -57,27 +70,29 @@ class PrimaryButton extends StatelessWidget {
 
 class SecondaryButton extends StatelessWidget {
   final String label;
-  final VoidCallback? onPressed;
   final IconData? icon;
+  final VoidCallback? onPressed;
+  final Color color;
 
   const SecondaryButton({
     super.key,
     required this.label,
-    this.onPressed,
     this.icon,
+    this.onPressed,
+    this.color = AppColors.accentBlue,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 50,
+      height: 52,
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.accentBlue,
+          foregroundColor: color,
           backgroundColor: AppColors.White,
-          side: const BorderSide(color: AppColors.accentBlue, width: 1.2),
+          side: BorderSide(color: color, width: 1.2),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
@@ -86,7 +101,7 @@ class SecondaryButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 22),
+              Icon(icon, size: 22, color: color),
               const SizedBox(width: 8),
             ],
             Text(
@@ -123,20 +138,22 @@ class TertiaryButton extends StatelessWidget {
           foregroundColor: AppColors.errorColor,
           backgroundColor: AppColors.White,
           side: const BorderSide(color: AppColors.errorColor, width: 1.2),
+          //>>>>>>> Development
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(26),
           ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 22),
+              Icon(icon, size: 20),
               const SizedBox(width: 8),
             ],
             Text(
               label,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
             ),
           ],
         ),
@@ -563,7 +580,6 @@ class StatusChip extends StatelessWidget {
   final String label;
   final Color background;
   final Color color;
-  //eaqui se agrega lo que es una restructuracion
   final IconData? icon;
   final double radius;
 
@@ -591,6 +607,14 @@ class StatusChip extends StatelessWidget {
             Icon(icon, size: 14, color: color),
             const SizedBox(width: 4),
           ],
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: color,
+            ),
+          ),
         ],
       ),
     );
@@ -713,7 +737,11 @@ class SupportFab extends StatelessWidget {
         child: SizedBox(
           width: 56,
           height: 56,
-          child: Icon(icono, color: colorIcono, size: 28),
+          child: Icon(
+            Icons.smart_toy_outlined,
+            color: AppColors.fabIcon,
+            size: 28,
+          ),
         ),
       ),
     );
@@ -740,7 +768,7 @@ class NavElemento {
 // Barra de navegación inferior del productor.
 // Así la lógica de navegación queda en la pantalls
 class ProductorBottomNav extends StatelessWidget {
-  final List<NavElemento> items; // ahora lo que es la liosta viene de afuerta
+  final List<NavElemento> items;
   final int currentIndex;
   final ValueChanged<int> onTap;
 
@@ -760,16 +788,19 @@ class ProductorBottomNav extends StatelessWidget {
       ),
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
       child: Row(
-        children: [
-          // 📚 collection-for con índice para saber cuál es el activo
-          for (int i = 0; i < items.length; i++) _item(i, items[i]),
-        ],
+        children: List.generate(items.length, (index) {
+          return _item(index, items[index]);
+        }),
       ),
     );
   }
 
   Widget _item(int index, NavElemento elemento) {
     final bool activo = index == currentIndex;
+    final IconData icono = activo
+        ? (elemento.activeIcon ?? elemento.icon)
+        : elemento.icon;
+
     return Expanded(
       child: InkWell(
         onTap: () => onTap(index),
@@ -788,9 +819,7 @@ class ProductorBottomNav extends StatelessWidget {
                 children: [
                   Center(
                     child: Icon(
-                      activo
-                          ? (elemento.activeIcon ?? elemento.icon)
-                          : elemento.icon,
+                      icono,
                       color: activo
                           ? AppColors.primarySoft
                           : AppColors.bodyText,
@@ -830,8 +859,406 @@ class ProductorBottomNav extends StatelessWidget {
   }
 }
 
-// esto son parte del inventario
-//en este caso se hace lo que fila valor
+class RepartidorBottomNav extends StatelessWidget {
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+
+  const RepartidorBottomNav({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.White,
+        border: Border(top: BorderSide(color: AppColors.cardBorder)),
+      ),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      child: Row(
+        children: [
+          _item(0, Icons.home_outlined, Icons.home, 'Inicio'),
+          _item(
+            1,
+            Icons.local_shipping_outlined,
+            Icons.local_shipping,
+            'Entregas',
+            badge: true,
+          ),
+          _item(2, Icons.person_outline, Icons.person, 'Perfil'),
+        ],
+      ),
+    );
+  }
+
+  Widget _item(
+    int index,
+    IconData icon,
+    IconData activeIcon,
+    String label, {
+    bool badge = false,
+  }) {
+    final bool activo = index == currentIndex;
+    return Expanded(
+      child: InkWell(
+        onTap: () => onTap(index),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 10),
+            Container(
+              width: 64,
+              height: 32,
+              decoration: BoxDecoration(
+                color: activo ? AppColors.navPill : Colors.transparent,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Stack(
+                children: [
+                  Center(
+                    child: Icon(
+                      activo ? activeIcon : icon,
+                      color: activo
+                          ? AppColors.primarySoft
+                          : AppColors.bodyText,
+                      size: 22,
+                    ),
+                  ),
+                  if (badge)
+                    Positioned(
+                      top: 5,
+                      right: 17,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: AppColors.inputErrorColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: activo ? FontWeight.w600 : FontWeight.w400,
+                color: activo ? AppColors.titleDark : AppColors.bodyText,
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class NotificacionEntregaTile extends StatelessWidget {
+  final NotificacionEntrega notificacion; // el modelo que viene del backend
+  final VoidCallback? onTap; // qué hacer al tocarla
+
+  const NotificacionEntregaTile({
+    super.key,
+    required this.notificacion,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.White,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.cardBorder),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 2,
+              offset: Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // 1) Ícono circular verde
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: const BoxDecoration(
+                color: AppColors.primarySoftBg,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.local_shipping_outlined,
+                color: AppColors.primaryColor,
+              ),
+            ),
+            const SizedBox(width: 12),
+
+            // 2) Textos principales (Expanded para que no desborden)
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Pedido #${notificacion.pedidoId}',
+                    style: AppTextStyles.label.copyWith(fontSize: 14),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    notificacion.zonaEntrega,
+                    style: AppTextStyles.SubTitle.copyWith(fontSize: 13),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    notificacion.tiempoTranscurrido, // "Hace 5 min"
+                    style: AppTextStyles.SubTitle.copyWith(fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+
+            // 3) Monto + flecha a la derecha
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  notificacion.totalFormateado, // "$1250.50"
+                  style: AppTextStyles.label.copyWith(
+                    fontSize: 14,
+                    color: AppColors.primaryColor,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                const Icon(
+                  Icons.chevron_right,
+                  color: AppColors.bodyText,
+                  size: 20,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class EntregaDetalleCard extends StatelessWidget {
+  final NotificacionEntrega entrega;
+  final VoidCallback? onVerDetalle;
+  final VoidCallback? onContinuar;
+
+  const EntregaDetalleCard({
+    super.key,
+    required this.entrega,
+    this.onVerDetalle,
+    this.onContinuar,
+  });
+
+  Color get _colorEstado {
+    switch (entrega.estado) {
+      case 'Completado':
+        return AppColors.bodyText;
+      case 'En curso':
+        return AppColors.accentBlue;
+      default:
+        return AppColors.warning;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.White,
+        borderRadius: BorderRadius.circular(12),
+
+        border: Border(
+          left: BorderSide(color: _colorEstado, width: 4),
+          top: BorderSide(color: AppColors.cardBorder),
+          right: BorderSide(color: AppColors.cardBorder),
+          bottom: BorderSide(color: AppColors.cardBorder),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const SizedBox(width: 8),
+              ChipEstado(texto: entrega.estado, color: _colorEstado),
+              const Spacer(), // empuja la hora a la derecha
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    entrega.horaLabel,
+                    style: AppTextStyles.SubTitle.copyWith(fontSize: 11),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // ---- Título ----
+          Text(
+            entrega.zonaEntrega,
+            style: AppTextStyles.cardTitle.copyWith(fontSize: 18),
+          ),
+          const SizedBox(height: 12),
+
+          // ---- Zona 2: caja gris de ruta ----
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.scaffoldBg,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              children: [
+                _filaRuta(
+                  Icons.location_on_outlined,
+                  'Recogida',
+                  entrega.zonaEntrega,
+                ),
+                const SizedBox(height: 10),
+                _filaRuta(Icons.flag_outlined, 'Destino', entrega.zonaEntrega),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // ---- Zona 3: footer según estado ----
+          _footer(),
+        ],
+      ),
+    );
+  }
+
+  // Fila ícono + label + valor (se usa 2 veces → se extrae)
+  Widget _filaRuta(IconData icono, String label, String valor) {
+    return Row(
+      children: [
+        Icon(icono, size: 16, color: AppColors.primaryColor),
+        const SizedBox(width: 10),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: AppTextStyles.SubTitle.copyWith(fontSize: 12)),
+            const SizedBox(height: 2),
+            Text(valor, style: AppTextStyles.label.copyWith(fontSize: 13)),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // EL PORQUÉ MÁS IMPORTANTE: la UI cambia según el estado con un switch
+  Widget _footer() {
+    switch (entrega.estado) {
+      case 'En curso':
+        return SizedBox(
+          width: double.infinity,
+          height: 44,
+          child: ElevatedButton(
+            onPressed: onContinuar ?? () {},
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryColor,
+              foregroundColor: AppColors.White,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text(
+              'Continuar entrega',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+          ),
+        );
+      case 'Completado':
+        return Row(
+          children: [
+            const Icon(
+              Icons.verified_outlined,
+              size: 16,
+              color: AppColors.bodyText,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Entregada a ${entrega.pedidoId} (Firma registrada)',
+                style: AppTextStyles.SubTitle.copyWith(fontSize: 12),
+              ),
+            ),
+          ],
+        );
+      default: // Pendiente
+        return Align(
+          alignment: Alignment.centerRight,
+          child: SizedBox(
+            height: 40,
+            child: OutlinedButton(
+              onPressed: onVerDetalle ?? () {},
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.accentBlue,
+                side: const BorderSide(color: AppColors.accentBlue),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text(
+                'Ver detalle',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+        );
+    }
+  }
+}
+
+/// La "pastilla" que muestra estados: Pendiente, En curso, Completado,
+/// y también los códigos como #AT-2021.
+class ChipEstado extends StatelessWidget {
+  final String texto;
+  final Color color;
+
+  const ChipEstado({super.key, required this.texto, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        // EL TRUCO: el fondo es el MISMO color pero al 12% de opacidad
+        color: color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(20), // bordes de píldora
+      ),
+      child: Text(
+        texto,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: color, // el texto va con el color full
+        ),
+      ),
+    );
+  }
+}
 
 class InfoRow extends StatelessWidget {
   final String label;

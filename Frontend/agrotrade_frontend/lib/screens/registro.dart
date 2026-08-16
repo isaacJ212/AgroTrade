@@ -110,6 +110,7 @@ class _RegistroState extends State<Registro> {
   }
 
   void _mostrarSnackBar(String mensaje, {bool error = true}) {
+    FocusScope.of(context).unfocus();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(mensaje),
