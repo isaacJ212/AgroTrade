@@ -121,9 +121,7 @@ class _InventarioProductorState extends State<InventarioProductor> {
     NavElemento(label: 'Perfil', icon: Icons.person_outline, activeIcon: Icons.person),
   ];
 
-  /// 📚 Getter computado: aplica filtro de tab + búsqueda.
-  /// `where` recorre la lista y conserva los elementos que
-  /// cumplen la condición; `toList()` lo vuelve List de nuevo.
+  
   List<Producto> get _filtrados => _productos.where((p) {
         final porEstado = _filtroActual == null || p.estado == _filtroActual;
         final texto = _busqueda.trim().toLowerCase();
@@ -188,8 +186,7 @@ class _InventarioProductorState extends State<InventarioProductor> {
             const SizedBox(height: 8),
             _tabsFiltro(),
             const Divider(height: 1, color: AppColors.cardBorder),
-            // 📚 Expanded: la lista ocupa el espacio restante
-            // y el header/tabs quedan fijos arriba.
+           
             Expanded(child: _lista()),
           ],
         ),
@@ -247,8 +244,7 @@ class _InventarioProductorState extends State<InventarioProductor> {
           border: Border.all(color: AppColors.cardBorder),
         ),
         child: TextField(
-          // 📚 onChanged dispara con cada tecla => búsqueda en vivo.
-          // No necesitamos TextEditingController para solo LEER.
+        
           onChanged: (valor) => setState(() => _busqueda = valor),
           decoration: InputDecoration(
             hintText: 'Buscar por nombre, categoría o ID...',
@@ -267,10 +263,10 @@ class _InventarioProductorState extends State<InventarioProductor> {
 
   // ---- Tabs de filtro (scroll horizontal) ----
   Widget _tabsFiltro() {
-    // 📚 null al inicio = "Todos"; luego cada valor del enum.
+    
     final filtros = <EstadoProducto?>[null, ...EstadoProducto.values];
     return SingleChildScrollView(
-      scrollDirection: Axis.horizontal, // 📚 "Agotados" no cabe: scroll
+      scrollDirection: Axis.horizontal, 
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: [
@@ -291,7 +287,7 @@ class _InventarioProductorState extends State<InventarioProductor> {
           children: [
             const SizedBox(height: 10),
             Text(
-              filtro?.label ?? 'Todos', // 📚 operador ?. y ?? juntos
+              filtro?.label ?? 'Todos',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
@@ -339,9 +335,7 @@ class _InventarioProductorState extends State<InventarioProductor> {
   }
 }
 
-// ==========================================================
-// CARD DE PRODUCTO (privada de esta pantalla por ahora)
-// ==========================================================
+
 class _ProductoCard extends StatelessWidget {
   final Producto producto;
   final VoidCallback onAccion;
@@ -428,10 +422,7 @@ class _ProductoCard extends StatelessWidget {
     );
   }
 
-  /// 📚 Image.network con dos "builders":
-  /// - loadingBuilder: muestra spinner mientras descarga.
-  /// - errorBuilder: si falla (o no hay internet), muestra un
-  ///   placeholder elegante en vez de romper la pantalla.
+
   Widget _imagen() {
     return Image.network(
       producto.imagenUrl,
