@@ -29,13 +29,9 @@ class AppColors {
   static const chipGrey = Color(0xFFBECABB);
 
   static const screenBg = Color(0xFFF1F3F1);
- 
-
-
 
   // esto son los colores para lo que es detalle producto
   static const amberSoft = Color(0xFFFDF0D5);
-  
 }
 
 class AppTextStyles {
@@ -84,6 +80,25 @@ class AppTextStyles {
 
   static const TextStyle statValue = TextStyle(
     fontSize: 32,
+    fontWeight: FontWeight.w700,
+    color: AppColors.primaryColor,
+  );
+
+  static const TextStyle wordmark = TextStyle(
+    fontSize: 26,
+    fontWeight: FontWeight.w800,
+    color: AppColors.primaryColor,
+  );
+
+  static const TextStyle productoTitle = TextStyle(
+    fontSize: 22,
+    fontWeight: FontWeight.w700,
+    color: AppColors.titleDark,
+  );
+
+  //clases para lo que es el detalle del prducto
+  static const TextStyle price = TextStyle(
+    fontSize: 38,
     fontWeight: FontWeight.w700,
     color: AppColors.primaryColor,
   );

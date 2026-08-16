@@ -24,7 +24,6 @@ class PrimaryButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final IconData? icon;
 
-
   const PrimaryButton({
     super.key,
     required this.label,
@@ -72,11 +71,8 @@ class PrimaryButton extends StatelessWidget {
 class SecondaryButton extends StatelessWidget {
   final String label;
   final IconData? icon;
-//<<<<<<< feat-frontend-DetalleProductor
   final VoidCallback? onPressed;
   final Color color;
-
-
 
   const SecondaryButton({
     super.key,
@@ -92,13 +88,11 @@ class SecondaryButton extends StatelessWidget {
       width: double.infinity,
       height: 52,
       child: OutlinedButton(
+        onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-//<<<<<<< feat-frontend-DetalleProductor
-          side: BorderSide(color: color, width: 1.5),
-
-          foregroundColor: AppColors.accentBlue,
+          foregroundColor: color,
           backgroundColor: AppColors.White,
-          side: const BorderSide(color: AppColors.accentBlue, width: 1.2),
+          side: BorderSide(color: color, width: 1.2),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
@@ -107,7 +101,7 @@ class SecondaryButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 22),
+              Icon(icon, size: 22, color: color),
               const SizedBox(width: 8),
             ],
             Text(
@@ -144,27 +138,22 @@ class TertiaryButton extends StatelessWidget {
           foregroundColor: AppColors.errorColor,
           backgroundColor: AppColors.White,
           side: const BorderSide(color: AppColors.errorColor, width: 1.2),
-//>>>>>>> Development
+          //>>>>>>> Development
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(26),
           ),
         ),
-        onPressed: onPressed,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(icon, color: color, size: 20),
+              Icon(icon, size: 20),
               const SizedBox(width: 8),
             ],
             Text(
               label,
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.w600,
-                fontSize: 15,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
             ),
           ],
         ),
@@ -591,7 +580,6 @@ class StatusChip extends StatelessWidget {
   final String label;
   final Color background;
   final Color color;
-  //eaqui se agrega lo que es una restructuracion
   final IconData? icon;
   final double radius;
 
@@ -619,6 +607,14 @@ class StatusChip extends StatelessWidget {
             Icon(icon, size: 14, color: color),
             const SizedBox(width: 4),
           ],
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: color,
+            ),
+          ),
         ],
       ),
     );
@@ -772,7 +768,7 @@ class NavElemento {
 // Barra de navegación inferior del productor.
 // Así la lógica de navegación queda en la pantalls
 class ProductorBottomNav extends StatelessWidget {
-  final List<NavElemento> items; // ahora lo que es la liosta viene de afuerta
+  final List<NavElemento> items;
   final int currentIndex;
   final ValueChanged<int> onTap;
 
@@ -790,27 +786,21 @@ class ProductorBottomNav extends StatelessWidget {
         color: AppColors.White,
         border: Border(top: BorderSide(color: AppColors.cardBorder)),
       ),
-
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
       child: Row(
-        children: [
-          _item(0, Icons.home_outlined, Icons.home, 'Inicio'),
-          _item(1, Icons.explore_outlined, Icons.explore, 'Explorar'),
-          _item(
-            2,
-            Icons.shopping_bag_outlined,
-            Icons.shopping_bag,
-            'Pedidos',
-            badge: true,
-          ),
-          _item(3, Icons.person_outline, Icons.person, 'Perfil'),
-        ],
+        children: List.generate(items.length, (index) {
+          return _item(index, items[index]);
+        }),
       ),
     );
   }
 
   Widget _item(int index, NavElemento elemento) {
     final bool activo = index == currentIndex;
+    final IconData icono = activo
+        ? (elemento.activeIcon ?? elemento.icon)
+        : elemento.icon;
+
     return Expanded(
       child: InkWell(
         onTap: () => onTap(index),
@@ -829,7 +819,7 @@ class ProductorBottomNav extends StatelessWidget {
                 children: [
                   Center(
                     child: Icon(
-                      activo ? activeIcon : icon,
+                      icono,
                       color: activo
                           ? AppColors.primarySoft
                           : AppColors.bodyText,
@@ -1210,7 +1200,7 @@ class EntregaDetalleCard extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Entregada a ${entrega.pedidoId ?? '—'} (Firma registrada)',
+                'Entregada a ${entrega.pedidoId} (Firma registrada)',
                 style: AppTextStyles.SubTitle.copyWith(fontSize: 12),
               ),
             ),
@@ -1264,6 +1254,81 @@ class ChipEstado extends StatelessWidget {
           fontSize: 11,
           fontWeight: FontWeight.w700,
           color: color, // el texto va con el color full
+        ),
+      ),
+    );
+  }
+}
+
+class InfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color valueColor;
+
+  const InfoRow({
+    super.key,
+    required this.label,
+    required this.value,
+    this.valueColor = AppColors.titleDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: AppTextStyles.cardTitle),
+        // lo quees el Flexible eevita overflow si n este caso el valor es largo
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.right,
+            style: AppTextStyles.label.copyWith(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: valueColor,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// este es para lo que wes el boton gris de accion secundaria
+
+class NeutralButton extends StatelessWidget {
+  final String label;
+  final VoidCallback? onPressed;
+  final Color background;
+  final Color textColor;
+
+  const NeutralButton({
+    super.key,
+    required this.label,
+    this.onPressed,
+    this.background = AppColors.tileBg,
+    this.textColor = AppColors.titleDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 48,
+      child: TextButton(
+        onPressed: onPressed,
+        style: TextButton.styleFrom(
+          backgroundColor: background,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: textColor,
+          ),
         ),
       ),
     );
