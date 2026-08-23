@@ -15,6 +15,9 @@ Para garantizar la precisión de tus respuestas, sigue estas directrices estrict
 # Módulo: Gestión de Proveedores
 Administra el registro formal y la información del perfil extendido de los agricultores asociados a la plataforma.Tienen acceso los productores (para actualizar sus datos de finca) y los administradores.
 
+## En los titutos dos irian los caso de uso de la app o acciones , ya sean los flujo o reglas de negocios indinpensables 
+
+*En este formaot irian las limitaciones de sistema o sus restricciones de la misma*
 
 # Módulo: Categorías de Productos
 Organiza y clasifica el catálogo de productos agrícolas para facilitar la búsqueda estructurada (ej. frutales o cítricos).Tienen acceso de consulta los clientes, y acceso de administración completa los administradores del sistema.
@@ -45,5 +48,13 @@ Controla los planes de pago de los productores asociados, impidiendo duplicidad 
 
 # Módulo: Impacto Social
 Calcula, acumula y visualiza estadísticas en tiempo real sobre las libras , quintales o de comida salvada del desperdicio y las ganancias extras generadas por ofertas de excedentes. Tienen acceso de visualización los clientes y productores, y acceso administrativo el equipo de la plataforma
+
+
+# Módulo: Gestión de Usuarios e Identidad
+Este módulo se encarga de administrar el control de acceso basado en roles (RBAC) para Compradores, Productores y Repartidores, gestionando  un flujo obligatorio de verificación de identidad con documentos oficiales. Tienen acceso a él todos los usuarios del sistema
+
+
+# Módulo: Geofencing y Cadena de Suministro
+Calcula en tiempo real la distancia geográfica entre el comprador y el productor utilizando coordenadas para priorizar a los comercios más cercanos, permitiendo además configurar agendas y modos de entrega logísticos donde el agricultor permanece estático en su finca. Tienen acceso los Compradores para buscar ofertas locales, los Repartidores para optimizar rutas de traslado y los Productores para definir zonas de distribución
 
 </documentacion_AgroTrade>
