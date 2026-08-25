@@ -17,6 +17,7 @@ class AppColors {
 
   // colores para la pantalla del productor
   static const scaffoldBg = Color(0xFFF8F9FA);
+  static const surfaceAlt = Color(0xFFF3F4F5);
   static const cardBorder = Color(0xFFE1E3E4);
   static const tileBg = Color(0xFFEDEEEF);
   static const titleDark = Color(0xFF191C1D);
