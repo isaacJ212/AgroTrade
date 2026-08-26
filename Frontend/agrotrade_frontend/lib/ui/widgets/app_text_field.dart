@@ -29,6 +29,10 @@ class AppTextField extends StatelessWidget {
   final TextInputType keyboard;
   final TextEditingController? controller;
   final String? errorText;
+  //nuevos parametros 
+  final String? prefix;
+  final bool readOnly;
+  final VoidCallback? onTap;
   const AppTextField({
     super.key,
     required this.hint,
@@ -36,6 +40,9 @@ class AppTextField extends StatelessWidget {
     this.keyboard = TextInputType.text,
     this.errorText,
     this.controller,
+    this.prefix,
+    this.readOnly = false, 
+    this.onTap,
   });
 
   @override
@@ -43,10 +50,17 @@ class AppTextField extends StatelessWidget {
     return TextField(
       controller: controller,
       keyboardType: keyboard,
-      decoration: appInputDecoration(
-        label: label,
-        hint: hint,
-      ).copyWith(errorText: errorText),
+      readOnly: readOnly,
+      onTap: onTap,
+      decoration: appInputDecoration(label: label, hint: hint).copyWith(
+        errorText: errorText,
+        prefixText: prefix,
+        prefixStyle: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+          color: AppColors.bodyText,
+        ),
+      ),
     );
   }
 }
