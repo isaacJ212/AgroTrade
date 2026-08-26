@@ -272,7 +272,7 @@ class _RouteSection extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.cardBorder),
-        border: Border(left: BorderSide(color: accent, width: 4)),
+        //border: Border(left: BorderSide(color: accent, width: 4)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x0F000000),
