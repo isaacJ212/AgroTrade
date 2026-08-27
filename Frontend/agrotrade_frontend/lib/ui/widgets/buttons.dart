@@ -11,7 +11,7 @@ class PrimaryButton extends StatelessWidget {
     super.key,
     required this.label,
     this.onPressed,
-    required this.radius,
+    required this.radius ,
     this.icon,
   });
 
@@ -19,7 +19,7 @@ class PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 52,
+      height: 50,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primaryColor,
@@ -56,6 +56,7 @@ class SecondaryButton extends StatelessWidget {
   final IconData? icon;
   final VoidCallback? onPressed;
   final Color color;
+  final Color? textColor;
 
   const SecondaryButton({
     super.key,
@@ -63,33 +64,35 @@ class SecondaryButton extends StatelessWidget {
     this.icon,
     this.onPressed,
     this.color = AppColors.accentBlue,
+    this.textColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final fg = textColor ?? AppColors.TextMain;
     return SizedBox(
       width: double.infinity,
-      height: 52,
+      height: 50,
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          foregroundColor: color,
+          foregroundColor: fg,
           backgroundColor: AppColors.White,
-          side: BorderSide(color: color, width: 1.2),
+          side: BorderSide(color: color, width: 1.5),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 22, color: color),
+              Icon(icon, size: 18, color: color),
               const SizedBox(width: 8),
             ],
             Text(
               label,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
           ],
         ),

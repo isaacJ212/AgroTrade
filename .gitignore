@@ -101,3 +101,10 @@ publish/
 
 .qodo/
 **/.qodo/
+
+
+# Archivos autogenerados de Flutter (iOS)
+**/Frontend/agrotrade_frontend/ios/Flutter/Generated.xcconfig
+**/Frontend/agrotrade_frontend/ios/Flutter/ephemeral/
+**/Frontend/agrotrade_frontend/ios/Flutter/flutter_export_environment.sh
+**/Frontend/agrotrade_frontend/ios/Runner/GeneratedPluginRegistrant.*

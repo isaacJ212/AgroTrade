@@ -3,6 +3,7 @@ import '../ui/app_theme.dart';
 import '../ui/components.dart';
 import 'inicioProductor.dart';
 import 'detalleProducto.dart';
+import 'registroCosecha.dart';
 
 enum EstadoProducto{
 
@@ -227,7 +228,10 @@ class _InventarioProductorState extends State<InventarioProductor> {
         padding: const EdgeInsets.only(bottom: 8),
         child: SupportFab(
           icono: Icons.add,
-          onPressed: () => _mostrarSnack('Formulario de nuevo producto próximamente 🌱'),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const RegistroCosecha())
+          ),
         ),
       ),
       bottomNavigationBar: ProductorBottomNav(
