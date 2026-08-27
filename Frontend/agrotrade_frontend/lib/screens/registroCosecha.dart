@@ -81,7 +81,7 @@ class _RegistroCosechaState extends State<RegistroCosecha> {
     _mostrarSnack('Precio justo sugerido aplicado (margen 30%) ⚖️');
   }
 
-  void _guardarInventario() {
+  Future<void> _guardarInventario() async {
     final cantidad = double.tryParse(_cantidadController.text);
     final costo = double.tryParse(_costoController.text);
     final precio = double.tryParse(_precioController.text);
@@ -93,8 +93,29 @@ class _RegistroCosechaState extends State<RegistroCosecha> {
     if (precio < costo) return _mostrarSnack('El precio no puede ser menor al costo');
 
     
-    _mostrarSnack('Inventario guardado con éxito 🌱');
-    Navigator.pop(context);
+
+    // Mostrar indicadoa
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+     
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      
+
+      if (!mounted) return;
+      Navigator.of(context).pop(); // cerrar el dialo de carga
+      _mostrarSnack('Inventario guardado con éxito 🌱');
+
+    
+    } catch (e, st) {
+      if (mounted) Navigator.of(context).pop();
+      _mostrarSnack('Error al guardar. Intenta de nuevo');
+    }
   }
 
   void _irATab(int index) {
