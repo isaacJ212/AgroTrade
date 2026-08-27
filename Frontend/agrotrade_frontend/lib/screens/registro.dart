@@ -1,10 +1,10 @@
-import 'package:flutter/foundation.dart';
-
-import 'Login.dart';
 import 'onBoarding.dart';
 import 'package:flutter/material.dart';
 import '../ui/app_theme.dart';
 import '../ui/components.dart';
+import '../models/api/user_models.dart';
+import '../services/api_client.dart';
+import '../services/users_api_service.dart';
 
 class Registro extends StatefulWidget {
   const Registro({super.key});
@@ -27,6 +27,7 @@ class _RegistroState extends State<Registro> {
   String? _numberError;
 
   bool _terminosAcepta = false;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -53,11 +54,11 @@ class _RegistroState extends State<Registro> {
     final confirm = _confirmController.text.trim();
     final telefono = _numberController.text.trim();
 
-    // --- NOMBRE: no vacío y mínimo 3 letras ---
+    // --- NOMBRE: backend exige al menos 15 caracteres ---
     if (nombre.isEmpty) {
       nombreError = "El nombre es obligatorio";
-    } else if (nombre.length < 3) {
-      nombreError = "Mínimo 3 caracteres";
+    } else if (nombre.length < 15) {
+      nombreError = "Mínimo 15 caracteres";
     }
 
     // --- EMAIL: formato básico ---
@@ -82,13 +83,12 @@ class _RegistroState extends State<Registro> {
       confirmError = "Las contraseñas no coinciden";
     }
 
-    // --- TELÉFONO: solo números y mínimo 8 dígitos ---
-    // APRENDIZAJE: usamos una expresión regular (RegExp) para validar formato
-    final regexTelefono = RegExp(r'^[0-9+\-\s]{8,15}$');
+    // --- TELÉFONO: backend valida 8 dígitos y debe comenzar con 5, 7 u 8 ---
+    final regexTelefono = RegExp(r'^[578]\d{7}$');
     if (telefono.isEmpty) {
       numberError = "El teléfono es obligatorio";
     } else if (!regexTelefono.hasMatch(telefono)) {
-      numberError = "Teléfono inválido (8-15 dígitos)";
+      numberError = "Teléfono inválido (8 dígitos, inicia con 5, 7 u 8)";
     }
 
     // Un solo setState al final → redibuja todos los errores de una vez
@@ -122,7 +122,7 @@ class _RegistroState extends State<Registro> {
     );
   }
 
-  void _crearCuenta() {
+  Future<void> _crearCuenta() async {
     if (!_validar()) {
       if (!_terminosAcepta) {
         _mostrarSnackBar("Debes aceptar los términos y condiciones");
@@ -132,11 +132,32 @@ class _RegistroState extends State<Registro> {
       return;
     }
 
-    _mostrarSnackBar("¡Cuenta creada con éxito!", error: false);
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const OnBoarding()),
-    );
+    setState(() => _isLoading = true);
+
+    try {
+      await UsersApiService.instance.createUser(
+        CreateUserRequestDto(
+          nombreCompleto: _nombreController.text.trim(),
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+          telefono: _numberController.text.trim(),
+        ),
+      );
+
+      if (!mounted) return;
+      _mostrarSnackBar("¡Cuenta creada con éxito!", error: false);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const OnBoarding()),
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      _mostrarSnackBar(e.message);
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
@@ -238,9 +259,9 @@ class _RegistroState extends State<Registro> {
                 ),
                 const SizedBox(height: 24),
                 PrimaryButton(
-                  label: "Crear Cuenta",
+                  label: _isLoading ? "Creando..." : "Crear Cuenta",
                   radius: 15,
-                  onPressed: _crearCuenta,
+                  onPressed: _isLoading ? null : _crearCuenta,
                 ),
                 const SizedBox(height: 20),
                 Row(

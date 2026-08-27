@@ -95,8 +95,8 @@ namespace Agro_Trade
 
 
 
-
             var app = builder.Build();
+
 
           
             // Habilitar Swagger siempre (tanto en Local como en Producción en Render)
