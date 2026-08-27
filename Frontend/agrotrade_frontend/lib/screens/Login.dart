@@ -1,11 +1,11 @@
-import 'package:agrotrade_frontend/screens/onBoarding.dart';
 import 'package:agrotrade_frontend/screens/registro.dart';
 import 'package:agrotrade_frontend/screens/resetPassword.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/diagnostics.dart';
 import '../ui/app_theme.dart';
 import '../ui/components.dart';
 import 'roleSelection.dart';
+import '../services/auth_api_service.dart';
+import '../services/api_client.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -23,6 +23,7 @@ class _LoginState extends State<Login> {
   String? _passwordError;
 
   bool _remember = false;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -60,12 +61,34 @@ class _LoginState extends State<Login> {
     return esValido;
   }
 
-  void _iniciarSesion() {
+  Future<void> _iniciarSesion() async {
     if (_validar()) {
-      //Navigator.pushReplacement(
-      //  context,
-      //  MaterialPageRoute(builder: (_) => const RoleSelection()),
-      //);
+      setState(() => _isLoading = true);
+      try {
+        await AuthApiService.instance.login(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
+
+        if (!mounted) return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const Roleselection()),
+        );
+      } on ApiException catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message),
+            backgroundColor: AppColors.errorColor,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
       return;
     }
   }
@@ -165,9 +188,9 @@ class _LoginState extends State<Login> {
                   const SizedBox(height: 24),
 
                   PrimaryButton(
-                    label: "Iniciar Sesion",
+                    label: _isLoading ? "Ingresando..." : "Iniciar Sesion",
                     radius: 10,
-                    onPressed: _iniciarSesion,
+                    onPressed: _isLoading ? null : _iniciarSesion,
                   ),
                   const SizedBox(height: 16),
                   const OrDivider(),

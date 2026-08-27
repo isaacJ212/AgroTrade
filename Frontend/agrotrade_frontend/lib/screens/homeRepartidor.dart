@@ -1,17 +1,35 @@
 import 'package:flutter/material.dart';
 import '../ui/app_theme.dart';
 import '../ui/widgets/repartidor_bottom_nav.dart';
+import '../models/api/delivery_models.dart';
+import '../services/api_session.dart';
+import '../services/delivery_api_service.dart';
 import 'detalleEntregaRepartidor.dart';
 import 'entregasRepartidor.dart';
 import 'rutaEntregaRepartidor.dart';
 
-class InicioRepartidor extends StatelessWidget {
+class InicioRepartidor extends StatefulWidget {
   const InicioRepartidor({super.key});
 
+  @override
+  State<InicioRepartidor> createState() => _InicioRepartidorState();
+}
+
+class _InicioRepartidorState extends State<InicioRepartidor> {
   static const String _avatarUrl =
       'https://www.figma.com/api/mcp/asset/a7ad773e-82f6-4b84-9fda-ee3cdd35cdf3.png';
   static const String _mapUrl =
       'https://www.figma.com/api/mcp/asset/521e7eae-16fc-42ac-b1c7-2bae136d9be6.png';
+
+  late final Future<List<PendingDeliveryNotificationDto>> _pendingFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _pendingFuture = DeliveryApiService.instance
+        .getPendingDeliveries()
+        .catchError((_) => <PendingDeliveryNotificationDto>[]);
+  }
 
   String get _saludo {
     final hora = DateTime.now().hour;
@@ -36,176 +54,192 @@ class InicioRepartidor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.scaffoldBg,
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            Container(
-              color: AppColors.surfaceAlt,
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
-              child: Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.primaryColor, width: 2),
-                    ),
-                    child: ClipOval(
-                      child: Image.network(
-                        _avatarUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => const CircleAvatar(
-                          backgroundColor: AppColors.primarySoftBg,
-                          child: Icon(Icons.person, color: AppColors.primaryColor),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '$_saludo, José',
-                          style: AppTextStyles.label.copyWith(
-                            fontSize: 16,
-                            color: AppColors.primarySoft,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Revisá tus entregas de hoy',
-                          style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Stack(
-                    clipBehavior: Clip.none,
+    return FutureBuilder<List<PendingDeliveryNotificationDto>>(
+      future: _pendingFuture,
+      builder: (context, snapshot) {
+        final pendingDeliveries = snapshot.data ?? const <PendingDeliveryNotificationDto>[];
+        final nextDelivery = pendingDeliveries.isNotEmpty ? pendingDeliveries.first : null;
+
+        return Scaffold(
+          backgroundColor: AppColors.scaffoldBg,
+          body: SafeArea(
+            bottom: false,
+            child: Column(
+              children: [
+                Container(
+                  color: AppColors.surfaceAlt,
+                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
+                  child: Row(
                     children: [
-                      IconButton(
-                        onPressed: () => _showSnack(
-                          context,
-                          '2 entregas pendientes',
-                        ),
-                        icon: const Icon(
-                          Icons.notifications_outlined,
-                          color: AppColors.bodyText,
-                        ),
-                      ),
-                      Positioned(
-                        right: 10,
-                        top: 10,
-                        child: Container(
-                          width: 10,
-                          height: 10,
-                          decoration: const BoxDecoration(
-                            color: AppColors.inputErrorColor,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-                children: [
-                  Text('Entregas de hoy', style: AppTextStyles.sectionTitle),
-                  const SizedBox(height: 12),
-                  const _StatsGrid(),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Próxima entrega', style: AppTextStyles.sectionTitle),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 4,
-                        ),
+                        width: 48,
+                        height: 48,
                         decoration: BoxDecoration(
-                          color: AppColors.cardBorder,
-                          borderRadius: BorderRadius.circular(20),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: AppColors.primaryColor, width: 2),
                         ),
-                        child: Text(
-                          '#AT-2051',
-                          style: AppTextStyles.chip.copyWith(
-                            color: AppColors.chipGrey,
+                        child: ClipOval(
+                          child: Image.network(
+                            _avatarUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => const CircleAvatar(
+                              backgroundColor: AppColors.primarySoftBg,
+                              child: Icon(Icons.person, color: AppColors.primaryColor),
+                            ),
                           ),
                         ),
                       ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '$_saludo, ${ApiSession.instance.userName ?? 'José'}',
+                              style: AppTextStyles.label.copyWith(
+                                fontSize: 16,
+                                color: AppColors.primarySoft,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Revisá tus entregas de hoy',
+                              style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          IconButton(
+                            onPressed: () => _showSnack(
+                              context,
+                              '${pendingDeliveries.length} entregas pendientes',
+                            ),
+                            icon: const Icon(
+                              Icons.notifications_outlined,
+                              color: AppColors.bodyText,
+                            ),
+                          ),
+                          if (pendingDeliveries.isNotEmpty)
+                            Positioned(
+                              right: 10,
+                              top: 10,
+                              child: Container(
+                                width: 10,
+                                height: 10,
+                                decoration: const BoxDecoration(
+                                  color: AppColors.inputErrorColor,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  _NextDeliveryCard(
-                    mapUrl: _mapUrl,
-                    onVerEntrega: () => _navigate(
-                      context,
-                      const DetalleEntregaRepartidor(),
-                    ),
+                ),
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                    children: [
+                      Text('Entregas de hoy', style: AppTextStyles.sectionTitle),
+                      const SizedBox(height: 12),
+                      _StatsGrid(pendingCount: pendingDeliveries.length),
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Próxima entrega', style: AppTextStyles.sectionTitle),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.cardBorder,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              nextDelivery == null ? '#AT-2051' : '#AT-${nextDelivery.pedidoId}',
+                              style: AppTextStyles.chip.copyWith(
+                                color: AppColors.chipGrey,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      _NextDeliveryCard(
+                        mapUrl: _mapUrl,
+                        delivery: nextDelivery,
+                        onVerEntrega: () => _navigate(
+                          context,
+                          DetalleEntregaRepartidor(
+                            pedidoId: nextDelivery?.pedidoId,
+                            zonaEntrega: nextDelivery?.zonaEntrega,
+                            totalPedido: nextDelivery?.totalPedido,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Text('Ruta del día', style: AppTextStyles.sectionTitle),
+                      const SizedBox(height: 12),
+                      _RouteSummaryCard(
+                        onVerRuta: () => _navigate(context, const RutaEntregaRepartidor()),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 24),
-                  Text('Ruta del día', style: AppTextStyles.sectionTitle),
-                  const SizedBox(height: 12),
-                  _RouteSummaryCard(
-                    onVerRuta: () => _navigate(context, const RutaEntregaRepartidor()),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: RepartidorBottomNav(
-        currentIndex: 0,
-        onTap: (index) {
-          if (index == 0) return;
-          if (index == 1) {
-            _navigate(context, const Entregasrepartidor());
-            return;
-          }
-          if (index == 2) {
-            _navigate(context, const RutaEntregaRepartidor());
-            return;
-          }
-          _showSnack(context, 'Perfil disponible pronto');
-        },
-      ),
+          ),
+          bottomNavigationBar: RepartidorBottomNav(
+            currentIndex: 0,
+            onTap: (index) {
+              if (index == 0) return;
+              if (index == 1) {
+                _navigate(context, const Entregasrepartidor());
+                return;
+              }
+              if (index == 2) {
+                _navigate(context, const RutaEntregaRepartidor());
+                return;
+              }
+              _showSnack(context, 'Perfil disponible pronto');
+            },
+          ),
+        );
+      },
     );
   }
 }
 
 class _StatsGrid extends StatelessWidget {
-  const _StatsGrid();
+  final int pendingCount;
+
+  const _StatsGrid({required this.pendingCount});
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: const [
+      children: [
         Row(
           children: [
             Expanded(
               child: _StatCard(
                 title: 'Pendientes',
-                value: '2',
+                value: '$pendingCount',
                 icon: Icons.pending_actions,
-                background: Color(0xFFE7E8E9),
+                background: const Color(0xFFE7E8E9),
                 iconColor: AppColors.bodyText,
                 valueColor: AppColors.primarySoft,
                 titleColor: AppColors.bodyText,
               ),
             ),
-            SizedBox(width: 12),
-            Expanded(
+            const SizedBox(width: 12),
+            const Expanded(
               child: _StatCard(
                 title: 'En curso',
                 value: '1',
@@ -219,8 +253,8 @@ class _StatsGrid extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: 12),
-        Row(
+        const SizedBox(height: 12),
+        const Row(
           children: [
             Expanded(
               child: _StatCard(
@@ -316,10 +350,12 @@ class _StatCard extends StatelessWidget {
 
 class _NextDeliveryCard extends StatelessWidget {
   final String mapUrl;
+  final PendingDeliveryNotificationDto? delivery;
   final VoidCallback onVerEntrega;
 
   const _NextDeliveryCard({
     required this.mapUrl,
+    required this.delivery,
     required this.onVerEntrega,
   });
 
@@ -369,7 +405,7 @@ class _NextDeliveryCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Finca La Esperanza',
+                  delivery == null ? 'Finca La Esperanza' : 'Entrega #AT-${delivery!.pedidoId}',
                   style: AppTextStyles.cardTitle.copyWith(fontSize: 20),
                 ),
                 const SizedBox(height: 6),
@@ -378,7 +414,7 @@ class _NextDeliveryCard extends StatelessWidget {
                     const Icon(Icons.location_on_outlined, size: 16, color: AppColors.bodyText),
                     const SizedBox(width: 4),
                     Text(
-                      'Destino: Jinotepe',
+                      delivery == null ? 'Destino: Jinotepe' : 'Destino: ${delivery!.zonaEntrega}',
                       style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
                     ),
                   ],
@@ -406,7 +442,9 @@ class _NextDeliveryCard extends StatelessWidget {
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                '3 productos',
+                                delivery == null
+                                    ? '3 productos'
+                                    : '\$${delivery!.totalPedido.toStringAsFixed(2)}',
                                 style: AppTextStyles.label.copyWith(fontSize: 14),
                               ),
                             ],
@@ -432,7 +470,9 @@ class _NextDeliveryCard extends StatelessWidget {
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                '10:30 a. m.',
+                                delivery?.fechaCreacion == null
+                                    ? '10:30 a. m.'
+                                    : delivery!.fechaCreacion!.toLocal().toString().substring(0, 16),
                                 style: AppTextStyles.label.copyWith(fontSize: 14),
                               ),
                             ],
