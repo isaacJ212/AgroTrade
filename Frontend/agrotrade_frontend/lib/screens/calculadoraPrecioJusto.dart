@@ -90,13 +90,14 @@ class _CalculadoraPrecioJustoState extends State<CalculadoraPrecioJusto> {
     );
   }
 
-  void _irATab(int index) {
+  Future<void> _irATab(int index) async {
     if (index == 1) return;
     if (index == 0) {
-      return Navigator.pushReplacement(
+      await Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const InicioProductor()),
       );
+      return;
     }
     _mostrarSnack('Esta sección estará disponible pronto 🌱');
   }
