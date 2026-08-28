@@ -3,11 +3,21 @@ import '../../services/api_client.dart';
 import '../../services/delivery_api_service.dart';
 import '../../ui/app_theme.dart';
 import 'recogerPedidoRepartidor.dart';
+import '../../services/api_client.dart';
+import '../../services/delivery_api_service.dart';
 
-class AceptarEntregaRepartidor extends StatelessWidget {
+class AceptarEntregaRepartidor extends StatefulWidget {
   final int? pedidoId;
 
   const AceptarEntregaRepartidor({super.key, this.pedidoId});
+
+  @override
+  State<AceptarEntregaRepartidor> createState() =>
+      _AceptarEntregaRepartidorState();
+}
+
+class _AceptarEntregaRepartidorState extends State<AceptarEntregaRepartidor> {
+  bool _confirmado = false;
 
   void _showSnack(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -42,7 +52,10 @@ class AceptarEntregaRepartidor extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () => _showSnack(context, 'Notificaciones'),
-            icon: const Icon(Icons.notifications_outlined, color: AppColors.bodyText),
+            icon: const Icon(
+              Icons.notifications_outlined,
+              color: AppColors.bodyText,
+            ),
           ),
         ],
       ),
@@ -65,6 +78,16 @@ class AceptarEntregaRepartidor extends StatelessWidget {
             const SizedBox(height: 24),
             const _SummaryCard(),
             const SizedBox(height: 24),
+            _ConfirmationCard(
+              pedidoId: widget.pedidoId,
+              confirmado: _confirmado,
+              onChanged: (value) {
+                setState(() {
+                  _confirmado = value ?? false;
+                });
+              },
+            ),
+            const SizedBox(height: 16),
             _NoticeCard(
               text: 'Al aceptar, esta entrega quedará asignada a tu ruta.',
               icon: Icons.info_outline,
@@ -76,27 +99,32 @@ class AceptarEntregaRepartidor extends StatelessWidget {
               width: double.infinity,
               height: 56,
               child: ElevatedButton.icon(
-                onPressed: () async {
-                  final id = pedidoId;
-                  if (id == null) {
-                    _showSnack(context, 'No hay un pedido asociado a esta entrega');
-                    return;
-                  }
+                onPressed: !_confirmado
+                    ? null
+                    : () async {
+                        final id = widget.pedidoId;
+                        if (id == null) {
+                          _showSnack(
+                            context,
+                            'No hay un pedido asociado a esta entrega',
+                          );
+                          return;
+                        }
 
-                  try {
-                    await DeliveryApiService.instance.acceptDelivery(id);
-                    if (!context.mounted) return;
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const RecogerPedidoRepartidor(),
-                      ),
-                    );
-                  } on ApiException catch (e) {
-                    if (!context.mounted) return;
-                    _showSnack(context, e.message);
-                  }
-                },
+                        try {
+                          await DeliveryApiService.instance.acceptDelivery(id);
+                          if (!context.mounted) return;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const RecogerPedidoRepartidor(),
+                            ),
+                          );
+                        } on ApiException catch (e) {
+                          if (!context.mounted) return;
+                          _showSnack(context, e.message);
+                        }
+                      },
                 icon: const Icon(Icons.check_circle, size: 20),
                 label: const Text(
                   'Aceptar entrega',
@@ -106,6 +134,7 @@ class AceptarEntregaRepartidor extends StatelessWidget {
                   backgroundColor: AppColors.primaryColor,
                   foregroundColor: Colors.white,
                   elevation: 0,
+                  disabledBackgroundColor: AppColors.cardBorder,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(28),
                   ),
@@ -133,6 +162,57 @@ class AceptarEntregaRepartidor extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ConfirmationCard extends StatelessWidget {
+  final int? pedidoId;
+  final bool confirmado;
+  final ValueChanged<bool?> onChanged;
+
+  const _ConfirmationCard({
+    required this.pedidoId,
+    required this.confirmado,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.primarySoftBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0x4D006E2C)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            pedidoId == null ? 'Confirmación local' : 'Pedido #AT-$pedidoId',
+            style: AppTextStyles.label.copyWith(fontSize: 14),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Marcá esta opción antes de aceptar para validar que estás listo.',
+            style: AppTextStyles.SubTitle.copyWith(fontSize: 13),
+          ),
+          const SizedBox(height: 8),
+          CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            value: confirmado,
+            onChanged: onChanged,
+            activeColor: AppColors.primaryColor,
+            title: const Text(
+              'Estoy listo para iniciar esta entrega',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -228,12 +308,12 @@ class _PickupRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              Text(
-                name,
-                style: AppTextStyles.label.copyWith(fontSize: 14),
-              ),
+              Text(name, style: AppTextStyles.label.copyWith(fontSize: 14)),
               const SizedBox(height: 2),
-              Text(detail, style: AppTextStyles.SubTitle.copyWith(fontSize: 14)),
+              Text(
+                detail,
+                style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
+              ),
             ],
           ),
         ),

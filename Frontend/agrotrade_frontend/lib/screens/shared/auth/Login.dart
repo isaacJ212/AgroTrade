@@ -7,6 +7,20 @@ import 'registro.dart';
 import 'resetPassword.dart';
 import 'roleSelection.dart';
 
+import 'package:agrotrade_frontend/models/api/auth_models.dart';
+import 'package:agrotrade_frontend/screens/repartidor/homeRepartidor.dart';
+import 'package:agrotrade_frontend/screens/productor/inicioProductor.dart';
+import 'package:agrotrade_frontend/screens/shared/auth/registro.dart';
+import 'package:agrotrade_frontend/screens/shared/auth/resetPassword.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/src/foundation/diagnostics.dart';
+import '../../../ui/app_theme.dart';
+import '../../../ui/components.dart';
+import 'roleSelection.dart';
+import '/../services/auth_api_service.dart';
+import '/services/api_client.dart';
+
+
 class Login extends StatefulWidget {
   const Login({super.key});
 
@@ -65,16 +79,13 @@ class _LoginState extends State<Login> {
     if (_validar()) {
       setState(() => _isLoading = true);
       try {
-        await AuthApiService.instance.login(
+        final user = await AuthApiService.instance.login(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
 
         if (!mounted) return;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const Roleselection()),
-        );
+        _redirectNavigation(user);
       } on ApiException catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -90,6 +101,31 @@ class _LoginState extends State<Login> {
         }
       }
       return;
+    }
+  }
+
+  // Creo que se explica solo pero por si acaso es solo para redireccionar segun el rol
+  void _redirectNavigation(LoginResponseDto user) {
+    if (user.roles.contains("Administrador")) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const Roleselection()),
+      );
+    } else if (user.roles.contains("Repartidor")) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const InicioRepartidor()),
+      );
+    } else if (user.roles.contains("Productor/Proveedor")) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const InicioProductor()),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const Roleselection()),
+      );
     }
   }
 

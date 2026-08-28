@@ -1,3 +1,4 @@
+r
 import 'package:flutter/material.dart';
 import '../../../models/api/user_models.dart';
 import '../../../services/api_client.dart';
@@ -5,6 +6,17 @@ import '../../../services/users_api_service.dart';
 import '../../../ui/app_theme.dart';
 import '../../../ui/components.dart';
 import '../onboarding/onBoarding.dart';
+
+import 'package:flutter/foundation.dart';
+import '../../../models/api/user_models.dart';
+import '../../../services/api_client.dart';
+import '../../../services/users_api_service.dart';
+import 'Login.dart';
+import '../onboarding/onBoarding.dart';
+import 'package:flutter/material.dart';
+import '../../../ui/app_theme.dart';
+import '../../../ui/components.dart';
+
 
 class Registro extends StatefulWidget {
   const Registro({super.key});
@@ -19,12 +31,14 @@ class _RegistroState extends State<Registro> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmController = TextEditingController();
   final TextEditingController _numberController = TextEditingController();
+  final TextEditingController _departamentController = TextEditingController();
 
   String? _nombreError;
   String? _emailError;
   String? _passwordError;
   String? _confirmError;
   String? _numberError;
+  String? _cityError;
 
   bool _terminosAcepta = false;
   bool _isLoading = false;
@@ -36,6 +50,7 @@ class _RegistroState extends State<Registro> {
     _passwordController.dispose();
     _confirmController.dispose();
     _numberController.dispose();
+    _departamentController.dispose();
     super.dispose();
   }
 
@@ -45,6 +60,7 @@ class _RegistroState extends State<Registro> {
     String? passwordError;
     String? confirmError;
     String? numberError;
+    String? cityError;
 
     //Lectura
 
@@ -52,6 +68,7 @@ class _RegistroState extends State<Registro> {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
     final confirm = _confirmController.text.trim();
+    final city = _departamentController.text.trim();
     final telefono = _numberController.text.trim();
 
     // --- NOMBRE: backend exige al menos 15 caracteres ---
@@ -82,6 +99,9 @@ class _RegistroState extends State<Registro> {
     } else if (password != confirm) {
       confirmError = "Las contraseñas no coinciden";
     }
+    if (city.isEmpty) {
+      confirmError = " El departamento es obligatorio";
+    }
 
     // --- TELÉFONO: backend valida 8 dígitos y debe comenzar con 5, 7 u 8 ---
     final regexTelefono = RegExp(r'^[578]\d{7}$');
@@ -98,6 +118,7 @@ class _RegistroState extends State<Registro> {
       _passwordError = passwordError;
       _confirmError = confirmError;
       _numberError = numberError;
+      _cityError = cityError;
     });
 
     // Válido si TODOS los errores son null Y aceptó los términos
@@ -106,6 +127,7 @@ class _RegistroState extends State<Registro> {
         passwordError == null &&
         numberError == null &&
         numberError == null &&
+        cityError == null &&
         _terminosAcepta;
   }
 
@@ -141,6 +163,7 @@ class _RegistroState extends State<Registro> {
           email: _emailController.text.trim(),
           password: _passwordController.text,
           telefono: _numberController.text.trim(),
+          departamento: _departamentController.text.trim(),
         ),
       );
 
@@ -226,6 +249,13 @@ class _RegistroState extends State<Registro> {
                   keyboard: TextInputType.phone,
                   controller: _numberController,
                   errorText: _numberError,
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
+                  hint: "Managua",
+                  label: 'Departamento',
+                  errorText: _cityError,
+                  controller: _departamentController,
                 ),
                 const SizedBox(height: 16),
 

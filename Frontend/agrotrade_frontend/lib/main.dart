@@ -15,7 +15,6 @@ class AgroTradeApp extends StatelessWidget {
         fontFamily: 'Raleway',
         useMaterial3: true,
         scaffoldBackgroundColor: Colors.white,
-        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primaryColor),
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.white,
           elevation: 0,
