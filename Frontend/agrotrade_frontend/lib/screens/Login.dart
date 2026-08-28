@@ -1,3 +1,6 @@
+import 'package:agrotrade_frontend/models/api/auth_models.dart';
+import 'package:agrotrade_frontend/screens/homeRepartidor.dart';
+import 'package:agrotrade_frontend/screens/inicioProductor.dart';
 import 'package:agrotrade_frontend/screens/registro.dart';
 import 'package:agrotrade_frontend/screens/resetPassword.dart';
 import 'package:flutter/material.dart';
@@ -65,16 +68,13 @@ class _LoginState extends State<Login> {
     if (_validar()) {
       setState(() => _isLoading = true);
       try {
-        await AuthApiService.instance.login(
+        final user = await AuthApiService.instance.login(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
 
         if (!mounted) return;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const Roleselection()),
-        );
+        _redirectNavigation(user);
       } on ApiException catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -90,6 +90,31 @@ class _LoginState extends State<Login> {
         }
       }
       return;
+    }
+  }
+
+  // Creo que se explica solo pero por si acaso es solo para redireccionar segun el rol
+  void _redirectNavigation(LoginResponseDto user) {
+    if (user.roles.contains("Administrador")) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const Roleselection()),
+      );
+    } else if (user.roles.contains("Repartidor")) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const InicioRepartidor()),
+      );
+    } else if (user.roles.contains("Productor/Proveedor")) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const InicioProductor()),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const Roleselection()),
+      );
     }
   }
 

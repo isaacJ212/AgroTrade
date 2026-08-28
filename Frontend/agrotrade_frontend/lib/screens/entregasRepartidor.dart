@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../ui/app_theme.dart';
 import '../ui/components.dart';
 import '../models/entrega.dart';
+import 'detalleEntregaRepartidor.dart';
+import 'entregaEnCursoRepartidor.dart';
 
 class Entregasrepartidor extends StatefulWidget {
   const Entregasrepartidor({super.key});
@@ -41,10 +43,14 @@ class _EntregasrepartidorState extends State<Entregasrepartidor> {
   List<NotificacionEntrega> _porEstado(String estado) =>
       _entregas.where((e) => e.estado == estado).toList();
 
+  void _go(BuildContext context, Widget page) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => page));
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: _entregas.length - 1,
+      length: 4,
       child: Scaffold(
         backgroundColor: AppColors.scaffoldBg,
         appBar: AppBar(
@@ -80,10 +86,42 @@ class _EntregasrepartidorState extends State<Entregasrepartidor> {
             Expanded(
               child: TabBarView(
                 children: [
-                  _ListaEntregas(entregas: _entregas), // Todas
-                  _ListaEntregas(entregas: _porEstado('Pendiente')),
-                  _ListaEntregas(entregas: _porEstado('En curso')),
-                  _ListaEntregas(entregas: _porEstado('Completado')),
+                  _ListaEntregas(
+                    entregas: _entregas,
+                    onVerDetalle: (entrega) => _go(
+                      context,
+                      DetalleEntregaRepartidor(
+                        pedidoId: entrega.pedidoId,
+                        zonaEntrega: entrega.zonaEntrega,
+                        totalPedido: entrega.totalPedido,
+                      ),
+                    ),
+                    onContinuar: (entrega) => _go(
+                      context,
+                      const EntregaEnCursoRepartidor(),
+                    ),
+                  ),
+                  _ListaEntregas(
+                    entregas: _porEstado('Pendiente'),
+                    onVerDetalle: (entrega) => _go(
+                      context,
+                      DetalleEntregaRepartidor(
+                        pedidoId: entrega.pedidoId,
+                        zonaEntrega: entrega.zonaEntrega,
+                        totalPedido: entrega.totalPedido,
+                      ),
+                    ),
+                  ),
+                  _ListaEntregas(
+                    entregas: _porEstado('En curso'),
+                    onContinuar: (entrega) => _go(
+                      context,
+                      const EntregaEnCursoRepartidor(),
+                    ),
+                  ),
+                  _ListaEntregas(
+                    entregas: _porEstado('Entregado'),
+                  ),
                 ],
               ),
             ),
@@ -96,7 +134,14 @@ class _EntregasrepartidorState extends State<Entregasrepartidor> {
 
 class _ListaEntregas extends StatelessWidget {
   final List<NotificacionEntrega> entregas;
-  const _ListaEntregas({required this.entregas});
+  final void Function(NotificacionEntrega entrega)? onVerDetalle;
+  final void Function(NotificacionEntrega entrega)? onContinuar;
+
+  const _ListaEntregas({
+    required this.entregas,
+    this.onVerDetalle,
+    this.onContinuar,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -113,8 +158,19 @@ class _ListaEntregas extends StatelessWidget {
       // separated pone un widget ENTRE elementos (no al final) → más limpio
       // que meter margin en cada tarjeta
       separatorBuilder: (_, __) => const SizedBox(height: 16),
-      itemBuilder: (context, index) =>
-          EntregaDetalleCard(entrega: entregas[index]),
+      itemBuilder: (context, index) {
+        final entrega = entregas[index];
+        return GestureDetector(
+          onTap: entrega.estado == 'En curso'
+              ? () => onContinuar?.call(entrega)
+              : () => onVerDetalle?.call(entrega),
+          child: EntregaDetalleCard(
+            entrega: entrega,
+            onVerDetalle: onVerDetalle == null ? null : () => onVerDetalle!(entrega),
+            onContinuar: onContinuar == null ? null : () => onContinuar!(entrega),
+          ),
+        );
+      },
     );
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/splash.dart';
+import 'screens/homeRepartidor.dart';
 import 'ui/app_theme.dart';
 
 void main() => runApp(const AgroTradeApp());
@@ -22,7 +22,7 @@ class AgroTradeApp extends StatelessWidget {
           iconTheme: IconThemeData(color: AppColors.TextMain),
         ),
       ),
-      home: const Splash(),
+      home: const InicioRepartidor(),
     );
   }
 }

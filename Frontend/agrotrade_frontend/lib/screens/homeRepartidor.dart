@@ -472,7 +472,7 @@ class _NextDeliveryCard extends StatelessWidget {
                               Text(
                                 delivery?.fechaCreacion == null
                                     ? '10:30 a. m.'
-                                    : delivery!.fechaCreacion!.toLocal().toString().substring(0, 16),
+                                    : '${delivery!.fechaCreacion!.toLocal().year.toString().padLeft(4, '0')}-${delivery!.fechaCreacion!.toLocal().month.toString().padLeft(2, '0')}-${delivery!.fechaCreacion!.toLocal().day.toString().padLeft(2, '0')} ${delivery!.fechaCreacion!.toLocal().hour.toString().padLeft(2, '0')}:${delivery!.fechaCreacion!.toLocal().minute.toString().padLeft(2, '0')}',
                                 style: AppTextStyles.label.copyWith(fontSize: 14),
                               ),
                             ],
