@@ -103,8 +103,34 @@ publish/
 **/.qodo/
 
 
-# Archivos autogenerados de Flutter (iOS)
+
+**/.dart_tool/
+**/build/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.pub-cache/
+**/.packages
+
+
 **/Frontend/agrotrade_frontend/ios/Flutter/Generated.xcconfig
 **/Frontend/agrotrade_frontend/ios/Flutter/ephemeral/
 **/Frontend/agrotrade_frontend/ios/Flutter/flutter_export_environment.sh
 **/Frontend/agrotrade_frontend/ios/Runner/GeneratedPluginRegistrant.*
+
+
+
+Frontend/agrotrade_frontend/android/.gradle/
+Frontend/agrotrade_frontend/.gradle/
+Frontend/agrotrade_frontend/android/local.properties
+
+
+Frontend/agrotrade_frontend/ios/Pods/
+
+
+.gradle/
+**/.gradle/
+
+
+Frontend/agrotrade_frontend/.flutter-plugins
+Frontend/agrotrade_frontend/.flutter-plugins-dependencies
+Frontend/agrotrade_frontend/.dart_tool/

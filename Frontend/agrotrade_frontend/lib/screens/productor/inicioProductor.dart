@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../ui/app_theme.dart';
-import '../ui/components.dart';
+import '../../ui/app_theme.dart';
+import '../../ui/components.dart';
 import 'package:agrotrade_frontend/models/pedido.dart';
 
 //creacion de la clase de InicioProductor

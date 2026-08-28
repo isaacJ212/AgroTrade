@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../ui/app_theme.dart';
+import '../../ui/app_theme.dart';
 
 class ConfirmarEntregaRepartidor extends StatefulWidget {
   const ConfirmarEntregaRepartidor({super.key});

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../ui/app_theme.dart';
-import '../ui/components.dart';
-import '../models/entrega.dart';
+import '../../ui/app_theme.dart';
+import '../../ui/components.dart';
+import '../../models/entrega.dart';
 import 'detalleEntregaRepartidor.dart';
 import 'entregaEnCursoRepartidor.dart';
 
@@ -96,10 +96,8 @@ class _EntregasrepartidorState extends State<Entregasrepartidor> {
                         totalPedido: entrega.totalPedido,
                       ),
                     ),
-                    onContinuar: (entrega) => _go(
-                      context,
-                      const EntregaEnCursoRepartidor(),
-                    ),
+                    onContinuar: (entrega) =>
+                        _go(context, const EntregaEnCursoRepartidor()),
                   ),
                   _ListaEntregas(
                     entregas: _porEstado('Pendiente'),
@@ -114,14 +112,10 @@ class _EntregasrepartidorState extends State<Entregasrepartidor> {
                   ),
                   _ListaEntregas(
                     entregas: _porEstado('En curso'),
-                    onContinuar: (entrega) => _go(
-                      context,
-                      const EntregaEnCursoRepartidor(),
-                    ),
+                    onContinuar: (entrega) =>
+                        _go(context, const EntregaEnCursoRepartidor()),
                   ),
-                  _ListaEntregas(
-                    entregas: _porEstado('Entregado'),
-                  ),
+                  _ListaEntregas(entregas: _porEstado('Entregado')),
                 ],
               ),
             ),
@@ -166,8 +160,12 @@ class _ListaEntregas extends StatelessWidget {
               : () => onVerDetalle?.call(entrega),
           child: EntregaDetalleCard(
             entrega: entrega,
-            onVerDetalle: onVerDetalle == null ? null : () => onVerDetalle!(entrega),
-            onContinuar: onContinuar == null ? null : () => onContinuar!(entrega),
+            onVerDetalle: onVerDetalle == null
+                ? null
+                : () => onVerDetalle!(entrega),
+            onContinuar: onContinuar == null
+                ? null
+                : () => onContinuar!(entrega),
           ),
         );
       },

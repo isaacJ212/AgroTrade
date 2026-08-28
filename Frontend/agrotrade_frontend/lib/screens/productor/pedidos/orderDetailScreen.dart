@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../ui/app_theme.dart';
-import '../../ui/components.dart';
+import '../../../ui/app_theme.dart';
+import '../../../ui/components.dart';
 
 class OrderDetailsScreen extends StatelessWidget {
   const OrderDetailsScreen({super.key});

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../ui/app_theme.dart';
-import '../ui/components.dart';
-import 'inventarioProductor.dart'; 
-import 'inicioProductor.dart';     
+import '../../../ui/app_theme.dart';
+import '../../../ui/components.dart';
+import '../precio_justo/calculadoraPrecioJusto.dart';
+import '../inicioProductor.dart';
+import 'inventarioProductor.dart';     
 
 
 class DetalleProducto extends StatefulWidget {
@@ -296,7 +297,13 @@ class _DetalleProductoState extends State<DetalleProducto> {
           const SizedBox(width: 8),
           GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () => _mostrarSnack('Calculadora de precio justo 🧮'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) =>
+                    CalculadoraPrecioJusto(nombreProducto: _producto.nombre),
+              ),
+            ),
             child: Text(
               'Calcular precio justo',
               style: AppTextStyles.label.copyWith(

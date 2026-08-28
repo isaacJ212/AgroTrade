@@ -14,3 +14,4 @@ export 'widgets/repartidor_bottom_nav.dart';
 export 'widgets/notificacion_entrega_tile.dart';
 export 'widgets/entrega_detalle_card.dart';
 export 'widgets/info_row.dart';
+export 'widgets/accent_info_card.dart';

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../ui/app_theme.dart';
-import '../services/api_client.dart';
-import '../services/delivery_api_service.dart';
+import '../../ui/app_theme.dart';
 import 'recogerPedidoRepartidor.dart';
+import '../../services/api_client.dart';
+import '../../services/delivery_api_service.dart';
 
 class AceptarEntregaRepartidor extends StatefulWidget {
   final int? pedidoId;
@@ -50,7 +50,10 @@ class _AceptarEntregaRepartidorState extends State<AceptarEntregaRepartidor> {
         actions: [
           IconButton(
             onPressed: () => _showSnack(context, 'Notificaciones'),
-            icon: const Icon(Icons.notifications_outlined, color: AppColors.bodyText),
+            icon: const Icon(
+              Icons.notifications_outlined,
+              color: AppColors.bodyText,
+            ),
           ),
         ],
       ),
@@ -97,26 +100,29 @@ class _AceptarEntregaRepartidorState extends State<AceptarEntregaRepartidor> {
                 onPressed: !_confirmado
                     ? null
                     : () async {
-                  final id = widget.pedidoId;
-                  if (id == null) {
-                    _showSnack(context, 'No hay un pedido asociado a esta entrega');
-                    return;
-                  }
+                        final id = widget.pedidoId;
+                        if (id == null) {
+                          _showSnack(
+                            context,
+                            'No hay un pedido asociado a esta entrega',
+                          );
+                          return;
+                        }
 
-                  try {
-                    await DeliveryApiService.instance.acceptDelivery(id);
-                    if (!context.mounted) return;
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const RecogerPedidoRepartidor(),
-                      ),
-                    );
-                  } on ApiException catch (e) {
-                    if (!context.mounted) return;
-                    _showSnack(context, e.message);
-                  }
-                },
+                        try {
+                          await DeliveryApiService.instance.acceptDelivery(id);
+                          if (!context.mounted) return;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const RecogerPedidoRepartidor(),
+                            ),
+                          );
+                        } on ApiException catch (e) {
+                          if (!context.mounted) return;
+                          _showSnack(context, e.message);
+                        }
+                      },
                 icon: const Icon(Icons.check_circle, size: 20),
                 label: const Text(
                   'Aceptar entrega',
@@ -300,12 +306,12 @@ class _PickupRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              Text(
-                name,
-                style: AppTextStyles.label.copyWith(fontSize: 14),
-              ),
+              Text(name, style: AppTextStyles.label.copyWith(fontSize: 14)),
               const SizedBox(height: 2),
-              Text(detail, style: AppTextStyles.SubTitle.copyWith(fontSize: 14)),
+              Text(
+                detail,
+                style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
+              ),
             ],
           ),
         ),

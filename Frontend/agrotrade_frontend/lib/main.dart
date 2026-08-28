@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/homeRepartidor.dart';
+import 'screens/shared/onboarding/splash.dart';
 import 'ui/app_theme.dart';
 
 void main() => runApp(const AgroTradeApp());
@@ -15,14 +15,13 @@ class AgroTradeApp extends StatelessWidget {
         fontFamily: 'Raleway',
         useMaterial3: true,
         scaffoldBackgroundColor: Colors.white,
-        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primaryColor),
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.white,
           elevation: 0,
           iconTheme: IconThemeData(color: AppColors.TextMain),
         ),
       ),
-      home: const InicioRepartidor(),
+      home: const Splash(),
     );
   }
 }
