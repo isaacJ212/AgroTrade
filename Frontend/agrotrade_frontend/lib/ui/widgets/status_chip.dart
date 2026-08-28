@@ -6,6 +6,7 @@ class StatusChip extends StatelessWidget {
   final Color background;
   final Color color;
   final IconData? icon;
+  final Color? iconColor;
   final double radius;
 
   const StatusChip({
@@ -14,13 +15,16 @@ class StatusChip extends StatelessWidget {
     required this.background,
     required this.color,
     this.icon,
+    this.iconColor,
     this.radius = 10,
   });
 
-  @override
+
+
+   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(radius),
@@ -29,23 +33,18 @@ class StatusChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 14, color: color),
+            Icon(icon, size: 10, 
+            color: iconColor ?? color),
             const SizedBox(width: 4),
           ],
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
-          ),
+          Text(label, style: AppTextStyles.chip.copyWith(color: color)),
         ],
       ),
     );
   }
 }
 
+  
 class ChipEstado extends StatelessWidget {
   final String texto;
   final Color color;

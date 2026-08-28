@@ -2,7 +2,6 @@ import 'package:agrotrade_frontend/screens/shared/auth/Login.dart';
 import 'package:flutter/material.dart';
 import '../../../ui/app_theme.dart';
 import '../../../ui/components.dart';
-import 'onBoarding.dart';
 
 class Splash extends StatefulWidget {
   const Splash({super.key});

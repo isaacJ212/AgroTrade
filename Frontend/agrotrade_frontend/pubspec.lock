@@ -123,18 +123,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-
   flutter_web_plugins:
     dependency: transitive
     description: flutter
     source: sdk
     version: "0.0.0"
   http:
-    dependency: transitive
-
-  http:
     dependency: "direct main"
-
     description:
       name: http
       sha256: "87721a4a50b19c7f1d49001e51409bddc46303966ce89a65af4f4e6004896412"
@@ -149,7 +144,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.2"
-
   image_picker:
     dependency: "direct main"
     description:
@@ -214,7 +208,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.2"
-
   leak_tracker:
     dependency: transitive
     description:
