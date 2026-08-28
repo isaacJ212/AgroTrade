@@ -4,6 +4,7 @@ import '../ui/components.dart';
 import 'inicioProductor.dart';
 import 'detalleProducto.dart';
 import 'registroCosecha.dart';
+import 'agregarProducto.dart';
 
 enum EstadoProducto{
 

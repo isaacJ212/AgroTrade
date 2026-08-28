@@ -33,6 +33,10 @@ class AppColors {
 
   // esto son los colores para lo que es detalle producto
   static const amberSoft = Color(0xFFFDF0D5);
+
+
+  // esto es para pedidos  recibidos
+  static const blueSoft = Color(0xFFDDEBFF); // fondo azul suave chip "En Prep"
 }
 
 class AppTextStyles {

@@ -1,3 +1,4 @@
+import 'package:agrotrade_frontend/screens/calculadoraPrecioJusto.dart';
 import 'package:flutter/material.dart';
 import '../ui/app_theme.dart';
 import '../ui/components.dart';
@@ -296,7 +297,13 @@ class _DetalleProductoState extends State<DetalleProducto> {
           const SizedBox(width: 8),
           GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () => _mostrarSnack('Calculadora de precio justo 🧮'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) =>
+                    CalculadoraPrecioJusto(nombreProducto: _producto.nombre),
+              ),
+            ),
             child: Text(
               'Calcular precio justo',
               style: AppTextStyles.label.copyWith(

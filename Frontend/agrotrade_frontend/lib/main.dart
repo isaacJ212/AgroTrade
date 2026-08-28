@@ -1,3 +1,7 @@
+
+import 'package:agrotrade_frontend/screens/homeRepartidor.dart';
+import 'package:agrotrade_frontend/screens/inventarioProductor.dart';
+import 'package:agrotrade_frontend/screens/registroCosecha.dart';
 import 'package:flutter/material.dart';
 import 'screens/splash.dart';
 import 'ui/app_theme.dart';
@@ -22,7 +26,10 @@ class AgroTradeApp extends StatelessWidget {
           iconTheme: IconThemeData(color: AppColors.TextMain),
         ),
       ),
-      home: const Splash(),
+
+      home: const RegistroCosecha(),
+
+
     );
   }
 }
