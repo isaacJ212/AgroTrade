@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../ui/app_theme.dart';
-import '../ui/components.dart';
+import '../../ui/app_theme.dart';
+import '../../ui/components.dart';
 
 
 class CategoriaMercado {
@@ -77,7 +77,7 @@ class _InicioCompradorState extends State<InicioComprador> {
   int _carritoCount = 1;
 
  
-  static const List<CategoriaMercado> _categorias = [
+  static const List<CategoriaMercado> _listaCategorias = [
     CategoriaMercado('Frutas', Icons.apple, AppColors.navPill, AppColors.primaryColor),
     CategoriaMercado('Cítricos', Icons.eco, AppColors.blueSoft, AppColors.accentBlue),
     CategoriaMercado('Verduras', Icons.grass, AppColors.navPill, AppColors.primaryColor),
@@ -308,9 +308,9 @@ class _InicioCompradorState extends State<InicioComprador> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        for (int i = 0; i < _categorias.length; i++)
+        for (int i = 0; i < _listaCategorias.length; i++)
           _CategoriaTile(
-            categoria: _categorias[i],
+            categoria: _listaCategorias[i],
             seleccionada: i == _categoriaSel,
             onTap: () => setState(() => _categoriaSel = i),
           ),
@@ -318,7 +318,6 @@ class _InicioCompradorState extends State<InicioComprador> {
     );
   }
 
-.
   Widget _tituloSeccion(String texto, {bool conVerTodo = false}) {
     return Row(
       children: [
