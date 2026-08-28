@@ -43,7 +43,7 @@ namespace Agro_Trade.Application.Features.Usuarios.Commands
                 var userRol = new UsuarioRol
                 {
                     IdUsuario = user.IdUsuario,
-                    IdRol = 1 //id de rol cliente
+                    IdRol = 2 //id de rol cliente
                 };
 
                 await rol.AddAsync(userRol, ct);
