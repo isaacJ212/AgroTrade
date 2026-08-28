@@ -1,0 +1,115 @@
+
+
+
+.search-input-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.search-input-icon {
+  position: absolute;
+  left: 14px;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-input-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.app-search-input {
+  width: 100%;
+  padding: 12px 14px 12px 42px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  color: var(--text-main);
+  box-shadow: var(--shadow-card);
+  transition: var(--transition-normal);
+}
+
+.app-search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(6, 99, 52, 0.1);
+}
+
+
+.form-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.form-field-label .required-star {
+  color: var(--accent-danger);
+}
+
+.form-text-input {
+  width: 100%;
+  padding: 12px 14px;
+  background-color: #ffffff;
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-md);
+  font-size: 0.92rem;
+  color: var(--text-main);
+  transition: var(--transition-normal);
+}
+
+.form-text-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(6, 99, 52, 0.1);
+}
+
+.form-field-hint {
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+
+.form-field-group.has-error .form-text-input,
+.form-field-group.has-error .form-textarea-input {
+  border-color: var(--accent-danger);
+  background-color: #fffafa;
+}
+
+.form-error-message {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--accent-danger);
+}
+
+.form-textarea-input {
+  width: 100%;
+  padding: 12px 14px;
+  background-color: #ffffff;
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  color: var(--text-main);
+  resize: vertical;
+  min-height: 90px;
+  transition: var(--transition-normal);
+}
+
+.form-textarea-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(6, 99, 52, 0.1);
+}

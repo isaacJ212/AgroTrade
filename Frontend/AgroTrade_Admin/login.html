@@ -4,41 +4,43 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Iniciar Sesión - AgroTrade Admin</title>
-  <meta name="description" content="Acceso al panel de administración de AgroTrade para gestión de usuarios, productores y repartidores." />
-  
+  <meta name="description" content="Acceso administrativo a la plataforma AgroTrade." />
+
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   
-  <link rel="stylesheet" href="css/variables.css" />
-  <link rel="stylesheet" href="css/login.css" />
+  <link rel="stylesheet" href="css/base/variables.css" />
+  <link rel="stylesheet" href="css/base/reset.css" />
+  <link rel="stylesheet" href="css/components/buttons.css" />
+  <link rel="stylesheet" href="css/components/forms.css" />
+  <link rel="stylesheet" href="css/components/toast.css" />
+  <link rel="stylesheet" href="css/views/login.css" />
 </head>
-<body class="login-page">
+<body class="login-body">
 
-  <main class="login-card" id="loginContainer">
-
-    <div class="login-brand">
-      <div class="brand-icon-wrap" aria-hidden="true">
+  <main class="login-modal-box">
+    
+    <div class="login-brand-header">
+      <div class="login-brand-logo-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path>
           <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path>
         </svg>
       </div>
-      <h1 class="brand-name">AgroTrade</h1>
-      <p class="brand-subtitle">Panel de Control y Administración</p>
+      <h1 class="login-brand-name">AgroTrade</h1>
+      <p class="login-brand-sub">Panel de Control y Administración</p>
     </div>
 
-
-    <div id="authAlert" class="auth-alert hidden" role="alert"></div>
-
-    <form id="loginForm" class="login-form" novalidate>
-
-      <div class="input-group">
-        <label for="emailInput" class="input-label">Correo Electrónico</label>
-        <div class="input-wrapper">
-          <span class="input-icon" aria-hidden="true">
+    
+    <form id="adminLoginForm" class="login-form-body" novalidate>
+      
+      <div class="form-field-group">
+        <label for="adminEmailInput" class="form-field-label">Correo Electrónico</label>
+        <div class="login-input-wrap">
+          <span class="login-input-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
               <polyline points="22,6 12,13 2,6"></polyline>
@@ -46,9 +48,8 @@
           </span>
           <input 
             type="email" 
-            id="emailInput" 
-            name="email" 
-            class="form-input" 
+            id="adminEmailInput" 
+            class="login-field-input" 
             placeholder="admin@agrotrade.com" 
             required 
             autocomplete="email"
@@ -56,11 +57,11 @@
         </div>
       </div>
 
-
-      <div class="input-group">
-        <label for="passwordInput" class="input-label">Contraseña</label>
-        <div class="input-wrapper">
-          <span class="input-icon" aria-hidden="true">
+      
+      <div class="form-field-group">
+        <label for="adminPasswordInput" class="form-field-label">Contraseña</label>
+        <div class="login-input-wrap">
+          <span class="login-input-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
               <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
@@ -68,14 +69,13 @@
           </span>
           <input 
             type="password" 
-            id="passwordInput" 
-            name="password" 
-            class="form-input" 
+            id="adminPasswordInput" 
+            class="login-field-input" 
             placeholder="••••••••" 
             required 
             autocomplete="current-password"
           />
-          <button type="button" id="togglePasswordBtn" class="toggle-pwd-btn" aria-label="Mostrar u ocultar contraseña">
+          <button type="button" id="btnTogglePassword" class="login-pwd-toggle-btn" aria-label="Mostrar/Ocultar contraseña">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
               <circle cx="12" cy="12" r="3"></circle>
@@ -84,44 +84,96 @@
         </div>
       </div>
 
-
-      <div class="form-options">
-        <label class="remember-label">
-          <input type="checkbox" id="rememberMe" checked />
+      
+      <div class="login-extra-row">
+        <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+          <input type="checkbox" checked />
           <span>Recordarme</span>
         </label>
-        <a href="#" class="forgot-link" onclick="alert('Contacta al superadministrador de AgroTrade para restaurar tu contraseña.')">¿Olvidaste tu clave?</a>
+        <a href="#" style="color:var(--primary); font-weight:600; text-decoration:none;" onclick="Toast.warning('Contacta al superadministrador para reestablecer tu clave')">¿Olvidaste tu clave?</a>
       </div>
 
-  
-      <button type="submit" id="submitLoginBtn" class="btn-login">
+      
+      <button type="submit" id="btnSubmitLogin" class="btn-primary" style="margin-top:4px;">
         <span>Ingresar al Panel</span>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <line x1="5" y1="12" x2="19" y2="12"></line>
           <polyline points="12 5 19 12 12 19"></polyline>
         </svg>
       </button>
     </form>
 
-
-    <div class="demo-credentials-box">
-      <div class="demo-title">Acceso Rápido de Demostración:</div>
-      <button type="button" id="demoFillBtn" class="demo-btn">
+    
+    <div class="login-demo-access-box">
+      <span class="login-demo-title">Acceso de Demostración:</span>
+      <button type="button" id="btnDemoFill" class="login-demo-btn">
         <span>admin@agrotrade.com / admin123</span>
-        <span class="role">Autorrellenar</span>
+        <span style="font-size:0.72rem; color:var(--text-secondary);">Autorrellenar</span>
       </button>
     </div>
   </main>
 
->
-  <script src="js/config.js"></script>
-  <script src="js/store.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/auth.js"></script>
+  
+  <div id="toastContainer" class="toast-box-container"></div>
+
+  
+  <script src="js/config/constants.js"></script>
+  <script src="js/core/store.js"></script>
+  <script src="js/core/toast.js"></script>
+  <script src="js/services/auth.service.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      authManager.guardRoute();
-      authManager.initLoginForm();
+      authService.guardRoute();
+
+      const form = document.getElementById('adminLoginForm');
+      const emailInput = document.getElementById('adminEmailInput');
+      const pwdInput = document.getElementById('adminPasswordInput');
+      const toggleBtn = document.getElementById('btnTogglePassword');
+      const demoBtn = document.getElementById('btnDemoFill');
+      const submitBtn = document.getElementById('btnSubmitLogin');
+
+      if (toggleBtn && pwdInput) {
+        toggleBtn.onclick = () => {
+          const isPwd = pwdInput.type === 'password';
+          pwdInput.type = isPwd ? 'text' : 'password';
+        };
+      }
+
+      if (demoBtn && emailInput && pwdInput) {
+        demoBtn.onclick = () => {
+          emailInput.value = 'admin@agrotrade.com';
+          pwdInput.value = 'admin123';
+        };
+      }
+
+      if (form) {
+        form.onsubmit = async (e) => {
+          e.preventDefault();
+          const email = emailInput.value.trim();
+          const pwd = pwdInput.value.trim();
+
+          if (!email || !pwd) {
+            Toast.warning('Por favor completa todos los campos.');
+            return;
+          }
+
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = `<span>Iniciando sesión...</span>`;
+
+          const res = await authService.login(email, pwd);
+          if (res.success) {
+            Toast.success('¡Acceso concedido! Redirigiendo...');
+            authService.setSession(res.data.token, res.data.user);
+            setTimeout(() => {
+              window.location.href = 'index.html';
+            }, 500);
+          } else {
+            Toast.error(res.message || 'Credenciales inválidas');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `<span>Ingresar al Panel</span>`;
+          }
+        };
+      }
     });
   </script>
 </body>

@@ -1,0 +1,59 @@
+
+
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+}
+
+.badge-productor {
+  background-color: var(--accent-green-bg);
+  color: var(--accent-green-text);
+}
+
+.badge-verificado {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.badge-comprador {
+  background-color: var(--accent-blue-bg);
+  color: var(--accent-blue-text);
+}
+
+.badge-repartidor {
+  background-color: #ffedd5;
+  color: #c2410c;
+}
+
+.badge-pendiente {
+  background-color: var(--accent-amber-bg);
+  color: var(--accent-amber-text);
+}
+
+.badge-activo {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.76rem;
+  color: var(--accent-green-text);
+  font-weight: 700;
+}
+
+.status-dot-green {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-full);
+  background-color: var(--accent-green);
+}
+
+.status-dot-amber {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--amber-dot);
+}
