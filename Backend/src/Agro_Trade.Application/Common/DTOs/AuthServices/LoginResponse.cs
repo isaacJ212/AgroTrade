@@ -10,6 +10,7 @@ namespace Agro_Trade.Application.Common.DTOs.AuthServices
     {
         public string UserName { get; set; }
         public string Token { get; set; }
+        public List<String> Roles {get;set;} = new();
         
     }
 }

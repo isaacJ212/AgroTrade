@@ -65,8 +65,13 @@ namespace Agro_Trade.Application.Features.Auth
                
             }
             var jwtToken = await _tokenServices.GenerateTokenAsync(user);
+             var roles = await _roles.FindAsync(r=> r.IdUsuario == user.IdUsuario,cancellationToken, "Rol");
+            var stringList = roles
+                            .Where(r => r.Rol != null)
+                            .Select(r => r.Rol.NombreRol)
+                            .ToList();
 
-            return Result<LoginResponse>.Success(200, new LoginResponse { UserName = user.NombreCompleto, Token = jwtToken }, "Usuario Registrado Con Google Exitosamente", true);
+            return Result<LoginResponse>.Success(200, new LoginResponse { UserName = user.NombreCompleto, Token = jwtToken, Roles= stringList }, "Usuario Registrado Con Google Exitosamente", true);
         }
     }
 }

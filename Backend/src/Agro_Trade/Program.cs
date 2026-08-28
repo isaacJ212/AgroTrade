@@ -20,7 +20,7 @@ namespace Agro_Trade
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            var dataSourceBuilder = new NpgsqlDataSourceBuilder(builder.Configuration.GetConnectionString("AgroTradeDatabase"));
+            var dataSourceBuilder = new NpgsqlDataSourceBuilder(builder.Configuration.GetConnectionString("MesetaVerdeDatabase"));
             dataSourceBuilder.EnableDynamicJson(); 
             var dataSource = dataSourceBuilder.Build();
             // Add services to the container.
@@ -95,8 +95,8 @@ namespace Agro_Trade
 
 
 
-
             var app = builder.Build();
+
 
           
             // Habilitar Swagger siempre (tanto en Local como en Producción en Render)

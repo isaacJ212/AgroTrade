@@ -1,9 +1,8 @@
-import 'package:agrotrade_frontend/screens/productor/inventario/agregarProducto.dart';
-import 'package:agrotrade_frontend/screens/productor/precio_justo/calculadoraPrecioJusto.dart';
-import 'package:agrotrade_frontend/screens/productor/pedidos/pedidosRecibidos.dart';
-import 'package:agrotrade_frontend/screens/productor/pedidos/orderDetailScreen.dart';
-import 'package:agrotrade_frontend/screens/productor/inventario/registroCosecha.dart';
+import 'package:agrotrade_frontend/screens/homeRepartidor.dart';
+import 'package:agrotrade_frontend/screens/inventarioProductor.dart';
+import 'package:agrotrade_frontend/screens/registroCosecha.dart';
 import 'package:flutter/material.dart';
+import 'screens/splash.dart';
 import 'ui/app_theme.dart';
 
 void main() => runApp(const AgroTradeApp());
@@ -26,7 +25,7 @@ class AgroTradeApp extends StatelessWidget {
           iconTheme: IconThemeData(color: AppColors.TextMain),
         ),
       ),
-      home: const PedidosRecibidos(),
+      home: const RegistroCosecha(),
     );
   }
 }

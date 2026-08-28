@@ -3,7 +3,16 @@ import '../../ui/app_theme.dart';
 import 'aceptarEntregaRepartidor.dart';
 
 class DetalleEntregaRepartidor extends StatelessWidget {
-  const DetalleEntregaRepartidor({super.key});
+  final int? pedidoId;
+  final String? zonaEntrega;
+  final double? totalPedido;
+
+  const DetalleEntregaRepartidor({
+    super.key,
+    this.pedidoId,
+    this.zonaEntrega,
+    this.totalPedido,
+  });
 
   void _showSnack(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -38,7 +47,10 @@ class DetalleEntregaRepartidor extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () => _showSnack(context, 'Notificaciones'),
-            icon: const Icon(Icons.notifications_outlined, color: AppColors.bodyText),
+            icon: const Icon(
+              Icons.notifications_outlined,
+              color: AppColors.bodyText,
+            ),
           ),
         ],
       ),
@@ -48,7 +60,7 @@ class DetalleEntregaRepartidor extends StatelessWidget {
           children: [
             _SummaryHeader(
               title: 'ENTREGA',
-              subtitle: '#AT-2051',
+              subtitle: pedidoId == null ? '#AT-2051' : '#AT-$pedidoId',
               status: 'Estado: Pendiente',
               statusIcon: Icons.schedule,
             ),
@@ -74,7 +86,7 @@ class DetalleEntregaRepartidor extends StatelessWidget {
               titleColor: AppColors.accentBlue,
               icon: Icons.person_pin_circle_outlined,
               name: 'María López',
-              place: 'Jinotepe, Carazo',
+              place: zonaEntrega == null ? 'Jinotepe, Carazo' : zonaEntrega!,
               instruction: '"Casa de portón verde, frente al parque."',
               actionLabel: 'Ver ubicación',
               actionColor: AppColors.accentBlue,
@@ -83,8 +95,10 @@ class DetalleEntregaRepartidor extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             _OrderSection(
-              title: 'Pedido #AT-2051',
-              productsLabel: '3 productos',
+              title: pedidoId == null ? 'Pedido #AT-2051' : 'Pedido #AT-$pedidoId',
+              productsLabel: totalPedido == null
+                  ? '3 productos'
+                  : '\$${totalPedido!.toStringAsFixed(2)}',
             ),
             const SizedBox(height: 24),
             SizedBox(
@@ -95,7 +109,9 @@ class DetalleEntregaRepartidor extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const AceptarEntregaRepartidor(),
+                      builder: (_) => AceptarEntregaRepartidor(
+                        pedidoId: pedidoId,
+                      ),
                     ),
                   );
                 },
@@ -136,7 +152,10 @@ class DetalleEntregaRepartidor extends StatelessWidget {
             const SizedBox(height: 16),
             TextButton.icon(
               onPressed: () => _showSnack(context, 'Problema reportado'),
-              icon: const Icon(Icons.report_problem_outlined, color: AppColors.inputErrorColor),
+              icon: const Icon(
+                Icons.report_problem_outlined,
+                color: AppColors.inputErrorColor,
+              ),
               label: const Text(
                 'Reportar problema',
                 style: TextStyle(
@@ -221,9 +240,7 @@ class _SummaryHeader extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   status,
-                  style: AppTextStyles.chip.copyWith(
-                    color: AppColors.bodyText,
-                  ),
+                  style: AppTextStyles.chip.copyWith(color: AppColors.bodyText),
                 ),
               ],
             ),
@@ -272,7 +289,7 @@ class _RouteSection extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.cardBorder),
-        //border: Border(left: BorderSide(color: accent, width: 4)),
+
         boxShadow: const [
           BoxShadow(
             color: Color(0x0F000000),
@@ -374,10 +391,7 @@ class _OrderSection extends StatelessWidget {
   final String title;
   final String productsLabel;
 
-  const _OrderSection({
-    required this.title,
-    required this.productsLabel,
-  });
+  const _OrderSection({required this.title, required this.productsLabel});
 
   @override
   Widget build(BuildContext context) {
@@ -400,7 +414,11 @@ class _OrderSection extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.receipt_long_outlined, size: 18, color: AppColors.bodyText),
+              const Icon(
+                Icons.receipt_long_outlined,
+                size: 18,
+                color: AppColors.bodyText,
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -409,7 +427,10 @@ class _OrderSection extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.cardBorder,
                   borderRadius: BorderRadius.circular(20),

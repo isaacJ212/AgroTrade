@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../ui/app_theme.dart';
+import '../ui/app_theme.dart';
 import 'recogerPedidoRepartidor.dart';
 
 class AceptarEntregaRepartidor extends StatelessWidget {
-  const AceptarEntregaRepartidor({super.key});
+  final int? pedidoId;
+
+  const AceptarEntregaRepartidor({super.key, this.pedidoId});
 
   void _showSnack(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -72,13 +74,26 @@ class AceptarEntregaRepartidor extends StatelessWidget {
               width: double.infinity,
               height: 56,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const RecogerPedidoRepartidor(),
-                    ),
-                  );
+                onPressed: () async {
+                  final id = pedidoId;
+                  if (id == null) {
+                    _showSnack(context, 'No hay un pedido asociado a esta entrega');
+                    return;
+                  }
+
+                  try {
+                    await DeliveryApiService.instance.acceptDelivery(id);
+                    if (!context.mounted) return;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const RecogerPedidoRepartidor(),
+                      ),
+                    );
+                  } on ApiException catch (e) {
+                    if (!context.mounted) return;
+                    _showSnack(context, e.message);
+                  }
                 },
                 icon: const Icon(Icons.check_circle, size: 20),
                 label: const Text(
