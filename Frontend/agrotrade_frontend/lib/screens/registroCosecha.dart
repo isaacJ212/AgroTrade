@@ -4,6 +4,7 @@ import '../ui/components.dart';
 import '../ui/widgets/app_text_field.dart';
 import '../ui/widgets/buttons.dart';
 import 'inicioProductor.dart';
+import 'resultadoPrecioJusto.dart';
 
 
 class RegistroCosecha extends StatefulWidget {
@@ -70,16 +71,51 @@ class _RegistroCosechaState extends State<RegistroCosecha> {
     }
   }
 
-  void _calcularPrecioJusto() {
-    final costo = double.tryParse(_costoController.text);
-    if (costo == null || costo <= 0) {
-      return _mostrarSnack('Ingresa primero el costo de producción');
-    }
-    setState(() {
-      _precioController.text = (costo * (1 + _margenEtico)).toStringAsFixed(2);
-    });
-    _mostrarSnack('Precio justo sugerido aplicado (margen 30%) ⚖️');
+
+
+
+void _calcularPrecioJusto() async {
+  final costo = double.tryParse(_costoController.text);
+  if (costo == null || costo <= 0) {
+    return _mostrarSnack('Ingresa primero el costo de producción');
   }
+
+  final precioSugerido = costo * 1.31;
+  final ganancia = precioSugerido - costo;
+  
+
+  final desglose = [
+    {'icon': Icons.agriculture, 'label': 'Insumos y Semillas', 'value': costo * 0.45},
+    {'icon': Icons.people, 'label': 'Mano de Obra', 'value': costo * 0.35},
+    {'icon': Icons.local_shipping, 'label': 'Transporte Estimado', 'value': costo * 0.12},
+    {'icon': Icons.receipt_long, 'label': 'Otros Costos Operativos', 'value': costo * 0.08},
+  ];
+
+
+  final productoNombre = 'Producto Agrícola';
+
+
+  final resultado = await Navigator.push<double>(
+    context,
+    MaterialPageRoute(
+      builder: (_) => ResultadoPrecioJusto(
+        nombreProducto: productoNombre,
+        precioSugerido: double.parse(precioSugerido.toStringAsFixed(2)),
+        costoTotal: costo,
+        margenGanancia: ganancia,
+        unidad: 'libra', 
+        desglose: desglose,
+      ),
+    ),
+  );
+
+  if (resultado != null) {
+    setState(() {
+      _precioController.text = resultado.toStringAsFixed(2);
+    });
+    _mostrarSnack('Precio justo aplicado correctamente ✅');
+  }
+}
 
   Future<void> _guardarInventario() async {
     final cantidad = double.tryParse(_cantidadController.text);
