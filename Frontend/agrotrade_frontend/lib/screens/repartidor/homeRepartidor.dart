@@ -11,7 +11,7 @@ import 'rutaEntregaRepartidor.dart';
 import '../../services/api_client.dart';
 import '../../services/delivery_api_service.dart';
 import '../../services/api_session.dart';
-import 'package:agrotrade_frontend/screens/repartidor/models/api/delivery_models.dart';
+import 'package:agrotrade_frontend/models/api/delivery_models.dart';
 
 class InicioRepartidor extends StatefulWidget {
   const InicioRepartidor({super.key});
