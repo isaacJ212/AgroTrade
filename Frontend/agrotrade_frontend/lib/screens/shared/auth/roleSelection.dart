@@ -1,3 +1,4 @@
+import 'package:agrotrade_frontend/screens/inicioComprador.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../../ui/app_theme.dart';
@@ -42,6 +43,15 @@ class _RoleSelection extends State<Roleselection> {
   void _continuar() {
     FocusScope.of(context).unfocus();
     var RolSeleccionado = _Roles.firstWhere((r) => r.RolId == _rolSeleccionado);
+
+    // Dentro de _continuar(), agrega el caso del Cliente:
+    if (RolSeleccionado.RolId == 1) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const InicioComprador()),
+      );
+      return;
+    }
 
     if (RolSeleccionado.RolId == 2) {
       Navigator.pushReplacement(
