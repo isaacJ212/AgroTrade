@@ -1,4 +1,3 @@
-
 const APP_CONSTANTS = {
   STORAGE_KEYS: {
     AUTH_TOKEN: 'agrotrade_admin_token',

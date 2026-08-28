@@ -1,4 +1,3 @@
-
 class ToastService {
   constructor() {
     this.container = null;

@@ -1,5 +1,3 @@
-
-
 class AuthService {
   constructor() {
     this.tokenKey = APP_CONSTANTS.STORAGE_KEYS.AUTH_TOKEN;

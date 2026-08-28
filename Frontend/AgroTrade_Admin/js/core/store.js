@@ -1,5 +1,3 @@
-
-
 class AdminStore {
   constructor() {
     this.init();
@@ -23,7 +21,6 @@ class AdminStore {
     }
   }
 
-  
   getUsers() {
     try {
       const data = localStorage.getItem(APP_CONSTANTS.STORAGE_KEYS.USERS);
@@ -37,7 +34,6 @@ class AdminStore {
     return this.getUsers().find(u => u.id === Number(id));
   }
 
-  
   getVerifications() {
     try {
       const data = localStorage.getItem(APP_CONSTANTS.STORAGE_KEYS.REQUESTS);
@@ -69,7 +65,6 @@ class AdminStore {
     req.fechaResolucion = new Date().toISOString();
     localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.REQUESTS, JSON.stringify(list));
 
-    
     const users = this.getUsers();
     const user = users.find(u => u.id === req.idUsuario);
     if (user) {
@@ -78,10 +73,8 @@ class AdminStore {
       localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.USERS, JSON.stringify(users));
     }
 
-    
     this.addActivity(`Verificación aprobada: ${req.nombreUsuario}`, 'verified', 'icon-green-bg');
 
-    
     const stats = this.getStats();
     if (stats.verificacionesPendientes > 0) stats.verificacionesPendientes -= 1;
     if (req.tipoRol === 'productor') stats.productores += 1;
@@ -109,7 +102,6 @@ class AdminStore {
     return { success: true, request: req };
   }
 
-  
   getCategories() {
     try {
       const data = localStorage.getItem(APP_CONSTANTS.STORAGE_KEYS.CATEGORIES);
@@ -130,8 +122,7 @@ class AdminStore {
     };
     categories.push(newCategory);
     localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
-    
-    
+
     const stats = this.getStats();
     stats.categorias = categories.length;
     localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.STATS, JSON.stringify(stats));
@@ -152,7 +143,6 @@ class AdminStore {
     this.addActivity(`Categoría eliminada`, 'category', 'icon-gray-bg');
   }
 
-  
   getActivities() {
     try {
       const data = localStorage.getItem(APP_CONSTANTS.STORAGE_KEYS.ACTIVITIES);

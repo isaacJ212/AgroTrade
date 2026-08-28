@@ -1,5 +1,3 @@
-
-
 .checklist-card {
   background-color: var(--bg-card);
   border: 1px solid var(--border-light);
@@ -56,7 +54,6 @@
   color: var(--text-secondary);
   line-height: 1.35;
 }
-
 
 .doc-review-preview-card {
   background-color: var(--bg-card);

@@ -6,12 +6,10 @@
   <title>Iniciar Sesión - AgroTrade Admin</title>
   <meta name="description" content="Acceso administrativo a la plataforma AgroTrade." />
 
-  
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  
   <link rel="stylesheet" href="css/base/variables.css" />
   <link rel="stylesheet" href="css/base/reset.css" />
   <link rel="stylesheet" href="css/components/buttons.css" />
@@ -34,7 +32,6 @@
       <p class="login-brand-sub">Panel de Control y Administración</p>
     </div>
 
-    
     <form id="adminLoginForm" class="login-form-body" novalidate>
       
       <div class="form-field-group">
@@ -57,7 +54,6 @@
         </div>
       </div>
 
-      
       <div class="form-field-group">
         <label for="adminPasswordInput" class="form-field-label">Contraseña</label>
         <div class="login-input-wrap">
@@ -84,7 +80,6 @@
         </div>
       </div>
 
-      
       <div class="login-extra-row">
         <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
           <input type="checkbox" checked />
@@ -93,7 +88,6 @@
         <a href="#" style="color:var(--primary); font-weight:600; text-decoration:none;" onclick="Toast.warning('Contacta al superadministrador para reestablecer tu clave')">¿Olvidaste tu clave?</a>
       </div>
 
-      
       <button type="submit" id="btnSubmitLogin" class="btn-primary" style="margin-top:4px;">
         <span>Ingresar al Panel</span>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -103,7 +97,6 @@
       </button>
     </form>
 
-    
     <div class="login-demo-access-box">
       <span class="login-demo-title">Acceso de Demostración:</span>
       <button type="button" id="btnDemoFill" class="login-demo-btn">
@@ -113,10 +106,8 @@
     </div>
   </main>
 
-  
   <div id="toastContainer" class="toast-box-container"></div>
 
-  
   <script src="js/config/constants.js"></script>
   <script src="js/core/store.js"></script>
   <script src="js/core/toast.js"></script>

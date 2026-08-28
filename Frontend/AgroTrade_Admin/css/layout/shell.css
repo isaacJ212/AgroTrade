@@ -1,6 +1,3 @@
-
-
-
 .app-container {
   width: 100%;
   max-width: 480px;
@@ -24,6 +21,21 @@
   }
 }
 
+.app-viewport {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+}
+
+.app-screen-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+}
 
 .subpage-header {
   position: sticky;
@@ -60,7 +72,6 @@
   color: var(--text-main);
   letter-spacing: -0.02em;
 }
-
 
 .main-app-header {
   display: flex;
@@ -118,7 +129,6 @@
   border: 2px solid #86efac;
 }
 
-
 .content-body {
   flex: 1;
   padding: 20px 20px 30px 20px;
@@ -127,7 +137,6 @@
   flex-direction: column;
   gap: 20px;
 }
-
 
 .bottom-navigation-bar {
   position: sticky;

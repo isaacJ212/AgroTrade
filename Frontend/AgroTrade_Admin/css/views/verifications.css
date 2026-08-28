@@ -1,6 +1,3 @@
-
-
-
 .review-applicant-banner {
   background-color: var(--bg-card);
   border: 1px solid var(--border-light);
@@ -50,7 +47,6 @@
   margin-top: 2px;
 }
 
-
 .farm-info-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -82,7 +78,6 @@
   color: var(--text-main);
   font-weight: 700;
 }
-
 
 .review-actions-group {
   display: flex;

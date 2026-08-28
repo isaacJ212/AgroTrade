@@ -1,6 +1,3 @@
-
-
-
 .user-detail-hero {
   display: flex;
   flex-direction: column;
@@ -41,7 +38,6 @@
   max-width: 90%;
   margin: 0 auto;
 }
-
 
 .admin-actions-card {
   background-color: var(--bg-card);
