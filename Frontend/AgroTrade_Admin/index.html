@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgroTrade Admin - Panel de Administración</title>
+  <meta name="description" content="Panel de administración web para la gestión, aprobación y auditoría de repartidores y productores de AgroTrade." />
+
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/modal.css" />
+</head>
+<body>
+
+
+  <div class="app-wrapper">
+
+>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+    <aside class="admin-sidebar" id="adminSidebar">
+  
+      <div class="sidebar-header">
+        <div class="sidebar-brand-logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path>
+            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path>
+          </svg>
+        </div>
+        <div class="sidebar-brand-info">
+          <span class="sidebar-brand-name">AgroTrade</span>
+          <span class="sidebar-brand-tag">Panel Administrativo</span>
+        </div>
+      </div>
+
+   
+      <nav class="sidebar-nav">
+   1
+        <div class="nav-group">
+          <span class="nav-group-title">Principal</span>
+          
+          <button class="sidebar-link active" data-tab="resumen">
+            <div class="sidebar-link-content">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+              </svg>
+              <span>Resumen</span>
+            </div>
+          </button>
+
+          <button class="sidebar-link" data-tab="solicitudes-repartidores">
+            <div class="sidebar-link-content">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="3" width="15" height="13"></rect>
+                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                <circle cx="18.5" cy="18.5" r="2.5"></circle>
+              </svg>
+              <span>Solicitudes Repartidores</span>
+            </div>
+            <span class="sidebar-counter-badge" id="sidebarRepartidoresBadge">2</span>
+          </button>
+
+          <button class="sidebar-link" data-tab="usuarios">
+            <div class="sidebar-link-content">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              <span>Usuarios y Productores</span>
+            </div>
+          </button>
+        </div>
+
+
+        <div class="nav-group">
+          <span class="nav-group-title">Gestión y Mercado</span>
+
+          <button class="sidebar-link" data-tab="catalogo">
+            <div class="sidebar-link-content">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m12 3 5 8H7l5-8Z"></path>
+                <circle cx="6.5" cy="18.5" r="3.5"></circle>
+                <rect x="14" y="15" width="7" height="7"></rect>
+              </svg>
+              <span>Catálogo y Rubros</span>
+            </div>
+          </button>
+
+          <button class="sidebar-link" data-tab="perfil">
+            <div class="sidebar-link-content">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="8" r="4"></circle>
+                <path d="M6 21v-2a6 6 0 0 1 12 0v2"></path>
+              </svg>
+              <span>Mi Perfil & Ajustes</span>
+            </div>
+          </button>
+        </div>
+      </nav>
+
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user-info">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" alt="Admin" class="sidebar-avatar" />
+          <div class="sidebar-user-text">
+            <span class="sidebar-user-name" id="sidebarUserName">Admin AgroTrade</span>
+            <span class="sidebar-user-role">Super Administrador</span>
+          </div>
+        </div>
+        <button class="sidebar-logout-btn" id="sidebarLogoutBtn" title="Cerrar sesión" aria-label="Cerrar sesión">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+    </aside>
+
+
+    <div class="admin-main-wrapper">
+
+      <header class="admin-topbar">
+        <div class="topbar-left">
+
+          <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Abrir menú">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+
+
+          <div class="topbar-search-box">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input 
+              type="text" 
+              class="topbar-search-input" 
+              id="globalSearchInput" 
+              placeholder="Buscar postulante, repartidor, cédula o placa..." 
+            />
+          </div>
+        </div>
+
+        <div class="topbar-right">
+
+          <div class="topbar-pill-status">
+            <span class="topbar-pill-dot"></span>
+            <span>Sistema Activo</span>
+          </div>
+
+
+          <button class="topbar-icon-btn" id="topbarNotifBtn" aria-label="Notificaciones">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span class="topbar-notif-badge"></span>
+          </button>
+        </div>
+      </header>
+
+
+      <main class="admin-page-content">
+
+
+        <section id="view-resumen" class="tab-view">
+   
+          <div class="page-header" style="margin-bottom: 24px;">
+            <h1 class="page-title">Resumen</h1>
+            <p class="page-subtitle">Supervisá la actividad principal de AgroTrade.</p>
+          </div>
+
+      
+          <div class="stats-grid" style="margin-bottom: 30px;">
+ 
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <div class="stat-icon icon-blue">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                </div>
+                <span class="stat-badge badge-blue">+12%</span>
+              </div>
+              <div class="stat-card-body">
+                <span class="stat-label">USUARIOS REGISTRADOS</span>
+                <span class="stat-value" id="statUsers">248</span>
+              </div>
+            </div>
+
+     
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <div class="stat-icon icon-green">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="6" cy="18" r="3"></circle>
+                    <circle cx="18" cy="18" r="3"></circle>
+                    <path d="M3 18h12v-6H8l-2 3H3"></path>
+                    <path d="M14 9V4h-4"></path>
+                  </svg>
+                </div>
+                <span class="stat-badge badge-green">+5%</span>
+              </div>
+              <div class="stat-card-body">
+                <span class="stat-label">PRODUCTORES</span>
+                <span class="stat-value" id="statProducers">86</span>
+              </div>
+            </div>
+
+       
+            <div class="stat-card stat-amber">
+              <div class="stat-card-header">
+                <div class="stat-icon icon-amber">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    <path d="m9 12 2 2 4-4"></path>
+                  </svg>
+                </div>
+                <span class="status-dot-amber"></span>
+              </div>
+              <div class="stat-card-body">
+                <span class="stat-label">VERIFICACIONES PENDIENTES</span>
+                <span class="stat-value" id="statPending">7</span>
+              </div>
+            </div>
+
+      
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <div class="stat-icon icon-dark">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m12 3 5 8H7l5-8Z"></path>
+                    <circle cx="6.5" cy="18.5" r="3.5"></circle>
+                    <rect x="14" y="15" width="7" height="7"></rect>
+                  </svg>
+                </div>
+              </div>
+              <div class="stat-card-body">
+                <span class="stat-label">CATEGORÍAS</span>
+                <span class="stat-value" id="statCategories">12</span>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="dashboard-grid-layout">
+            
+    
+            <section class="section-container">
+              <div class="section-header">
+                <div class="section-title-wrap">
+                  <h2 class="section-title">Pendientes de revisión</h2>
+                  <span class="section-badge-count" id="pendingCountBadge">2 activas</span>
+                </div>
+                <a href="#" class="section-action-link" id="viewAllPendingBtn">Ver todas las solicitudes →</a>
+              </div>
+
+      
+              <div class="review-cards-list" id="pendingReviewsList">
+           
+              </div>
+            </section>
+
+     
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+      
+              <div class="activity-card">
+                <div class="activity-card-header">
+                  <h3 class="activity-card-title">Actividad reciente</h3>
+                </div>
+                <ul class="activity-list" id="recentActivityList">
+              
+                </ul>
+                <div class="activity-footer">
+                  <button type="button" class="activity-footer-btn" onclick="deliveryManager.showToast('Registro de auditoría actualizado', 'success')">
+                    Ver historial completo
+                  </button>
+                </div>
+              </div>
+
+    
+              <div style="background: linear-gradient(135deg, #066334 0%, #034b27 100%); border-radius: var(--radius-lg); padding: 22px; color: #ffffff; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow-card);">
+                <div style="font-weight: 800; font-size: 1.1rem;">Gestión de Entregas</div>
+                <p style="font-size: 0.85rem; color: #d1fae5; line-height: 1.45;">
+                  Verifica la documentación reglamentaria de los nuevos repartidores para garantizar la trazabilidad de los envíos del campo al consumidor.
+                </p>
+                <button class="btn btn-approve" style="background: #ffffff; color: var(--primary); align-self: flex-start; margin-top: 6px;" onclick="window.app.switchTab('solicitudes-repartidores')">
+                  <span>Ir a Solicitudes</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+   
+        <section id="view-solicitudes-repartidores" class="tab-view hidden">
+          <div class="page-header" style="margin-bottom: 20px;">
+            <h1 class="page-title">Solicitudes de Repartidores</h1>
+            <p class="page-subtitle">Revisa, aprueba o rechaza a los postulantes para el servicio de logística y distribución.</p>
+          </div>
+
+          
+          <div class="data-table-card">
+            <div class="data-table-toolbar">
+              <div class="filter-pills-bar">
+                <button class="filter-pill active" onclick="window.app.filterRequests('all')">Todos</button>
+                <button class="filter-pill" onclick="window.app.filterRequests('pending')">Pendientes</button>
+                <button class="filter-pill" onclick="window.app.filterRequests('approved')">Aprobados</button>
+                <button class="filter-pill" onclick="window.app.filterRequests('rejected')">Rechazados</button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Postulante</th>
+                    <th>Cédula</th>
+                    <th>Vehículo / Placa</th>
+                    <th>Zona</th>
+                    <th>Estado</th>
+                    <th style="text-align: right;">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="deliveryRequestsTableBody">
+             
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        
+        <section id="view-usuarios" class="tab-view hidden">
+          <div class="page-header" style="margin-bottom: 20px;">
+            <h1 class="page-title">Usuarios y Productores</h1>
+            <p class="page-subtitle">Directorio de productores certificados y usuarios registrados en AgroTrade.</p>
+          </div>
+          <div id="allUsersList" class="review-cards-list">
+          </div>
+        </section>
+
+ 
+        <section id="view-catalogo" class="tab-view hidden">
+          <div class="page-header" style="margin-bottom: 20px;">
+            <h1 class="page-title">Catálogo y Categorías Agrícolas</h1>
+            <p class="page-subtitle">Administra los rubros de producción agrícola y la oferta de productos en el mercado.</p>
+          </div>
+          <div id="catalogCategoriesList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;">
+    
+          </div>
+        </section>
+
+
+        <section id="view-perfil" class="tab-view hidden">
+          <div class="page-header" style="margin-bottom: 20px;">
+            <h1 class="page-title">Mi Perfil y Configuración</h1>
+            <p class="page-subtitle">Información del administrador del sistema AgroTrade.</p>
+          </div>
+          
+          <div class="review-card" style="max-width: 600px; padding: 28px;">
+            <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80" alt="Admin" style="width: 74px; height: 74px; border-radius: var(--radius-full); border: 3px solid var(--primary);" />
+              <div>
+                <h2 id="profileName" style="font-size: 1.3rem; font-weight: 800; color: var(--text-main);">Administrador AgroTrade</h2>
+                <p id="profileEmail" style="font-size: 0.9rem; color: var(--text-secondary);">admin@agrotrade.com</p>
+                <span class="badge badge-green" style="margin-top: 6px;">Super Administrador</span>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px; border-top: 1px solid var(--border-light); padding-top: 20px;">
+              <div class="detail-field">
+                <span class="detail-label">Endpoint de API Conectado:</span>
+                <span class="detail-value" style="color: var(--primary); font-family: monospace;">http:
+              </div>
+              <div class="detail-field">
+                <span class="detail-label">Estado de la Base de Datos:</span>
+                <span class="detail-value" style="color: #16a34a;">Sincronizado / Operativo</span>
+              </div>
+            </div>
+
+            <button id="logoutBtn" class="btn btn-reject" style="margin-top: 24px; align-self: flex-start;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+              <span>Cerrar Sesión</span>
+            </button>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+
+    <div class="modal-backdrop" id="reviewModal" role="dialog" aria-modal="true">
+      <div class="modal-container">
+        
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <div>
+              <div class="modal-title" id="modalApplicantName">Cargando...</div>
+              <span id="modalApplicantRole" class="badge badge-blue">Repartidor</span>
+            </div>
+          </div>
+          <button class="modal-close-btn" id="closeModalBtn" aria-label="Cerrar modal">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+
+        <div class="modal-body">
+
+          <div class="detail-section">
+            <div class="detail-section-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <span>Identificación y Cobertura</span>
+            </div>
+            <div class="detail-grid">
+              <div class="detail-field">
+                <span class="detail-label">Cédula de Identidad</span>
+                <span class="detail-value" id="modalCedula">-</span>
+              </div>
+              <div class="detail-field">
+                <span class="detail-label">Departamento</span>
+                <span class="detail-value" id="modalDepartamento">-</span>
+              </div>
+              <div class="detail-field">
+                <span class="detail-label">Zona de Operaciones</span>
+                <span class="detail-value" id="modalZona">-</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+              <span>Vehículo de Transporte</span>
+            </div>
+            <div class="detail-grid">
+              <div class="detail-field">
+                <span class="detail-label">Tipo de Transporte</span>
+                <span class="detail-value" id="modalVehiculo">-</span>
+              </div>
+              <div class="detail-field">
+                <span class="detail-label">Placa</span>
+                <span class="detail-value" id="modalPlaca">-</span>
+              </div>
+              <div class="detail-field">
+                <span class="detail-label">Marca / Modelo</span>
+                <span class="detail-value" id="modalMarca">-</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+              <span>Datos Bancarios para Transferencias</span>
+            </div>
+            <div class="detail-grid">
+              <div class="detail-field">
+                <span class="detail-label">Banco</span>
+                <span class="detail-value" id="modalBanco">-</span>
+              </div>
+              <div class="detail-field" style="grid-column: span 2;">
+                <span class="detail-label">Número de Cuenta</span>
+                <span class="detail-value" id="modalCuenta">-</span>
+              </div>
+            </div>
+          </div>
+
+    
+          <div class="detail-section">
+            <div class="detail-section-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              <span>Documentos Reglamentarios (Clic para inspeccionar)</span>
+            </div>
+            <div class="docs-gallery" id="modalDocsGallery">
+    
+            </div>
+          </div>
+
+     
+          <div class="decision-form">
+            <div class="form-group">
+              <label for="reviewCommentInput" class="form-label">
+                Observaciones / Motivo de Resolución <span class="req">* (Obligatorio en caso de rechazo)</span>
+              </label>
+              <textarea 
+                id="reviewCommentInput" 
+                class="form-textarea" 
+                placeholder="Escribe comentarios o feedback para el solicitante sobre su postulación..."
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="modal-footer">
+          <button type="button" id="btnRejectRequest" class="btn btn-reject">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+            <span>Rechazar Solicitud</span>
+          </button>
+          
+          <button type="button" id="btnApproveRequest" class="btn btn-approve">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>Aceptar y Habilitar</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="image-viewer-modal" id="imageViewerModal">
+      <button class="image-viewer-close" id="closeImageViewerBtn" aria-label="Cerrar visor">✕</button>
+      <img src="" alt="Documento" id="imageViewerImg" class="image-viewer-img" />
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+  </div>
+
+
+  <script src="js/config.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/delivery-requests.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
