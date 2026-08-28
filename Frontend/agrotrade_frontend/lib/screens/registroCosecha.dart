@@ -1,3 +1,4 @@
+import 'package:agrotrade_frontend/screens/calculadoraPrecioJusto.dart';
 import 'package:flutter/material.dart';
 import '../ui/app_theme.dart';
 import '../ui/components.dart';
@@ -287,7 +288,10 @@ void _calcularPrecioJusto() async {
             label: 'Calcular Precio Justo',
             color: AppColors.amber,
             textColor: AppColors.titleDark,
-            onPressed: _calcularPrecioJusto,
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const CalculadoraPrecioJusto()),
+            ),
           ),
         ],
       ),
