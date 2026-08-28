@@ -1,13 +1,12 @@
-import 'package:agrotrade_frontend/screens/onBoarding.dart';
-import 'package:agrotrade_frontend/screens/registro.dart';
-import 'package:agrotrade_frontend/screens/resetPassword.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/diagnostics.dart';
-import '../ui/app_theme.dart';
-import '../ui/components.dart';
+import '../../../services/api_client.dart';
+import '../../../services/auth_api_service.dart';
+import '../../../ui/app_theme.dart';
+import '../../../ui/components.dart';
+import '../onboarding/onBoarding.dart';
+import 'registro.dart';
+import 'resetPassword.dart';
 import 'roleSelection.dart';
-import '../services/auth_api_service.dart';
-import '../services/api_client.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
