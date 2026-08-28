@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import '../ui/app_theme.dart';
-import '../services/api_client.dart';
-import '../services/delivery_api_service.dart';
 import 'recogerPedidoRepartidor.dart';
 
 class AceptarEntregaRepartidor extends StatelessWidget {

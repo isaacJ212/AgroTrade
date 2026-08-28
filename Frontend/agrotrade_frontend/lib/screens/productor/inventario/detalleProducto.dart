@@ -1,9 +1,9 @@
-import 'package:agrotrade_frontend/screens/calculadoraPrecioJusto.dart';
 import 'package:flutter/material.dart';
-import '../ui/app_theme.dart';
-import '../ui/components.dart';
-import 'inventarioProductor.dart'; 
-import 'inicioProductor.dart';     
+import '../../../ui/app_theme.dart';
+import '../../../ui/components.dart';
+import '../precio_justo/calculadoraPrecioJusto.dart';
+import '../inicioProductor.dart';
+import 'inventarioProductor.dart';     
 
 
 class DetalleProducto extends StatefulWidget {

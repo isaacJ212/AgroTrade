@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../ui/app_theme.dart';
+import '../../ui/app_theme.dart';
 import 'entregaEnCursoRepartidor.dart';
 
 class RecogerPedidoRepartidor extends StatelessWidget {

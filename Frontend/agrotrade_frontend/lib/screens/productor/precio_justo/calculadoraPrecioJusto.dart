@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../ui/app_theme.dart';
-import '../ui/components.dart';
-import '../ui/widgets/app_dropdown.dart';
-import 'inicioProductor.dart';
+import '../../../ui/app_theme.dart';
+import '../../../ui/components.dart';
+import '../../../ui/widgets/app_dropdown.dart';
+import '../inicioProductor.dart';
 import 'resultadoPrecioJusto.dart';
 
 

@@ -1,4 +1,3 @@
-
 import 'package:agrotrade_frontend/screens/homeRepartidor.dart';
 import 'package:agrotrade_frontend/screens/inventarioProductor.dart';
 import 'package:agrotrade_frontend/screens/registroCosecha.dart';
@@ -26,10 +25,7 @@ class AgroTradeApp extends StatelessWidget {
           iconTheme: IconThemeData(color: AppColors.TextMain),
         ),
       ),
-
       home: const RegistroCosecha(),
-
-
     );
   }
 }

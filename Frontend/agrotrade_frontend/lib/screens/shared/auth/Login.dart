@@ -1,6 +1,8 @@
+import 'package:agrotrade_frontend/screens/onBoarding.dart';
 import 'package:agrotrade_frontend/screens/registro.dart';
 import 'package:agrotrade_frontend/screens/resetPassword.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/src/foundation/diagnostics.dart';
 import '../ui/app_theme.dart';
 import '../ui/components.dart';
 import 'roleSelection.dart';
