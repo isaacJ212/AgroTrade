@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../ui/app_theme.dart';
-import '../ui/components.dart';
-import '../ui/widgets/app_text_field.dart';
-import '../ui/widgets/buttons.dart';
-import '../ui/widgets/app_dropdown.dart';
+import '../../../ui/app_theme.dart';
+import '../../../ui/components.dart';
+import '../../../ui/widgets/app_text_field.dart';
+import '../../../ui/widgets/buttons.dart';
+import '../../../ui/widgets/app_dropdown.dart';
 import 'registroCosecha.dart'; 
 
 class AgregarProducto extends StatefulWidget {

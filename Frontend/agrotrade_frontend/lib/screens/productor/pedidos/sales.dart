@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../ui/app_theme.dart';
-import '../../ui/components.dart';
-import 'profile.dart';
+import '../../../ui/app_theme.dart';
+import '../../../ui/components.dart';
+import '../../shared/profile.dart';
 
 class Sales extends StatefulWidget {
   const Sales({super.key});

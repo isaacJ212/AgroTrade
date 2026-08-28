@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../ui/app_theme.dart';
-import '../ui/components.dart'; 
-import '../ui/widgets/buttons.dart'; 
+import '../../../ui/app_theme.dart';
+import '../../../ui/components.dart';
+import '../../../ui/widgets/buttons.dart'; 
 
 
 class ResultadoPrecioJusto extends StatelessWidget {

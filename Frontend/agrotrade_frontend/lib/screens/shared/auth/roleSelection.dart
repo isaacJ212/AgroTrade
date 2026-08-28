@@ -1,13 +1,12 @@
-import 'package:agrotrade_frontend/screens/homeRepartidor.dart';
 import 'package:flutter/foundation.dart';
-
-import 'Login.dart';
-import 'onBoarding.dart';
 import 'package:flutter/material.dart';
-import '../ui/app_theme.dart';
-import '../ui/components.dart';
-import 'inicioProductor.dart';
+import '../../../ui/app_theme.dart';
+import '../../../ui/components.dart';
 import 'package:agrotrade_frontend/models/rol.dart';
+import 'package:agrotrade_frontend/screens/repartidor/homeRepartidor.dart';
+import 'package:agrotrade_frontend/screens/productor/inicioProductor.dart';
+import '../onboarding/onBoarding.dart';
+import 'Login.dart';
 
 class Roleselection extends StatefulWidget {
   const Roleselection({super.key});

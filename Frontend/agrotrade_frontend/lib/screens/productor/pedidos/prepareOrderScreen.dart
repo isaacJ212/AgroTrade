@@ -1,8 +1,8 @@
-import 'package:agrotrade_frontend/screens/producer/orderDetailScreen.dart';
 import 'package:flutter/material.dart';
-import 'package:agrotrade_frontend/screens/sales.dart';
-import '../../ui/app_theme.dart';
-import '../../ui/components.dart';
+import '../../../ui/app_theme.dart';
+import '../../../ui/components.dart';
+import 'orderDetailScreen.dart';
+import 'sales.dart';
 
 class PrepareOrderScreen extends StatelessWidget {
   const PrepareOrderScreen({super.key});

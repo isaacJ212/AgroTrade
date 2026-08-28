@@ -1,11 +1,11 @@
-import 'package:agrotrade_frontend/screens/calculadoraPrecioJusto.dart';
 import 'package:flutter/material.dart';
-import '../ui/app_theme.dart';
-import '../ui/components.dart';
-import '../ui/widgets/app_text_field.dart';
-import '../ui/widgets/buttons.dart';
-import 'inicioProductor.dart';
-import 'resultadoPrecioJusto.dart';
+import '../../../ui/app_theme.dart';
+import '../../../ui/components.dart';
+import '../../../ui/widgets/app_text_field.dart';
+import '../../../ui/widgets/buttons.dart';
+import '../inicioProductor.dart';
+import '../precio_justo/calculadoraPrecioJusto.dart';
+import '../precio_justo/resultadoPrecioJusto.dart';
 
 
 class RegistroCosecha extends StatefulWidget {

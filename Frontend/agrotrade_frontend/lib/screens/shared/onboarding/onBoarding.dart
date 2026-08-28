@@ -1,7 +1,7 @@
-import 'package:agrotrade_frontend/screens/roleSelection.dart';
+import 'package:agrotrade_frontend/screens/shared/auth/roleSelection.dart';
 import 'package:flutter/material.dart';
-import '../ui/app_theme.dart';
-import '../ui/components.dart';
+import '../../../ui/app_theme.dart';
+import '../../../ui/components.dart';
 
 class OnBoarding extends StatefulWidget {
   const OnBoarding({super.key});

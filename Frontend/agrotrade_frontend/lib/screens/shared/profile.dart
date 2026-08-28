@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
-import 'sales.dart';
+import '../productor/pedidos/sales.dart';
 
 class Profile extends StatelessWidget {
   const Profile({super.key});

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../ui/app_theme.dart';
-import '../ui/components.dart';
-import 'inicioProductor.dart';
+import '../../../ui/app_theme.dart';
+import '../../../ui/components.dart';
+import '../inicioProductor.dart';
 import 'detalleProducto.dart';
 import 'registroCosecha.dart';
 import 'agregarProducto.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../ui/app_theme.dart';
-import '../ui/widgets/repartidor_bottom_nav.dart';
+import '../../ui/app_theme.dart';
+import '../../ui/widgets/repartidor_bottom_nav.dart';
 import 'confirmarEntregaRepartidor.dart';
 import 'homeRepartidor.dart';
 import 'rutaEntregaRepartidor.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../ui/app_theme.dart';
+import '../../ui/app_theme.dart';
 import 'aceptarEntregaRepartidor.dart';
 
 class DetalleEntregaRepartidor extends StatelessWidget {
