@@ -18,6 +18,7 @@ class EntregaDetalleCard extends StatelessWidget {
   Color get _colorEstado {
     switch (entrega.estado) {
       case 'Completado':
+      case 'Entregado':
         return AppColors.bodyText;
       case 'En curso':
         return AppColors.accentBlue;
@@ -29,64 +30,77 @@ class EntregaDetalleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.White,
         borderRadius: BorderRadius.circular(12),
-        border: Border(
-          left: BorderSide(color: _colorEstado, width: 4),
-          top: BorderSide(color: AppColors.cardBorder),
-          right: BorderSide(color: AppColors.cardBorder),
-          bottom: BorderSide(color: AppColors.cardBorder),
-        ),
+        border: Border.all(color: AppColors.cardBorder),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const SizedBox(width: 8),
-              ChipEstado(texto: entrega.estado, color: _colorEstado),
-              const Spacer(),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    entrega.horaLabel,
-                    style: AppTextStyles.SubTitle.copyWith(fontSize: 11),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            entrega.zonaEntrega,
-            style: AppTextStyles.cardTitle.copyWith(fontSize: 18),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.scaffoldBg,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Column(
-              children: [
-                _filaRuta(
-                  Icons.location_on_outlined,
-                  'Recogida',
-                  entrega.zonaEntrega,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(width: 4, color: _colorEstado),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        ChipEstado(texto: entrega.estado, color: _colorEstado),
+                        const Spacer(),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              entrega.horaLabel,
+                              style: AppTextStyles.SubTitle.copyWith(
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      entrega.zonaEntrega,
+                      style: AppTextStyles.cardTitle.copyWith(fontSize: 18),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.scaffoldBg,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        children: [
+                          _filaRuta(
+                            Icons.location_on_outlined,
+                            'Recogida',
+                            entrega.zonaEntrega,
+                          ),
+                          const SizedBox(height: 10),
+                          _filaRuta(
+                            Icons.flag_outlined,
+                            'Destino',
+                            entrega.zonaEntrega,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    _footer(),
+                  ],
                 ),
-                const SizedBox(height: 10),
-                _filaRuta(Icons.flag_outlined, 'Destino', entrega.zonaEntrega),
-              ],
+              ),
             ),
-          ),
-          const SizedBox(height: 14),
-          _footer(),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -131,6 +145,7 @@ class EntregaDetalleCard extends StatelessWidget {
           ),
         );
       case 'Completado':
+      case 'Entregado':
         return Row(
           children: [
             const Icon(

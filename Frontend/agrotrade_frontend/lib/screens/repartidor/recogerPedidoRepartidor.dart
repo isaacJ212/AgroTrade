@@ -2,13 +2,24 @@ import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import 'entregaEnCursoRepartidor.dart';
 
-class RecogerPedidoRepartidor extends StatelessWidget {
+class RecogerPedidoRepartidor extends StatefulWidget {
   const RecogerPedidoRepartidor({super.key});
 
+  @override
+  State<RecogerPedidoRepartidor> createState() => _RecogerPedidoRepartidorState();
+}
+
+class _RecogerPedidoRepartidorState extends State<RecogerPedidoRepartidor> {
   static const String _producerImage =
       'https://www.figma.com/api/mcp/asset/ca883b8c-523e-4bc0-ad54-149aa66d2ef6.png';
 
-  void _showSnack(BuildContext context, String message) {
+  final Map<String, bool> _items = {
+    'Tomate': false,
+    'Naranja': false,
+    'Limón': false,
+  };
+
+  void _showSnack(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -16,6 +27,16 @@ class RecogerPedidoRepartidor extends StatelessWidget {
         backgroundColor: AppColors.primaryColor,
       ),
     );
+  }
+
+  int get _checkedCount => _items.values.where((value) => value).length;
+
+  bool get _canConfirm => _checkedCount == _items.length;
+
+  void _toggleItem(String name) {
+    setState(() {
+      _items[name] = !(_items[name] ?? false);
+    });
   }
 
   @override
@@ -40,88 +61,122 @@ class RecogerPedidoRepartidor extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            onPressed: () => _showSnack(context, 'Notificaciones'),
-            icon: const Icon(Icons.notifications_outlined, color: AppColors.bodyText),
+            onPressed: () => _showSnack('Notificaciones'),
+            icon: const Icon(
+              Icons.notifications_outlined,
+              color: AppColors.bodyText,
+            ),
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: AppColors.primarySoftBg,
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.local_shipping_outlined, color: AppColors.primarySoft, size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    'En recogida',
-                    style: AppTextStyles.label.copyWith(fontSize: 14, color: AppColors.primarySoft),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            const _ProgressCard(),
-            const SizedBox(height: 24),
-            const _ProducerCard(imageUrl: _producerImage),
-            const SizedBox(height: 24),
-            const _ChecklistCard(),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const EntregaEnCursoRepartidor(),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final bodyWidth = constraints.maxWidth > 600 ? 600.0 : constraints.maxWidth;
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: bodyWidth),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: AppColors.primarySoftBg,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.local_shipping_outlined,
+                            color: AppColors.primarySoft,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '$_checkedCount de ${_items.length} listos',
+                            style: AppTextStyles.label.copyWith(
+                              fontSize: 14,
+                              color: AppColors.primarySoft,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  );
-                },
-                icon: const Icon(Icons.inventory_2_outlined, size: 20),
-                label: const Text(
-                  'Confirmar recogida',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28),
-                  ),
+                    const SizedBox(height: 24),
+                    const _ProgressCard(),
+                    const SizedBox(height: 24),
+                    _ProducerCard(
+                      imageUrl: _producerImage,
+                      onCall: () => _showSnack('Llamando a la finca'),
+                    ),
+                    const SizedBox(height: 24),
+                    _ChecklistCard(
+                      items: _items,
+                      onToggle: _toggleItem,
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton.icon(
+                        onPressed: _canConfirm
+                            ? () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const EntregaEnCursoRepartidor(),
+                                  ),
+                                );
+                              }
+                            : null,
+                        icon: const Icon(Icons.inventory_2_outlined, size: 20),
+                        label: Text(
+                          _canConfirm ? 'Confirmar recogida' : 'Marcá todo para confirmar',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryColor,
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor: AppColors.primaryColor.withOpacity(0.45),
+                          disabledForegroundColor: AppColors.fabIcon,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(28),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: OutlinedButton(
+                        onPressed: () => _showSnack('Faltante reportado'),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: AppColors.accentBlue, width: 2),
+                          foregroundColor: AppColors.accentBlue,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(28),
+                          ),
+                        ),
+                        child: const Text(
+                          'Reportar faltante',
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: OutlinedButton(
-                onPressed: () => _showSnack(context, 'Faltante reportado'),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: AppColors.accentBlue, width: 2),
-                  foregroundColor: AppColors.accentBlue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28),
-                  ),
-                ),
-                child: const Text(
-                  'Reportar faltante',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                ),
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -159,32 +214,16 @@ class _ProgressCard extends StatelessWidget {
             ),
           ),
           SizedBox(height: 16),
-          _StepRow(
-            active: false,
-            completed: true,
-            title: 'Entrega aceptada',
-          ),
+          _StepRow(active: false, completed: true, title: 'Entrega aceptada'),
           _StepRow(
             active: true,
             completed: false,
             title: 'Llegada a la finca',
             subtitle: 'Estás en el punto de recogida',
           ),
-          _StepRow(
-            active: false,
-            completed: false,
-            title: 'Pedido recibido',
-          ),
-          _StepRow(
-            active: false,
-            completed: false,
-            title: 'En camino',
-          ),
-          _StepRow(
-            active: false,
-            completed: false,
-            title: 'Entregado',
-          ),
+          _StepRow(active: false, completed: false, title: 'Pedido recibido'),
+          _StepRow(active: false, completed: false, title: 'En camino'),
+          _StepRow(active: false, completed: false, title: 'Entregado'),
         ],
       ),
     );
@@ -206,8 +245,12 @@ class _StepRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color circleColor = completed || active ? AppColors.primarySoft : AppColors.cardBorder;
-    final Color textColor = completed || active ? AppColors.primarySoft : AppColors.bodyText;
+    final Color circleColor = completed || active
+        ? AppColors.primarySoft
+        : AppColors.cardBorder;
+    final Color textColor = completed || active
+        ? AppColors.primarySoft
+        : AppColors.bodyText;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -226,7 +269,11 @@ class _StepRow extends StatelessWidget {
               ),
             ),
             child: Icon(
-              completed ? Icons.check : active ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+              completed
+                  ? Icons.check
+                  : active
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_unchecked,
               color: completed || active ? Colors.white : Colors.white,
               size: 20,
             ),
@@ -240,7 +287,10 @@ class _StepRow extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: AppTextStyles.label.copyWith(fontSize: 14, color: textColor),
+                    style: AppTextStyles.label.copyWith(
+                      fontSize: 14,
+                      color: textColor,
+                    ),
                   ),
                   if (subtitle != null) ...[
                     const SizedBox(height: 4),
@@ -261,8 +311,9 @@ class _StepRow extends StatelessWidget {
 
 class _ProducerCard extends StatelessWidget {
   final String imageUrl;
+  final VoidCallback onCall;
 
-  const _ProducerCard({required this.imageUrl});
+  const _ProducerCard({required this.imageUrl, required this.onCall});
 
   @override
   Widget build(BuildContext context) {
@@ -303,7 +354,11 @@ class _ProducerCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(Icons.location_on_outlined, size: 14, color: AppColors.bodyText),
+                    const Icon(
+                      Icons.location_on_outlined,
+                      size: 14,
+                      color: AppColors.bodyText,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       'Jinotepe',
@@ -321,7 +376,15 @@ class _ProducerCard extends StatelessWidget {
               color: AppColors.primarySoftBg,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.call_outlined, color: AppColors.primarySoft, size: 20),
+            child: InkWell(
+              onTap: onCall,
+              customBorder: const CircleBorder(),
+              child: const Icon(
+                Icons.call_outlined,
+                color: AppColors.primarySoft,
+                size: 20,
+              ),
+            ),
           ),
         ],
       ),
@@ -330,7 +393,13 @@ class _ProducerCard extends StatelessWidget {
 }
 
 class _ChecklistCard extends StatelessWidget {
-  const _ChecklistCard();
+  final Map<String, bool> items;
+  final ValueChanged<String> onToggle;
+
+  const _ChecklistCard({
+    required this.items,
+    required this.onToggle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -352,18 +421,36 @@ class _ChecklistCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Verificá el pedido', style: AppTextStyles.label.copyWith(fontSize: 16)),
+          Text(
+            'Verificá el pedido',
+            style: AppTextStyles.label.copyWith(fontSize: 16),
+          ),
           const SizedBox(height: 6),
           Text(
             'Revisá que todos los productos estén listos antes de continuar.',
             style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
           ),
           const SizedBox(height: 16),
-          const _ChecklistItem(name: 'Tomate', amount: '2 lb'),
+          _ChecklistItem(
+            name: 'Tomate',
+            amount: '2 lb',
+            isChecked: items['Tomate'] ?? false,
+            onChanged: (_) => onToggle('Tomate'),
+          ),
           const SizedBox(height: 10),
-          const _ChecklistItem(name: 'Naranja', amount: '2 doc'),
+          _ChecklistItem(
+            name: 'Naranja',
+            amount: '2 doc',
+            isChecked: items['Naranja'] ?? false,
+            onChanged: (_) => onToggle('Naranja'),
+          ),
           const SizedBox(height: 10),
-          const _ChecklistItem(name: 'Limón', amount: '1 lb'),
+          _ChecklistItem(
+            name: 'Limón',
+            amount: '1 lb',
+            isChecked: items['Limón'] ?? false,
+            onChanged: (_) => onToggle('Limón'),
+          ),
         ],
       ),
     );
@@ -373,43 +460,50 @@ class _ChecklistCard extends StatelessWidget {
 class _ChecklistItem extends StatelessWidget {
   final String name;
   final String amount;
+  final bool isChecked;
+  final ValueChanged<bool?>? onChanged;
 
   const _ChecklistItem({
     required this.name,
     required this.amount,
+    this.isChecked = false,
+    this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(13),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0x33BECABB)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: AppColors.chipGrey),
+    return InkWell(
+      onTap: () => onChanged?.call(!isChecked),
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(13),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0x33BECABB)),
+        ),
+        child: Row(
+          children: [
+            Checkbox(
+              value: isChecked,
+              onChanged: onChanged,
+              activeColor: AppColors.primaryColor,
             ),
-          ),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(name, style: AppTextStyles.label.copyWith(fontSize: 14)),
-              const SizedBox(height: 2),
-              Text(amount, style: AppTextStyles.SubTitle.copyWith(fontSize: 14)),
-            ],
-          ),
-        ],
+            const SizedBox(width: 16),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: AppTextStyles.label.copyWith(fontSize: 14)),
+                const SizedBox(height: 2),
+                Text(
+                  amount,
+                  style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
