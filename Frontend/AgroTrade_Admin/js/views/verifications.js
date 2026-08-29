@@ -1,19 +1,19 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   
   authService.guardRoute();
 
   if (document.getElementById('verificationsCardsContainer')) {
-    initVerificationsList();
+    await initVerificationsList();
   }
 
   if (document.getElementById('reviewApplicantName')) {
-    initReviewVerification();
+    await initReviewVerification();
   }
 });
 
 let currentVerifTab = 'pendientes';
 
-function initVerificationsList() {
+async function initVerificationsList() {
   const tabs = document.querySelectorAll('#verificationsFilterTabs .filter-tab-pill');
   tabs.forEach(tab => {
     const statusVal = tab.getAttribute('data-status');
@@ -23,22 +23,22 @@ function initVerificationsList() {
       tab.classList.remove('active');
     }
 
-    tab.onclick = () => {
+    tab.onclick = async () => {
       tabs.forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       currentVerifTab = statusVal;
-      renderVerificationsList();
+      await renderVerificationsList();
     };
   });
 
-  renderVerificationsList();
+  await renderVerificationsList();
 }
 
-function renderVerificationsList() {
+async function renderVerificationsList() {
   const container = document.getElementById('verificationsCardsContainer');
   if (!container) return;
 
-  const all = adminStore.getVerifications();
+  const all = await adminStore.getVerifications();
   let filtered = all;
 
   if (currentVerifTab === 'pendientes') {
@@ -93,11 +93,14 @@ function renderVerificationsList() {
 let currentVerificationRequest = null;
 let currentVerificationUser = null;
 
-function initReviewVerification() {
+async function initReviewVerification() {
   const params = new URLSearchParams(window.location.search);
   const idSolicitud = parseInt(params.get('idSolicitud') || params.get('id') || '1', 10);
-  currentVerificationRequest = adminStore.getVerificationById(idSolicitud) || adminStore.getVerifications()[0];
-  currentVerificationUser = adminStore.getUserById(currentVerificationRequest.idUsuario) || adminStore.getUsers()[0];
+  const reqs = await adminStore.getVerifications();
+  currentVerificationRequest = reqs.find(v => v.idSolicitud === idSolicitud) || reqs[0];
+  if(currentVerificationRequest) {
+    currentVerificationUser = adminStore.getUserById(currentVerificationRequest.idUsuario) || adminStore.getUsers()[0];
+  }
 
   const req = currentVerificationRequest;
   const user = currentVerificationUser;
@@ -140,9 +143,12 @@ function initReviewVerification() {
   }
 }
 
-function handleApprove() {
+async function handleApprove() {
   const comment = document.getElementById('reviewCommentsInput')?.value || '';
-  const res = adminStore.approveVerification(currentVerificationRequest.idSolicitud, comment);
+  const btn = document.getElementById('btnApproveVerificationAction');
+  if(btn) btn.disabled = true;
+  
+  const res = await adminStore.approveVerification(currentVerificationRequest.idSolicitud, comment);
 
   if (res.success) {
     Toast.success(`¡Verificación de ${currentVerificationRequest.nombreUsuario} aprobada exitosamente!`);
@@ -151,10 +157,11 @@ function handleApprove() {
     }, 500);
   } else {
     Toast.error('Error al procesar la aprobación');
+    if(btn) btn.disabled = false;
   }
 }
 
-function handleReject() {
+async function handleReject() {
   const comment = document.getElementById('reviewCommentsInput')?.value.trim();
   if (!comment) {
     Toast.warning('Por favor agrega un comentario o motivo para el rechazo.');
@@ -162,7 +169,10 @@ function handleReject() {
     return;
   }
 
-  const res = adminStore.rejectVerification(currentVerificationRequest.idSolicitud, comment);
+  const btn = document.getElementById('btnRejectVerificationAction');
+  if(btn) btn.disabled = true;
+
+  const res = await adminStore.rejectVerification(currentVerificationRequest.idSolicitud, comment);
   if (res.success) {
     Toast.error(`Solicitud de ${currentVerificationRequest.nombreUsuario} rechazada.`);
     setTimeout(() => {
@@ -170,6 +180,7 @@ function handleReject() {
     }, 500);
   } else {
     Toast.error('Error al procesar el rechazo');
+    if(btn) btn.disabled = false;
   }
 }
 

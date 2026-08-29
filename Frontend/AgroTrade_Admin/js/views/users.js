@@ -1,12 +1,12 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   authService.guardRoute();
 
   if (document.getElementById('usersCardsContainer')) {
-    initUserList();
+    await initUserList();
   }
 
   if (document.getElementById('userDetailAvatar')) {
-    initUserDetail();
+    await initUserDetail();
   }
 });
 
@@ -14,7 +14,7 @@ let currentUserTab = 'todas';
 let currentUserSearch = '';
 let currentUserLoaded = null;
 
-function initUserList() {
+async function initUserList() {
   const params = new URLSearchParams(window.location.search);
   const initialFilter = params.get('filter');
   if (initialFilter) {
@@ -38,22 +38,22 @@ function initUserList() {
       tab.classList.remove('active');
     }
 
-    tab.onclick = () => {
+    tab.onclick = async () => {
       filterTabs.forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       currentUserTab = filterValue;
-      renderUserList();
+      await renderUserList();
     };
   });
 
-  renderUserList();
+  await renderUserList();
 }
 
-function renderUserList() {
+async function renderUserList() {
   const container = document.getElementById('usersCardsContainer');
   if (!container) return;
 
-  let users = adminStore.getUsers();
+  let users = await adminStore.getUsers();
 
   if (currentUserTab === 'productores') {
     users = users.filter(u => u.tipoRol === 'productor');
@@ -122,10 +122,11 @@ function renderUserList() {
   }).join('');
 }
 
-function initUserDetail() {
+async function initUserDetail() {
   const params = new URLSearchParams(window.location.search);
   const userId = parseInt(params.get('userId') || params.get('id') || '101', 10);
-  currentUserLoaded = adminStore.getUserById(userId) || adminStore.getUsers()[0];
+  const allUsers = await adminStore.getUsers();
+  currentUserLoaded = allUsers.find(u => u.id === userId) || allUsers[0];
 
   if (!currentUserLoaded) return;
   renderUserDetailView();
@@ -137,8 +138,8 @@ function initUserDetail() {
 
   const toggleStatusBtn = document.getElementById('btnToggleUserStatus');
   if (toggleStatusBtn) {
-    toggleStatusBtn.onclick = () => {
-      const res = adminStore.toggleUserStatus(currentUserLoaded.id);
+    toggleStatusBtn.onclick = async () => {
+      const res = await adminStore.toggleUserStatus(currentUserLoaded.id);
       if (res.success) {
         currentUserLoaded = res.user;
         renderUserDetailView();
@@ -241,7 +242,7 @@ function closeEditUserModal() {
   if (modal) modal.classList.remove('active');
 }
 
-function saveUserEditAction() {
+window.saveUserEditAction = async function() {
   if (!currentUserLoaded) return;
 
   const fn = document.getElementById('editUserFullNameInput')?.value.trim();
@@ -255,7 +256,7 @@ function saveUserEditAction() {
     return;
   }
 
-  const res = adminStore.updateUser(currentUserLoaded.id, {
+  const res = await adminStore.updateUser(currentUserLoaded.id, {
     nombreCompleto: fn.split(' ').slice(0, 2).join(' ') || fn,
     nombreCompletoDetalle: fn,
     email: em,
