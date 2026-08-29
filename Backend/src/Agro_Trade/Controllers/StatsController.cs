@@ -10,7 +10,7 @@ namespace Agro_Trade.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Administrador")]
     public class StatsController : ControllerBase
     {
         private readonly IMediator _mediator;

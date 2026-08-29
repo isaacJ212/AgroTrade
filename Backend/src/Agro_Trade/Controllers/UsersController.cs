@@ -144,7 +144,7 @@ namespace Agro_Trade.Controllers
         /// </summary>
         /// <param name="id">ID numérico del usuario.</param>
         /// <param name="ct">Token de cancelación.</param>
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Administrador")]
         [HttpPatch("{id}/toggle-status")]
         public async Task<IActionResult> ToggleUserStatus(int id, CancellationToken ct)
         {

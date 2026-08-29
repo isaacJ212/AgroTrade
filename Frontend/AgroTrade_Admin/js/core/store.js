@@ -102,7 +102,7 @@ class AdminStore {
   async approveVerification(idSolicitud, comment = '') {
     try {
       if (typeof apiService !== 'undefined') {
-        await apiService.patch(`/DeliveryJobRequest/review/${idSolicitud}`, { estado: 'Aprobada', comentario: comment });
+        await apiService.patch(`/DeliveryJobRequest/review/${idSolicitud}`, { estado: 1, comentario: comment });
         this.addActivity(`Verificación aprobada ID: ${idSolicitud}`, 'verified', 'icon-green-bg');
         return { success: true };
       }
@@ -115,7 +115,7 @@ class AdminStore {
   async rejectVerification(idSolicitud, comment = '') {
     try {
       if (typeof apiService !== 'undefined') {
-        await apiService.patch(`/DeliveryJobRequest/review/${idSolicitud}`, { estado: 'Rechazada', comentario: comment });
+        await apiService.patch(`/DeliveryJobRequest/review/${idSolicitud}`, { estado: 2, comentario: comment });
         this.addActivity(`Verificación rechazada ID: ${idSolicitud}`, 'alert', 'icon-gray-bg');
         return { success: true };
       }
