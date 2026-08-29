@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
 import 'inicioComprador.dart';
+import 'seguimientoPedido.dart';
 
 class PedidoConfirmadoScreen extends StatelessWidget {
   const PedidoConfirmadoScreen({super.key});
@@ -55,14 +56,10 @@ class PedidoConfirmadoScreen extends StatelessWidget {
                 label: 'Ver seguimiento',
                 radius: 100,
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Seguimiento (próximamente)'),
-                      behavior: SnackBarBehavior.floating,
-                      backgroundColor: AppColors.primaryColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const SeguimientoPedidoScreen(),
                     ),
                   );
                 },

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
+import '../shared/profile.dart';
+import 'buscarProductos.dart';
+import 'carrito.dart';
 import 'inicioComprador.dart';
-
+import 'misPedidos.dart';
+import 'perfilProductor.dart';
 
 class ProductoMercado {
   final int id;
@@ -38,12 +42,9 @@ class ExploradorProductos extends StatefulWidget {
 class _ExploradorProductosState extends State<ExploradorProductos> {
   int _tabSel = 0;
   String _busqueda = '';
-
-  
   final Set<int> _favoritos = {};
 
   static const List<String> _tabLabels = ['Todos', 'Frutas', 'Cítricos', 'Verduras'];
-
 
   static const List<ProductoMercado> _productos = [
     ProductoMercado(
@@ -89,7 +90,6 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
     ),
   ];
 
-
   List<ProductoMercado> get _filtrados => _productos.where((p) {
         final porTab = _tabSel == 0 || p.categoria == _tabLabels[_tabSel];
         final texto = _busqueda.trim().toLowerCase();
@@ -106,7 +106,6 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
       duration: const Duration(seconds: 2),
     ));
   }
-
 
   void _toggleFavorito(int id) {
     setState(() {
@@ -127,7 +126,20 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
       );
       return;
     }
-    _mostrarSnack('Esta sección estará disponible pronto 🌱');
+    if (index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const MisPedidosScreen()),
+      );
+      return;
+    }
+    if (index == 3) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const Profile()),
+      );
+      return;
+    }
   }
 
   @override
@@ -165,26 +177,40 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
       padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
       child: Row(
         children: [
-          const Icon(Icons.menu, color: AppColors.titleDark, size: 22),
+          IconButton(
+            icon: const Icon(Icons.arrow_back, color: AppColors.titleDark),
+            onPressed: () {
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context);
+              } else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const InicioComprador()),
+                );
+              }
+            },
+          ),
           Expanded(
             child: Center(
               child: Text(
-                'AgroTrade',
-                style: AppTextStyles.wordmark.copyWith(fontSize: 22),
+                'Catálogo del Mercado',
+                style: AppTextStyles.Title.copyWith(fontSize: 18),
               ),
             ),
           ),
           IconButton(
             icon: const Icon(Icons.shopping_cart_outlined,
                 color: AppColors.titleDark, size: 22),
-            onPressed: () => _mostrarSnack('Carrito próximamente 🛒'),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const CarritoScreen()),
+            ),
           ),
         ],
       ),
     );
   }
 
-  
   Widget _filaBusqueda() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -196,7 +222,7 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
                 color: AppColors.screenBg,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppColors.inputBorderColor.withOpacity(0.5),
+                  color: AppColors.inputBorderColor.withValues(alpha: 0.5),
                 ),
               ),
               child: Row(
@@ -205,14 +231,13 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
                   const Icon(Icons.search, size: 20, color: AppColors.bodyText),
                   const SizedBox(width: 8),
                   Expanded(
-                    
                     child: TextField(
                       onChanged: (v) => setState(() => _busqueda = v),
                       decoration: InputDecoration(
                         hintText: 'Buscar productos',
                         hintStyle: AppTextStyles.SubTitle.copyWith(
                           fontSize: 13,
-                          color: AppColors.bodyText.withOpacity(0.7),
+                          color: AppColors.bodyText.withValues(alpha: 0.7),
                         ),
                         border: InputBorder.none,
                         contentPadding:
@@ -226,7 +251,10 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
           ),
           const SizedBox(width: 10),
           GestureDetector(
-            onTap: () => _mostrarSnack('Filtros avanzados próximamente ⚙️'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const BuscarProductos()),
+            ),
             child: Container(
               width: 46,
               height: 46,
@@ -242,7 +270,6 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
       ),
     );
   }
-
 
   Widget _tabs() {
     return SingleChildScrollView(
@@ -284,7 +311,6 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
     );
   }
 
-
   Widget _lista() {
     final productos = _filtrados;
     if (productos.isEmpty) {
@@ -292,7 +318,7 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.search_off, size: 40, color: AppColors.bodyText),
+            const Icon(Icons.search_off, size: 40, color: AppColors.bodyText),
             const SizedBox(height: 8),
             Text('No se encontraron productos',
                 style: AppTextStyles.cardTitle.copyWith(fontSize: 13)),
@@ -300,208 +326,205 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
         ),
       );
     }
+
     return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+      padding: const EdgeInsets.all(16),
       itemCount: productos.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 14),
-      itemBuilder: (context, i) => _ProductoExploradorCard(
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (_, i) => _ProductoCard(
         producto: productos[i],
-        favorito: _favoritos.contains(productos[i].id),
+        esFavorito: _favoritos.contains(productos[i].id),
         onFavorito: () => _toggleFavorito(productos[i].id),
         onAgregar: () => _agregar(productos[i].nombre),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const PerfilProductorScreen()),
+        ),
       ),
     );
   }
 }
 
-
-class _ProductoExploradorCard extends StatelessWidget {
+class _ProductoCard extends StatelessWidget {
   final ProductoMercado producto;
-  final bool favorito;
+  final bool esFavorito;
   final VoidCallback onFavorito;
   final VoidCallback onAgregar;
+  final VoidCallback onTap;
 
-  const _ProductoExploradorCard({
+  const _ProductoCard({
     required this.producto,
-    required this.favorito,
+    required this.esFavorito,
     required this.onFavorito,
     required this.onAgregar,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      clipBehavior: Clip.antiAlias, 
-      decoration: BoxDecoration(
-        color: AppColors.White,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.cardBorder),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1)),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-         
-          Stack(
-            children: [
-              Image.network(
-                producto.imagenUrl,
-                height: 170,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  height: 170,
-                  color: AppColors.tileBg,
-                  child: const Icon(Icons.image_not_supported_outlined,
-                      size: 32, color: AppColors.bodyText),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: AppColors.White,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.cardBorder),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                Image.network(
+                  producto.imagenUrl,
+                  height: 160,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    height: 160,
+                    color: AppColors.tileBg,
+                    child: const Icon(Icons.image_not_supported_outlined,
+                        size: 36, color: AppColors.bodyText),
+                  ),
                 ),
-              ),
-              Positioned(
-                top: 10,
-                right: 10,
-                child: GestureDetector(
-                  onTap: onFavorito,
+                Positioned(
+                  top: 10,
+                  left: 10,
                   child: Container(
-                    width: 36,
-                    height: 36,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppColors.White.withOpacity(0.9),
-                      shape: BoxShape.circle,
+                      color: AppColors.White.withValues(alpha: 0.9),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(
-                   
-                      favorito ? Icons.favorite : Icons.favorite_border,
-                      size: 18,
-                      color: favorito ? AppColors.amber : AppColors.bodyText,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.location_on_outlined,
+                            size: 13, color: AppColors.primaryColor),
+                        const SizedBox(width: 3),
+                        Text(
+                          producto.distancia,
+                          style: AppTextStyles.label.copyWith(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.titleDark,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        producto.nombre,
-                        style: AppTextStyles.productoTitle.copyWith(fontSize: 17),
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: GestureDetector(
+                    onTap: onFavorito,
+                    child: Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: AppColors.White.withValues(alpha: 0.9),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        esFavorito ? Icons.favorite : Icons.favorite_border,
+                        size: 18,
+                        color: esFavorito ? Colors.red : AppColors.titleDark,
                       ),
                     ),
-                   
-                    producto.pocoInventario
-                        ? StatusChip(
-                            label: 'Poco inventario',
-                            background: AppColors.chipGrey,
-                            color: AppColors.titleDark,
-                            icon: Icons.circle,
-                            iconColor: AppColors.amber,
-                            radius: 8,
-                          )
-                        : StatusChip(
-                            label: 'Disponible',
-                            background: AppColors.navPill,
-                            color: AppColors.primaryColor,
-                            icon: Icons.circle,
-                            radius: 8,
-                          ),
-                  ],
+                  ),
                 ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    const Icon(Icons.storefront_outlined,
-                        size: 14, color: AppColors.bodyText),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        producto.finca,
-                        style: AppTextStyles.SubTitle.copyWith(fontSize: 13),
+                if (producto.pocoInventario)
+                  Positioned(
+                    bottom: 10,
+                    left: 10,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.amberSoft,
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-              
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                'C\$ ${producto.precio.toStringAsFixed(2)}',
-                                style: AppTextStyles.statValue.copyWith(fontSize: 16),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 2, left: 3),
-                                child: Text(
-                                  '/${producto.unidad}',
-                                  style: AppTextStyles.SubTitle.copyWith(fontSize: 12),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              const Icon(Icons.location_on_outlined,
-                                  size: 14, color: AppColors.bodyText),
-                              const SizedBox(width: 4),
-                              Text(
-                                producto.distancia,
-                                style: AppTextStyles.SubTitle.copyWith(fontSize: 12),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                   
-                    GestureDetector(
-                      onTap: onAgregar,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryColor,
-                          borderRadius: BorderRadius.circular(24),
+                      child: const Text(
+                        'Poco inventario',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.amber,
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Icon(Icons.add_shopping_cart,
-                                color: AppColors.White, size: 16),
-                            SizedBox(width: 6),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          producto.nombre,
+                          style: AppTextStyles.label.copyWith(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.titleDark,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          producto.finca,
+                          style: AppTextStyles.SubTitle.copyWith(fontSize: 12),
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
                             Text(
-                              'Agregar',
-                              style: TextStyle(
-                                color: AppColors.White,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
+                              'C\$ ${producto.precio.toStringAsFixed(2)}',
+                              style: AppTextStyles.label.copyWith(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.primaryColor,
                               ),
+                            ),
+                            Text(
+                              ' / ${producto.unidad}',
+                              style: AppTextStyles.SubTitle.copyWith(fontSize: 12),
                             ),
                           ],
                         ),
+                      ],
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: onAgregar,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 10),
+                    ),
+                    child: const Text(
+                      'Agregar',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
                       ),
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

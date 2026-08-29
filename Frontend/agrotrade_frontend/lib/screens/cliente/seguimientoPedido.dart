@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
-import '../../ui/components.dart';
+import 'inicioComprador.dart';
 
 class SeguimientoPedidoScreen extends StatelessWidget {
   const SeguimientoPedidoScreen({super.key});
-
-  static const int _pasoActivo = 1;
 
   static const List<_PasoEnvio> _pasos = [
     _PasoEnvio(
@@ -44,7 +42,16 @@ class SeguimientoPedidoScreen extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.titleDark),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const InicioComprador()),
+              );
+            }
+          },
         ),
         title: const Text(
           'Seguimiento',
@@ -457,7 +464,7 @@ class _PasoTile extends StatelessWidget {
       children: [
         Column(
           children: [
-            // Ícono del paso
+
             Container(
               width: 28,
               height: 28,

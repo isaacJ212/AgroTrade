@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
+import '../shared/profile.dart';
+import 'inicioComprador.dart';
+import 'seguimientoPedido.dart';
 import 'valorarPedido.dart';
 
 enum _EstadoPedido { confirmado, enCamino, entregado }
@@ -142,8 +145,17 @@ class _MisPedidosScreenState extends State<MisPedidosScreen>
       backgroundColor: Colors.white,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.menu_rounded, color: AppColors.titleDark),
-        onPressed: () {},
+        icon: const Icon(Icons.arrow_back, color: AppColors.titleDark),
+        onPressed: () {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          } else {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const InicioComprador()),
+            );
+          }
+        },
       ),
       title: const Text(
         'Mis pedidos',
@@ -157,13 +169,19 @@ class _MisPedidosScreenState extends State<MisPedidosScreen>
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 16),
-          child: CircleAvatar(
-            radius: 17,
-            backgroundColor: AppColors.primarySoftBg,
-            child: const Icon(
-              Icons.person_outline_rounded,
-              size: 20,
-              color: AppColors.primaryColor,
+          child: GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const Profile()),
+            ),
+            child: CircleAvatar(
+              radius: 17,
+              backgroundColor: AppColors.primarySoftBg,
+              child: const Icon(
+                Icons.person_outline_rounded,
+                size: 20,
+                color: AppColors.primaryColor,
+              ),
             ),
           ),
         ),
@@ -355,7 +373,14 @@ class _CardConfirmado extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: OutlinedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const SeguimientoPedidoScreen(),
+                  ),
+                );
+              },
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.primaryColor,
                 side: const BorderSide(
@@ -432,7 +457,7 @@ class _CardEnCamino extends StatelessWidget {
             ],
           ),
 
-          // Finca
+    
           if (pedido.finca != null) ...[
             const SizedBox(height: 8),
             Row(
@@ -497,7 +522,18 @@ class _CardEnCamino extends StatelessWidget {
           ],
 
           const SizedBox(height: 14),
-          PrimaryButton(label: 'Seguir entrega', radius: 100, onPressed: () {}),
+          PrimaryButton(
+            label: 'Seguir entrega',
+            radius: 100,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const SeguimientoPedidoScreen(),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );

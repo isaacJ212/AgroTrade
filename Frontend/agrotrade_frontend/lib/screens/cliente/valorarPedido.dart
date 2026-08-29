@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
+import 'misPedidos.dart';
 
 class ValorarPedidoScreen extends StatefulWidget {
   const ValorarPedidoScreen({super.key});
@@ -52,7 +53,16 @@ class _ValorarPedidoScreenState extends State<ValorarPedidoScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.titleDark),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const MisPedidosScreen()),
+              );
+            }
+          },
         ),
         title: const Text(
           'Valorar pedido',

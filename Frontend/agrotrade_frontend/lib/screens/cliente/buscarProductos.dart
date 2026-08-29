@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
+import 'carrito.dart';
 import 'exploradorProductos.dart';
-
-
-
+import 'inicioComprador.dart';
+import 'perfilProductor.dart';
 
 class FiltrosMercado {
   final Set<String> categorias;
@@ -37,11 +37,6 @@ class _BuscarProductosState extends State<BuscarProductos> {
   final TextEditingController _searchController = TextEditingController();
   FiltrosMercado _filtros = const FiltrosMercado();
 
-  static const List<String> _todasCategorias = [
-    'Frutas', 'Cítricos', 'Verduras', 'Tubérculos',
-  ];
-
-
   static const List<ProductoMercado> _productos = [
     ProductoMercado(id: 1, nombre: 'Tomate Chonto', finca: 'Finca La Esperanza', precio: 3.50, unidad: 'kg', distancia: '4.2 km', categoria: 'Verduras', imagenUrl: 'https://images.unsplash.com/photo-1546094096-0df9bdcaaadd?auto=format&fit=crop&w=400&q=60'),
     ProductoMercado(id: 2, nombre: 'Tomate Cherry Orgánico', finca: 'Finca El Sol', precio: 5.20, unidad: 'lb', distancia: '6.1 km', categoria: 'Verduras', imagenUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcaea?auto=format&fit=crop&w=400&q=60'),
@@ -50,7 +45,6 @@ class _BuscarProductosState extends State<BuscarProductos> {
     ProductoMercado(id: 5, nombre: 'Papa Criolla', finca: 'Finca El Carmen', precio: 1.90, unidad: 'kg', distancia: '9.5 km', categoria: 'Tubérculos', imagenUrl: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=400&q=60'),
     ProductoMercado(id: 6, nombre: 'Manzana Roja', finca: 'Finca El Carmen', precio: 6.50, unidad: 'kg', distancia: '12.0 km', categoria: 'Frutas', imagenUrl: 'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=400&q=60'),
   ];
-
 
   double _distanciaKm(ProductoMercado p) =>
       double.tryParse(p.distancia.split(' ').first) ?? 0;
@@ -73,14 +67,12 @@ class _BuscarProductosState extends State<BuscarProductos> {
         return porTexto && porCat && porDist && porPrecio && porStock;
       }).toList();
 
-
   bool _pasaStock(ProductoMercado p) {
     if (_filtros.disponibleAhora && _filtros.pocoInventario) return true;
     if (_filtros.disponibleAhora) return !p.pocoInventario;
     if (_filtros.pocoInventario) return p.pocoInventario;
     return true;
   }
-
 
   Future<void> _abrirFiltros() async {
     final resultado = await showModalBottomSheet<FiltrosMercado>(
@@ -111,7 +103,16 @@ class _BuscarProductosState extends State<BuscarProductos> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.titleDark),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const InicioComprador()),
+              );
+            }
+          },
         ),
         title: Text(
           'Buscar',
@@ -124,6 +125,13 @@ class _BuscarProductosState extends State<BuscarProductos> {
           IconButton(
             icon: const Icon(Icons.tune, color: AppColors.primaryColor, size: 22),
             onPressed: _abrirFiltros,
+          ),
+          IconButton(
+            icon: const Icon(Icons.shopping_cart_outlined, color: AppColors.titleDark, size: 22),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const CarritoScreen()),
+            ),
           ),
         ],
       ),
@@ -145,7 +153,7 @@ class _BuscarProductosState extends State<BuscarProductos> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.search_off, size: 40, color: AppColors.bodyText),
+                        const Icon(Icons.search_off, size: 40, color: AppColors.bodyText),
                         const SizedBox(height: 8),
                         Text('Sin resultados con estos filtros',
                             style: AppTextStyles.cardTitle.copyWith(fontSize: 13)),
@@ -159,7 +167,6 @@ class _BuscarProductosState extends State<BuscarProductos> {
     );
   }
 
-
   Widget _buscador() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -167,7 +174,7 @@ class _BuscarProductosState extends State<BuscarProductos> {
         decoration: BoxDecoration(
           color: AppColors.White,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.inputBorderColor.withOpacity(0.6)),
+          border: Border.all(color: AppColors.inputBorderColor.withValues(alpha: 0.6)),
         ),
         child: Row(
           children: [
@@ -181,7 +188,7 @@ class _BuscarProductosState extends State<BuscarProductos> {
                   hintText: 'Buscar productos',
                   hintStyle: AppTextStyles.SubTitle.copyWith(
                     fontSize: 13,
-                    color: AppColors.bodyText.withOpacity(0.7),
+                    color: AppColors.bodyText.withValues(alpha: 0.7),
                   ),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
@@ -198,7 +205,6 @@ class _BuscarProductosState extends State<BuscarProductos> {
     );
   }
 
-
   Widget _grid(List<ProductoMercado> lista) {
     return GridView.builder(
       padding: const EdgeInsets.all(16),
@@ -209,69 +215,77 @@ class _BuscarProductosState extends State<BuscarProductos> {
         childAspectRatio: 0.72, 
       ),
       itemCount: lista.length,
-      itemBuilder: (context, i) => _GridCard(producto: lista[i]),
+      itemBuilder: (context, i) => _GridCard(
+        producto: lista[i],
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const PerfilProductorScreen()),
+        ),
+      ),
     );
   }
 }
-
 
 class _GridCard extends StatelessWidget {
   final ProductoMercado producto;
+  final VoidCallback onTap;
 
-  const _GridCard({required this.producto});
+  const _GridCard({required this.producto, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: AppColors.White,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.cardBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Image.network(
-            producto.imagenUrl,
-            height: 100,
-            width: double.infinity,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: AppColors.White,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.cardBorder),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Image.network(
+              producto.imagenUrl,
               height: 100,
-              color: AppColors.tileBg,
-              child: const Icon(Icons.image_not_supported_outlined,
-                  size: 24, color: AppColors.bodyText),
+              width: double.infinity,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                height: 100,
+                color: AppColors.tileBg,
+                child: const Icon(Icons.image_not_supported_outlined,
+                    size: 24, color: AppColors.bodyText),
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  producto.nombre,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.label.copyWith(fontSize: 13, color: AppColors.titleDark),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '\$${producto.precio.toStringAsFixed(2)} / ${producto.unidad}',
-                  style: AppTextStyles.label.copyWith(
-                    fontSize: 13,
-                    color: AppColors.primaryColor,
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    producto.nombre,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.label.copyWith(fontSize: 13, color: AppColors.titleDark),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 4),
+                  Text(
+                    'C\$ ${producto.precio.toStringAsFixed(2)} / ${producto.unidad}',
+                    style: AppTextStyles.label.copyWith(
+                      fontSize: 13,
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
-
 
 class _FiltrosSheet extends StatefulWidget {
   final FiltrosMercado initial;
@@ -300,15 +314,17 @@ class _FiltrosSheetState extends State<_FiltrosSheet> {
   @override
   void initState() {
     super.initState();
-    _cats.addAll(widget.initial.categorias);
-    _distancia = widget.initial.distanciaMax;
-    _minC.text = widget.initial.precioMin?.toString() ?? '';
-    _maxC.text = widget.initial.precioMax?.toString() ?? '';
     _disp = widget.initial.disponibleAhora;
     _poco = widget.initial.pocoInventario;
     _metodo = widget.initial.metodoEntrega;
   }
-  static const List<String> _metodos = ['A domicilio', 'Recoger en finca'];
+
+  @override
+  void dispose() {
+    _minC.dispose();
+    _maxC.dispose();
+    super.dispose();
+  }
 
   void _limpiar() {
     setState(() {
@@ -339,255 +355,79 @@ class _FiltrosSheetState extends State<_FiltrosSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-         
-          Container(
-            margin: const EdgeInsets.only(top: 10),
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: AppColors.chipGrey,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text('Filtrar productos',
-                      style: AppTextStyles.headline.copyWith(fontSize: 18)),
+    return DraggableScrollableSheet(
+      initialChildSize: 0.85,
+      maxChildSize: 0.95,
+      minChildSize: 0.5,
+      expand: false,
+      builder: (_, scrollCtrl) => Container(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+        child: ListView(
+          controller: scrollCtrl,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.cardBorder,
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: AppColors.titleDark, size: 22),
-                  onPressed: () => Navigator.pop(context), 
-                ),
-              ],
-            ),
-          ),
-          const Divider(height: 1, color: AppColors.cardBorder),
-
-
-          Flexible(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _tituloSeccion('Categoría'),
-                  const SizedBox(height: 10),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: _catsDisponibles.map((cat) {
-                      final sel = _cats.contains(cat);
-                
-                      return FilterChip(
-                        selected: sel,
-                        onSelected: (v) =>
-                            setState(() => v ? _cats.add(cat) : _cats.remove(cat)),
-                        label: Text(cat),
-                        labelStyle: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: sel ? AppColors.accentBlue : AppColors.titleDark,
-                        ),
-                        selectedColor: AppColors.blueSoft,
-                        checkmarkColor: AppColors.accentBlue,
-                        backgroundColor: AppColors.White,
-                        side: BorderSide(
-                          color: sel ? Colors.transparent : AppColors.inputBorderColor,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 20),
-
-               
-                  Row(
-                    children: [
-                      Expanded(child: _tituloSeccion('Distancia del productor')),
-                      Text(
-                        '${_distancia.toInt()} km',
-                        style: AppTextStyles.label.copyWith(
-                          fontSize: 13,
-                          color: AppColors.primaryColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SliderTheme(
-                    data: SliderThemeData(
-                      trackHeight: 4,
-                      activeTrackColor: AppColors.chipGrey,
-                      inactiveTrackColor: AppColors.chipGrey,
-                      thumbColor: AppColors.primaryColor,
-                      overlayColor: AppColors.primaryGlow,
-                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
-                    ),
-                    child: Slider(
-                      value: _distancia,
-                      min: 5,
-                      max: 25,
-                      divisions: 20,
-                      onChanged: (v) => setState(() => _distancia = v),
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('5km', style: AppTextStyles.SubTitle.copyWith(fontSize: 11)),
-                      Text('10km', style: AppTextStyles.SubTitle.copyWith(fontSize: 11)),
-                      Text('25km', style: AppTextStyles.SubTitle.copyWith(fontSize: 11)),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-             
-                  _tituloSeccion('Rango de precio (\$)'),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: AppTextField(
-                          label: 'Mín',
-                          hint: '0',
-                          controller: _minC,
-                          keyboard: TextInputType.numberWithOptions(decimal: true),
-                        ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8),
-                        child: Text('-', style: TextStyle(color: AppColors.bodyText)),
-                      ),
-                      Expanded(
-                        child: AppTextField(
-                          label: 'Máx',
-                          hint: '10000',
-                          controller: _maxC,
-                          keyboard: TextInputType.numberWithOptions(decimal: true),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-
-              
-                  _tituloSeccion('Disponibilidad'),
-                  CheckboxListTile(
-                    value: _disp,
-                    onChanged: (v) => setState(() => _disp = v ?? false),
-                    activeColor: AppColors.primaryColor,
-                    side: const BorderSide(color: AppColors.inputBorderColor),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    title: Text('Disponible ahora',
-                        style: AppTextStyles.SubTitle.copyWith(
-                            fontSize: 14, color: AppColors.titleDark)),
-                    contentPadding: EdgeInsets.zero,
-                    visualDensity: VisualDensity.compact,
-                  ),
-                  CheckboxListTile(
-                    value: _poco,
-                    onChanged: (v) => setState(() => _poco = v ?? false),
-                    activeColor: AppColors.primaryColor,
-                    side: const BorderSide(color: AppColors.inputBorderColor),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    title: Text('Poco inventario',
-                        style: AppTextStyles.SubTitle.copyWith(
-                            fontSize: 14, color: AppColors.titleDark)),
-                    contentPadding: EdgeInsets.zero,
-                    visualDensity: VisualDensity.compact,
-                  ),
-                  const SizedBox(height: 12),
-
-          
-                  _tituloSeccion('Método de entrega'),
-                  const SizedBox(height: 10),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: _metodos.map((m) {
-                      final sel = _metodo == m;
-                      return FilterChip(
-                        selected: sel,
-                        onSelected: (v) =>
-                            setState(() => _metodo = v ? m : null),
-                        label: Text(m),
-                        labelStyle: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: sel ? AppColors.accentBlue : AppColors.titleDark,
-                        ),
-                        selectedColor: AppColors.blueSoft,
-                        checkmarkColor: AppColors.accentBlue,
-                        backgroundColor: AppColors.White,
-                        side: BorderSide(
-                          color: sel ? Colors.transparent : AppColors.inputBorderColor,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      );
-                    }).toList(),
-                  ),
-                ],
               ),
             ),
-          ),
-
-         
-          Container(
-            padding: EdgeInsets.fromLTRB(
-                16, 12, 16, 12 + MediaQuery.of(context).padding.bottom),
-            decoration: const BoxDecoration(
-              color: AppColors.scaffoldBg,
-              border: Border(top: BorderSide(color: AppColors.cardBorder)),
-            ),
-            child: Row(
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                Text('Filtros', style: AppTextStyles.Title.copyWith(fontSize: 18)),
                 TextButton(
                   onPressed: _limpiar,
-                  child: Text('Limpiar',
-                      style: AppTextStyles.label.copyWith(
-                          fontSize: 14, color: AppColors.primaryColor)),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: PrimaryButton(
-                    label: 'Aplicar filtros',
-                    radius: 26,
-                    onPressed: _aplicar,
-                  ),
+                  child: const Text('Limpiar', style: TextStyle(color: AppColors.primaryColor)),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _tituloSeccion(String texto) {
-    return Text(
-      texto,
-      style: AppTextStyles.label.copyWith(
-        fontSize: 14,
-        fontWeight: FontWeight.w700,
-        color: AppColors.titleDark,
+            const SizedBox(height: 16),
+            const Text('Categorías', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _catsDisponibles.map((cat) {
+                final sel = _cats.contains(cat);
+                return FilterChip(
+                  label: Text(cat),
+                  selected: sel,
+                  onSelected: (val) => setState(() {
+                    val ? _cats.add(cat) : _cats.remove(cat);
+                  }),
+                  selectedColor: AppColors.primarySoftBg,
+                  checkmarkColor: AppColors.primaryColor,
+                  labelStyle: TextStyle(
+                    color: sel ? AppColors.primaryColor : AppColors.titleDark,
+                    fontWeight: sel ? FontWeight.w700 : FontWeight.w500,
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 20),
+            Text('Distancia máxima: ${_distancia.toInt()} km',
+                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+            Slider(
+              value: _distancia,
+              min: 1,
+              max: 50,
+              divisions: 49,
+              activeColor: AppColors.primaryColor,
+              onChanged: (v) => setState(() => _distancia = v),
+            ),
+            const SizedBox(height: 24),
+            PrimaryButton(
+              label: 'Aplicar Filtros',
+              radius: 10,
+              onPressed: _aplicar,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -5,13 +5,10 @@ import '../../services/api_session.dart';
 import '../../services/delivery_api_service.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/widgets/repartidor_bottom_nav.dart';
+import '../shared/auth/Login.dart';
 import 'detalleEntregaRepartidor.dart';
 import 'entregasRepartidor.dart';
 import 'rutaEntregaRepartidor.dart';
-import '../../services/api_client.dart';
-import '../../services/delivery_api_service.dart';
-import '../../services/api_session.dart';
-import 'package:agrotrade_frontend/models/api/delivery_models.dart';
 
 class InicioRepartidor extends StatefulWidget {
   const InicioRepartidor({super.key});
@@ -152,6 +149,21 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
                               ),
                             ),
                         ],
+                      ),
+                      IconButton(
+                        tooltip: 'Cerrar sesión',
+                        onPressed: () {
+                          ApiSession.instance.clear();
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (_) => const Login()),
+                            (_) => false,
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.logout_rounded,
+                          color: AppColors.bodyText,
+                        ),
                       ),
                     ],
                   ),
