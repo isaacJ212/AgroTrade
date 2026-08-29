@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
+import 'carrito.dart';
 import 'pago.dart';
 
 class _Direccion {
@@ -143,7 +144,16 @@ class _EntregaScreenState extends State<EntregaScreen> {
       elevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: AppColors.titleDark),
-        onPressed: () => Navigator.of(context).pop(),
+        onPressed: () {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          } else {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const CarritoScreen()),
+            );
+          }
+        },
       ),
       title: const Text(
         'Entrega',

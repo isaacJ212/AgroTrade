@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
 import 'entrega.dart';
+import 'exploradorProductos.dart';
+import 'inicioComprador.dart';
 
 class _ItemCarrito {
   final int id;
@@ -145,7 +147,16 @@ class _CarritoScreenState extends State<CarritoScreen> {
       elevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: AppColors.titleDark),
-        onPressed: () => Navigator.of(context).pop(),
+        onPressed: () {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          } else {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const InicioComprador()),
+            );
+          }
+        },
       ),
       title: const Text(
         'Carrito',
@@ -385,7 +396,16 @@ class _CarritoScreenState extends State<CarritoScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.titleDark),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const InicioComprador()),
+              );
+            }
+          },
         ),
         title: const Text(
           'Carrito',
@@ -406,7 +426,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
               Container(
                 width: 100,
                 height: 100,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.primarySoftBg,
                   shape: BoxShape.circle,
                 ),
@@ -439,7 +459,16 @@ class _CarritoScreenState extends State<CarritoScreen> {
               PrimaryButton(
                 label: 'Explorar productos',
                 radius: 100,
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () {
+                  if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  } else {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ExploradorProductos()),
+                    );
+                  }
+                },
               ),
             ],
           ),

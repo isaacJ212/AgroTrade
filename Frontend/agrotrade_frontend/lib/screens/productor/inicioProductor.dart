@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import '../../services/api_session.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
 import 'package:agrotrade_frontend/models/pedido.dart';
+import '../shared/auth/Login.dart';
+import '../shared/profile.dart';
 
 //creacion de la clase de InicioProductor
 
@@ -76,7 +79,14 @@ class _InicioProductorState extends State<InicioProductor> {
 
   void _cambiarTab(int index) {
     setState(() => _tabActual = index);
-    if (index != 0) _mostrarSnack('Esta sección estará disponible pronto 🌱');
+    if (index == 3) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const Profile()),
+      );
+    } else if (index != 0) {
+      _mostrarSnack('Esta sección estará disponible pronto 🌱');
+    }
   }
 
   @override
@@ -88,14 +98,41 @@ class _InicioProductorState extends State<InicioProductor> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
           children: [
-            Text('$_saludo, Isaac', style: AppTextStyles.headline),
-            const SizedBox(height: 8),
-            Text(
-              'Aquí tienes un resumen de tu actividad de hoy.',
-              style: AppTextStyles.SubTitle.copyWith(
-                fontSize: 15,
-                color: AppColors.bodyText,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('$_saludo, ${ApiSession.instance.userName ?? 'Carlos'}', style: AppTextStyles.headline),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Aquí tienes un resumen de tu actividad de hoy.',
+                        style: AppTextStyles.SubTitle.copyWith(
+                          fontSize: 15,
+                          color: AppColors.bodyText,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Cerrar sesión',
+                  onPressed: () {
+                    ApiSession.instance.clear();
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const Login()),
+                      (_) => false,
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.logout_rounded,
+                    color: AppColors.bodyText,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 24),
 

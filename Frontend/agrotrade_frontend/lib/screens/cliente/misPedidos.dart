@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
+import '../shared/profile.dart';
+import 'inicioComprador.dart';
 import 'seguimientoPedido.dart';
 import 'valorarPedido.dart';
 
@@ -143,8 +145,17 @@ class _MisPedidosScreenState extends State<MisPedidosScreen>
       backgroundColor: Colors.white,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.menu_rounded, color: AppColors.titleDark),
-        onPressed: () {},
+        icon: const Icon(Icons.arrow_back, color: AppColors.titleDark),
+        onPressed: () {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          } else {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const InicioComprador()),
+            );
+          }
+        },
       ),
       title: const Text(
         'Mis pedidos',
@@ -158,13 +169,19 @@ class _MisPedidosScreenState extends State<MisPedidosScreen>
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 16),
-          child: CircleAvatar(
-            radius: 17,
-            backgroundColor: AppColors.primarySoftBg,
-            child: const Icon(
-              Icons.person_outline_rounded,
-              size: 20,
-              color: AppColors.primaryColor,
+          child: GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const Profile()),
+            ),
+            child: CircleAvatar(
+              radius: 17,
+              backgroundColor: AppColors.primarySoftBg,
+              child: const Icon(
+                Icons.person_outline_rounded,
+                size: 20,
+                color: AppColors.primaryColor,
+              ),
             ),
           ),
         ),

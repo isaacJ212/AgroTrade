@@ -14,35 +14,10 @@ class AuthApiService {
     required String email,
     required String password,
   }) async {
-
-    try {
-      final response = await ApiClient.instance.post(
-        AuthRoutes.login,
-        body: LoginRequestDto(email: email, password: password).toJson(),
-      );
-
-      final result = _decodeResult<LoginResponseDto>(
-        response.jsonBody,
-        (json) => LoginResponseDto.fromJson(ensureJsonMap(json)),
-      );
-
-      if (result.isSuccess && result.data != null) {
-        ApiSession.instance.setAuth(
-          token: result.data!.token,
-          userName: result.data!.userName,
-        );
-        return result.data!;
-      }
-    } catch (_) {
-      
-
-      
-    }
-
- 
     final cleanEmail = email.trim().toLowerCase();
     final cleanPass = password.trim();
 
+    // 1. Acceso instantáneo para usuarios predefinidos de prueba (0 ms)
     if (cleanEmail == 'cliente@agrotrade.com' || cleanEmail == 'maria@agrotrade.com') {
       if (cleanPass == 'cliente123' || cleanPass == '123456') {
         const demoUser = LoginResponseDto(
@@ -83,6 +58,29 @@ class AuthApiService {
         ApiSession.instance.setAuth(token: demoUser.token, userName: demoUser.userName);
         return demoUser;
       }
+    }
+
+    // 2. Si no es un usuario demo, intentar autenticación con el Backend
+    try {
+      final response = await ApiClient.instance.post(
+        AuthRoutes.login,
+        body: LoginRequestDto(email: email, password: password).toJson(),
+      );
+
+      final result = _decodeResult<LoginResponseDto>(
+        response.jsonBody,
+        (json) => LoginResponseDto.fromJson(ensureJsonMap(json)),
+      );
+
+      if (result.isSuccess && result.data != null) {
+        ApiSession.instance.setAuth(
+          token: result.data!.token,
+          userName: result.data!.userName,
+        );
+        return result.data!;
+      }
+    } catch (_) {
+      // Backend offline o error de conexión
     }
 
     throw const ApiException(

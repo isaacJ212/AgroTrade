@@ -190,6 +190,22 @@ class _LoginState extends State<Login> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+
+                      Flexible(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Checkbox(
+                              value: _remember,
+                              onChanged: (v) => setState(() => _remember = v ?? false),
+                            ),
+                            const Text(
+                              "Recordarme",
+                              style: AppTextStyles.SubTitle,
+                            ),
+                          ],
+                        ),
+
                       Row(
                         children: [
                           Checkbox(
@@ -202,6 +218,7 @@ class _LoginState extends State<Login> {
                             style: AppTextStyles.SubTitle,
                           ),
                         ],
+
                       ),
                       GestureDetector(
                         onTap: () => Navigator.push(

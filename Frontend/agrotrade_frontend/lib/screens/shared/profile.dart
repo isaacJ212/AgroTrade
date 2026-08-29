@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/api_session.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
+import '../cliente/inicioComprador.dart';
 import '../cliente/misPedidos.dart';
 import '../productor/pedidos/sales.dart';
 import 'auth/Login.dart';
@@ -16,12 +17,19 @@ class Profile extends StatelessWidget {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
-        leading: Navigator.canPop(context)
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back, color: AppColors.titleDark),
-                onPressed: () => Navigator.pop(context),
-              )
-            : null,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.titleDark),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const InicioComprador()),
+              );
+            }
+          },
+        ),
         title: const Text(
           'Mi perfil',
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
+import 'inicioComprador.dart';
 
 class SeguimientoPedidoScreen extends StatelessWidget {
   const SeguimientoPedidoScreen({super.key});
@@ -41,7 +42,16 @@ class SeguimientoPedidoScreen extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.titleDark),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const InicioComprador()),
+              );
+            }
+          },
         ),
         title: const Text(
           'Seguimiento',
