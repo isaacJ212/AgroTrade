@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-  
   authService.guardRoute();
 
   if (document.getElementById('categoriesListContainer')) {
@@ -70,12 +69,12 @@ function renderCategoryList() {
         </div>
 
         <div class="category-actions-group">
-          <button class="icon-action-btn" title="Editar" onclick="Toast.warning('Edición de categoría en desarrollo')">
+          <a href="nueva-categoria.html?id=${cat.id}" class="icon-action-btn" title="Editar" style="text-decoration:none;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
             </svg>
-          </button>
+          </a>
           <button class="icon-action-btn btn-delete" title="Eliminar" onclick="deleteCategoryAction(${cat.id})">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="3 6 5 6 21 6"></polyline>
@@ -97,11 +96,28 @@ function deleteCategoryAction(id) {
 }
 
 function initCategoryForm() {
+  const params = new URLSearchParams(window.location.search);
+  const editId = params.get('id');
   const submitBtn = document.getElementById('btnSubmitCreateCategory');
   const nameInput = document.getElementById('categoryNameInput');
   const descInput = document.getElementById('categoryDescInput');
   const descGroup = document.getElementById('categoryDescGroup');
   const errorMsg = document.getElementById('categoryDescError');
+  const titleEl = document.querySelector('.subpage-title');
+
+  let isEditing = false;
+  let targetCategory = null;
+
+  if (editId) {
+    targetCategory = adminStore.getCategoryById(editId);
+    if (targetCategory) {
+      isEditing = true;
+      if (titleEl) titleEl.textContent = 'Editar Categoría';
+      if (nameInput) nameInput.value = targetCategory.nombre;
+      if (descInput) descInput.value = targetCategory.descripcion;
+      if (submitBtn) submitBtn.querySelector('span').textContent = 'Guardar cambios';
+    }
+  }
 
   if (submitBtn) {
     submitBtn.onclick = () => {
@@ -121,13 +137,21 @@ function initCategoryForm() {
         return;
       }
 
-      adminStore.addCategory({
-        nombre: name,
-        descripcion: desc,
-        icono: 'apple'
-      });
+      if (isEditing && targetCategory) {
+        adminStore.updateCategory(targetCategory.id, {
+          nombre: name,
+          descripcion: desc
+        });
+        Toast.success(`Categoría "${name}" actualizada exitosamente.`);
+      } else {
+        adminStore.addCategory({
+          nombre: name,
+          descripcion: desc,
+          icono: 'apple'
+        });
+        Toast.success(`Categoría "${name}" creada exitosamente.`);
+      }
 
-      Toast.success(`Categoría "${name}" creada exitosamente.`);
       setTimeout(() => {
         window.location.href = 'categorias.html';
       }, 400);

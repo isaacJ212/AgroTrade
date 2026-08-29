@@ -2,65 +2,90 @@
   background-color: var(--bg-card);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-lg);
-  padding: 16px;
+  padding: 20px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 20px;
   box-shadow: var(--shadow-card);
 }
 
 .review-applicant-avatar {
-  width: 52px;
-  height: 52px;
+  width: 72px;
+  height: 72px;
   border-radius: var(--radius-full);
   object-fit: cover;
   background-color: #e2e8f0;
+  border: 3px solid #bbf7d0;
 }
 
 .review-applicant-info {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
 
 .review-applicant-name {
-  font-size: 1.15rem;
+  font-size: 1.35rem;
   font-weight: 800;
   color: var(--text-main);
 }
 
 .review-applicant-meta {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   color: var(--text-secondary);
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .review-pending-badge {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 0.75rem;
+  gap: 6px;
+  font-size: 0.8rem;
   font-weight: 700;
   color: var(--accent-amber-text);
-  margin-top: 2px;
+  margin-top: 4px;
+  background-color: var(--accent-amber-bg);
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  width: fit-content;
+}
+
+@media (min-width: 768px) {
+  .review-applicant-banner {
+    padding: 28px;
+    gap: 24px;
+  }
+
+  .review-applicant-avatar {
+    width: 88px;
+    height: 88px;
+  }
+
+  .review-applicant-name {
+    font-size: 1.5rem;
+  }
+
+  .review-applicant-meta {
+    font-size: 0.95rem;
+  }
 }
 
 .farm-info-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 16px;
   background-color: #f8fafc;
   border: 1px solid #f1f5f9;
   border-radius: var(--radius-md);
-  padding: 14px;
+  padding: 20px;
 }
 
 .farm-info-item {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
 .farm-info-item.span-full {
@@ -68,20 +93,50 @@
 }
 
 .farm-info-label {
-  font-size: 0.74rem;
+  font-size: 0.78rem;
   color: var(--text-secondary);
-  font-weight: 500;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .farm-info-value {
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   color: var(--text-main);
   font-weight: 700;
+}
+
+@media (min-width: 768px) {
+  .farm-info-grid {
+    gap: 20px;
+    padding: 24px;
+  }
+
+  .farm-info-label {
+    font-size: 0.8rem;
+  }
+
+  .farm-info-value {
+    font-size: 1rem;
+  }
 }
 
 .review-actions-group {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding-top: 4px;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+@media (min-width: 768px) {
+  .review-actions-group {
+    flex-direction: row;
+    gap: 16px;
+  }
+
+  .review-actions-group .btn-primary,
+  .review-actions-group .btn-danger-outline {
+    flex: 1;
+    justify-content: center;
+  }
 }
