@@ -1,25 +1,15 @@
 import 'package:flutter/material.dart';
-import '../../../services/api_client.dart';
-import '../../../services/auth_api_service.dart';
-import '../../../ui/app_theme.dart';
-import '../../../ui/components.dart';
-import 'registro.dart';
-import 'resetPassword.dart';
-import 'roleSelection.dart';
-
 import 'package:agrotrade_frontend/models/api/auth_models.dart';
-import 'package:agrotrade_frontend/screens/repartidor/homeRepartidor.dart';
+import 'package:agrotrade_frontend/screens/cliente/inicioComprador.dart';
 import 'package:agrotrade_frontend/screens/productor/inicioProductor.dart';
+import 'package:agrotrade_frontend/screens/repartidor/homeRepartidor.dart';
 import 'package:agrotrade_frontend/screens/shared/auth/registro.dart';
 import 'package:agrotrade_frontend/screens/shared/auth/resetPassword.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/diagnostics.dart';
-import '../../../ui/app_theme.dart';
-import '../../../ui/components.dart';
-import 'roleSelection.dart';
-import '/../services/auth_api_service.dart';
-import '/services/api_client.dart';
-
+import 'package:agrotrade_frontend/screens/shared/auth/roleSelection.dart';
+import 'package:agrotrade_frontend/services/api_client.dart';
+import 'package:agrotrade_frontend/services/auth_api_service.dart';
+import 'package:agrotrade_frontend/ui/app_theme.dart';
+import 'package:agrotrade_frontend/ui/components.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -29,7 +19,6 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  // los controllers son como los inputs.value
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -100,26 +89,33 @@ class _LoginState extends State<Login> {
           setState(() => _isLoading = false);
         }
       }
-      return;
     }
   }
 
-  // Creo que se explica solo pero por si acaso es solo para redireccionar segun el rol
+  void _autofillDemo(String email, String pass) {
+    setState(() {
+      _emailController.text = email;
+      _passwordController.text = pass;
+      _emailError = null;
+      _passwordError = null;
+    });
+  }
+
   void _redirectNavigation(LoginResponseDto user) {
-    if (user.roles.contains("Administrador")) {
+    if (user.roles.contains("Cliente")) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const Roleselection()),
-      );
-    } else if (user.roles.contains("Repartidor")) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const InicioRepartidor()),
+        MaterialPageRoute(builder: (_) => const InicioComprador()),
       );
     } else if (user.roles.contains("Productor/Proveedor")) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const InicioProductor()),
+      );
+    } else if (user.roles.contains("Repartidor")) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const InicioRepartidor()),
       );
     } else {
       Navigator.pushReplacement(
@@ -134,7 +130,7 @@ class _LoginState extends State<Login> {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(20),
           child: Container(
             width: double.infinity,
             padding: const EdgeInsets.all(24),
@@ -143,7 +139,7 @@ class _LoginState extends State<Login> {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha: 0.08),
                   blurRadius: 12,
                   offset: const Offset(0, 6),
                 ),
@@ -153,24 +149,73 @@ class _LoginState extends State<Login> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 24),
-                  Center(child: Image.asset("lib/assets/images/Brand.png")),
+                  const SizedBox(height: 12),
+                  Center(child: Image.asset("lib/assets/images/Brand.png", height: 72)),
 
-                  Text(
+                  const SizedBox(height: 16),
+                  const Text(
                     "Bienvenido de nuevo",
                     textAlign: TextAlign.center,
                     style: AppTextStyles.Title,
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    "Accede a tu cuenta para gestionar tus cultivos",
+                  const SizedBox(height: 6),
+                  const Text(
+                    "Accede a tu cuenta para gestionar tus compras y cultivos",
                     textAlign: TextAlign.center,
                     style: AppTextStyles.SubTitle,
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
+
+               
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.tileBg,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.cardBorder),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Accesos rápidos de prueba:",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.primaryColor,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            _DemoChip(
+                              label: "🛒 Cliente",
+                              onTap: () => _autofillDemo("cliente@agrotrade.com", "cliente123"),
+                            ),
+                            _DemoChip(
+                              label: "🌾 Productor",
+                              onTap: () => _autofillDemo("productor@agrotrade.com", "productor123"),
+                            ),
+                            _DemoChip(
+                              label: "🚚 Repartidor",
+                              onTap: () => _autofillDemo("repartidor@agrotrade.com", "repartidor123"),
+                            ),
+                            _DemoChip(
+                              label: "⚙️ Admin",
+                              onTap: () => _autofillDemo("admin@agrotrade.com", "admin123"),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
                   AppTextField(
                     hint: "ejemplo@email.com",
-                    label: "Correo electronico",
+                    label: "Correo electrónico",
                     keyboard: TextInputType.emailAddress,
                     controller: _emailController,
                     errorText: _emailError,
@@ -186,37 +231,29 @@ class _LoginState extends State<Login> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: Row(
-                          children: [
-                            Checkbox(
-                              value: _remember,
-                              onChanged: (v) =>
-                                  setState(() => _remember = v ?? false),
-                            ),
-                            const Flexible(
-                              child: Text(
-                                "Recordar mi sesión",
-                                style: AppTextStyles.SubTitle,
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const RecoverPassword(),
-                                ),
-                              ),
-                              child: Text(
-                                "¿Olvidaste tu contraseña?",
-                                style: AppTextStyles.SubTitle.copyWith(
-                                  color: AppColors.primaryColor,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                textAlign: TextAlign.right,
-                              ),
-                            ),
-                          ],
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _remember,
+                            onChanged: (v) => setState(() => _remember = v ?? false),
+                          ),
+                          const Text(
+                            "Recordarme",
+                            style: AppTextStyles.SubTitle,
+                          ),
+                        ],
+                      ),
+                      GestureDetector(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const RecoverPassword()),
+                        ),
+                        child: Text(
+                          "¿Olvidaste tu clave?",
+                          style: AppTextStyles.SubTitle.copyWith(
+                            color: AppColors.primaryColor,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
@@ -224,7 +261,7 @@ class _LoginState extends State<Login> {
                   const SizedBox(height: 24),
 
                   PrimaryButton(
-                    label: _isLoading ? "Ingresando..." : "Iniciar Sesion",
+                    label: _isLoading ? "Ingresando..." : "Iniciar Sesión",
                     radius: 10,
                     onPressed: _isLoading ? null : _iniciarSesion,
                   ),
@@ -236,12 +273,12 @@ class _LoginState extends State<Login> {
                     icon: Icons.g_mobiledata,
                     onPressed: null,
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
-                        "¿No Tienes Cuenta?  ",
+                        "¿No tienes cuenta?  ",
                         style: AppTextStyles.SubTitle,
                       ),
                       GestureDetector(
@@ -250,7 +287,7 @@ class _LoginState extends State<Login> {
                           MaterialPageRoute(builder: (_) => const Registro()),
                         ),
                         child: Text(
-                          " Registrate",
+                          "Regístrate",
                           style: AppTextStyles.SubTitle.copyWith(
                             color: AppColors.primaryColor,
                             fontWeight: FontWeight.w700,
@@ -262,6 +299,37 @@ class _LoginState extends State<Login> {
                 ],
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DemoChip extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _DemoChip({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: AppColors.cardBorder),
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: AppColors.titleDark,
           ),
         ),
       ),

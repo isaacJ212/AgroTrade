@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
+import 'pago.dart';
 
 class _Direccion {
   final String alias;
@@ -65,13 +66,9 @@ class _EntregaScreenState extends State<EntregaScreen> {
   }
 
   void _continuarAlPago() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Continuando al pago…'),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.primaryColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const PagoScreen()),
     );
   }
 
@@ -91,7 +88,7 @@ class _EntregaScreenState extends State<EntregaScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Pregunta principal
+             
                   const Text(
                     '¿Cómo querés recibir tu pedido?',
                     style: TextStyle(
@@ -102,7 +99,7 @@ class _EntregaScreenState extends State<EntregaScreen> {
                   ),
                   const SizedBox(height: 14),
 
-                  // Opciones de método
+              
                   _MetodoEntregaTile(
                     selected: _entregaDomicilio,
                     icon: Icons.local_shipping_outlined,
@@ -117,20 +114,15 @@ class _EntregaScreenState extends State<EntregaScreen> {
                     onTap: () => setState(() => _entregaDomicilio = false),
                   ),
 
-                  // Sección de dirección (solo si eligió domicilio)
+               
                   if (_entregaDomicilio) ...[
                     const SizedBox(height: 28),
                     _buildDireccionSection(),
                   ],
 
                   const SizedBox(height: 28),
-
-                  // Indicaciones
                   _buildIndicacionesSection(),
-
                   const SizedBox(height: 20),
-
-                  // Aviso de costo
                   _buildAvisoCosto(),
 
                   const SizedBox(height: 32),
@@ -169,7 +161,6 @@ class _EntregaScreenState extends State<EntregaScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Encabezado
         Row(
           children: [
             const Text(
@@ -203,7 +194,6 @@ class _EntregaScreenState extends State<EntregaScreen> {
         ),
         const SizedBox(height: 12),
 
-        // Tarjetas de dirección
         ...List.generate(_direcciones.length, (i) {
           final d = _direcciones[i];
           final bool sel = _selDireccion == i;
@@ -348,7 +338,7 @@ class _CheckoutStepper extends StatelessWidget {
       child: Row(
         children: List.generate(_steps.length * 2 - 1, (i) {
           if (i.isOdd) {
-            // Línea conectora
+
             final stepIndex = i ~/ 2;
             final done = stepIndex < currentStep;
             return Expanded(
@@ -366,7 +356,6 @@ class _CheckoutStepper extends StatelessWidget {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Círculo
               Container(
                 width: 28,
                 height: 28,
@@ -391,7 +380,6 @@ class _CheckoutStepper extends StatelessWidget {
                       ),
               ),
               const SizedBox(height: 4),
-              // Etiqueta
               Text(
                 _steps[stepIndex],
                 style: TextStyle(
@@ -440,7 +428,6 @@ class _MetodoEntregaTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Radio
             AnimatedContainer(
               duration: const Duration(milliseconds: 180),
               width: 20,
@@ -522,7 +509,6 @@ class _DireccionCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Ícono casa
             Container(
               width: 38,
               height: 38,
@@ -537,7 +523,6 @@ class _DireccionCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            // Texto
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -569,7 +554,6 @@ class _DireccionCard extends StatelessWidget {
                 ],
               ),
             ),
-            // Botón editar
             IconButton(
               onPressed: onEdit,
               icon: const Icon(

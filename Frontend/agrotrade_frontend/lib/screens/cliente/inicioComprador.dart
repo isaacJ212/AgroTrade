@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
-
+import '../shared/profile.dart';
+import 'buscarProductos.dart';
+import 'carrito.dart';
+import 'exploradorProductos.dart';
+import 'misPedidos.dart';
+import 'perfilProductor.dart';
 
 class CategoriaMercado {
   final String label;
@@ -72,11 +77,9 @@ class InicioComprador extends StatefulWidget {
 }
 
 class _InicioCompradorState extends State<InicioComprador> {
-
   int _categoriaSel = 1; 
   int _carritoCount = 1;
 
- 
   static const List<CategoriaMercado> _listaCategorias = [
     CategoriaMercado('Frutas', Icons.apple, AppColors.navPill, AppColors.primaryColor),
     CategoriaMercado('Cítricos', Icons.eco, AppColors.blueSoft, AppColors.accentBlue),
@@ -139,7 +142,6 @@ class _InicioCompradorState extends State<InicioComprador> {
     ));
   }
 
-
   void _agregarAlCarrito(String producto) {
     setState(() => _carritoCount++);
     _mostrarSnack('$producto agregado al carrito 🛒');
@@ -147,7 +149,22 @@ class _InicioCompradorState extends State<InicioComprador> {
 
   void _irATab(int index) {
     if (index == 0) return;
-    _mostrarSnack('Esta sección estará disponible pronto 🌱');
+    if (index == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const ExploradorProductos()),
+      );
+    } else if (index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const MisPedidosScreen()),
+      );
+    } else if (index == 3) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const Profile()),
+      );
+    }
   }
 
   @override
@@ -173,7 +190,13 @@ class _InicioCompradorState extends State<InicioComprador> {
                   const SizedBox(height: 28),
                   _tituloSeccion('Ofertas por excedente'),
                   const SizedBox(height: 12),
-                  _OfertaCard(oferta: _oferta, onTap: () => _mostrarSnack('Detalle de oferta próximamente')),
+                  _OfertaCard(
+                    oferta: _oferta,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ExploradorProductos()),
+                    ),
+                  ),
                   const SizedBox(height: 28),
                   _tituloSeccion('Productores destacados'),
                   const SizedBox(height: 12),
@@ -181,7 +204,10 @@ class _InicioCompradorState extends State<InicioComprador> {
                         padding: const EdgeInsets.only(bottom: 12),
                         child: _ProductorCard(
                           productor: p,
-                          onTap: () => _mostrarSnack('Perfil de ${p.nombre} próximamente'),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const PerfilProductorScreen()),
+                          ),
                         ),
                       )),
                 ],
@@ -202,7 +228,6 @@ class _InicioCompradorState extends State<InicioComprador> {
       ),
     );
   }
-
 
   Widget _encabezado() {
     return Padding(
@@ -229,18 +254,27 @@ class _InicioCompradorState extends State<InicioComprador> {
               ],
             ),
           ),
-          _botonCircular(Icons.notifications_outlined),
+          _botonCircular(
+            Icons.notifications_outlined,
+            onTap: () => _mostrarSnack('No tienes notificaciones pendientes'),
+          ),
           const SizedBox(width: 10),
-          _botonCircular(Icons.shopping_cart_outlined, conBadge: true),
+          _botonCircular(
+            Icons.shopping_cart_outlined,
+            conBadge: true,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const CarritoScreen()),
+            ),
+          ),
         ],
       ),
     );
   }
 
-
-  Widget _botonCircular(IconData icon, {bool conBadge = false}) {
+  Widget _botonCircular(IconData icon, {bool conBadge = false, VoidCallback? onTap}) {
     return GestureDetector(
-      onTap: () => _mostrarSnack(conBadge ? 'Carrito: $_carritoCount producto(s)' : 'Notificaciones'),
+      onTap: onTap ?? () => _mostrarSnack(conBadge ? 'Carrito: $_carritoCount producto(s)' : 'Notificaciones'),
       child: Container(
         width: 44,
         height: 44,
@@ -272,16 +306,18 @@ class _InicioCompradorState extends State<InicioComprador> {
     );
   }
 
-
   Widget _buscador() {
     return GestureDetector(
-      onTap: () => _mostrarSnack('Buscador del mercado próximamente 🔎'),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const BuscarProductos()),
+      ),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: AppColors.White,
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: AppColors.inputBorderColor.withOpacity(0.5)),
+          border: Border.all(color: AppColors.inputBorderColor.withValues(alpha: 0.5)),
         ),
         child: Row(
           children: [
@@ -292,7 +328,7 @@ class _InicioCompradorState extends State<InicioComprador> {
                 'Buscar frutas, verduras y más',
                 style: AppTextStyles.SubTitle.copyWith(
                   fontSize: 13,
-                  color: AppColors.bodyText.withOpacity(0.7),
+                  color: AppColors.bodyText.withValues(alpha: 0.7),
                 ),
               ),
             ),
@@ -303,7 +339,6 @@ class _InicioCompradorState extends State<InicioComprador> {
     );
   }
 
-
   Widget _categorias() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -312,7 +347,13 @@ class _InicioCompradorState extends State<InicioComprador> {
           _CategoriaTile(
             categoria: _listaCategorias[i],
             seleccionada: i == _categoriaSel,
-            onTap: () => setState(() => _categoriaSel = i),
+            onTap: () {
+              setState(() => _categoriaSel = i);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ExploradorProductos()),
+              );
+            },
           ),
       ],
     );
@@ -329,7 +370,10 @@ class _InicioCompradorState extends State<InicioComprador> {
         ),
         if (conVerTodo)
           GestureDetector(
-            onTap: () => _mostrarSnack('Catálogo completo próximamente'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ExploradorProductos()),
+            ),
             child: Text(
               'Ver todo',
               style: AppTextStyles.label.copyWith(
@@ -342,7 +386,6 @@ class _InicioCompradorState extends State<InicioComprador> {
     );
   }
 
-
   Widget _scrollProductos() {
     return SizedBox(
       height: 240,
@@ -353,13 +396,15 @@ class _InicioCompradorState extends State<InicioComprador> {
         itemBuilder: (context, i) => _ProductoCercanoCard(
           producto: _cercanos[i],
           onAdd: () => _agregarAlCarrito(_cercanos[i].nombre),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const PerfilProductorScreen()),
+          ),
         ),
       ),
     );
   }
 }
-
-
 
 class _CategoriaTile extends StatelessWidget {
   final CategoriaMercado categoria;
@@ -382,7 +427,6 @@ class _CategoriaTile extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-
               color: seleccionada ? AppColors.blueSoft : categoria.bg,
               borderRadius: BorderRadius.circular(16),
             ),
@@ -403,129 +447,141 @@ class _CategoriaTile extends StatelessWidget {
   }
 }
 
-
 class _ProductoCercanoCard extends StatelessWidget {
   final ProductoCercano producto;
   final VoidCallback onAdd;
+  final VoidCallback onTap;
 
-  const _ProductoCercanoCard({required this.producto, required this.onAdd});
+  const _ProductoCercanoCard({
+    required this.producto,
+    required this.onAdd,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 170,
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: AppColors.White,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.cardBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              Image.network(
-                producto.imagenUrl,
-                height: 110,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  height: 110,
-                  color: AppColors.tileBg,
-                  child: const Icon(Icons.image_not_supported_outlined,
-                      size: 28, color: AppColors.bodyText),
-                ),
-              ),
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.White.withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.location_on_outlined, size: 12, color: AppColors.titleDark),
-                      const SizedBox(width: 3),
-                      Text(
-                        producto.distancia,
-                        style: AppTextStyles.chip.copyWith(color: AppColors.titleDark),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 170,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: AppColors.White,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.cardBorder),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
               children: [
-                Text(
-                  producto.nombre,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.label.copyWith(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.titleDark),
+                Image.network(
+                  producto.imagenUrl,
+                  height: 110,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    height: 110,
+                    color: AppColors.tileBg,
+                    child: const Icon(Icons.image_not_supported_outlined,
+                        size: 28, color: AppColors.bodyText),
+                  ),
                 ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(Icons.storefront_outlined, size: 14, color: AppColors.bodyText),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        producto.finca,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.SubTitle.copyWith(fontSize: 12),
-                      ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.White.withValues(alpha: 0.9),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                const Divider(height: 1, color: AppColors.cardBorder),
-                const SizedBox(height: 8),
-                Text(
-                  'Precio x ${producto.unidad}',
-                  style: AppTextStyles.SubTitle.copyWith(fontSize: 11),
-                ),
-                const SizedBox(height: 2),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'C\$ ${producto.precio.toStringAsFixed(2)}',
-                        style: AppTextStyles.statValue.copyWith(fontSize: 16),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: onAdd,
-                      child: Container(
-                        width: 36,
-                        height: 36,
-                        decoration: const BoxDecoration(
-                          color: AppColors.primaryColor,
-                          shape: BoxShape.circle,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.location_on_outlined,
+                            size: 11, color: AppColors.primaryColor),
+                        const SizedBox(width: 2),
+                        Text(
+                          producto.distancia,
+                          style: AppTextStyles.label.copyWith(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.titleDark,
+                          ),
                         ),
-                        child: const Icon(Icons.add, color: AppColors.White, size: 18),
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    producto.nombre,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.label.copyWith(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.titleDark,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    producto.finca,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.SubTitle.copyWith(fontSize: 11),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'C\$ ${producto.precio.toStringAsFixed(2)}',
+                            style: AppTextStyles.label.copyWith(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.primaryColor,
+                            ),
+                          ),
+                          Text(
+                            'por ${producto.unidad}',
+                            style: AppTextStyles.SubTitle.copyWith(fontSize: 10),
+                          ),
+                        ],
+                      ),
+                      GestureDetector(
+                        onTap: onAdd,
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: const BoxDecoration(
+                            color: AppColors.primaryColor,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.add, size: 18, color: AppColors.White),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
-
 
 class _OfertaCard extends StatelessWidget {
   final OfertaExcedente oferta;
@@ -540,47 +596,61 @@ class _OfertaCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: AppColors.navPill,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.primaryColor.withOpacity(0.25)),
+          color: AppColors.amberSoft,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.amber.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
               child: Image.network(
                 oferta.imagenUrl,
-                width: 84,
-                height: 84,
+                width: 80,
+                height: 80,
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => Container(
-                  width: 84,
-                  height: 84,
-                  color: AppColors.tileBg,
-                  child: const Icon(Icons.image_not_supported_outlined,
-                      size: 24, color: AppColors.bodyText),
+                  width: 80,
+                  height: 80,
+                  color: AppColors.amber.withValues(alpha: 0.2),
+                  child: const Icon(Icons.percent, color: AppColors.amber),
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: AppColors.amber,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '-${oferta.descuento}%',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           oferta.nombre,
-                          style: AppTextStyles.label.copyWith(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.titleDark),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.label.copyWith(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.titleDark,
+                          ),
                         ),
-                      ),
-                      // ✅ REUSO StatusChip: "-15%"
-                      StatusChip(
-                        label: '-${oferta.descuento}%',
-                        background: AppColors.chipGrey,
-                        color: AppColors.errorColor,
-                        radius: 8,
                       ),
                     ],
                   ),
@@ -589,14 +659,13 @@ class _OfertaCard extends StatelessWidget {
                     children: [
                       Text(
                         'C\$ ${oferta.precio.toStringAsFixed(2)}',
-                        style: AppTextStyles.statValue.copyWith(fontSize: 16),
+                        style: AppTextStyles.label.copyWith(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.primaryColor,
+                        ),
                       ),
-                      Text(
-                        '/lb',
-                        style: AppTextStyles.SubTitle.copyWith(fontSize: 12),
-                      ),
-                      const SizedBox(width: 6),
-                    
+                      const SizedBox(width: 8),
                       Text(
                         'C\$ ${oferta.precioOriginal.toStringAsFixed(2)}',
                         style: AppTextStyles.SubTitle.copyWith(
@@ -607,7 +676,6 @@ class _OfertaCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 8),
-               
                   StatusChip(
                     label: oferta.vigencia,
                     background: AppColors.White,
@@ -624,7 +692,6 @@ class _OfertaCard extends StatelessWidget {
     );
   }
 }
-
 
 class _ProductorCard extends StatelessWidget {
   final ProductorDestacado productor;

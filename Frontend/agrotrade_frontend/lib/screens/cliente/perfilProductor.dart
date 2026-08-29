@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
-import '../../ui/components.dart';
+import 'carrito.dart';
 
 class _ProductoProductor {
   final String nombre;
@@ -80,19 +80,20 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
 
   static const List<_Valoracion> _valoraciones = [
     _Valoracion(
-      iniciales: 'M',
-      avatarColor: Color(0xFF006E2C),
-      nombre: 'María G.',
-      rating: 5,
+      iniciales: 'ML',
+      avatarColor: AppColors.primaryColor,
+      nombre: 'María López',
+      rating: 5.0,
       comentario:
-          '"Excelente calidad de los tomates. Llegaron en perfecto estado y muy puntales."',
+          'Excelente calidad y frescura en los tomates. Llegaron en perfecto estado y muy puntuales.',
     ),
     _Valoracion(
-      iniciales: 'J',
-      avatarColor: Color(0xFF1565C0),
-      nombre: 'Juan P.',
-      rating: 4,
-      comentario: '"Productos muy frescos. Volveré a comprar seguro."',
+      iniciales: 'JR',
+      avatarColor: AppColors.accentBlue,
+      nombre: 'Juan Rodríguez',
+      rating: 4.5,
+      comentario:
+          'Muy buena atención del productor. Los cítricos tenían un sabor increíble.',
     ),
   ];
 
@@ -120,7 +121,7 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
   void _compartir() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Compartir perfil (próximamente)'),
+        content: const Text('Enlace copiado al portapapeles 📋'),
         behavior: SnackBarBehavior.floating,
         backgroundColor: AppColors.primaryColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -146,12 +147,52 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
                 _buildProductosDisponibles(),
                 const Divider(height: 1, color: Color(0xFFE4E7E5)),
                 _buildValoraciones(),
-                const SizedBox(height: 40),
+                const SizedBox(height: 80),
               ],
             ),
           ),
         ],
       ),
+      bottomNavigationBar: _carrito.isNotEmpty
+          ? Container(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(top: BorderSide(color: Color(0xFFE4E7E5), width: 1)),
+              ),
+              child: SafeArea(
+                top: false,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CarritoScreen()),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Ver Carrito (${_carrito.length} seleccionados)',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            )
+          : null,
     );
   }
 
@@ -164,7 +205,7 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
       leading: Container(
         margin: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.35),
+          color: Colors.black.withValues(alpha: 0.35),
           shape: BoxShape.circle,
         ),
         child: IconButton(
@@ -176,7 +217,7 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
         Container(
           margin: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.35),
+            color: Colors.black.withValues(alpha: 0.35),
             shape: BoxShape.circle,
           ),
           child: IconButton(
@@ -188,11 +229,29 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
             onPressed: _compartir,
           ),
         ),
+        Container(
+          margin: const EdgeInsets.only(right: 12, top: 8, bottom: 8),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.35),
+            shape: BoxShape.circle,
+          ),
+          child: IconButton(
+            icon: const Icon(
+              Icons.shopping_cart_outlined,
+              color: Colors.white,
+              size: 20,
+            ),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const CarritoScreen()),
+            ),
+          ),
+        ),
       ],
       title: const Text(
-        'Productor',
+        'Perfil del Productor',
         style: TextStyle(
-          color: AppColors.primaryColor,
+          color: Colors.white,
           fontWeight: FontWeight.w700,
           fontSize: 18,
         ),
@@ -209,7 +268,6 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
               errorBuilder: (_, __, ___) =>
                   Container(color: AppColors.primarySoftBg),
             ),
-
             const DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -235,7 +293,6 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Avatar
               Container(
                 width: 72,
                 height: 72,
@@ -244,7 +301,7 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
                   border: Border.all(color: AppColors.primaryColor, width: 2.5),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primaryColor.withOpacity(0.18),
+                      color: AppColors.primaryColor.withValues(alpha: 0.18),
                       blurRadius: 10,
                       offset: const Offset(0, 3),
                     ),
@@ -266,7 +323,6 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
                 ),
               ),
               const Spacer(),
-              // Botón Enviar mensaje
               ElevatedButton.icon(
                 onPressed: _enviarMensaje,
                 icon: const Icon(Icons.chat_bubble_outline, size: 16),
@@ -290,7 +346,6 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
             ],
           ),
           const SizedBox(height: 14),
-          // Nombre
           const Text(
             'Carlos Martínez',
             style: TextStyle(
@@ -300,7 +355,6 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
             ),
           ),
           const SizedBox(height: 6),
-          // Finca
           Row(
             children: const [
               Icon(
@@ -316,7 +370,6 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
             ],
           ),
           const SizedBox(height: 4),
-          // Ubicación
           Row(
             children: const [
               Icon(
@@ -332,12 +385,11 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
             ],
           ),
           const SizedBox(height: 10),
-          // Rating
           Row(
-            children: [
-              const Icon(Icons.star_rounded, size: 18, color: AppColors.amber),
-              const SizedBox(width: 4),
-              const Text(
+            children: const [
+              Icon(Icons.star_rounded, size: 18, color: AppColors.amber),
+              SizedBox(width: 4),
+              Text(
                 '4.8',
                 style: TextStyle(
                   fontSize: 14,
@@ -345,10 +397,10 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
                   color: AppColors.titleDark,
                 ),
               ),
-              const SizedBox(width: 6),
+              SizedBox(width: 6),
               Text(
                 '32 valoraciones',
-                style: const TextStyle(fontSize: 13, color: AppColors.TextSoft),
+                style: TextStyle(fontSize: 13, color: AppColors.TextSoft),
               ),
             ],
           ),
@@ -405,25 +457,13 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: [
-              const Text(
+            children: const [
+              Text(
                 'Productos disponibles',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: AppColors.titleDark,
-                ),
-              ),
-              const Spacer(),
-              GestureDetector(
-                onTap: () {},
-                child: const Text(
-                  'Ver todos',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.primaryColor,
-                  ),
                 ),
               ),
             ],
@@ -458,40 +498,35 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Valoraciones',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: AppColors.titleDark,
-            ),
-          ),
-          const SizedBox(height: 14),
-          ..._valoraciones.map((v) => _ValoracionTile(valoracion: v)).toList(),
-          const SizedBox(height: 16),
-          // Botón ver todas
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: OutlinedButton(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.titleDark,
-                side: const BorderSide(color: AppColors.cardBorder, width: 1.4),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text(
-                'Ver todas las valoraciones',
+          Row(
+            children: [
+              const Text(
+                'Valoraciones',
                 style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
                   color: AppColors.titleDark,
                 ),
               ),
-            ),
+              const Spacer(),
+              Row(
+                children: const [
+                  Icon(Icons.star_rounded, size: 18, color: AppColors.amber),
+                  SizedBox(width: 4),
+                  Text(
+                    '4.8',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.titleDark,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
+          const SizedBox(height: 14),
+          ..._valoraciones.map((v) => _ValoracionTile(valoracion: v)),
         ],
       ),
     );
@@ -515,40 +550,26 @@ class _ProductoCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.cardBorder),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(
+          color: inCarrito ? AppColors.primaryColor : AppColors.cardBorder,
+          width: inCarrito ? 1.5 : 1.0,
+        ),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Imagen
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-            child: SizedBox(
-              height: 110,
+          Expanded(
+            child: Image.network(
+              producto.imagenUrl,
               width: double.infinity,
-              child: Image.network(
-                producto.imagenUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  color: AppColors.primarySoftBg,
-                  child: const Icon(
-                    Icons.image_outlined,
-                    size: 36,
-                    color: AppColors.primaryColor,
-                  ),
-                ),
-              ),
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) =>
+                  Container(color: AppColors.primarySoftBg),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+            padding: const EdgeInsets.all(10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -565,35 +586,30 @@ class _ProductoCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   producto.unidad,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.TextSoft,
-                  ),
+                  style: const TextStyle(fontSize: 11, color: AppColors.TextSoft),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 Row(
                   children: [
                     Text(
-                      '\$${producto.precio.toStringAsFixed(2)}',
+                      'C\$${producto.precio.toStringAsFixed(2)}',
                       style: const TextStyle(
-                        fontSize: 15,
+                        fontSize: 14,
                         fontWeight: FontWeight.w800,
                         color: AppColors.primaryColor,
                       ),
                     ),
                     const Spacer(),
-                    // Botón agregar / quitar
                     GestureDetector(
                       onTap: onToggle,
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
+                      child: Container(
                         width: 28,
                         height: 28,
                         decoration: BoxDecoration(
+                          shape: BoxShape.circle,
                           color: inCarrito
                               ? AppColors.primaryColor
                               : AppColors.primarySoftBg,
-                          shape: BoxShape.circle,
                         ),
                         child: Icon(
                           inCarrito ? Icons.check : Icons.add,
@@ -635,7 +651,6 @@ class _ValoracionTile extends StatelessWidget {
         children: [
           Row(
             children: [
-              // Avatar inicial
               CircleAvatar(
                 radius: 18,
                 backgroundColor: valoracion.avatarColor,
@@ -659,7 +674,6 @@ class _ValoracionTile extends StatelessWidget {
                   ),
                 ),
               ),
-              // Estrellas
               Row(
                 children: List.generate(5, (i) {
                   final double r = valoracion.rating;

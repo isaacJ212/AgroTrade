@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
+import 'pedidoConfirmado.dart';
 
 class _LineaProducto {
   final String nombre;
@@ -59,7 +60,7 @@ class ResumenConfirmacionScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Productos
+
                   _SectionHeader(
                     icon: Icons.shopping_basket_outlined,
                     label: 'Productos',
@@ -69,7 +70,6 @@ class ResumenConfirmacionScreen extends StatelessWidget {
 
                   const SizedBox(height: 20),
 
-                  // Entrega
                   _SectionHeader(
                     icon: Icons.local_shipping_outlined,
                     label: 'Entrega',
@@ -207,7 +207,7 @@ class ResumenConfirmacionScreen extends StatelessWidget {
         children: [
           ..._grupos.expand(
             (grupo) => [
-              // Encabezado de finca
+
               Container(
                 padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
                 decoration: const BoxDecoration(
@@ -378,14 +378,10 @@ class ResumenConfirmacionScreen extends StatelessWidget {
               label: 'Confirmar pedido',
               radius: 100,
               onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text('Pedido confirmado 🎉'),
-                    behavior: SnackBarBehavior.floating,
-                    backgroundColor: AppColors.primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const PedidoConfirmadoScreen(),
                   ),
                 );
               },
