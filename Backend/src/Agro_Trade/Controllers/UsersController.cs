@@ -27,6 +27,17 @@ namespace Agro_Trade.Controllers
             _contextAccessor = con;
         }
         /// <summary>
+        /// Obtiene todos los usuarios.
+        /// </summary>
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> GetAll(CancellationToken ct)
+        {
+            var result = await mediator.Send(new GetUsersQuery(), ct);
+            return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, new { ErrorMesagge = result.Message });
+        }
+
+        /// <summary>
         /// Obtiene los datos de un usuario mediante su ID único.
         /// </summary>
         /// <param name="id">ID numérico del usuario.</param>
