@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-  
   authService.guardRoute();
 
   if (document.getElementById('usersCardsContainer')) {
@@ -13,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 let currentUserTab = 'todas';
 let currentUserSearch = '';
+let currentUserLoaded = null;
 
 function initUserList() {
   const params = new URLSearchParams(window.location.search);
@@ -125,8 +125,43 @@ function renderUserList() {
 function initUserDetail() {
   const params = new URLSearchParams(window.location.search);
   const userId = parseInt(params.get('userId') || params.get('id') || '101', 10);
-  const u = adminStore.getUserById(userId) || adminStore.getUsers()[0];
+  currentUserLoaded = adminStore.getUserById(userId) || adminStore.getUsers()[0];
 
+  if (!currentUserLoaded) return;
+  renderUserDetailView();
+
+  const editBtn = document.getElementById('btnOpenEditUserModal');
+  if (editBtn) {
+    editBtn.onclick = openEditUserModal;
+  }
+
+  const toggleStatusBtn = document.getElementById('btnToggleUserStatus');
+  if (toggleStatusBtn) {
+    toggleStatusBtn.onclick = () => {
+      const res = adminStore.toggleUserStatus(currentUserLoaded.id);
+      if (res.success) {
+        currentUserLoaded = res.user;
+        renderUserDetailView();
+        Toast.success(`Estado de ${currentUserLoaded.nombreCompleto} cambiado a: ${res.newStatus}`);
+      }
+    };
+  }
+
+  const checkVerificationBtn = document.getElementById('btnUserReviewVerification');
+  if (checkVerificationBtn) {
+    const verificationReq = adminStore.getVerificationByUserId(currentUserLoaded.id);
+    checkVerificationBtn.onclick = () => {
+      if (verificationReq) {
+        window.location.href = `revisar-verificacion.html?idSolicitud=${verificationReq.idSolicitud}`;
+      } else {
+        Toast.warning('Este usuario no tiene solicitudes de verificación pendientes.');
+      }
+    };
+  }
+}
+
+function renderUserDetailView() {
+  const u = currentUserLoaded;
   if (!u) return;
 
   const avatarEl = document.getElementById('userDetailAvatar');
@@ -157,29 +192,82 @@ function initUserDetail() {
 
   if (fnEl) fnEl.textContent = u.nombreCompletoDetalle || u.nombreCompleto;
   if (emEl) emEl.textContent = u.email;
-  if (phEl) phEl.textContent = u.telefono;
-  if (rdEl) rdEl.textContent = u.fechaRegistro;
-  if (adEl) adEl.textContent = u.direccion;
+  if (phEl) phEl.textContent = u.telefono || 'No especificado';
+  if (rdEl) rdEl.textContent = u.fechaRegistro || '2024';
+  if (adEl) adEl.textContent = u.direccion || 'No especificada';
 
   const stEl = document.getElementById('userDetailStatus');
+  const stDot = document.getElementById('userDetailStatusDot');
   const laEl = document.getElementById('userDetailLastAccess');
+  const btnToggleText = document.getElementById('btnToggleUserStatusText');
+
   if (stEl) stEl.textContent = u.estadoCuenta;
-  if (laEl) laEl.textContent = `Último acceso ${u.ultimoAcceso}`;
+  if (stDot) {
+    stDot.className = u.estadoCuenta === 'Activo' ? 'status-dot-green' : 'status-dot-amber';
+  }
+  if (laEl) laEl.textContent = `Último acceso ${u.ultimoAcceso || 'recientemente'}`;
+
+  if (btnToggleText) {
+    btnToggleText.textContent = u.estadoCuenta === 'Activo' ? 'Suspender usuario' : 'Activar usuario';
+  }
 
   const rolesContainer = document.getElementById('userDetailRolesContainer');
   if (rolesContainer) {
     rolesContainer.innerHTML = `<span class="badge-pill ${roleClass}">${u.rolLabel}</span>`;
   }
+}
 
-  const checkVerificationBtn = document.getElementById('btnUserReviewVerification');
-  if (checkVerificationBtn) {
-    const verificationReq = adminStore.getVerificationByUserId(u.id);
-    checkVerificationBtn.onclick = () => {
-      if (verificationReq) {
-        window.location.href = `revisar-verificacion.html?idSolicitud=${verificationReq.idSolicitud}`;
-      } else {
-        Toast.warning('Este usuario no tiene solicitudes de verificación pendientes.');
-      }
-    };
+function openEditUserModal() {
+  const modal = document.getElementById('editUserModal');
+  if (!modal || !currentUserLoaded) return;
+
+  const fnInput = document.getElementById('editUserFullNameInput');
+  const emInput = document.getElementById('editUserEmailInput');
+  const phInput = document.getElementById('editUserPhoneInput');
+  const adInput = document.getElementById('editUserAddressInput');
+  const bioInput = document.getElementById('editUserBioInput');
+
+  if (fnInput) fnInput.value = currentUserLoaded.nombreCompletoDetalle || currentUserLoaded.nombreCompleto;
+  if (emInput) emInput.value = currentUserLoaded.email;
+  if (phInput) phInput.value = currentUserLoaded.telefono || '';
+  if (adInput) adInput.value = currentUserLoaded.direccion || '';
+  if (bioInput) bioInput.value = currentUserLoaded.bio || '';
+
+  modal.classList.add('active');
+}
+
+function closeEditUserModal() {
+  const modal = document.getElementById('editUserModal');
+  if (modal) modal.classList.remove('active');
+}
+
+function saveUserEditAction() {
+  if (!currentUserLoaded) return;
+
+  const fn = document.getElementById('editUserFullNameInput')?.value.trim();
+  const em = document.getElementById('editUserEmailInput')?.value.trim();
+  const ph = document.getElementById('editUserPhoneInput')?.value.trim();
+  const ad = document.getElementById('editUserAddressInput')?.value.trim();
+  const bio = document.getElementById('editUserBioInput')?.value.trim();
+
+  if (!fn || !em) {
+    Toast.warning('Nombre completo y correo son requeridos.');
+    return;
+  }
+
+  const res = adminStore.updateUser(currentUserLoaded.id, {
+    nombreCompleto: fn.split(' ').slice(0, 2).join(' ') || fn,
+    nombreCompletoDetalle: fn,
+    email: em,
+    telefono: ph,
+    direccion: ad,
+    bio: bio
+  });
+
+  if (res.success) {
+    currentUserLoaded = res.user;
+    renderUserDetailView();
+    closeEditUserModal();
+    Toast.success('Información del usuario actualizada exitosamente.');
   }
 }

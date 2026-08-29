@@ -26,123 +26,293 @@
 
   <div class="app-container">
 
-    <header class="subpage-header">
-      <a href="verificaciones.html" class="back-btn" aria-label="Volver">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="19" y1="12" x2="5" y2="12"></line>
-          <polyline points="12 19 5 12 12 5"></polyline>
-        </svg>
-      </a>
-      <h1 class="subpage-title">Revisar verificación</h1>
-    </header>
-
-    <div class="content-body">
-      
-      <div class="review-applicant-banner">
-        <img id="reviewApplicantAvatar" src="" alt="Postulante" class="review-applicant-avatar" />
-        <div class="review-applicant-info">
-          <h2 id="reviewApplicantName" class="review-applicant-name">Cargando...</h2>
-          <div id="reviewApplicantSubtext" class="review-applicant-meta">Productor • Finca</div>
-          <div class="review-pending-badge">
-            <span class="status-dot-amber"></span>
-            <span>Pendiente de revisión</span>
-          </div>
+    <aside class="app-sidebar" id="appSidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M12 2 3 7v6c0 5 4.5 8.5 9 9 4.5-.5 9-4 9-9V7l-9-5Z"></path>
+            <path d="M9 12l2 2 4-4"></path>
+          </svg>
+        </div>
+        <div class="sidebar-brand-text">
+          <div class="sidebar-brand-name">AgroTrade</div>
+          <div class="sidebar-brand-sub">Panel de Administración</div>
         </div>
       </div>
 
-      <div class="info-section-card">
-        <div class="info-section-header">
-          <span>Información enviada</span>
-        </div>
+      <div class="sidebar-nav-section">
+        <div class="sidebar-nav-group-label">Principal</div>
+        <nav class="sidebar-nav-list">
+          <a href="index.html" class="sidebar-nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+            </svg>
+            <span>Resumen</span>
+          </a>
+          <a href="usuarios.html" class="sidebar-nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>Usuarios</span>
+          </a>
+          <a href="verificaciones.html" class="sidebar-nav-link active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <path d="m9 12 2 2 4-4"></path>
+            </svg>
+            <span>Verificaciones</span>
+          </a>
+          <a href="categorias.html" class="sidebar-nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m12 3 5 8H7l5-8Z"></path>
+              <circle cx="6.5" cy="18.5" r="3.5"></circle>
+              <rect x="14" y="15" width="7" height="7"></rect>
+            </svg>
+            <span>Categorías</span>
+          </a>
+        </nav>
 
-        <div class="doc-review-preview-card">
-          <div class="doc-review-preview-header">
-            <div class="doc-review-title-group">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"></rect><line x1="7" y1="8" x2="17" y2="8"></line><line x1="7" y1="12" x2="13" y2="12"></line></svg>
-              <span>Documento de identidad</span>
-            </div>
-            <a class="doc-view-full-link" onclick="viewImageLightbox(document.getElementById('reviewDocIdentidadImg').src, 'Documento de Identidad')">Ver completa</a>
-          </div>
-          <img id="reviewDocIdentidadImg" src="" alt="Documento de identidad" class="doc-preview-image" onclick="viewImageLightbox(this.src, 'Documento de Identidad')" />
-        </div>
-
-        <div class="doc-review-preview-card">
-          <div class="doc-review-preview-header">
-            <div class="doc-review-title-group">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-              <span>Fotografía de verificación</span>
-            </div>
-            <a class="doc-view-full-link" onclick="viewImageLightbox(document.getElementById('reviewDocVerifImg').src, 'Fotografía de verificación')">Ver completa</a>
-          </div>
-          <img id="reviewDocVerifImg" src="" alt="Fotografía de verificación" class="doc-preview-image" onclick="viewImageLightbox(this.src, 'Fotografía de verificación')" />
-        </div>
-
-        <div class="farm-info-grid">
-          <div class="farm-info-item span-full">
-            <span class="farm-info-label">Nombre del negocio / Finca</span>
-            <span class="farm-info-value" id="reviewFarmName">-</span>
-          </div>
-          <div class="farm-info-item">
-            <span class="farm-info-label">RUC / NIT</span>
-            <span class="farm-info-value" id="reviewFarmRuc">-</span>
-          </div>
-          <div class="farm-info-item">
-            <span class="farm-info-label">Extensión / Vehículo</span>
-            <span class="farm-info-value" id="reviewFarmExt">-</span>
-          </div>
-        </div>
+        <div class="sidebar-nav-group-label">Sistema</div>
+        <nav class="sidebar-nav-list">
+          <a href="perfil.html" class="sidebar-nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="8" r="4"></circle>
+              <path d="M6 21v-2a6 6 0 0 1 12 0v2"></path>
+            </svg>
+            <span>Mi Perfil</span>
+          </a>
+        </nav>
       </div>
 
-      <div class="checklist-card">
-        <h3 class="checklist-title">Lista de verificación</h3>
-
-        <div class="checklist-items-group">
-          <label class="checklist-item">
-            <input type="checkbox" class="checklist-checkbox" id="checkName" />
-            <div class="checklist-text-wrap">
-              <span class="checklist-item-title">Nombre coincide</span>
-              <span class="checklist-item-desc">El nombre del perfil coincide con el documento oficial.</span>
-            </div>
-          </label>
-
-          <label class="checklist-item">
-            <input type="checkbox" class="checklist-checkbox" id="checkComplete" />
-            <div class="checklist-text-wrap">
-              <span class="checklist-item-title">Información completa</span>
-              <span class="checklist-item-desc">Todos los campos requeridos han sido diligenciados.</span>
-            </div>
-          </label>
-
-          <label class="checklist-item">
-            <input type="checkbox" class="checklist-checkbox" id="checkLegible" />
-            <div class="checklist-text-wrap">
-              <span class="checklist-item-title">Documento legible</span>
-              <span class="checklist-item-desc">Las imágenes proporcionadas son claras y legibles.</span>
-            </div>
-          </label>
-        </div>
-
-        <div class="form-field-group" style="margin-top: 6px;">
-          <label for="reviewCommentsInput" class="form-field-label">Comentarios (Opcional)</label>
-          <textarea 
-            id="reviewCommentsInput" 
-            class="form-textarea-input" 
-            placeholder="Agregar comentario..."
-          ></textarea>
+      <div class="sidebar-footer">
+        <div class="sidebar-user-card">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Admin" class="sidebar-user-avatar" />
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name">María González</div>
+            <div class="sidebar-user-role">Administrador</div>
+          </div>
+          <button class="sidebar-logout-btn" title="Cerrar sesión" onclick="Toast.info('Sesión cerrada')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+          </button>
         </div>
       </div>
+    </aside>
 
-      <div class="review-actions-group">
-        <button id="btnApproveVerificationAction" class="btn-primary">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          <span>Aprobar verificación</span>
-        </button>
+    <div class="app-main-wrapper">
+
+      <header class="app-top-header">
+        <div class="header-left">
+          <button class="mobile-menu-toggle" aria-label="Menú" onclick="document.getElementById('appSidebar').classList.toggle('mobile-open')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+          <h1 class="header-page-title">Solicitudes de Verificación</h1>
+        </div>
+
+        <div class="header-right">
+          <div class="header-search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" class="header-search-input" placeholder="Buscar solicitudes..." />
+          </div>
+          <button class="icon-notif-btn" aria-label="Notificaciones" onclick="Toast.warning('Tienes solicitudes pendientes de revisión')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span class="notif-badge-dot"></span>
+          </button>
+          <div class="header-user-dropdown" onclick="window.location.href='perfil.html'">
+            <div class="header-user-info">
+              <div class="header-user-name">María González</div>
+              <div class="header-user-email">maria@agrotrade.com</div>
+            </div>
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Admin" class="avatar-mini" />
+          </div>
+        </div>
+      </header>
+
+      <div class="content-body">
+
+        <div class="subpage-header">
+          <a href="verificaciones.html" class="back-btn" aria-label="Volver">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+          </a>
+          <h1 class="subpage-title">Revisar verificación</h1>
+        </div>
         
-        <button id="btnRejectVerificationAction" class="btn-danger-outline">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
-          <span>Rechazar</span>
-        </button>
+        <div class="review-applicant-banner">
+          <img id="reviewApplicantAvatar" src="" alt="Postulante" class="review-applicant-avatar" />
+          <div class="review-applicant-info">
+            <h2 id="reviewApplicantName" class="review-applicant-name">Cargando...</h2>
+            <div id="reviewApplicantSubtext" class="review-applicant-meta">Productor • Finca</div>
+            <div class="review-pending-badge">
+              <span class="status-dot-amber"></span>
+              <span>Pendiente de revisión</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-section-card">
+          <div class="info-section-header">
+            <span>Información enviada</span>
+          </div>
+
+          <div class="doc-review-preview-card">
+            <div class="doc-review-preview-header">
+              <div class="doc-review-title-group">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"></rect><line x1="7" y1="8" x2="17" y2="8"></line><line x1="7" y1="12" x2="13" y2="12"></line></svg>
+                <span>Documento de identidad</span>
+              </div>
+              <a class="doc-view-full-link" onclick="viewImageLightbox(document.getElementById('reviewDocIdentidadImg').src, 'Documento de Identidad')">Ver completa</a>
+            </div>
+            <img id="reviewDocIdentidadImg" src="" alt="Documento de identidad" class="doc-preview-image" onclick="viewImageLightbox(this.src, 'Documento de Identidad')" />
+          </div>
+
+          <div class="doc-review-preview-card">
+            <div class="doc-review-preview-header">
+              <div class="doc-review-title-group">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                <span>Fotografía de verificación</span>
+              </div>
+              <a class="doc-view-full-link" onclick="viewImageLightbox(document.getElementById('reviewDocVerifImg').src, 'Fotografía de verificación')">Ver completa</a>
+            </div>
+            <img id="reviewDocVerifImg" src="" alt="Fotografía de verificación" class="doc-preview-image" onclick="viewImageLightbox(this.src, 'Fotografía de verificación')" />
+          </div>
+
+          <div class="farm-info-grid">
+            <div class="farm-info-item span-full">
+              <span class="farm-info-label">Nombre del negocio / Finca</span>
+              <span class="farm-info-value" id="reviewFarmName">-</span>
+            </div>
+            <div class="farm-info-item">
+              <span class="farm-info-label">RUC / NIT</span>
+              <span class="farm-info-value" id="reviewFarmRuc">-</span>
+            </div>
+            <div class="farm-info-item">
+              <span class="farm-info-label">Extensión / Vehículo</span>
+              <span class="farm-info-value" id="reviewFarmExt">-</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="checklist-card">
+          <h3 class="checklist-title">Lista de verificación</h3>
+
+          <div class="checklist-items-group">
+            <label class="checklist-item">
+              <input type="checkbox" class="checklist-checkbox" id="checkName" />
+              <div class="checklist-text-wrap">
+                <span class="checklist-item-title">Nombre coincide</span>
+                <span class="checklist-item-desc">El nombre del perfil coincide con el documento oficial.</span>
+              </div>
+            </label>
+
+            <label class="checklist-item">
+              <input type="checkbox" class="checklist-checkbox" id="checkComplete" />
+              <div class="checklist-text-wrap">
+                <span class="checklist-item-title">Información completa</span>
+                <span class="checklist-item-desc">Todos los campos requeridos han sido diligenciados.</span>
+              </div>
+            </label>
+
+            <label class="checklist-item">
+              <input type="checkbox" class="checklist-checkbox" id="checkLegible" />
+              <div class="checklist-text-wrap">
+                <span class="checklist-item-title">Documento legible</span>
+                <span class="checklist-item-desc">Las imágenes proporcionadas son claras y legibles.</span>
+              </div>
+            </label>
+          </div>
+
+          <div class="form-field-group" style="margin-top: 6px;">
+            <label for="reviewCommentsInput" class="form-field-label">Comentarios (Opcional)</label>
+            <textarea 
+              id="reviewCommentsInput" 
+              class="form-textarea-input" 
+              placeholder="Agregar comentario..."
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="review-actions-group">
+          <button id="btnApproveVerificationAction" class="btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>Aprobar verificación</span>
+          </button>
+          
+          <button id="btnRejectVerificationAction" class="btn-danger-outline">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+            <span>Rechazar</span>
+          </button>
+        </div>
       </div>
+
+      <nav class="bottom-navigation-bar" aria-label="Navegación principal">
+        <a href="index.html" class="bottom-tab-item" aria-label="Resumen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+          </svg>
+          <span>Resumen</span>
+        </a>
+
+        <a href="usuarios.html" class="bottom-tab-item" aria-label="Usuarios">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span>Usuarios</span>
+        </a>
+
+        <a href="verificaciones.html" class="bottom-tab-item active" aria-label="Verificaciones">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            <path d="m9 12 2 2 4-4"></path>
+          </svg>
+          <span>Verif.</span>
+        </a>
+
+        <a href="categorias.html" class="bottom-tab-item" aria-label="Catálogo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m12 3 5 8H7l5-8Z"></path>
+            <circle cx="6.5" cy="18.5" r="3.5"></circle>
+            <rect x="14" y="15" width="7" height="7"></rect>
+          </svg>
+          <span>Catálogo</span>
+        </a>
+
+        <a href="perfil.html" class="bottom-tab-item" aria-label="Perfil">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="8" r="4"></circle>
+            <path d="M6 21v-2a6 6 0 0 1 12 0v2"></path>
+          </svg>
+          <span>Perfil</span>
+        </a>
+      </nav>
+
     </div>
 
     <div id="imageLightboxModal" class="image-lightbox-modal" onclick="if(event.target === this) closeImageLightbox()">
