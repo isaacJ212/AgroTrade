@@ -7,6 +7,7 @@ import '../cliente/misPedidos.dart';
 import '../productor/pedidos/sales.dart';
 import 'auth/Login.dart';
 import 'editarPerfil.dart';
+import 'centroAyuda.dart';
 
 class Profile extends StatelessWidget {
   const Profile({super.key});
@@ -213,11 +214,9 @@ class Profile extends StatelessWidget {
                     icon: Icons.help_outline,
                     title: 'Centro de ayuda',
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Soporte AgroTrade: contacto@agrotrade.com'),
-                          behavior: SnackBarBehavior.floating,
-                        ),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const CentroAyuda()),
                       );
                     },
                   ),

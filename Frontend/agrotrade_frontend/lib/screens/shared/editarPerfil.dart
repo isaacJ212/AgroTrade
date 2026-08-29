@@ -137,7 +137,6 @@ class _EditarPerfilState extends State<EditarPerfil> {
               controller: _nameController,
               label: 'Nombre completo',
               hint: 'Ingresa tu nombre completo',
-              prefixIcon: Icons.person_outline,
             ),
             const SizedBox(height: 20),
 
@@ -145,8 +144,7 @@ class _EditarPerfilState extends State<EditarPerfil> {
               controller: _emailController,
               label: 'Correo electrónico',
               hint: 'Ingresa tu correo',
-              prefixIcon: Icons.email_outlined,
-              keyboardType: TextInputType.emailAddress,
+              keyboard: TextInputType.emailAddress,
             ),
             const SizedBox(height: 20),
 
@@ -154,8 +152,7 @@ class _EditarPerfilState extends State<EditarPerfil> {
               controller: _phoneController,
               label: 'Teléfono',
               hint: 'Ingresa tu número',
-              prefixIcon: Icons.phone_outlined,
-              keyboardType: TextInputType.phone,
+              keyboard: TextInputType.phone,
             ),
             const SizedBox(height: 20),
 
@@ -163,7 +160,6 @@ class _EditarPerfilState extends State<EditarPerfil> {
               controller: _locationController,
               label: 'Ubicación',
               hint: 'Ej: Jinotepe, Carazo',
-              prefixIcon: Icons.location_on_outlined,
             ),
             const SizedBox(height: 32),
 
