@@ -1,0 +1,62 @@
+.user-detail-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 10px 0 16px 0;
+}
+
+.user-detail-avatar-lg {
+  width: 96px;
+  height: 96px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  border: 3px solid #86efac;
+  background-color: #e2e8f0;
+}
+
+.user-detail-name {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+
+.user-detail-badges {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.user-detail-bio {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  max-width: 90%;
+  margin: 0 auto;
+}
+
+.admin-actions-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--shadow-card);
+}
+
+.admin-actions-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.admin-actions-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}

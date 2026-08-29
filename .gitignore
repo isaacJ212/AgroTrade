@@ -10,6 +10,11 @@
 **/x64/
 **/x86/
 
+bin/
+obj/
+*.user
+*.suo
+.vs/
 
 
 .vs/
@@ -63,6 +68,8 @@ ScaffoldingReadMe.txt
 appsettings.Development.json
 appsettings.Local.json
 appsettings.Production.json
+appsettings.json
+
 
 
 .env
@@ -94,3 +101,36 @@ publish/
 
 .qodo/
 **/.qodo/
+
+
+
+**/.dart_tool/
+**/build/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.pub-cache/
+**/.packages
+
+
+**/Frontend/agrotrade_frontend/ios/Flutter/Generated.xcconfig
+**/Frontend/agrotrade_frontend/ios/Flutter/ephemeral/
+**/Frontend/agrotrade_frontend/ios/Flutter/flutter_export_environment.sh
+**/Frontend/agrotrade_frontend/ios/Runner/GeneratedPluginRegistrant.*
+
+
+
+Frontend/agrotrade_frontend/android/.gradle/
+Frontend/agrotrade_frontend/.gradle/
+Frontend/agrotrade_frontend/android/local.properties
+
+
+Frontend/agrotrade_frontend/ios/Pods/
+
+
+.gradle/
+**/.gradle/
+
+
+Frontend/agrotrade_frontend/.flutter-plugins
+Frontend/agrotrade_frontend/.flutter-plugins-dependencies
+Frontend/agrotrade_frontend/.dart_tool/

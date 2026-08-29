@@ -1,0 +1,17 @@
+**/.classpath
+**/.dockerignore
+**/.env
+**/.git
+**/.gitignore
+**/.project
+**/.settings
+**/.toolstarget
+**/.vs
+**/.vscode
+**/*.*proj.user
+**/bin
+**/charts
+**/docker-compose*
+**/obj
+**/out
+**/node_modules

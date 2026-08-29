@@ -1,0 +1,6 @@
+@Agro_Trade_HostAddress = http://localhost:5080
+
+GET {{Agro_Trade_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
