@@ -17,3 +17,4 @@ export 'widgets/info_row.dart';
 export 'widgets/accent_info_card.dart';
 export 'widgets/message_bubble.dart';
 export 'widgets/chat_input_field.dart';
+export 'widgets/profile_menu_item.dart';
