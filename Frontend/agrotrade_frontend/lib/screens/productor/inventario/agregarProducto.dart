@@ -132,7 +132,7 @@ class _AgregarProductoState extends State<AgregarProducto> {
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined, color: AppColors.titleDark),
-            onPressed: () {},
+            onPressed: () => Navigator.pushNamed(context, '/notificaciones'),
           ),
         ],
         bottom: PreferredSize(

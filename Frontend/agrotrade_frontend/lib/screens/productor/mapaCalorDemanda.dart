@@ -90,7 +90,7 @@ class _MapaCalorDemandaState extends State<MapaCalorDemanda>
         actions: [
           IconButton(
             icon: const Icon(Icons.more_vert, color: AppColors.titleDark),
-            onPressed: () {},
+            onPressed: () => _mostrarOpciones(context),
           ),
         ],
         bottom: PreferredSize(
@@ -266,6 +266,52 @@ class _MapaCalorDemandaState extends State<MapaCalorDemanda>
         currentIndex: _tabActual,
         onTap: _cambiarTab,
       ),
+    );
+  }
+
+  void _mostrarOpciones(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.file_download_outlined, color: AppColors.primaryColor),
+                title: const Text('Exportar reporte (PDF)', style: TextStyle(fontWeight: FontWeight.w600)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Reporte exportado')));
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.share_outlined, color: AppColors.primaryColor),
+                title: const Text('Compartir mapa', style: TextStyle(fontWeight: FontWeight.w600)),
+                onTap: () => Navigator.pop(ctx),
+              ),
+              ListTile(
+                leading: const Icon(Icons.settings_outlined, color: AppColors.primaryColor),
+                title: const Text('Configuración avanzada', style: TextStyle(fontWeight: FontWeight.w600)),
+                onTap: () => Navigator.pop(ctx),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
     );
   }
 }
