@@ -13,10 +13,10 @@ class Profile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppColors.screenBg,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.White,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.titleDark),
           onPressed: () {
@@ -32,7 +32,7 @@ class Profile extends StatelessWidget {
         ),
         title: const Text(
           'Mi perfil',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+          style: AppTextStyles.Title,
         ),
       ),
 
@@ -44,9 +44,9 @@ class Profile extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.White,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: const Color(0xFFE0E5E2)),
+                border: Border.all(color: AppColors.cardBorder),
               ),
               child: Column(
                 children: [
@@ -59,12 +59,12 @@ class Profile extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: const Color(0xFFE0E5E2),
+                            color: AppColors.cardBorder,
                             width: 2,
                           ),
                         ),
                         child: const CircleAvatar(
-                          backgroundColor: Color(0xFFEAF3ED),
+                          backgroundColor: AppColors.primarySoftBg,
                           child: Icon(
                             Icons.person,
                             size: 42,
@@ -81,12 +81,12 @@ class Profile extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: AppColors.primaryColor,
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
+                            border: Border.all(color: AppColors.White, width: 2),
                           ),
                           child: const Icon(
                             Icons.verified_user_outlined,
                             size: 14,
-                            color: Colors.white,
+                            color: AppColors.White,
                           ),
                         ),
                       ),
@@ -112,7 +112,7 @@ class Profile extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE4F4E9),
+                      color: AppColors.primarySoftBg,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Row(
@@ -142,7 +142,7 @@ class Profile extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF5C6661),
+                      color: AppColors.TextSoft,
                     ),
                   ),
                 ],
@@ -153,13 +153,13 @@ class Profile extends StatelessWidget {
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.White,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: const Color(0xFFE0E5E2)),
+                border: Border.all(color: AppColors.cardBorder),
               ),
               child: Column(
                 children: [
-                  _ProfileMenuItem(
+                  ProfileMenuItem(
                     icon: Icons.shopping_bag_outlined,
                     title: 'Mis pedidos y compras',
                     onTap: () => Navigator.push(
@@ -171,10 +171,10 @@ class Profile extends StatelessWidget {
                   const Divider(
                     height: 1,
                     indent: 48,
-                    color: Color(0xFFE5E9E7),
+                    color: AppColors.cardBorder,
                   ),
 
-                  _ProfileMenuItem(
+                  ProfileMenuItem(
                     icon: Icons.person_outline,
                     title: 'Datos personales',
                     onTap: () {
@@ -190,10 +190,10 @@ class Profile extends StatelessWidget {
                   const Divider(
                     height: 1,
                     indent: 48,
-                    color: Color(0xFFE5E9E7),
+                    color: AppColors.cardBorder,
                   ),
 
-                  _ProfileMenuItem(
+                  ProfileMenuItem(
                     icon: Icons.settings_outlined,
                     title: 'Configuración',
                     onTap: () {
@@ -209,10 +209,10 @@ class Profile extends StatelessWidget {
                   const Divider(
                     height: 1,
                     indent: 48,
-                    color: Color(0xFFE5E9E7),
+                    color: AppColors.cardBorder,
                   ),
 
-                  _ProfileMenuItem(
+                  ProfileMenuItem(
                     icon: Icons.help_outline,
                     title: 'Centro de ayuda',
                     onTap: () {
@@ -260,48 +260,6 @@ class Profile extends StatelessWidget {
             );
           }
         },
-      ),
-    );
-  }
-}
-
-class _ProfileMenuItem extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final VoidCallback onTap;
-
-  const _ProfileMenuItem({
-    required this.icon,
-    required this.title,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
-        child: Row(
-          children: [
-            Icon(icon, size: 24, color: AppColors.primaryColor),
-
-            const SizedBox(width: 14),
-
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.TextMain,
-                ),
-              ),
-            ),
-
-            const Icon(Icons.chevron_right, size: 22, color: Color(0xFF59635E)),
-          ],
-        ),
       ),
     );
   }
