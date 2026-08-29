@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nueva Categoría - AgroTrade Admin</title>
+  <meta name="description" content="Creación de nueva categoría para el catálogo en AgroTrade." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/base/variables.css" />
+  <link rel="stylesheet" href="css/base/reset.css" />
+  <link rel="stylesheet" href="css/layout/shell.css" />
+  <link rel="stylesheet" href="css/components/buttons.css" />
+  <link rel="stylesheet" href="css/components/cards.css" />
+  <link rel="stylesheet" href="css/components/forms.css" />
+  <link rel="stylesheet" href="css/components/toast.css" />
+  <link rel="stylesheet" href="css/views/categories.css" />
+</head>
+<body>
+
+  <div class="app-container">
+
+    <header class="subpage-header">
+      <a href="categorias.html" class="back-btn" aria-label="Volver">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+      </a>
+      <h1 class="subpage-title">Nueva Categoría</h1>
+    </header>
+
+    <div class="content-body">
+      <form class="category-form-container" onsubmit="event.preventDefault();">
+
+        <div class="form-field-group">
+          <label for="categoryNameInput" class="form-field-label">
+            Nombre de la categoría <span class="required-star">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="categoryNameInput" 
+            class="form-text-input" 
+            placeholder="Ej: Frutas, Lácteos, Granos..." 
+            maxlength="50" 
+            required 
+          />
+          <span class="form-field-hint">Máximo 50 caracteres.</span>
+        </div>
+
+        <div class="form-field-group" id="categoryDescGroup">
+          <label for="categoryDescInput" class="form-field-label">
+            Descripción <span class="required-star">*</span>
+          </label>
+          <textarea 
+            id="categoryDescInput" 
+            class="form-textarea-input" 
+            placeholder="Breve descripción..." 
+            required
+          ></textarea>
+          <div id="categoryDescError" class="form-error-message hidden">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span>Este campo es obligatorio.</span>
+          </div>
+        </div>
+
+        <div class="category-form-actions">
+          <button type="button" id="btnSubmitCreateCategory" class="btn-primary">
+            <span>Crear categoría</span>
+          </button>
+          <a href="categorias.html" class="btn-secondary-text" style="text-decoration:none; text-align:center;">
+            <span>Cancelar</span>
+          </a>
+        </div>
+      </form>
+    </div>
+
+    <div id="toastContainer" class="toast-box-container"></div>
+
+  </div>
+
+  <script src="js/config/constants.js"></script>
+  <script src="js/core/store.js"></script>
+  <script src="js/core/toast.js"></script>
+  <script src="js/services/auth.service.js"></script>
+  <script src="js/views/categories.js"></script>
+</body>
+</html>

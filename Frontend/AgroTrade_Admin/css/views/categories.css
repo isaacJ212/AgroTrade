@@ -1,0 +1,29 @@
+.categories-page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.categories-page-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.categories-list-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.category-form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.category-form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}

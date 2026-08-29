@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resumen - AgroTrade Admin</title>
+  <meta name="description" content="Panel de administración de AgroTrade para gestión de usuarios, categorías y verificación de productores y repartidores." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/base/variables.css" />
+  <link rel="stylesheet" href="css/base/reset.css" />
+  <link rel="stylesheet" href="css/layout/shell.css" />
+  <link rel="stylesheet" href="css/components/buttons.css" />
+  <link rel="stylesheet" href="css/components/cards.css" />
+  <link rel="stylesheet" href="css/components/badges.css" />
+  <link rel="stylesheet" href="css/components/toast.css" />
+  <link rel="stylesheet" href="css/views/dashboard.css" />
+</head>
+<body>
+
+  <div class="app-container">
+
+    <div class="content-body">
+
+      <div class="dashboard-page-header">
+        <h1 class="dashboard-page-title">Resumen</h1>
+        <p class="dashboard-page-subtitle">Supervisá la actividad principal de AgroTrade.</p>
+      </div>
+
+      <div class="stats-grid-2x2">
+
+        <a href="usuarios.html" class="stat-box-card" style="text-decoration:none;">
+          <div class="stat-card-top-row">
+            <div class="stat-icon-wrap icon-blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <span class="badge-pill" style="background:#e0f2fe; color:#0284c7;">+12%</span>
+          </div>
+          <div>
+            <span class="stat-title-label">USUARIOS REGISTRADOS</span>
+            <div class="stat-big-number" id="dashStatUsers">248</div>
+          </div>
+        </a>
+
+        <a href="usuarios.html?filter=productores" class="stat-box-card" style="text-decoration:none;">
+          <div class="stat-card-top-row">
+            <div class="stat-icon-wrap icon-green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="6" cy="18" r="3"></circle>
+                <circle cx="18" cy="18" r="3"></circle>
+                <path d="M3 18h12v-6H8l-2 3H3"></path>
+                <path d="M14 9V4h-4"></path>
+              </svg>
+            </div>
+            <span class="badge-pill" style="background:#dcfce7; color:#15803d;">+5%</span>
+          </div>
+          <div>
+            <span class="stat-title-label">PRODUCTORES</span>
+            <div class="stat-big-number" id="dashStatProducers">86</div>
+          </div>
+        </a>
+
+        <a href="verificaciones.html" class="stat-box-card stat-amber-card" style="text-decoration:none;">
+          <div class="stat-card-top-row">
+            <div class="stat-icon-wrap icon-amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                <path d="m9 12 2 2 4-4"></path>
+              </svg>
+            </div>
+            <span class="status-dot-amber"></span>
+          </div>
+          <div>
+            <span class="stat-title-label">VERIFICACIONES PENDIENTES</span>
+            <div class="stat-big-number" id="dashStatPending">7</div>
+          </div>
+        </a>
+
+        <a href="categorias.html" class="stat-box-card" style="text-decoration:none;">
+          <div class="stat-card-top-row">
+            <div class="stat-icon-wrap icon-dark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m12 3 5 8H7l5-8Z"></path>
+                <circle cx="6.5" cy="18.5" r="3.5"></circle>
+                <rect x="14" y="15" width="7" height="7"></rect>
+              </svg>
+            </div>
+          </div>
+          <div>
+            <span class="stat-title-label">CATEGORÍAS</span>
+            <div class="stat-big-number" id="dashStatCategories">12</div>
+          </div>
+        </a>
+      </div>
+
+      <section class="section-block-group">
+        <div class="section-block-header">
+          <h2 class="section-block-title">Pendientes de revisión</h2>
+          <a href="verificaciones.html" class="section-block-link">Ver todos</a>
+        </div>
+
+        <div id="dashPendingReviewsList" style="display: flex; flex-direction: column; gap: 14px;">
+          
+        </div>
+      </section>
+
+      <section class="section-block-group">
+        <div class="section-block-header">
+          <h2 class="section-block-title">Actividad reciente</h2>
+        </div>
+
+        <div class="activity-card-container">
+          <ul class="recent-activity-list" id="dashRecentActivitiesList">
+            
+          </ul>
+          <div class="activity-full-history-footer">
+            <button class="activity-history-btn" onclick="Toast.success('Historial de actividad sincronizado')">
+              Ver historial completo
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <div class="main-app-header" style="border-radius: var(--radius-lg); border: 1px solid var(--border-light); margin-top: 6px;">
+        <div class="main-header-left">
+          <button style="padding:4px; display:flex;" aria-label="Menú" onclick="Toast.show('Panel de administración AgroTrade activo')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#066334" stroke-width="2.5">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+          <span class="brand-text">AgroTrade Admin</span>
+        </div>
+
+        <div class="main-header-right">
+          <button class="icon-notif-btn" aria-label="Notificaciones" onclick="Toast.warning('Tienes solicitudes pendientes de revisión')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span class="notif-badge-dot"></span>
+          </button>
+
+          <a href="perfil.html" title="Mi Perfil">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Admin" class="avatar-mini" />
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <nav class="bottom-navigation-bar" aria-label="Navegación principal">
+      <a href="index.html" class="bottom-tab-item active" aria-label="Resumen" style="text-decoration:none;">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+          <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+          <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+          <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+        </svg>
+        <span>Resumen</span>
+      </a>
+
+      <a href="usuarios.html" class="bottom-tab-item" aria-label="Usuarios" style="text-decoration:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        <span>Usuarios</span>
+      </a>
+
+      <a href="categorias.html" class="bottom-tab-item" aria-label="Catálogo" style="text-decoration:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m12 3 5 8H7l5-8Z"></path>
+          <circle cx="6.5" cy="18.5" r="3.5"></circle>
+          <rect x="14" y="15" width="7" height="7"></rect>
+        </svg>
+        <span>Catálogo</span>
+      </a>
+
+      <a href="perfil.html" class="bottom-tab-item" aria-label="Perfil" style="text-decoration:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="8" r="4"></circle>
+          <path d="M6 21v-2a6 6 0 0 1 12 0v2"></path>
+        </svg>
+        <span>Perfil</span>
+      </a>
+    </nav>
+
+    <div id="toastContainer" class="toast-box-container"></div>
+
+  </div>
+
+  <script src="js/config/constants.js"></script>
+  <script src="js/core/store.js"></script>
+  <script src="js/core/toast.js"></script>
+  <script src="js/services/auth.service.js"></script>
+  <script src="js/views/dashboard.js"></script>
+</body>
+</html>
