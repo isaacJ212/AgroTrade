@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
-import '../../ui/components.dart';
 
 class SeguimientoPedidoScreen extends StatelessWidget {
   const SeguimientoPedidoScreen({super.key});
-
-  static const int _pasoActivo = 1;
 
   static const List<_PasoEnvio> _pasos = [
     _PasoEnvio(
@@ -457,7 +454,7 @@ class _PasoTile extends StatelessWidget {
       children: [
         Column(
           children: [
-            // Ícono del paso
+
             Container(
               width: 28,
               height: 28,

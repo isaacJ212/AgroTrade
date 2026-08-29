@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
+import 'seguimientoPedido.dart';
 import 'valorarPedido.dart';
 
 enum _EstadoPedido { confirmado, enCamino, entregado }
@@ -355,7 +356,14 @@ class _CardConfirmado extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: OutlinedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const SeguimientoPedidoScreen(),
+                  ),
+                );
+              },
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.primaryColor,
                 side: const BorderSide(
@@ -432,7 +440,7 @@ class _CardEnCamino extends StatelessWidget {
             ],
           ),
 
-          // Finca
+    
           if (pedido.finca != null) ...[
             const SizedBox(height: 8),
             Row(
@@ -497,7 +505,18 @@ class _CardEnCamino extends StatelessWidget {
           ],
 
           const SizedBox(height: 14),
-          PrimaryButton(label: 'Seguir entrega', radius: 100, onPressed: () {}),
+          PrimaryButton(
+            label: 'Seguir entrega',
+            radius: 100,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const SeguimientoPedidoScreen(),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
