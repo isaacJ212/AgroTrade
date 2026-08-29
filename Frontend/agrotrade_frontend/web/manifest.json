@@ -1,6 +1,6 @@
 {
-    "name": "agrotrade_frontend",
-    "short_name": "agrotrade_frontend",
+    "name": "AgroTrade",
+    "short_name": "AgroTrade",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
