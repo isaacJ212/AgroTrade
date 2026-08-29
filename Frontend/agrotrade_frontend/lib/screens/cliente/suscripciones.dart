@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
-import '../../ui/components.dart';
 
 enum _EstadoSuscripcion { activa, pausada, cancelada }
 

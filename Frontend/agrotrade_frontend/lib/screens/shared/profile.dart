@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import '../../services/api_session.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
+import '../cliente/misPedidos.dart';
 import '../productor/pedidos/sales.dart';
+import 'auth/Login.dart';
 
 class Profile extends StatelessWidget {
   const Profile({super.key});
@@ -13,9 +16,15 @@ class Profile extends StatelessWidget {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back, color: AppColors.titleDark),
+                onPressed: () => Navigator.pop(context),
+              )
+            : null,
         title: const Text(
           'Mi perfil',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
         ),
       ),
 
@@ -76,9 +85,12 @@ class Profile extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    'Carlos Martínez',
-                    style: TextStyle(
+                  Text(
+                    ApiSession.instance.userName != null &&
+                            ApiSession.instance.userName!.isNotEmpty
+                        ? ApiSession.instance.userName!
+                        : 'Usuario AgroTrade',
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                       color: AppColors.TextMain,
@@ -105,7 +117,7 @@ class Profile extends StatelessWidget {
                         ),
                         SizedBox(width: 5),
                         Text(
-                          'Productor verificado',
+                          'Cuenta Verificada',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
@@ -118,162 +130,18 @@ class Profile extends StatelessWidget {
 
                   const SizedBox(height: 12),
                   const Text(
-                    'Finca La Esperanza',
+                    'Jinotepe, Carazo',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF5C6661),
                     ),
                   ),
-
-                  const SizedBox(height: 8),
-
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.location_on_outlined,
-                        size: 16,
-                        color: Color(0xFF69736E),
-                      ),
-                      SizedBox(width: 4),
-                      Text(
-                        'Jinotepe, Carazo',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF69736E),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 8),
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.star_rounded,
-                        size: 18,
-                        color: Color(0xFFFFA726),
-                      ),
-                      SizedBox(width: 4),
-                      Text(
-                        '4.8',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.TextMain,
-                        ),
-                      ),
-                      SizedBox(width: 4),
-                      Text(
-                        '(32 valoraciones)',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF747E79),
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 12),
-            PrimaryButton(
-              label: 'Editar Perfil',
-              radius: 8,
-              onPressed: () {
-              },
-            ),
-            const SizedBox(height: 10),
-            SecondaryButton(
-              label: 'Ver perfil',
-              onPressed: () {
-              },
-            ),
-            const SizedBox(height: 24),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: const Color(0xFFE0E5E2)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Sobre la finca',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.TextMain,
-                    ),
-                  ),
+            const SizedBox(height: 20),
 
-                  const SizedBox(height: 14),
-
-                  const Text(
-                    'Productor local dedicado al cultivo y '
-                    'comercialización de frutas y hortalizas frescas.',
-                    style: TextStyle(
-                      fontSize: 14,
-                      height: 1.6,
-                      color: Color(0xFF5C6661),
-                    ),
-                  ),
-
-                  const SizedBox(height: 18),
-                  const Row(
-                    children: [
-                      Expanded(
-                        child: _FarmInfoCard(
-                          icon: Icons.phone_outlined,
-                          title: 'Teléfono',
-                          value: '8888 1234',
-                        ),
-                      ),
-
-                      SizedBox(width: 12),
-
-                      Expanded(
-                        child: _FarmInfoCard(
-                          icon: Icons.map_outlined,
-                          title: 'Ubicación',
-                          value: 'Jinotepe, Carazo',
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 12),
-                  const Row(
-                    children: [
-                      Expanded(
-                        child: _FarmInfoCard(
-                          icon: Icons.inventory_2_outlined,
-                          title: 'Productos',
-                          value: '12 publicados',
-                        ),
-                      ),
-
-                      SizedBox(width: 12),
-
-                      Expanded(
-                        child: _FarmInfoCard(
-                          icon: Icons.calendar_month_outlined,
-                          title: 'Miembro desde',
-                          value: '2024',
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -284,9 +152,12 @@ class Profile extends StatelessWidget {
               child: Column(
                 children: [
                   _ProfileMenuItem(
-                    icon: Icons.person_outline,
-                    title: 'Datos personales',
-                    onTap: () {},
+                    icon: Icons.shopping_bag_outlined,
+                    title: 'Mis pedidos y compras',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const MisPedidosScreen()),
+                    ),
                   ),
 
                   const Divider(
@@ -296,9 +167,16 @@ class Profile extends StatelessWidget {
                   ),
 
                   _ProfileMenuItem(
-                    icon: Icons.park_outlined,
-                    title: 'Información de la finca',
-                    onTap: () {},
+                    icon: Icons.person_outline,
+                    title: 'Datos personales',
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Edición de datos personales'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
                   ),
 
                   const Divider(
@@ -310,19 +188,14 @@ class Profile extends StatelessWidget {
                   _ProfileMenuItem(
                     icon: Icons.settings_outlined,
                     title: 'Configuración',
-                    onTap: () {},
-                  ),
-
-                  const Divider(
-                    height: 1,
-                    indent: 48,
-                    color: Color(0xFFE5E9E7),
-                  ),
-
-                  _ProfileMenuItem(
-                    icon: Icons.lock_outline,
-                    title: 'Cambiar contraseña',
-                    onTap: () {},
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Configuración de la cuenta'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
                   ),
 
                   const Divider(
@@ -333,8 +206,15 @@ class Profile extends StatelessWidget {
 
                   _ProfileMenuItem(
                     icon: Icons.help_outline,
-                    title: 'Ayuda',
-                    onTap: () {},
+                    title: 'Centro de ayuda',
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Soporte AgroTrade: contacto@agrotrade.com'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -342,10 +222,15 @@ class Profile extends StatelessWidget {
 
             const SizedBox(height: 30),
             TertiaryButton(
-              label: 'Cerrar Sesion',
+              label: 'Cerrar Sesión',
               icon: Icons.logout,
               onPressed: () {
-                //despues
+                ApiSession.instance.clear();
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const Login()),
+                  (_) => false,
+                );
               },
             ),
 
@@ -367,65 +252,6 @@ class Profile extends StatelessWidget {
             );
           }
         },
-      ),
-    );
-  }
-}
-
-class _FarmInfoCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String value;
-
-  const _FarmInfoCard({
-    required this.icon,
-    required this.title,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 88,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FA),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFE0E5E2)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 18, color: const Color(0xFF4F5C56)),
-
-              const SizedBox(width: 8),
-
-              Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF58635E),
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          const Spacer(),
-
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: AppColors.TextMain,
-            ),
-          ),
-        ],
       ),
     );
   }
