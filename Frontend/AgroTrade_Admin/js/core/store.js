@@ -34,6 +34,31 @@ class AdminStore {
     return this.getUsers().find(u => u.id === Number(id));
   }
 
+  updateUser(id, updatedData) {
+    const users = this.getUsers();
+    const index = users.findIndex(u => u.id === Number(id));
+    if (index === -1) return { success: false, message: 'Usuario no encontrado' };
+
+    users[index] = { ...users[index], ...updatedData };
+    localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.USERS, JSON.stringify(users));
+
+    this.addActivity(`Perfil de usuario actualizado: ${users[index].nombreCompleto}`, 'user', 'icon-blue-bg');
+    return { success: true, user: users[index] };
+  }
+
+  toggleUserStatus(id) {
+    const users = this.getUsers();
+    const user = users.find(u => u.id === Number(id));
+    if (!user) return { success: false, message: 'Usuario no encontrado' };
+
+    const newStatus = user.estadoCuenta === 'Activo' ? 'Suspendido' : 'Activo';
+    user.estadoCuenta = newStatus;
+    localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.USERS, JSON.stringify(users));
+
+    this.addActivity(`Estado de usuario cambiado a ${newStatus}: ${user.nombreCompleto}`, 'user', newStatus === 'Activo' ? 'icon-green-bg' : 'icon-gray-bg');
+    return { success: true, user, newStatus };
+  }
+
   getVerifications() {
     try {
       const data = localStorage.getItem(APP_CONSTANTS.STORAGE_KEYS.REQUESTS);
@@ -60,7 +85,7 @@ class AdminStore {
     const req = list.find(v => v.idSolicitud === Number(idSolicitud));
     if (!req) return { success: false, message: 'Solicitud no encontrada' };
 
-    req.estado = 1; 
+    req.estado = 1;
     req.comentario = comment;
     req.fechaResolucion = new Date().toISOString();
     localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.REQUESTS, JSON.stringify(list));
@@ -88,7 +113,7 @@ class AdminStore {
     const req = list.find(v => v.idSolicitud === Number(idSolicitud));
     if (!req) return { success: false, message: 'Solicitud no encontrada' };
 
-    req.estado = 2; 
+    req.estado = 2;
     req.comentario = comment;
     req.fechaResolucion = new Date().toISOString();
     localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.REQUESTS, JSON.stringify(list));
@@ -111,13 +136,17 @@ class AdminStore {
     }
   }
 
+  getCategoryById(id) {
+    return this.getCategories().find(c => c.id === Number(id));
+  }
+
   addCategory(category) {
     const categories = this.getCategories();
     const newCategory = {
       id: Date.now(),
       nombre: category.nombre,
       descripcion: category.descripcion || '',
-      conteoProductos: 0,
+      conteoProductos: category.conteoProductos || 0,
       icono: category.icono || 'apple'
     };
     categories.push(newCategory);
@@ -129,6 +158,18 @@ class AdminStore {
 
     this.addActivity(`Nueva categoría creada: ${newCategory.nombre}`, 'category', 'icon-gray-bg');
     return newCategory;
+  }
+
+  updateCategory(id, updatedData) {
+    const categories = this.getCategories();
+    const index = categories.findIndex(c => c.id === Number(id));
+    if (index === -1) return { success: false, message: 'Categoría no encontrada' };
+
+    categories[index] = { ...categories[index], ...updatedData };
+    localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
+
+    this.addActivity(`Categoría actualizada: ${categories[index].nombre}`, 'category', 'icon-gray-bg');
+    return { success: true, category: categories[index] };
   }
 
   deleteCategory(id) {
