@@ -7,6 +7,7 @@ import 'carrito.dart';
 import 'inicioComprador.dart';
 import 'misPedidos.dart';
 import 'perfilProductor.dart';
+import 'detalleProductoCliente.dart';
 
 class ProductoMercado {
   final int id;
@@ -338,7 +339,7 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
         onAgregar: () => _agregar(productos[i].nombre),
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const PerfilProductorScreen()),
+          MaterialPageRoute(builder: (_) => const DetalleProductoCliente()),
         ),
       ),
     );

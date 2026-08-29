@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
-import '../../ui/components.dart';
+import '../shared/chat/chatMensajes.dart';
+import 'carrito.dart';
+import 'perfilProductor.dart';
 
 class DetalleProductoCliente extends StatefulWidget {
   const DetalleProductoCliente({super.key});
@@ -37,11 +39,19 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
         actions: [
           IconButton(
             icon: const Icon(Icons.favorite_border, color: AppColors.titleDark),
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text('Agregado a favoritos'),
+                backgroundColor: AppColors.primaryColor,
+              ));
+            },
           ),
           IconButton(
             icon: const Icon(Icons.shopping_cart_outlined, color: AppColors.titleDark),
-            onPressed: () {},
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const CarritoScreen()),
+            ),
           ),
         ],
       ),
@@ -216,14 +226,14 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
                         children: [
                           const Icon(Icons.check_circle_outline, color: AppColors.primaryColor, size: 18),
                           const SizedBox(width: 4),
-                          Text(
-                            'Disponible',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primaryColor.withOpacity(0.9),
+                            Text(
+                              'Disponible',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.primaryColor.withValues(alpha: 0.9),
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ],
@@ -241,7 +251,10 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
                   ),
                   const SizedBox(height: 12),
                   InkWell(
-                    onTap: () {},
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const PerfilProductorScreen()),
+                    ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -385,7 +398,7 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
           color: AppColors.White,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, -5),
             ),
@@ -395,7 +408,10 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
           children: [
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: () {},
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ChatMensajes(contactName: "Finca La Esperanza", contactRole: "Productor")),
+                ),
                 icon: const Icon(Icons.chat_bubble_outline, size: 18),
                 label: const Text('Enviar mensaje'),
                 style: OutlinedButton.styleFrom(
@@ -411,7 +427,16 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
             const SizedBox(width: 12),
             Expanded(
               child: ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text('Producto agregado al carrito 🛒'),
+                    backgroundColor: AppColors.primaryColor,
+                  ));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CarritoScreen()),
+                  );
+                },
                 icon: const Icon(Icons.shopping_cart_checkout, size: 18),
                 label: const Text('Agregar al carrito'),
                 style: ElevatedButton.styleFrom(

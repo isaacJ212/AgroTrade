@@ -171,6 +171,28 @@ class _LoginState extends State<Login> {
                   ),
                   const SizedBox(height: 24),
 
+                  // Botones rápidos para rellenar credenciales predefinidas (Demo)
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      _DemoChip(
+                        label: "Comprador",
+                        onTap: () => _autofillDemo("cliente@agrotrade.com", "cliente123"),
+                      ),
+                      _DemoChip(
+                        label: "Productor",
+                        onTap: () => _autofillDemo("productor@agrotrade.com", "productor123"),
+                      ),
+                      _DemoChip(
+                        label: "Repartidor",
+                        onTap: () => _autofillDemo("repartidor@agrotrade.com", "repartidor123"),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
                   const SizedBox(height: 20),
                   AppTextField(
                     hint: "ejemplo@email.com",

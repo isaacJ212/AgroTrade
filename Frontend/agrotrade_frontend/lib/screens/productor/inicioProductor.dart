@@ -5,6 +5,8 @@ import '../../ui/components.dart';
 import 'package:agrotrade_frontend/models/pedido.dart';
 import '../shared/auth/Login.dart';
 import '../shared/profile.dart';
+import 'inventario/inventarioProductor.dart';
+import 'pedidos/pedidosRecibidos.dart';
 
 //creacion de la clase de InicioProductor
 
@@ -78,14 +80,25 @@ class _InicioProductorState extends State<InicioProductor> {
   }
 
   void _cambiarTab(int index) {
-    setState(() => _tabActual = index);
-    if (index == 3) {
+    if (index == _tabActual) return;
+    
+    if (index == 1) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const InventarioProductor()),
+      );
+    } else if (index == 2) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const PedidosRecibidos()),
+      );
+    } else if (index == 3) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const Profile()),
       );
-    } else if (index != 0) {
-      _mostrarSnack('Esta sección estará disponible pronto 🌱');
+    } else {
+      setState(() => _tabActual = index);
     }
   }
 
@@ -173,7 +186,10 @@ class _InicioProductorState extends State<InicioProductor> {
               iconColor: AppColors.amber,
               footer: GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () => _mostrarSnack('Aquí verás todos los pedidos'),
+                onTap: () => Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PedidosRecibidos()),
+                ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -206,7 +222,7 @@ class _InicioProductorState extends State<InicioProductor> {
               iconColor: AppColors.inputErrorColor,
               titleColor: AppColors.errorDark,
               background: AppColors.errorBg,
-              border: AppColors.inputErrorColor.withOpacity(0.2),
+              border: AppColors.inputErrorColor.withValues(alpha: 0.2),
               footer: Text(
                 'Tomates (Bajo stock)',
                 style: AppTextStyles.cardTitle.copyWith(

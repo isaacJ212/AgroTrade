@@ -231,7 +231,7 @@ class _InventarioProductorState extends State<InventarioProductor> {
           icono: Icons.add,
           onPressed: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const RegistroCosecha())
+            MaterialPageRoute(builder: (_) => const AgregarProducto())
           ),
         ),
       ),

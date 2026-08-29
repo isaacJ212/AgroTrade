@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../ui/app_theme.dart';
 import '../../../ui/components.dart';
 import '../inicioProductor.dart';
+import 'orderDetailScreen.dart';
 
 enum EstadoPedido {
   pendiente,
@@ -126,7 +127,10 @@ class _PedidosRecibidosState extends State<PedidosRecibidos> {
   }
 
   void _abrirPedido(PedidoRecibido pedido) {
-    _mostrarSnack('Abriendo ${pedido.codigo} 📦');
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const OrderDetailsScreen()),
+    );
   }
 
   void _irATab(int index) {
