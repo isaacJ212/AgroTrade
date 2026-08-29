@@ -1,8 +1,8 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
-export "FLUTTER_ROOT=C:\Users\DELL LATITUDE 5400\UNI\FLUTTER\flutter"
-export "FLUTTER_APPLICATION_PATH=C:\UNI\Hackaton Meseta Verde\Meseta-Verde\Frontend\agrotrade_frontend"
-export "FLUTTER_FRAMEWORK_SWIFT_PACKAGE_PATH=C:\UNI\Hackaton Meseta Verde\Meseta-Verde\Frontend\agrotrade_frontend\ios\Flutter\ephemeral\Packages\.packages\FlutterFramework"
+export "FLUTTER_ROOT=C:\dev\flutter"
+export "FLUTTER_APPLICATION_PATH=C:\Hackathon\Frontend\agrotrade_frontend"
+export "FLUTTER_FRAMEWORK_SWIFT_PACKAGE_PATH=C:\Hackathon\Frontend\agrotrade_frontend\ios\Flutter\ephemeral\Packages\.packages\FlutterFramework"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
 export "FLUTTER_TARGET=lib\main.dart"
 export "FLUTTER_BUILD_DIR=build"
