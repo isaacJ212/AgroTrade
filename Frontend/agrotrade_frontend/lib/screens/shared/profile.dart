@@ -6,6 +6,7 @@ import '../cliente/inicioComprador.dart';
 import '../cliente/misPedidos.dart';
 import '../productor/pedidos/sales.dart';
 import 'auth/Login.dart';
+import 'editarPerfil.dart';
 
 class Profile extends StatelessWidget {
   const Profile({super.key});
@@ -177,14 +178,10 @@ class Profile extends StatelessWidget {
                   ProfileMenuItem(
                     icon: Icons.person_outline,
                     title: 'Datos personales',
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Edición de datos personales'),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                    },
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const EditarPerfil()),
+                    ),
                   ),
 
                   const Divider(
