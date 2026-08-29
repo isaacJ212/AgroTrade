@@ -150,7 +150,12 @@ class _LoginState extends State<Login> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 12),
-                  Center(child: Image.asset("lib/assets/images/Brand.png", height: 72)),
+                  Center(
+                    child: Image.asset(
+                      "lib/assets/images/Brand.png",
+                      height: 72,
+                    ),
+                  ),
 
                   const SizedBox(height: 16),
                   const Text(
@@ -165,52 +170,6 @@ class _LoginState extends State<Login> {
                     style: AppTextStyles.SubTitle,
                   ),
                   const SizedBox(height: 24),
-
-               
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.tileBg,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.cardBorder),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Accesos rápidos de prueba:",
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primaryColor,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 6,
-                          children: [
-                            _DemoChip(
-                              label: "🛒 Cliente",
-                              onTap: () => _autofillDemo("cliente@agrotrade.com", "cliente123"),
-                            ),
-                            _DemoChip(
-                              label: "🌾 Productor",
-                              onTap: () => _autofillDemo("productor@agrotrade.com", "productor123"),
-                            ),
-                            _DemoChip(
-                              label: "🚚 Repartidor",
-                              onTap: () => _autofillDemo("repartidor@agrotrade.com", "repartidor123"),
-                            ),
-                            _DemoChip(
-                              label: "⚙️ Admin",
-                              onTap: () => _autofillDemo("admin@agrotrade.com", "admin123"),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
 
                   const SizedBox(height: 20),
                   AppTextField(
@@ -235,7 +194,8 @@ class _LoginState extends State<Login> {
                         children: [
                           Checkbox(
                             value: _remember,
-                            onChanged: (v) => setState(() => _remember = v ?? false),
+                            onChanged: (v) =>
+                                setState(() => _remember = v ?? false),
                           ),
                           const Text(
                             "Recordarme",
@@ -246,7 +206,9 @@ class _LoginState extends State<Login> {
                       GestureDetector(
                         onTap: () => Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const RecoverPassword()),
+                          MaterialPageRoute(
+                            builder: (_) => const RecoverPassword(),
+                          ),
                         ),
                         child: Text(
                           "¿Olvidaste tu clave?",
