@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import 'carrito.dart';
+import 'inicioComprador.dart';
 
 class _ProductoProductor {
   final String nombre;
@@ -210,7 +211,16 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
         ),
         child: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const InicioComprador()),
+              );
+            }
+          },
         ),
       ),
       actions: [
