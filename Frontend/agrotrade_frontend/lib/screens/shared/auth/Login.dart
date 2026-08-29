@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:agrotrade_frontend/models/api/auth_models.dart';
-import 'package:agrotrade_frontend/screens/cliente/inicioComprador.dart';
-import 'package:agrotrade_frontend/screens/productor/inicioProductor.dart';
-import 'package:agrotrade_frontend/screens/repartidor/homeRepartidor.dart';
+import 'package:agrotrade_frontend/routes/app_routes.dart';
 import 'package:agrotrade_frontend/screens/shared/auth/registro.dart';
 import 'package:agrotrade_frontend/screens/shared/auth/resetPassword.dart';
 import 'package:agrotrade_frontend/screens/shared/auth/roleSelection.dart';
@@ -102,26 +100,14 @@ class _LoginState extends State<Login> {
   }
 
   void _redirectNavigation(LoginResponseDto user) {
-    if (user.roles.contains("Cliente")) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const InicioComprador()),
-      );
-    } else if (user.roles.contains("Productor/Proveedor")) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const InicioProductor()),
-      );
-    } else if (user.roles.contains("Repartidor")) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const InicioRepartidor()),
-      );
+    if (user.roles.contains('Cliente')) {
+      Navigator.pushReplacementNamed(context, AppRoutes.inicioComprador);
+    } else if (user.roles.contains('Productor/Proveedor')) {
+      Navigator.pushReplacementNamed(context, AppRoutes.inicioProductor);
+    } else if (user.roles.contains('Repartidor')) {
+      Navigator.pushReplacementNamed(context, AppRoutes.inicioRepartidor);
     } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const Roleselection()),
-      );
+      Navigator.pushReplacementNamed(context, AppRoutes.roleSelection);
     }
   }
 
@@ -171,7 +157,7 @@ class _LoginState extends State<Login> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Botones rápidos para rellenar credenciales predefinidas (Demo)
+           
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,

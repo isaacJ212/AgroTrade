@@ -3,12 +3,10 @@ import '../../services/api_session.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
 import 'package:agrotrade_frontend/models/pedido.dart';
+import '../../routes/app_routes.dart';
 import '../shared/auth/Login.dart';
-import '../shared/profile.dart';
-import 'inventario/inventarioProductor.dart';
-import 'pedidos/pedidosRecibidos.dart';
 
-//creacion de la clase de InicioProductor
+
 
 class InicioProductor extends StatefulWidget {
   const InicioProductor({super.key});
@@ -20,7 +18,7 @@ class InicioProductor extends StatefulWidget {
 class _InicioProductorState extends State<InicioProductor> {
   int _tabActual = 0;
 
-  //esta es la lista de los tabs
+
   static const List<NavElemento> _navItems = [
     NavElemento(
       label: 'Inicio',
@@ -81,22 +79,12 @@ class _InicioProductorState extends State<InicioProductor> {
 
   void _cambiarTab(int index) {
     if (index == _tabActual) return;
-    
     if (index == 1) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const InventarioProductor()),
-      );
+      Navigator.pushReplacementNamed(context, AppRoutes.inventario);
     } else if (index == 2) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const PedidosRecibidos()),
-      );
+      Navigator.pushReplacementNamed(context, AppRoutes.pedidosRecibidos);
     } else if (index == 3) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const Profile()),
-      );
+      Navigator.pushNamed(context, AppRoutes.profile);
     } else {
       setState(() => _tabActual = index);
     }
@@ -149,7 +137,7 @@ class _InicioProductorState extends State<InicioProductor> {
             ),
             const SizedBox(height: 24),
 
-            // ---- Ventas del Mes ----
+
             StatCard(
               title: 'Ventas del Mes',
               value: '\$45,200',
@@ -177,7 +165,7 @@ class _InicioProductorState extends State<InicioProductor> {
             ),
             const SizedBox(height: 16),
 
-            // pedidos pendientes
+        
             StatCard(
               title: 'Pedidos Pendientes',
               value: '14',
@@ -186,9 +174,8 @@ class _InicioProductorState extends State<InicioProductor> {
               iconColor: AppColors.amber,
               footer: GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () => Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const PedidosRecibidos()),
+                onTap: () => Navigator.pushReplacementNamed(
+                  context, AppRoutes.pedidosRecibidos,
                 ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
@@ -213,7 +200,7 @@ class _InicioProductorState extends State<InicioProductor> {
             ),
             const SizedBox(height: 16),
 
-            // alertas de l inventario
+        
             StatCard(
               title: 'Alertas de Inventario',
               value: '3',
@@ -232,7 +219,7 @@ class _InicioProductorState extends State<InicioProductor> {
             ),
             const SizedBox(height: 32),
 
-            // ---- Pedidos Recientes ----
+        
             Text('Pedidos Recientes', style: AppTextStyles.sectionTitle),
             const SizedBox(height: 16),
             _tarjetaPedidosRecientes(),
@@ -254,7 +241,7 @@ class _InicioProductorState extends State<InicioProductor> {
     );
   }
 
-  /// esta card contiene la lista de pedidos con divisores.
+
   Widget _tarjetaPedidosRecientes() {
     return Container(
       decoration: BoxDecoration(
