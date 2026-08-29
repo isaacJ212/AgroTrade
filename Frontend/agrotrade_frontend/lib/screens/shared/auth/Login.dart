@@ -205,20 +205,6 @@ class _LoginState extends State<Login> {
                             ),
                           ],
                         ),
-
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: _remember,
-                            onChanged: (v) =>
-                                setState(() => _remember = v ?? false),
-                          ),
-                          const Text(
-                            "Recordarme",
-                            style: AppTextStyles.SubTitle,
-                          ),
-                        ],
-
                       ),
                       GestureDetector(
                         onTap: () => Navigator.push(

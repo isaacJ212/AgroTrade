@@ -7,7 +7,11 @@
     "node": ">=14"
   },
   "scripts": {
-    "start": "npx serve -s . -l $PORT",
+    "start": "node server.js",
     "admin": "npm run start"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "morgan": "^1.12.0"
   }
 }
