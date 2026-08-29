@@ -22,72 +22,204 @@
 
   <div class="app-container">
 
-    <header class="subpage-header">
-      <a href="index.html" class="back-btn" aria-label="Volver">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="19" y1="12" x2="5" y2="12"></line>
-          <polyline points="12 19 5 12 12 5"></polyline>
-        </svg>
-      </a>
-      <h1 class="subpage-title">Mi Perfil</h1>
-    </header>
-
-    <div class="content-body">
-      <div class="info-section-card" style="align-items: center; text-align: center; padding: 24px 16px;">
-        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200" alt="Admin" style="width: 84px; height: 84px; border-radius: var(--radius-full); border: 3px solid var(--primary); margin-bottom: 10px;" />
-        <h2 id="profileNameDisplay" style="font-size: 1.25rem; font-weight: 800; color: var(--text-main);">Admin AgroTrade</h2>
-        <p id="profileEmailDisplay" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">admin@agrotrade.com</p>
-        <span id="profileRoleDisplay" class="badge-pill badge-productor" style="margin-bottom: 24px;">Super Administrador</span>
-
-        <button id="btnProfileLogout" class="btn-danger-outline">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" y1="12" x2="9" y2="12"></line>
+    <aside class="app-sidebar" id="appSidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M12 2 3 7v6c0 5 4.5 8.5 9 9 4.5-.5 9-4 9-9V7l-9-5Z"></path>
+            <path d="M9 12l2 2 4-4"></path>
           </svg>
-          <span>Cerrar Sesión</span>
-        </button>
+        </div>
+        <div class="sidebar-brand-text">
+          <div class="sidebar-brand-name">AgroTrade</div>
+          <div class="sidebar-brand-sub">Panel de Administración</div>
+        </div>
       </div>
+
+      <div class="sidebar-nav-section">
+        <div class="sidebar-nav-group-label">Principal</div>
+        <nav class="sidebar-nav-list">
+          <a href="index.html" class="sidebar-nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+            </svg>
+            <span>Resumen</span>
+          </a>
+          <a href="usuarios.html" class="sidebar-nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>Usuarios</span>
+          </a>
+          <a href="verificaciones.html" class="sidebar-nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <path d="m9 12 2 2 4-4"></path>
+            </svg>
+            <span>Verificaciones</span>
+          </a>
+          <a href="categorias.html" class="sidebar-nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m12 3 5 8H7l5-8Z"></path>
+              <circle cx="6.5" cy="18.5" r="3.5"></circle>
+              <rect x="14" y="15" width="7" height="7"></rect>
+            </svg>
+            <span>Categorías</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-nav-group-label">Sistema</div>
+        <nav class="sidebar-nav-list">
+          <a href="perfil.html" class="sidebar-nav-link active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="8" r="4"></circle>
+              <path d="M6 21v-2a6 6 0 0 1 12 0v2"></path>
+            </svg>
+            <span>Mi Perfil</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user-card">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Admin" class="sidebar-user-avatar" />
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name">María González</div>
+            <div class="sidebar-user-role">Administrador</div>
+          </div>
+          <button class="sidebar-logout-btn" title="Cerrar sesión" onclick="Toast.info('Sesión cerrada')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <div class="app-main-wrapper">
+
+      <header class="app-top-header">
+        <div class="header-left">
+          <button class="mobile-menu-toggle" aria-label="Menú" onclick="document.getElementById('appSidebar').classList.toggle('mobile-open')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+          <h1 class="header-page-title">Mi Perfil</h1>
+        </div>
+
+        <div class="header-right">
+          <div class="header-search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" class="header-search-input" placeholder="Buscar en el panel..." />
+          </div>
+          <button class="icon-notif-btn" aria-label="Notificaciones" onclick="Toast.warning('Tienes solicitudes pendientes de revisión')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span class="notif-badge-dot"></span>
+          </button>
+          <div class="header-user-dropdown" onclick="window.location.href='perfil.html'">
+            <div class="header-user-info">
+              <div class="header-user-name">María González</div>
+              <div class="header-user-email">maria@agrotrade.com</div>
+            </div>
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Admin" class="avatar-mini" />
+          </div>
+        </div>
+      </header>
+
+      <div class="content-body">
+
+        <div class="subpage-header">
+          <a href="index.html" class="back-btn" aria-label="Volver">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+          </a>
+          <h1 class="subpage-title">Mi Perfil</h1>
+        </div>
+
+        <div class="info-section-card" style="align-items: center; text-align: center; padding: 32px 24px;">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200" alt="Admin" style="width: 120px; height: 120px; border-radius: var(--radius-full); border: 4px solid var(--primary); margin-bottom: 16px; object-fit: cover;" />
+          <h2 id="profileNameDisplay" style="font-size: 1.5rem; font-weight: 800; color: var(--text-main);">María González</h2>
+          <p id="profileEmailDisplay" style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 16px;">maria@agrotrade.com</p>
+          <span id="profileRoleDisplay" class="badge-pill badge-productor" style="margin-bottom: 28px; font-size: 0.85rem; padding: 8px 16px;">Super Administrador</span>
+
+          <button id="btnProfileLogout" class="btn-danger-outline" style="min-width: 220px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>Cerrar Sesión</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="bottom-navigation-bar" aria-label="Navegación principal">
+        <a href="index.html" class="bottom-tab-item" aria-label="Resumen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+          </svg>
+          <span>Resumen</span>
+        </a>
+
+        <a href="usuarios.html" class="bottom-tab-item" aria-label="Usuarios">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span>Usuarios</span>
+        </a>
+
+        <a href="verificaciones.html" class="bottom-tab-item" aria-label="Verificaciones">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            <path d="m9 12 2 2 4-4"></path>
+          </svg>
+          <span>Verif.</span>
+        </a>
+
+        <a href="categorias.html" class="bottom-tab-item" aria-label="Catálogo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m12 3 5 8H7l5-8Z"></path>
+            <circle cx="6.5" cy="18.5" r="3.5"></circle>
+            <rect x="14" y="15" width="7" height="7"></rect>
+          </svg>
+          <span>Catálogo</span>
+        </a>
+
+        <a href="perfil.html" class="bottom-tab-item active" aria-label="Perfil">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="8" r="4"></circle>
+            <path d="M6 21v-2a6 6 0 0 1 12 0v2"></path>
+          </svg>
+          <span>Perfil</span>
+        </a>
+      </nav>
+
     </div>
-
-    <nav class="bottom-navigation-bar" aria-label="Navegación principal">
-      <a href="index.html" class="bottom-tab-item" aria-label="Resumen" style="text-decoration:none;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
-          <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
-          <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
-          <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
-        </svg>
-        <span>Resumen</span>
-      </a>
-
-      <a href="usuarios.html" class="bottom-tab-item" aria-label="Usuarios" style="text-decoration:none;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-          <circle cx="9" cy="7" r="4"></circle>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-        </svg>
-        <span>Usuarios</span>
-      </a>
-
-      <a href="categorias.html" class="bottom-tab-item" aria-label="Catálogo" style="text-decoration:none;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="m12 3 5 8H7l5-8Z"></path>
-          <circle cx="6.5" cy="18.5" r="3.5"></circle>
-          <rect x="14" y="15" width="7" height="7"></rect>
-        </svg>
-        <span>Catálogo</span>
-      </a>
-
-      <a href="perfil.html" class="bottom-tab-item active" aria-label="Perfil" style="text-decoration:none;">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <circle cx="12" cy="8" r="4"></circle>
-          <path d="M6 21v-2a6 6 0 0 1 12 0v2"></path>
-        </svg>
-        <span>Perfil</span>
-      </a>
-    </nav>
 
     <div id="toastContainer" class="toast-box-container"></div>
 

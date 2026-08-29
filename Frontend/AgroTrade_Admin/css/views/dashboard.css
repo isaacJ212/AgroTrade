@@ -1,25 +1,41 @@
 .dashboard-page-header {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .dashboard-page-title {
-  font-size: 1.75rem;
+  font-size: 1.85rem;
   font-weight: 800;
   color: var(--text-main);
   letter-spacing: -0.03em;
 }
 
 .dashboard-page-subtitle {
-  font-size: 0.95rem;
+  font-size: 1rem;
   color: var(--text-secondary);
+}
+
+@media (min-width: 768px) {
+  .dashboard-page-title {
+    font-size: 2.2rem;
+  }
+
+  .dashboard-page-subtitle {
+    font-size: 1.05rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .dashboard-page-title {
+    font-size: 2.5rem;
+  }
 }
 
 .section-block-group {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .section-block-header {
@@ -29,22 +45,36 @@
 }
 
 .section-block-title {
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 800;
   color: var(--text-main);
   letter-spacing: -0.02em;
 }
 
+@media (min-width: 768px) {
+  .section-block-title {
+    font-size: 1.5rem;
+  }
+
+  .section-block-group {
+    gap: 20px;
+  }
+}
+
 .section-block-link {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--primary);
   text-decoration: none;
   cursor: pointer;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  transition: var(--transition-normal);
 }
 
 .section-block-link:hover {
-  text-decoration: underline;
+  background-color: var(--primary-light);
+  text-decoration: none;
 }
 
 .activity-card-container {
