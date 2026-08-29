@@ -56,7 +56,7 @@ class RutaSeguimientoClienteScreen extends StatelessWidget {
           Positioned(
             top: MediaQuery.of(context).size.height * 0.7,
             left: MediaQuery.of(context).size.width * 0.4,
-            child: const _MapPin(icon: Icons.home, label: 'Tu casa', color: AppColors.secondaryColor),
+            child: const _MapPin(icon: Icons.home, label: 'Tu casa', color: AppColors.accentBlue),
           ),
 
           // Bottom Sheet informativo

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
-import '../../widgets/buttons.dart';
-import '../../widgets/inputs.dart';
+import '../../ui/widgets/buttons.dart';
+import '../../ui/widgets/app_text_field.dart';
 
 class EditarFincaScreen extends StatefulWidget {
   const EditarFincaScreen({super.key});
@@ -80,12 +80,10 @@ class _EditarFincaScreenState extends State<EditarFincaScreen> {
               const Text('Datos Generales', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.titleDark)),
               const SizedBox(height: 16),
               
-              const Text('Nombre de la Finca', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.titleDark)),
-              const SizedBox(height: 8),
-              CustomTextField(
+              AppTextField(
                 controller: _nombreCtrl,
-                hintText: 'Ej. Finca La Esperanza',
-                prefixIcon: Icons.landscape,
+                label: 'Nombre de la Finca',
+                hint: 'Ej. Finca La Esperanza',
               ),
               const SizedBox(height: 16),
               
@@ -95,13 +93,11 @@ class _EditarFincaScreenState extends State<EditarFincaScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Tamaño (Hectáreas)', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.titleDark)),
-                        const SizedBox(height: 8),
-                        CustomTextField(
+                        AppTextField(
                           controller: _tamanoCtrl,
-                          hintText: '0.0',
-                          prefixIcon: Icons.straighten,
-                          keyboardType: TextInputType.number,
+                          label: 'Tamaño (Hectáreas)',
+                          hint: '0.0',
+                          keyboard: TextInputType.number,
                         ),
                       ],
                     ),
@@ -148,10 +144,10 @@ class _EditarFincaScreenState extends State<EditarFincaScreen> {
               const SizedBox(height: 24),
               const Text('Ubicación', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.titleDark)),
               const SizedBox(height: 16),
-              CustomTextField(
+              AppTextField(
                 controller: _ubicacionCtrl,
-                hintText: 'Departamento, Municipio',
-                prefixIcon: Icons.location_on,
+                label: 'Dirección Exacta',
+                hint: 'Departamento, Municipio',
               ),
               const SizedBox(height: 16),
               
@@ -189,8 +185,9 @@ class _EditarFincaScreenState extends State<EditarFincaScreen> {
           boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -2))],
         ),
         child: PrimaryButton(
-          text: 'Guardar Cambios',
+          label: 'Guardar Cambios',
           onPressed: _guardarCambios,
+          radius: 12,
         ),
       ),
     );
