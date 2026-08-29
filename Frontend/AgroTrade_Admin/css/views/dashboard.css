@@ -1,0 +1,132 @@
+.dashboard-page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dashboard-page-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.03em;
+}
+
+.dashboard-page-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.section-block-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-block-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+
+.section-block-link {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.section-block-link:hover {
+  text-decoration: underline;
+}
+
+.activity-card-container {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.recent-activity-list {
+  list-style: none;
+}
+
+.recent-activity-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.activity-icon-bubble {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.activity-icon-bubble.icon-blue-bg {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.activity-icon-bubble.icon-gray-bg {
+  background-color: #e2e8f0;
+  color: #475569;
+}
+
+.activity-icon-bubble.icon-green-bg {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.activity-icon-bubble svg {
+  width: 20px;
+  height: 20px;
+}
+
+.activity-text-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.activity-event-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.activity-event-time {
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+.activity-full-history-footer {
+  padding: 14px;
+  text-align: center;
+  background-color: #fcfdfe;
+}
+
+.activity-history-btn {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.activity-history-btn:hover {
+  text-decoration: underline;
+}

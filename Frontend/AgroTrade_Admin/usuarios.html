@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usuarios - AgroTrade Admin</title>
+  <meta name="description" content="Gestión y administración de usuarios en AgroTrade." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/base/variables.css" />
+  <link rel="stylesheet" href="css/base/reset.css" />
+  <link rel="stylesheet" href="css/layout/shell.css" />
+  <link rel="stylesheet" href="css/components/buttons.css" />
+  <link rel="stylesheet" href="css/components/cards.css" />
+  <link rel="stylesheet" href="css/components/badges.css" />
+  <link rel="stylesheet" href="css/components/toast.css" />
+  <link rel="stylesheet" href="css/views/users.css" />
+</head>
+<body>
+
+  <div class="app-container">
+
+    <header class="subpage-header">
+      <a href="index.html" class="back-btn" aria-label="Volver">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+      </a>
+      <h1 class="subpage-title">Usuarios</h1>
+    </header>
+
+    <div class="content-body">
+      
+      <div class="search-input-wrapper">
+        <span class="search-input-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </span>
+        <input 
+          type="text" 
+          id="userSearchInput" 
+          class="app-search-input" 
+          placeholder="Buscar usuarios..." 
+        />
+      </div>
+
+      <div class="filter-tabs-container" id="userFilterTabs">
+        <button class="filter-tab-pill active" data-filter="todas">Todas</button>
+        <button class="filter-tab-pill" data-filter="productores">Productores</button>
+        <button class="filter-tab-pill" data-filter="compradores">Compradores</button>
+        <button class="filter-tab-pill" data-filter="repartidores">Repartidores</button>
+      </div>
+
+      <div id="usersCardsContainer" style="display: flex; flex-direction: column; gap: 14px;">
+        
+      </div>
+    </div>
+
+    <nav class="bottom-navigation-bar" aria-label="Navegación principal">
+      <a href="index.html" class="bottom-tab-item" aria-label="Resumen" style="text-decoration:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+          <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+          <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+          <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+        </svg>
+        <span>Resumen</span>
+      </a>
+
+      <a href="usuarios.html" class="bottom-tab-item active" aria-label="Usuarios" style="text-decoration:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        <span>Usuarios</span>
+      </a>
+
+      <a href="categorias.html" class="bottom-tab-item" aria-label="Catálogo" style="text-decoration:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m12 3 5 8H7l5-8Z"></path>
+          <circle cx="6.5" cy="18.5" r="3.5"></circle>
+          <rect x="14" y="15" width="7" height="7"></rect>
+        </svg>
+        <span>Catálogo</span>
+      </a>
+
+      <a href="perfil.html" class="bottom-tab-item" aria-label="Perfil" style="text-decoration:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="8" r="4"></circle>
+          <path d="M6 21v-2a6 6 0 0 1 12 0v2"></path>
+        </svg>
+        <span>Perfil</span>
+      </a>
+    </nav>
+
+    <div id="toastContainer" class="toast-box-container"></div>
+
+  </div>
+
+  <script src="js/config/constants.js"></script>
+  <script src="js/core/store.js"></script>
+  <script src="js/core/toast.js"></script>
+  <script src="js/services/auth.service.js"></script>
+  <script src="js/views/users.js"></script>
+</body>
+</html>
