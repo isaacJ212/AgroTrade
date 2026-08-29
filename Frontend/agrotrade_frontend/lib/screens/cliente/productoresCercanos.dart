@@ -93,7 +93,7 @@ class ProductoresCercanos extends StatelessWidget {
               mini: true,
               backgroundColor: AppColors.White,
               elevation: 2,
-              onPressed: () {},
+              onPressed: () => _mostrarFiltros(context),
               child: const Icon(Icons.tune, color: AppColors.TextMain),
             ),
           ),
@@ -233,6 +233,83 @@ class ProductoresCercanos extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _mostrarFiltros(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Filtros de Búsqueda', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Text('Distancia Máxima', style: TextStyle(fontWeight: FontWeight.w600)),
+              Slider(
+                value: 10,
+                min: 1,
+                max: 50,
+                activeColor: AppColors.primaryColor,
+                onChanged: (val) {},
+              ),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('1 km'),
+                  Text('50 km'),
+                ],
+              ),
+              const SizedBox(height: 24),
+              const Text('Categoría Principal', style: TextStyle(fontWeight: FontWeight.w600)),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                children: ['Frutas', 'Verduras', 'Cereales', 'Café']
+                    .map((cat) => Chip(
+                          label: Text(cat),
+                          backgroundColor: AppColors.primarySoftBg,
+                          labelStyle: const TextStyle(color: AppColors.primaryColor),
+                        ))
+                    .toList(),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: const Text('Aplicar Filtros', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
     );
   }
 }

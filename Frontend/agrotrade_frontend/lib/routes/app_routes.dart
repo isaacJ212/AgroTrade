@@ -37,6 +37,9 @@ class AppRoutes {
   static const String valorarPedido           = '/comprador/valorar';
   static const String suscripciones           = '/comprador/suscripciones';
   static const String categoryScreen          = '/comprador/categoria';
+  static const String rutaSeguimientoCliente  = '/comprador/pedido/ruta-mapa';
+  static const String reportarProblema        = '/comprador/pedido/reportar';
+  static const String formularioDireccion     = '/comprador/direccion/formulario';
 
   // ── Productor ─────────────────────────────────────────────────────────────
   static const String inicioProductor           = '/productor/inicio';

@@ -287,7 +287,7 @@ class SeguimientoPedidoScreen extends StatelessWidget {
           width: double.infinity,
           height: 44,
           child: OutlinedButton.icon(
-            onPressed: () {},
+            onPressed: () => Navigator.pushNamed(context, '/comprador/pedido/ruta-mapa'),
             icon: const Icon(Icons.map_outlined, size: 18),
             label: const Text(
               'Ver ruta',
@@ -313,7 +313,7 @@ class SeguimientoPedidoScreen extends StatelessWidget {
           width: double.infinity,
           height: 48,
           child: ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () => Navigator.pushNamed(context, '/chat'),
             icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
             label: const Text(
               'Enviar mensaje',
@@ -334,7 +334,7 @@ class SeguimientoPedidoScreen extends StatelessWidget {
           width: double.infinity,
           height: 48,
           child: OutlinedButton.icon(
-            onPressed: () {},
+            onPressed: () => Navigator.pushNamed(context, '/comprador/pedido/reportar'),
             icon: const Icon(Icons.warning_amber_rounded, size: 18),
             label: const Text(
               'Reportar un problema',

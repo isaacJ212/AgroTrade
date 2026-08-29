@@ -34,6 +34,9 @@ import '../screens/cliente/entrega.dart';
 import '../screens/cliente/valorarPedido.dart';
 import '../screens/cliente/suscripciones.dart';
 import '../screens/cliente/category.dart';
+import '../screens/cliente/rutaSeguimientoCliente.dart';
+import '../screens/cliente/reportarProblema.dart';
+import '../screens/cliente/formularioDireccion.dart';
 
 // ── Productor ──────────────────────────────────────────────────────────────────
 import '../screens/productor/inicioProductor.dart';
@@ -178,7 +181,16 @@ class AppRouter {
       case AppRoutes.categoryScreen:
         return _slide(const CategoryScreen());
 
-      // ── Pr──────────────────────────
+      case AppRoutes.rutaSeguimientoCliente:
+        return _slide(const RutaSeguimientoClienteScreen());
+
+      case AppRoutes.reportarProblema:
+        return _slide(const ReportarProblemaScreen());
+
+      case AppRoutes.formularioDireccion:
+        return _slide(const FormularioDireccionScreen());
+
+      // ── Productor ────────────────────────────────────────────────────────────
       case AppRoutes.inicioProductor:
         return _fade(const InicioProductor());
 
