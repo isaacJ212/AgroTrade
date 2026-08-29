@@ -139,6 +139,19 @@ namespace Agro_Trade.Controllers
             return result.IsSuccess ? NoContent() : StatusCode(result.StatusCode, new { ErrorMesagge = result.Message });
         }
 
+        /// <summary>
+        /// Alterna el estado de la cuenta de un usuario. (Requiere permisos de administrador).
+        /// </summary>
+        /// <param name="id">ID numérico del usuario.</param>
+        /// <param name="ct">Token de cancelación.</param>
+        [Authorize(Roles = "Admin")]
+        [HttpPatch("{id}/toggle-status")]
+        public async Task<IActionResult> ToggleUserStatus(int id, CancellationToken ct)
+        {
+            var result = await mediator.Send(new ToggleUserStatusCommand(id), ct);
+            return result.IsSuccess ? NoContent() : StatusCode(result.StatusCode, new { ErrorMesagge = result.Message });
+        }
+
 
     }
 }
