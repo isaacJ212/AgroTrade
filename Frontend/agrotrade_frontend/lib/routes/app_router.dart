@@ -52,6 +52,7 @@ import '../screens/productor/ofertas/crearOferta.dart';
 import '../screens/productor/precio_justo/calculadoraPrecioJusto.dart';
 import '../screens/productor/precio_justo/resultadoPrecioJusto.dart';
 import '../screens/productor/perfilFinca.dart';
+import '../screens/productor/editarFinca.dart';
 import '../screens/productor/mapaCalorDemanda.dart';
 import '../screens/productor/tableroImpacto.dart';
 
@@ -262,6 +263,8 @@ class AppRouter {
 
       case AppRoutes.perfilFinca:
         return _slide(const PerfilFinca());
+      case AppRoutes.editarFinca:
+        return _slide(const EditarFincaScreen());
 
       case AppRoutes.mapaCalorDemanda:
         return _slide(const MapaCalorDemanda());

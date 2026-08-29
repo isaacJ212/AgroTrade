@@ -162,7 +162,7 @@ class _CalculadoraPrecioJustoState extends State<CalculadoraPrecioJusto> {
               IconButton(
                 icon: const Icon(Icons.account_circle,
                     color: AppColors.primaryColor, size: 26),
-                onPressed: () => _mostrarSnack('Perfil próximamente'),
+                onPressed: () => Navigator.pushNamed(context, '/productor/finca'),
               ),
             ],
           ),

@@ -230,7 +230,7 @@ class _InicioProductorState extends State<InicioProductor> {
         padding: const EdgeInsets.only(bottom: 8),
         child: SupportFab(
           icono: Icons.smart_toy_outlined,
-          onPressed: () => _mostrarSnack('Chat de soporte próximamente 🤖'),
+          onPressed: () => Navigator.pushNamed(context, '/chat', arguments: {'contactName': 'Soporte AgroTrade', 'contactRole': 'Asistencia Técnica'}),
         ),
       ),
       bottomNavigationBar: ProductorBottomNav(

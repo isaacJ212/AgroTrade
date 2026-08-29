@@ -261,7 +261,7 @@ class _InventarioProductorState extends State<InventarioProductor> {
               IconButton(
                 icon: const Icon(Icons.account_circle_outlined,
                     color: AppColors.primaryColor, size: 28),
-                onPressed: () => _mostrarSnack('Perfil próximamente'),
+                onPressed: () => Navigator.pushNamed(context, '/productor/finca'),
               ),
             ],
           ),

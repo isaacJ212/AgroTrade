@@ -217,7 +217,7 @@ class _PedidosRecibidosState extends State<PedidosRecibidos> {
               IconButton(
                 icon: const Icon(Icons.account_circle_outlined,
                     color: AppColors.primaryColor, size: 26),
-                onPressed: () => _mostrarSnack('Perfil próximamente'),
+                onPressed: () => Navigator.pushNamed(context, '/productor/finca'),
               ),
             ],
           ),
