@@ -1,3 +1,14 @@
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import '../../../models/api/user_models.dart';
+import '../../../services/api_client.dart';
+import '../../../services/users_api_service.dart';
+import '../../../ui/app_theme.dart';
+import '../../../ui/components.dart';
+import '../onboarding/onBoarding.dart';
+import 'Login.dart';
+
 import 'package:flutter/material.dart';
 import '../../../models/api/user_models.dart';
 import '../../../services/api_client.dart';
@@ -15,6 +26,7 @@ import '../onboarding/onBoarding.dart';
 import 'package:flutter/material.dart';
 import '../../../ui/app_theme.dart';
 import '../../../ui/components.dart';
+
 
 
 class Registro extends StatefulWidget {

@@ -1,6 +1,14 @@
+
+import 'package:agrotrade_frontend/screens/repartidor/homeRepartidor.dart';
+import 'package:agrotrade_frontend/screens/productor/inventario/inventarioProductor.dart';
+import 'package:agrotrade_frontend/screens/productor/inventario/registroCosecha.dart';
+import 'package:agrotrade_frontend/screens/shared/onboarding/splash.dart';
+import 'package:flutter/material.dart';
+
 import 'package:flutter/material.dart';
 import 'routes/app_router.dart';
 import 'routes/app_routes.dart';
+
 import 'ui/app_theme.dart';
 
 void main() => runApp(const AgroTradeApp());
