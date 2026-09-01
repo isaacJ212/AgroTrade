@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
+import '../../ui/widgets/app_text_field.dart';
+import '../../ui/widgets/buttons.dart';
 
 class PerfilFinca extends StatefulWidget {
   const PerfilFinca({super.key});
@@ -456,8 +458,8 @@ class _PerfilFincaState extends State<PerfilFinca> {
                 margin: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
               ),
-              const Text('Configuración', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 16),
+              const Text('Configuración', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 12),
               SwitchListTile(
                 value: true,
                 onChanged: (val) {},
@@ -501,51 +503,32 @@ class _PerfilFincaState extends State<PerfilFinca> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Center(child: Text('Cambiar Contraseña', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+              const Center(child: Text('Cambiar Contraseña', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
+              const SizedBox(height: 16),
+              const PasswordField(
+                label: 'Contraseña Actual',
+                hint: 'Ingresa tu contraseña',
+              ),
+              const SizedBox(height: 12),
+              const PasswordField(
+                label: 'Nueva Contraseña',
+                hint: 'Ingresa la nueva contraseña',
+              ),
+              const SizedBox(height: 12),
+              const PasswordField(
+                label: 'Confirmar Nueva Contraseña',
+                hint: 'Repite la nueva contraseña',
+              ),
               const SizedBox(height: 20),
-              TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Contraseña Actual',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  prefixIcon: const Icon(Icons.lock_outline),
-                ),
+              PrimaryButton(
+                label: 'Guardar Contraseña',
+                radius: 12,
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Contraseña actualizada')));
+                },
               ),
               const SizedBox(height: 16),
-              TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Nueva Contraseña',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  prefixIcon: const Icon(Icons.lock_outline),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Confirmar Nueva Contraseña',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  prefixIcon: const Icon(Icons.lock_outline),
-                ),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryColor,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  onPressed: () {
-                    Navigator.pop(ctx);
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Contraseña actualizada')));
-                  },
-                  child: const Text('Guardar', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                ),
-              ),
-              const SizedBox(height: 24),
             ],
           ),
         );

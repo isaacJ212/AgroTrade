@@ -43,7 +43,7 @@ class _EditarFincaScreenState extends State<EditarFincaScreen> {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
@@ -54,7 +54,7 @@ class _EditarFincaScreenState extends State<EditarFincaScreen> {
                 alignment: Alignment.bottomRight,
                 children: [
                   Container(
-                    height: 160,
+                    height: 140,
                     width: double.infinity,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
@@ -76,16 +76,16 @@ class _EditarFincaScreenState extends State<EditarFincaScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
-              const Text('Datos Generales', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.titleDark)),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
+              const Text('Datos Generales', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.titleDark)),
+              const SizedBox(height: 12),
               
               AppTextField(
                 controller: _nombreCtrl,
                 label: 'Nombre de la Finca',
                 hint: 'Ej. Finca La Esperanza',
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               
               Row(
                 children: [
@@ -102,57 +102,41 @@ class _EditarFincaScreenState extends State<EditarFincaScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Cultivo Principal', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.titleDark)),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.cardBorder),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              isExpanded: true,
-                              value: _tipoCultivo,
-                              icon: const Icon(Icons.arrow_drop_down, color: AppColors.TextSoft),
-                              items: ['Café', 'Cacao', 'Frijoles', 'Hortalizas'].map((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                              onChanged: (newValue) {
-                                setState(() {
-                                  _tipoCultivo = newValue!;
-                                });
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
+                    child: DropdownButtonFormField<String>(
+                      decoration: appInputDecoration(label: 'Cultivo Principal', hint: ''),
+                      isExpanded: true,
+                      value: _tipoCultivo,
+                      icon: const Icon(Icons.arrow_drop_down, color: AppColors.TextSoft),
+                      items: ['Café', 'Cacao', 'Frijoles', 'Hortalizas'].map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value, style: const TextStyle(fontSize: 15)),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          _tipoCultivo = newValue!;
+                        });
+                      },
                     ),
                   ),
                 ],
               ),
               
-              const SizedBox(height: 24),
-              const Text('Ubicación', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.titleDark)),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
+              const Text('Ubicación', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.titleDark)),
+              const SizedBox(height: 12),
               AppTextField(
                 controller: _ubicacionCtrl,
                 label: 'Dirección Exacta',
                 hint: 'Departamento, Municipio',
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               
               Container(
-                height: 120,
+                height: 100,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: const Color(0xFFE0E0E0),
@@ -179,7 +163,7 @@ class _EditarFincaScreenState extends State<EditarFincaScreen> {
         ),
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         decoration: const BoxDecoration(
           color: Colors.white,
           boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -2))],
