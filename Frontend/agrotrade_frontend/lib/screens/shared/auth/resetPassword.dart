@@ -5,6 +5,7 @@ import 'package:agrotrade_frontend/ui/components.dart';
 class RecoverPassword extends StatefulWidget {
   const RecoverPassword({super.key});
 
+  @override
   State<RecoverPassword> createState() => _RecoverPasswordState();
 }
 
@@ -148,7 +149,7 @@ class _RecoverPasswordState extends State<RecoverPassword> {
                               width: double.infinity,
                               height: 50,
                               child: OutlinedButton(
-                                onPressed: () => Navigator.pop(context),
+                                onPressed: _volverLogin,
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: AppColors.accentBlue,
                                   side: const BorderSide(

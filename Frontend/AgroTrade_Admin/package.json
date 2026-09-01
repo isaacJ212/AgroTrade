@@ -1,0 +1,17 @@
+{
+  "name": "agrotrade-admin-portal",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Portal administrativo estático de AgroTrade",
+  "engines": {
+    "node": ">=14"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "admin": "npm run start"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "morgan": "^1.12.0"
+  }
+}

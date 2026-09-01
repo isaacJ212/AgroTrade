@@ -3,6 +3,7 @@ import '../../ui/app_theme.dart';
 import '../../ui/widgets/repartidor_bottom_nav.dart';
 import 'entregasRepartidor.dart';
 import 'homeRepartidor.dart';
+import 'entregaEnCursoRepartidor.dart';
 
 class RutaEntregaRepartidor extends StatelessWidget {
   const RutaEntregaRepartidor({super.key});
@@ -105,7 +106,7 @@ class RutaEntregaRepartidor extends StatelessWidget {
                     right: 16,
                     bottom: 16,
                     child: _RouteCard(
-                      onStartRoute: () => _showSnack(context, 'Ruta iniciada'),
+                      onStartRoute: () => _go(context, const EntregaEnCursoRepartidor()),
                       onDetails: () => _go(context, const Entregasrepartidor()),
                       onMore: () => _showSnack(context, 'Más opciones'),
                     ),

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+
 import '../../models/api/delivery_models.dart';
 import '../../services/api_session.dart';
 import '../../services/delivery_api_service.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/widgets/repartidor_bottom_nav.dart';
+
+import '../shared/auth/Login.dart';
+
 import 'detalleEntregaRepartidor.dart';
 import 'entregasRepartidor.dart';
 import 'rutaEntregaRepartidor.dart';
@@ -57,8 +61,11 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
     return FutureBuilder<List<PendingDeliveryNotificationDto>>(
       future: _pendingFuture,
       builder: (context, snapshot) {
-        final pendingDeliveries = snapshot.data ?? const <PendingDeliveryNotificationDto>[];
-        final nextDelivery = pendingDeliveries.isNotEmpty ? pendingDeliveries.first : null;
+        final pendingDeliveries =
+            snapshot.data ?? const <PendingDeliveryNotificationDto>[];
+        final nextDelivery = pendingDeliveries.isNotEmpty
+            ? pendingDeliveries.first
+            : null;
 
         return Scaffold(
           backgroundColor: AppColors.scaffoldBg,
@@ -76,7 +83,10 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
                         height: 48,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.primaryColor, width: 2),
+                          border: Border.all(
+                            color: AppColors.primaryColor,
+                            width: 2,
+                          ),
                         ),
                         child: ClipOval(
                           child: Image.network(
@@ -84,7 +94,10 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
                             fit: BoxFit.cover,
                             errorBuilder: (_, __, ___) => const CircleAvatar(
                               backgroundColor: AppColors.primarySoftBg,
-                              child: Icon(Icons.person, color: AppColors.primaryColor),
+                              child: Icon(
+                                Icons.person,
+                                color: AppColors.primaryColor,
+                              ),
                             ),
                           ),
                         ),
@@ -104,7 +117,9 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
                             const SizedBox(height: 2),
                             Text(
                               'Revisá tus entregas de hoy',
-                              style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
+                              style: AppTextStyles.SubTitle.copyWith(
+                                fontSize: 14,
+                              ),
                             ),
                           ],
                         ),
@@ -137,6 +152,21 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
                             ),
                         ],
                       ),
+                      IconButton(
+                        tooltip: 'Cerrar sesión',
+                        onPressed: () {
+                          ApiSession.instance.clear();
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (_) => const Login()),
+                            (_) => false,
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.logout_rounded,
+                          color: AppColors.bodyText,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -144,14 +174,20 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
                   child: ListView(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
                     children: [
-                      Text('Entregas de hoy', style: AppTextStyles.sectionTitle),
+                      Text(
+                        'Entregas de hoy',
+                        style: AppTextStyles.sectionTitle,
+                      ),
                       const SizedBox(height: 12),
                       _StatsGrid(pendingCount: pendingDeliveries.length),
                       const SizedBox(height: 24),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Próxima entrega', style: AppTextStyles.sectionTitle),
+                          Text(
+                            'Próxima entrega',
+                            style: AppTextStyles.sectionTitle,
+                          ),
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 12,
@@ -162,7 +198,9 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              nextDelivery == null ? '#AT-2051' : '#AT-${nextDelivery.pedidoId}',
+                              nextDelivery == null
+                                  ? '#AT-2051'
+                                  : '#AT-${nextDelivery.pedidoId}',
                               style: AppTextStyles.chip.copyWith(
                                 color: AppColors.chipGrey,
                               ),
@@ -187,7 +225,8 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
                       Text('Ruta del día', style: AppTextStyles.sectionTitle),
                       const SizedBox(height: 12),
                       _RouteSummaryCard(
-                        onVerRuta: () => _navigate(context, const RutaEntregaRepartidor()),
+                        onVerRuta: () =>
+                            _navigate(context, const RutaEntregaRepartidor()),
                       ),
                     ],
                   ),
@@ -405,16 +444,24 @@ class _NextDeliveryCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  delivery == null ? 'Finca La Esperanza' : 'Entrega #AT-${delivery!.pedidoId}',
+                  delivery == null
+                      ? 'Finca La Esperanza'
+                      : 'Entrega #AT-${delivery!.pedidoId}',
                   style: AppTextStyles.cardTitle.copyWith(fontSize: 20),
                 ),
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    const Icon(Icons.location_on_outlined, size: 16, color: AppColors.bodyText),
+                    const Icon(
+                      Icons.location_on_outlined,
+                      size: 16,
+                      color: AppColors.bodyText,
+                    ),
                     const SizedBox(width: 4),
                     Text(
-                      delivery == null ? 'Destino: Jinotepe' : 'Destino: ${delivery!.zonaEntrega}',
+                      delivery == null
+                          ? 'Destino: Jinotepe'
+                          : 'Destino: ${delivery!.zonaEntrega}',
                       style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
                     ),
                   ],
@@ -430,7 +477,9 @@ class _NextDeliveryCard extends StatelessWidget {
                         children: [
                           Text(
                             'Contenido',
-                            style: AppTextStyles.SubTitle.copyWith(fontSize: 13),
+                            style: AppTextStyles.SubTitle.copyWith(
+                              fontSize: 13,
+                            ),
                           ),
                           const SizedBox(height: 6),
                           Row(
@@ -445,7 +494,9 @@ class _NextDeliveryCard extends StatelessWidget {
                                 delivery == null
                                     ? '3 productos'
                                     : '\$${delivery!.totalPedido.toStringAsFixed(2)}',
-                                style: AppTextStyles.label.copyWith(fontSize: 14),
+                                style: AppTextStyles.label.copyWith(
+                                  fontSize: 14,
+                                ),
                               ),
                             ],
                           ),
@@ -458,7 +509,9 @@ class _NextDeliveryCard extends StatelessWidget {
                         children: [
                           Text(
                             'Recogida',
-                            style: AppTextStyles.SubTitle.copyWith(fontSize: 13),
+                            style: AppTextStyles.SubTitle.copyWith(
+                              fontSize: 13,
+                            ),
                           ),
                           const SizedBox(height: 6),
                           Row(
@@ -472,8 +525,10 @@ class _NextDeliveryCard extends StatelessWidget {
                               Text(
                                 delivery?.fechaCreacion == null
                                     ? '10:30 a. m.'
-                                    : delivery!.fechaCreacion!.toLocal().toString().substring(0, 16),
-                                style: AppTextStyles.label.copyWith(fontSize: 14),
+                                    : '${delivery!.fechaCreacion!.toLocal().year.toString().padLeft(4, '0')}-${delivery!.fechaCreacion!.toLocal().month.toString().padLeft(2, '0')}-${delivery!.fechaCreacion!.toLocal().day.toString().padLeft(2, '0')} ${delivery!.fechaCreacion!.toLocal().hour.toString().padLeft(2, '0')}:${delivery!.fechaCreacion!.toLocal().minute.toString().padLeft(2, '0')}',
+                                style: AppTextStyles.label.copyWith(
+                                  fontSize: 14,
+                                ),
                               ),
                             ],
                           ),
@@ -580,7 +635,10 @@ class _RouteSummaryCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Resumen', style: AppTextStyles.label.copyWith(fontSize: 14)),
+                    Text(
+                      'Resumen',
+                      style: AppTextStyles.label.copyWith(fontSize: 14),
+                    ),
                     const SizedBox(height: 2),
                     Text(
                       '3 paradas pendientes',
@@ -606,10 +664,7 @@ class _RouteSummaryCard extends StatelessWidget {
               ),
               child: const Text(
                 'Ver ruta',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
             ),
           ),

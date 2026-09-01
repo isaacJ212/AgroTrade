@@ -1,12 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:agrotrade_frontend/models/rol.dart';
+import 'package:agrotrade_frontend/routes/app_routes.dart';
 import '../../../ui/app_theme.dart';
 import '../../../ui/components.dart';
-import 'package:agrotrade_frontend/models/rol.dart';
-import 'package:agrotrade_frontend/screens/repartidor/homeRepartidor.dart';
-import 'package:agrotrade_frontend/screens/productor/inicioProductor.dart';
-import '../onboarding/onBoarding.dart';
-import 'Login.dart';
 
 class Roleselection extends StatefulWidget {
   const Roleselection({super.key});
@@ -18,12 +14,12 @@ class Roleselection extends StatefulWidget {
 class _RoleSelection extends State<Roleselection> {
   int? _rolSeleccionado;
 
-  final List<Rol> _Roles = const [
+  final List<Rol> _roles = const [
     Rol(
       RolId: 1,
       NombreRol: "Cliente",
       icono: Icons.shopping_basket_outlined,
-      Description: "Encuentra Productos frescos y compra directo",
+      Description: "Encuentra productos frescos y compra directo del campo",
     ),
     Rol(
       RolId: 2,
@@ -35,39 +31,27 @@ class _RoleSelection extends State<Roleselection> {
       RolId: 3,
       NombreRol: "Repartidor",
       icono: Icons.local_shipping_outlined,
-      Description: "Gestiona entregas y acepta entregas de pedidos",
+      Description: "Gestiona entregas y acepta rutas de pedidos",
     ),
   ];
 
   void _continuar() {
     FocusScope.of(context).unfocus();
-    var RolSeleccionado = _Roles.firstWhere((r) => r.RolId == _rolSeleccionado);
+    if (_rolSeleccionado == null) return;
+    final rolSeleccionado = _roles.firstWhere((r) => r.RolId == _rolSeleccionado);
 
-    if (RolSeleccionado.RolId == 2) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const InicioProductor()),
-      );
-    } else if (RolSeleccionado.RolId == 3) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const InicioRepartidor()),
-      );
+    if (rolSeleccionado.RolId == 1) {
+      Navigator.pushReplacementNamed(context, AppRoutes.inicioComprador);
+      return;
     }
-
-    // los demas roles aun no tiene sus pantallas
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Continuar Como ${RolSeleccionado.NombreRol}"),
-        backgroundColor: AppColors.primaryColor,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadiusGeometry.circular(10),
-        ),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-    // Aqui solo esperamos que implementen las homes segun cada rol
+    if (rolSeleccionado.RolId == 2) {
+      Navigator.pushReplacementNamed(context, AppRoutes.inicioProductor);
+      return;
+    }
+    if (rolSeleccionado.RolId == 3) {
+      Navigator.pushReplacementNamed(context, AppRoutes.inicioRepartidor);
+      return;
+    }
   }
 
   @override
@@ -76,15 +60,15 @@ class _RoleSelection extends State<Roleselection> {
       appBar: AppBar(),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsetsGeometry.all(24),
+          padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Selecciona Tu Perfil", style: AppTextStyles.Title),
+              const Text("Selecciona Tu Perfil", style: AppTextStyles.Title),
               const SizedBox(height: 24),
               Expanded(
                 child: ListView(
-                  children: _Roles.map(
+                  children: _roles.map(
                     (rol) => RoleCard(
                       icon: rol.icono,
                       title: rol.NombreRol,

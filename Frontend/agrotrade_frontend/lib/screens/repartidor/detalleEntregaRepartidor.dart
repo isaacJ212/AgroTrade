@@ -369,7 +369,7 @@ class _RouteSection extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: TextButton.icon(
-              onPressed: () {},
+              onPressed: () => Navigator.pushNamed(context, '/repartidor/pedido/ruta'),
               icon: Icon(Icons.place, size: 16, color: actionColor),
               label: Text(
                 actionLabel,
