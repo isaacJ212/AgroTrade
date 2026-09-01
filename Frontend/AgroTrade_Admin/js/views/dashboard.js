@@ -1,15 +1,14 @@
-document.addEventListener('DOMContentLoaded', () => {
-  
+document.addEventListener('DOMContentLoaded', async () => {
   authService.guardRoute();
 
-  renderStats();
-  renderPendingList();
+  await renderStats();
+  await renderPendingList();
   renderRecentActivities();
 });
 
-function renderStats() {
-  const stats = adminStore.getStats();
-  const pendingList = adminStore.getPendingVerifications();
+async function renderStats() {
+  const stats = adminStore.getStats(); 
+  const pendingList = await adminStore.getPendingVerifications();
 
   const usersEl = document.getElementById('dashStatUsers');
   const producersEl = document.getElementById('dashStatProducers');
@@ -19,14 +18,17 @@ function renderStats() {
   if (usersEl) usersEl.textContent = stats.usuariosRegistrados;
   if (producersEl) producersEl.textContent = stats.productores;
   if (pendingEl) pendingEl.textContent = pendingList.length;
-  if (categoriesEl) categoriesEl.textContent = stats.categorias;
+  
+  
+  const catList = await adminStore.getCategories();
+  if (categoriesEl) categoriesEl.textContent = catList.length;
 }
 
-function renderPendingList() {
+async function renderPendingList() {
   const container = document.getElementById('dashPendingReviewsList');
   if (!container) return;
 
-  const pending = adminStore.getPendingVerifications();
+  const pending = await adminStore.getPendingVerifications();
 
   if (pending.length === 0) {
     container.innerHTML = `

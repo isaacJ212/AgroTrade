@@ -38,35 +38,27 @@ class AuthService {
   }
 
   async login(email, password) {
-    
     try {
-      const res = await fetch('http://localhost:5000/api/Auth/login', {
+      const res = await fetch(`${APP_CONSTANTS.API_BASE_URL}/Auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
       if (res.ok) {
         const data = await res.json();
-        return { success: true, data };
+        
+        
+        const token = data.token || (data.data && data.data.token);
+        const user = data.user || (data.data && data.data.user) || APP_CONSTANTS.DEFAULT_ADMIN;
+        return { success: true, data: { token, user } };
+      } else {
+        const errorData = await res.json();
+        return { success: false, message: errorData.message || 'Credenciales inválidas.' };
       }
     } catch (e) {
-      
+      console.error('Error in login', e);
+      return { success: false, message: 'Error de conexión con el servidor.' };
     }
-
-    if (email === 'admin@agrotrade.com' && password === 'admin123') {
-      return {
-        success: true,
-        data: {
-          token: 'mock_jwt_admin_' + Date.now(),
-          user: APP_CONSTANTS.DEFAULT_ADMIN
-        }
-      };
-    }
-
-    return {
-      success: false,
-      message: 'Credenciales inválidas. Usa admin@agrotrade.com / admin123'
-    };
   }
 }
 

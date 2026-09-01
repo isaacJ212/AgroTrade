@@ -254,7 +254,9 @@ class _SalesState extends State<Sales> {
                         ),
 
                         TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Descargando comprobante...')));
+                          },
                           style: TextButton.styleFrom(
                             padding: EdgeInsets.zero,
                             minimumSize: Size.zero,
@@ -559,7 +561,7 @@ class _BestSellerItem extends StatelessWidget {
           ),
 
           TextButton(
-            onPressed: () {},
+            onPressed: () => Navigator.pop(context),
             style: TextButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               minimumSize: Size.zero,

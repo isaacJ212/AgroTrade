@@ -428,7 +428,7 @@ class _CrearOfertaState extends State<CrearOferta> {
             const SizedBox(height: 12),
 
             const SizedBox(height: 10),
-            TertiaryButton(label: 'Cancelar', onPressed: () {}),
+            TertiaryButton(label: 'Cancelar', onPressed: () => Navigator.pop(context)),
             const SizedBox(height: 8),
           ],
         ),

@@ -91,14 +91,14 @@ class _DetalleProductoState extends State<DetalleProducto> {
                     label: 'Editar producto',
                     icon: Icons.edit_outlined,
                     radius: 26, 
-                    onPressed: () => _mostrarSnack('Editor próximamente 🌱'),
+                    onPressed: () => Navigator.pushNamed(context, '/productor/inventario/agregar'),
                   ),
                   const SizedBox(height: 12),
                   SecondaryButton(
                     label: 'Actualizar inventario',
                     icon: Icons.update,
                     onPressed: () =>
-                        _mostrarSnack('Actualización próximamente 🌱'),
+                        Navigator.pushNamed(context, '/productor/inventario/agregar'),
                   ),
                 ],
               ),
@@ -200,7 +200,7 @@ class _DetalleProductoState extends State<DetalleProducto> {
         ),
         IconButton(
           icon: const Icon(Icons.share, color: AppColors.accentBlue),
-          onPressed: () => _mostrarSnack('Compartir próximamente 🔗'),
+          onPressed: () => _mostrarOpcionesCompartir(context),
         ),
       ],
     );
@@ -355,6 +355,47 @@ class _DetalleProductoState extends State<DetalleProducto> {
           ),
         ),
       ],
+    );
+  }
+
+  void _mostrarOpcionesCompartir(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.copy, color: AppColors.primaryColor),
+                title: const Text('Copiar enlace', style: TextStyle(fontWeight: FontWeight.w600)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enlace copiado al portapapeles')));
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.share, color: AppColors.primaryColor),
+                title: const Text('Compartir vía WhatsApp', style: TextStyle(fontWeight: FontWeight.w600)),
+                onTap: () => Navigator.pop(ctx),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
     );
   }
 }

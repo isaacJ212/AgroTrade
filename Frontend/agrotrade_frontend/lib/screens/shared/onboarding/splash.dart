@@ -1,6 +1,6 @@
-import 'package:agrotrade_frontend/screens/shared/auth/Login.dart';
 import 'package:flutter/material.dart';
 import '../../../ui/app_theme.dart';
+import '../../../routes/app_routes.dart';
 
 class Splash extends StatefulWidget {
   const Splash({super.key});
@@ -70,29 +70,7 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
     await Future.delayed(const Duration(milliseconds: 2600));
     if (!mounted) return;
 
-    Navigator.pushReplacement(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (ctx, anim, anim2) => const Login(),
-        transitionDuration: const Duration(milliseconds: 400),
-        transitionsBuilder: (ctx, animation, secondaryAnim, child) {
-          final curved = CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeInOut,
-          );
-          return FadeTransition(
-            opacity: curved,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0, 0.12),
-                end: Offset.zero,
-              ).animate(curved),
-              child: child,
-            ),
-          );
-        },
-      ),
-    );
+    Navigator.pushReplacementNamed(context, AppRoutes.login);
   }
 
   @override

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:agrotrade_frontend/models/rol.dart';
-import 'package:agrotrade_frontend/screens/cliente/inicioComprador.dart';
-import 'package:agrotrade_frontend/screens/productor/inicioProductor.dart';
-import 'package:agrotrade_frontend/screens/repartidor/homeRepartidor.dart';
+import 'package:agrotrade_frontend/routes/app_routes.dart';
 import '../../../ui/app_theme.dart';
 import '../../../ui/components.dart';
 
@@ -43,26 +41,15 @@ class _RoleSelection extends State<Roleselection> {
     final rolSeleccionado = _roles.firstWhere((r) => r.RolId == _rolSeleccionado);
 
     if (rolSeleccionado.RolId == 1) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const InicioComprador()),
-      );
+      Navigator.pushReplacementNamed(context, AppRoutes.inicioComprador);
       return;
     }
-
     if (rolSeleccionado.RolId == 2) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const InicioProductor()),
-      );
+      Navigator.pushReplacementNamed(context, AppRoutes.inicioProductor);
       return;
     }
-
     if (rolSeleccionado.RolId == 3) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const InicioRepartidor()),
-      );
+      Navigator.pushReplacementNamed(context, AppRoutes.inicioRepartidor);
       return;
     }
   }

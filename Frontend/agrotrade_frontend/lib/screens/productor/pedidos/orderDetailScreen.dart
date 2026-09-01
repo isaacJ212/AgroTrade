@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../ui/app_theme.dart';
 import '../../../ui/components.dart';
+import 'prepareOrderScreen.dart';
 
 class OrderDetailsScreen extends StatelessWidget {
   const OrderDetailsScreen({super.key});
@@ -334,6 +335,12 @@ class OrderDetailsScreen extends StatelessWidget {
               SecondaryButton(
                 label: 'Ver preparacion',
                 onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PrepareOrderScreen(),
+                    ),
+                  );
                 },
               ),
               const SizedBox(height: 10),

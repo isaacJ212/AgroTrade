@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:agrotrade_frontend/models/api/auth_models.dart';
-import 'package:agrotrade_frontend/screens/cliente/inicioComprador.dart';
-import 'package:agrotrade_frontend/screens/productor/inicioProductor.dart';
-import 'package:agrotrade_frontend/screens/repartidor/homeRepartidor.dart';
+import 'package:agrotrade_frontend/routes/app_routes.dart';
 import 'package:agrotrade_frontend/screens/shared/auth/registro.dart';
 import 'package:agrotrade_frontend/screens/shared/auth/resetPassword.dart';
 import 'package:agrotrade_frontend/screens/shared/auth/roleSelection.dart';
@@ -102,26 +100,14 @@ class _LoginState extends State<Login> {
   }
 
   void _redirectNavigation(LoginResponseDto user) {
-    if (user.roles.contains("Cliente")) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const InicioComprador()),
-      );
-    } else if (user.roles.contains("Productor/Proveedor")) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const InicioProductor()),
-      );
-    } else if (user.roles.contains("Repartidor")) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const InicioRepartidor()),
-      );
+    if (user.roles.contains('Cliente')) {
+      Navigator.pushReplacementNamed(context, AppRoutes.inicioComprador);
+    } else if (user.roles.contains('Productor/Proveedor')) {
+      Navigator.pushReplacementNamed(context, AppRoutes.inicioProductor);
+    } else if (user.roles.contains('Repartidor')) {
+      Navigator.pushReplacementNamed(context, AppRoutes.inicioRepartidor);
     } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const Roleselection()),
-      );
+      Navigator.pushReplacementNamed(context, AppRoutes.roleSelection);
     }
   }
 
@@ -170,6 +156,28 @@ class _LoginState extends State<Login> {
                     style: AppTextStyles.SubTitle,
                   ),
                   const SizedBox(height: 24),
+
+           
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      _DemoChip(
+                        label: "Comprador",
+                        onTap: () => _autofillDemo("cliente@agrotrade.com", "cliente123"),
+                      ),
+                      _DemoChip(
+                        label: "Productor",
+                        onTap: () => _autofillDemo("productor@agrotrade.com", "productor123"),
+                      ),
+                      _DemoChip(
+                        label: "Repartidor",
+                        onTap: () => _autofillDemo("repartidor@agrotrade.com", "repartidor123"),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
 
                   const SizedBox(height: 20),
                   AppTextField(

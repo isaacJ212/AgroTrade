@@ -69,8 +69,8 @@ class _EntregasrepartidorState extends State<Entregasrepartidor> {
           ),
           actions: [
             IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.notifications_outlined),
+              onPressed: () => Navigator.pushNamed(context, '/notificaciones'),
+              icon: const Icon(Icons.notifications_outlined),
             ),
           ],
         ),

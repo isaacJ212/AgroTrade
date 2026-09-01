@@ -17,6 +17,7 @@ namespace Agro_Trade.Domain.Entities
         public string? PasswordHash { get; set; } 
         public bool IdentidadVerificada { get; set; }
         
+        public string EstadoCuenta { get; set; } = "Activo"; 
         public string? OAuthProvider { get; set; }
         public string? OAuthProviderId { get; set; }
         public string? Telefono { get; set; }

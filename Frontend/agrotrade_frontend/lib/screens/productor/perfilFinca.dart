@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
+import '../../ui/widgets/app_text_field.dart';
+import '../../ui/widgets/buttons.dart';
 
 class PerfilFinca extends StatefulWidget {
   const PerfilFinca({super.key});
@@ -280,7 +282,7 @@ class _PerfilFincaState extends State<PerfilFinca> {
                   label: 'Editar perfil',
                   radius: 25,
                   onPressed: () =>
-                      _mostrarSnack('Edición de perfil próximamente ✏️'),
+                      Navigator.pushNamed(context, '/editar-perfil'),
                 ),
                 const SizedBox(height: 10),
 
@@ -389,33 +391,32 @@ class _PerfilFincaState extends State<PerfilFinca> {
                 _MenuOpcion(
                   icon: Icons.person_outline,
                   label: 'Datos personales',
-                  onTap: () => _mostrarSnack('Datos personales próximamente'),
+                  onTap: () => Navigator.pushNamed(context, '/editar-perfil'),
                   isFirst: true,
                 ),
                 const Divider(height: 1, color: AppColors.cardBorder),
                 _MenuOpcion(
                   icon: Icons.agriculture_outlined,
                   label: 'Información de la finca',
-                  onTap: () => _mostrarSnack('Info de finca próximamente'),
+                  onTap: () => Navigator.pushNamed(context, '/productor/editar-finca'),
                 ),
                 const Divider(height: 1, color: AppColors.cardBorder),
                 _MenuOpcion(
                   icon: Icons.settings_outlined,
                   label: 'Configuración',
-                  onTap: () => _mostrarSnack('Configuración próximamente'),
+                  onTap: () => _mostrarConfiguracion(context),
                 ),
                 const Divider(height: 1, color: AppColors.cardBorder),
                 _MenuOpcion(
                   icon: Icons.lock_outline,
                   label: 'Cambiar contraseña',
-                  onTap: () =>
-                      _mostrarSnack('Cambio de contraseña próximamente'),
+                  onTap: () => _mostrarCambiarPassword(context),
                 ),
                 const Divider(height: 1, color: AppColors.cardBorder),
                 _MenuOpcion(
                   icon: Icons.help_outline,
                   label: 'Ayuda',
-                  onTap: () => _mostrarSnack('Centro de ayuda próximamente'),
+                  onTap: () => Navigator.pushNamed(context, '/centro-ayuda'),
                   isLast: true,
                 ),
               ],
@@ -437,6 +438,101 @@ class _PerfilFincaState extends State<PerfilFinca> {
         currentIndex: _tabActual,
         onTap: _cambiarTab,
       ),
+    );
+  }
+
+  void _mostrarConfiguracion(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
+              ),
+              const Text('Configuración', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 12),
+              SwitchListTile(
+                value: true,
+                onChanged: (val) {},
+                title: const Text('Notificaciones push'),
+                secondary: const Icon(Icons.notifications_active_outlined, color: AppColors.primaryColor),
+              ),
+              SwitchListTile(
+                value: false,
+                onChanged: (val) {},
+                title: const Text('Modo Oscuro'),
+                secondary: const Icon(Icons.dark_mode_outlined, color: AppColors.primaryColor),
+              ),
+              ListTile(
+                leading: const Icon(Icons.language, color: AppColors.primaryColor),
+                title: const Text('Idioma'),
+                trailing: const Text('Español', style: TextStyle(color: AppColors.TextSoft)),
+                onTap: () {},
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _mostrarCambiarPassword(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom,
+            left: 20, right: 20, top: 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Center(child: Text('Cambiar Contraseña', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
+              const SizedBox(height: 16),
+              const PasswordField(
+                label: 'Contraseña Actual',
+                hint: 'Ingresa tu contraseña',
+              ),
+              const SizedBox(height: 12),
+              const PasswordField(
+                label: 'Nueva Contraseña',
+                hint: 'Ingresa la nueva contraseña',
+              ),
+              const SizedBox(height: 12),
+              const PasswordField(
+                label: 'Confirmar Nueva Contraseña',
+                hint: 'Repite la nueva contraseña',
+              ),
+              const SizedBox(height: 20),
+              PrimaryButton(
+                label: 'Guardar Contraseña',
+                radius: 12,
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Contraseña actualizada')));
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
     );
   }
 }
