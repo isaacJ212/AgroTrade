@@ -304,8 +304,8 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 72,
-                height: 72,
+                width: 60,
+                height: 60,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(color: AppColors.primaryColor, width: 2.5),
@@ -335,7 +335,7 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
               const Spacer(),
               ElevatedButton.icon(
                 onPressed: _enviarMensaje,
-                icon: const Icon(Icons.chat_bubble_outline, size: 16),
+                icon: const Icon(Icons.chat_bubble_outline, size: 14),
                 label: const Text(
                   'Enviar mensaje',
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
@@ -344,7 +344,7 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
                   backgroundColor: AppColors.primaryColor,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
+                    horizontal: 12,
                     vertical: 10,
                   ),
                   shape: RoundedRectangleBorder(
@@ -359,7 +359,7 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
           const Text(
             'Carlos Martínez',
             style: TextStyle(
-              fontSize: 22,
+              fontSize: 20,
               fontWeight: FontWeight.w800,
               color: AppColors.titleDark,
             ),
@@ -428,7 +428,7 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
           const Text(
             'Sobre la finca',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.w700,
               color: AppColors.titleDark,
             ),
@@ -471,7 +471,7 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
               Text(
                 'Productos disponibles',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: AppColors.titleDark,
                 ),
@@ -513,7 +513,7 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
               const Text(
                 'Valoraciones',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: AppColors.titleDark,
                 ),

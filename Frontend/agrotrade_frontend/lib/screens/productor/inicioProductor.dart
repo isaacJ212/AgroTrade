@@ -84,7 +84,7 @@ class _InicioProductorState extends State<InicioProductor> {
     } else if (index == 2) {
       Navigator.pushReplacementNamed(context, AppRoutes.pedidosRecibidos);
     } else if (index == 3) {
-      Navigator.pushNamed(context, AppRoutes.profile);
+      Navigator.pushNamed(context, AppRoutes.perfilFinca);
     } else {
       setState(() => _tabActual = index);
     }
@@ -97,7 +97,7 @@ class _InicioProductorState extends State<InicioProductor> {
       body: SafeArea(
         bottom: false,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 80),
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -111,7 +111,7 @@ class _InicioProductorState extends State<InicioProductor> {
                       Text(
                         'Aquí tienes un resumen de tu actividad de hoy.',
                         style: AppTextStyles.SubTitle.copyWith(
-                          fontSize: 15,
+                          fontSize: 12,
                           color: AppColors.bodyText,
                         ),
                       ),

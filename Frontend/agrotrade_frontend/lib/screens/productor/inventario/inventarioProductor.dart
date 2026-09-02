@@ -208,7 +208,7 @@ class _InventarioProductorState extends State<InventarioProductor> {
                   Text(
                     'Administra tus productos, cantidades y precios.',
                     style: AppTextStyles.SubTitle.copyWith(
-                      fontSize: 15,
+                      fontSize: 13,
                       color: AppColors.bodyText,
                     ),
                   ),
@@ -292,7 +292,7 @@ class _InventarioProductorState extends State<InventarioProductor> {
             prefixIcon: const Icon(Icons.search, color: AppColors.bodyText),
             border: InputBorder.none, 
             // el borde lo pone el Container exterior
-            contentPadding: const EdgeInsets.symmetric(vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(vertical: 12),
           ),
         ),
       ),
@@ -476,13 +476,13 @@ class _ProductoCard extends StatelessWidget {
   Widget _imagen() {
     return Image.network(
       producto.imagenUrl,
-      height: 190,
+      height: 140,
       width: double.infinity,
       fit: BoxFit.cover,
       loadingBuilder: (context, child, progreso) {
         if (progreso == null) return child;
         return SizedBox(
-          height: 190,
+          height: 140,
           child: Center(
             child: CircularProgressIndicator(color: AppColors.primaryColor),
           ),
@@ -490,7 +490,7 @@ class _ProductoCard extends StatelessWidget {
       },
       errorBuilder: (context, error, stackTrace) {
         return Container(
-          height: 190,
+          height: 140,
           width: double.infinity,
           color: AppColors.tileBg,
           child: Icon(Icons.image_not_supported_outlined,

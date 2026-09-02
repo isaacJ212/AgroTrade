@@ -18,7 +18,11 @@ class ProductoresCercanos extends StatelessWidget {
         ),
         title: const Text(
           'Productores cercanos',
-          style: AppTextStyles.Title,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: AppColors.titleDark,
+          ),
         ),
         centerTitle: true,
       ),
@@ -70,18 +74,18 @@ class ProductoresCercanos extends StatelessWidget {
             top: MediaQuery.of(context).size.height * 0.15,
             right: MediaQuery.of(context).size.width * 0.2,
             child: const CircleAvatar(
-              radius: 12,
+              radius: 10,
               backgroundColor: Colors.white70,
-              child: Icon(Icons.agriculture, size: 14, color: Colors.grey),
+              child: Icon(Icons.agriculture, size: 12, color: Colors.grey),
             ),
           ),
           Positioned(
             top: MediaQuery.of(context).size.height * 0.4,
             left: MediaQuery.of(context).size.width * 0.2,
             child: const CircleAvatar(
-              radius: 12,
+              radius: 10,
               backgroundColor: Colors.white70,
-              child: Icon(Icons.storefront, size: 14, color: Colors.grey),
+              child: Icon(Icons.storefront, size: 12, color: Colors.grey),
             ),
           ),
 
@@ -115,7 +119,7 @@ class ProductoresCercanos extends StatelessWidget {
                 ],
               ),
               child: Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,7 +138,7 @@ class ProductoresCercanos extends StatelessWidget {
                     const Text(
                       'Finca La Esperanza',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: AppColors.TextMain,
                       ),

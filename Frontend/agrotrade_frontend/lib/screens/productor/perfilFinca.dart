@@ -185,13 +185,9 @@ class _PerfilFincaState extends State<PerfilFinca> {
                 ),
                 const SizedBox(height: 14),
 
-                const Text(
+                Text(
                   'Carlos Martínez',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.titleDark,
-                  ),
+                  style: AppTextStyles.headline,
                 ),
                 const SizedBox(height: 6),
 
