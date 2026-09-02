@@ -16,6 +16,8 @@ namespace Agro_Trade.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
+
+           
             //configuracion de posgres``
             var connectionString = configuration.GetConnectionString("AgroTradeDatabase")
                 ?? configuration.GetConnectionString("DefaultConnection");
@@ -44,6 +46,7 @@ namespace Agro_Trade.Infrastructure.DependencyInjection
             services.AddScoped<IEmailService, SmtpEmailService>();
             services.AddScoped<IVerificationCodeRepository, InMemoryVerificationCodeRepository>();
             services.AddScoped<IUnitofWork, UnitOfWork>();
+            services.AddScoped<IBotServices, GetPromptServices>();
 
             return services;
         }

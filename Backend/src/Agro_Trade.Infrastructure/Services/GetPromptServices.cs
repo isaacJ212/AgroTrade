@@ -19,11 +19,18 @@ namespace Agro_Trade.Infrastructure.Services
 
         public void traerPrompts()
         {
-           string rutaCarpeta = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../Embebido");
-           if(!Directory.Exists(rutaCarpeta))
+            string[] rutasPosibles =
             {
-                throw new DirectoryNotFoundException($"La carpeta '{rutaCarpeta}' no existe.");
-            }   
+                Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "Embebido"),
+                Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "Embebido"),
+                Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..", "Embebido")
+            };
+
+            string rutaCarpeta = rutasPosibles
+                .Select(ruta => Path.GetFullPath(ruta))
+                .FirstOrDefault(Directory.Exists) ?? throw new DirectoryNotFoundException(
+                    $"La carpeta 'Embebido' no se encontró en ninguna de las rutas esperadas: {string.Join("; ", rutasPosibles.Select(Path.GetFullPath))}.");
+
             string[] archivos = Directory.GetFiles(rutaCarpeta, "*.md");
 
             foreach (string archivo in archivos)
