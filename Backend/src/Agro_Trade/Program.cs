@@ -20,7 +20,7 @@ namespace Agro_Trade
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            var dataSourceBuilder = new NpgsqlDataSourceBuilder(builder.Configuration.GetConnectionString("AgroTradeDatabase") ?? builder.Configuration.GetConnectionString("DefaultConnection"));
+            var dataSourceBuilder = new NpgsqlDataSourceBuilder(builder.Configuration.GetConnectionString("MesetaVerdeDatabase") ?? builder.Configuration.GetConnectionString("DefaultConnection"));
             dataSourceBuilder.EnableDynamicJson(); 
             var dataSource = dataSourceBuilder.Build();
             // Add services to the container.
