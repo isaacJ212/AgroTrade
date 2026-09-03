@@ -31,9 +31,9 @@ namespace Agro_Trade.Controllers
         /// </summary>
         [Authorize]
         [HttpGet]
-        public async Task<IActionResult> GetAll(CancellationToken ct)
+        public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 50, CancellationToken ct = default)
         {
-            var result = await mediator.Send(new GetUsersQuery(), ct);
+            var result = await mediator.Send(new GetUsersQuery { PageIndex = pageIndex, PageSize = pageSize }, ct);
             return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, new { ErrorMesagge = result.Message });
         }
 
