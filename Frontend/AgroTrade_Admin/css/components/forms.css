@@ -21,6 +21,8 @@
 
 .app-search-input {
   width: 100%;
+  box-sizing: border-box;
+  height: 44px;
   padding: 12px 14px 12px 42px;
   background-color: var(--bg-card);
   border: 1px solid var(--border-light);
