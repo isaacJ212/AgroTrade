@@ -21,6 +21,7 @@ namespace Agro_Trade.Infrastructure.Services
         {
             string[] rutasPosibles =
             {
+                Path.Combine(AppContext.BaseDirectory, "Embebido"),
                 Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "Embebido"),
                 Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "Embebido"),
                 Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..", "Embebido")
