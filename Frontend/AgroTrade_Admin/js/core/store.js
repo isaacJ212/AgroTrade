@@ -218,13 +218,31 @@ class AdminStore {
  
   }
 
-  getStats() {
-    return {
-      usuariosRegistrados: 0,
-      productores: 0,
-      verificacionesPendientes: 0,
-      categorias: 0
-    };
+  async getStats() {
+    try {
+      const [usersRes, catsRes, verifRes] = await Promise.all([
+        this.getUsers(1, 1),
+        this.getCategories(1, 1),
+        this.getVerifications(1, 1)
+      ]);
+
+      const pendingVerifs = await this.getPendingVerifications();
+
+      return {
+        usuariosRegistrados: usersRes.totalCount || 0,
+        productores: 0, 
+        verificacionesPendientes: pendingVerifs.length || verifRes.totalCount || 0,
+        categorias: catsRes.totalCount || 0
+      };
+    } catch(e) {
+      console.error("Error getting stats", e);
+      return {
+        usuariosRegistrados: 0,
+        productores: 0,
+        verificacionesPendientes: 0,
+        categorias: 0
+      };
+    }
   }
 }
 
