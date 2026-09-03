@@ -7,24 +7,24 @@ class AdminStore {
     
   }
 
-  async getUsers() {
+  async getUsers(pageIndex = 1, pageSize = 50) {
     try {
       if (typeof apiService !== 'undefined') {
-        
-        const res = await apiService.get('/Proveedores');
-        const items = res.data || res || [];
-        return items.map(p => ({
-          id: p.id,
-          nombreCompleto: p.nombreProveedor || "Productor",
-          nombreCompletoDetalle: p.nombreProveedor,
-          tipoRol: "productor",
-          rolLabel: "Productor",
-          isVerificado: true,
-          estadoCuenta: "Activo",
-          email: p.idUsuario ? `usuario${p.idUsuario}@agrotrade.com` : "N/A",
-          telefono: "N/A",
-          finca: { nombre: p.nombreFinca || 'N/A' },
-          avatarUrl: p.fotoPerfil || null
+        const res = await apiService.get(`/Users?pageIndex=${pageIndex}&pageSize=${pageSize}`);
+        const items = (res.data && res.data.items) ? res.data.items : [];
+        return items.map(u => ({
+          id: u.id,
+          nombreCompleto: u.name || "Usuario",
+          nombreCompletoDetalle: u.name,
+          tipoRol: u.roles ? (u.roles.includes("Productor") ? "productor" : (u.roles.includes("Repartidor") ? "repartidor" : "comprador")) : "productor",
+          rolLabel: u.roles ? u.roles.join(', ') : "Usuario",
+          isVerificado: u.identidadVerificada,
+          estadoCuenta: u.estadoCuenta || "Activo",
+          email: u.email || "N/A",
+          telefono: u.telefono || "N/A",
+          fechaRegistro: u.fechaRegistro ? new Date(u.fechaRegistro).toLocaleDateString() : 'N/A',
+          direccion: u.direccionBase || "N/A",
+          avatarUrl: null
         }));
       }
       return [];
@@ -61,11 +61,11 @@ class AdminStore {
     }
   }
 
-  async getVerifications() {
+  async getVerifications(pageIndex = 1, pageSize = 50) {
     try {
       if (typeof apiService !== 'undefined') {
-        const res = await apiService.get('/DeliveryJobRequest?pageSize=50');
-        const items = res.items || res.data || res || [];
+        const res = await apiService.get(`/DeliveryJobRequest?pageIndex=${pageIndex}&pageSize=${pageSize}`);
+        const items = (res.data && res.data.items) ? res.data.items : (res.items || res.data || []);
         return items.map ? items.map(job => ({
           idSolicitud: job.id,
           idUsuario: job.usuarioId || job.repartidorId || job.id,
@@ -125,11 +125,11 @@ class AdminStore {
     }
   }
 
-  async getCategories() {
+  async getCategories(pageIndex = 1, pageSize = 50) {
     try {
       if (typeof apiService !== 'undefined') {
-        const res = await apiService.get('/Categorias');
-        const items = res.data || res || [];
+        const res = await apiService.get(`/Categorias?pageIndex=${pageIndex}&pageSize=${pageSize}`);
+        const items = (res.data && res.data.items) ? res.data.items : [];
         return items.map(cat => ({
           id: cat.idCategoria,
           nombre: cat.nombre,
