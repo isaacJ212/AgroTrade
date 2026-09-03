@@ -12,35 +12,38 @@ class AdminStore {
       if (typeof apiService !== 'undefined') {
         const res = await apiService.get(`/Users?pageIndex=${pageIndex}&pageSize=${pageSize}`);
         const items = (res.data && res.data.items) ? res.data.items : [];
-        return items.map(u => ({
-          id: u.id,
-          nombreCompleto: u.name || "Usuario",
-          nombreCompletoDetalle: u.name,
-          tipoRol: u.roles ? (u.roles.includes("Productor") ? "productor" : (u.roles.includes("Repartidor") ? "repartidor" : "comprador")) : "productor",
-          rolLabel: u.roles ? u.roles.join(', ') : "Usuario",
-          isVerificado: u.identidadVerificada,
-          estadoCuenta: u.estadoCuenta || "Activo",
-          email: u.email || "N/A",
-          telefono: u.telefono || "N/A",
-          fechaRegistro: u.fechaRegistro ? new Date(u.fechaRegistro).toLocaleDateString() : 'N/A',
-          direccion: u.direccionBase || "N/A",
-          avatarUrl: null
-        }));
+        return {
+          items: items.map(u => ({
+            id: u.id,
+            nombreCompleto: u.name || "Usuario",
+            nombreCompletoDetalle: u.name,
+            tipoRol: u.roles ? (u.roles.includes("Productor") ? "productor" : (u.roles.includes("Repartidor") ? "repartidor" : "comprador")) : "productor",
+            rolLabel: u.roles ? u.roles.join(', ') : "Usuario",
+            isVerificado: u.identidadVerificada,
+            estadoCuenta: u.estadoCuenta || "Activo",
+            email: u.email || "N/A",
+            telefono: u.telefono || "N/A",
+            fechaRegistro: u.fechaRegistro ? new Date(u.fechaRegistro).toLocaleDateString() : 'N/A',
+            direccion: u.direccionBase || "N/A",
+            avatarUrl: null
+          })),
+          totalCount: res.data.totalRegisters || items.length
+        };
       }
-      return [];
+      return { items: [], totalCount: 0 };
     } catch {
-      return [];
+      return { items: [], totalCount: 0 };
     }
   }
 
   async getUserById(id) {
-    const users = await this.getUsers();
-    return users.find(u => u.id === Number(id));
+    const data = await this.getUsers(1, 1000);
+    return data.items.find(u => u.id === Number(id));
   }
 
   async updateUser(id, updatedData) {
-    const users = await this.getUsers();
-    const index = users.findIndex(u => u.id === Number(id));
+    const data = await this.getUsers(1, 1000);
+    const index = data.items.findIndex(u => u.id === Number(id));
     if (index === -1) return { success: false, message: 'Usuario no encontrado' };
 
     users[index] = { ...users[index], ...updatedData };
@@ -130,17 +133,20 @@ class AdminStore {
       if (typeof apiService !== 'undefined') {
         const res = await apiService.get(`/Categorias?pageIndex=${pageIndex}&pageSize=${pageSize}`);
         const items = (res.data && res.data.items) ? res.data.items : [];
-        return items.map(cat => ({
-          id: cat.idCategoria,
-          nombre: cat.nombre,
-          descripcion: '',
-          conteoProductos: 0 
-        }));
+        return {
+          items: items.map(cat => ({
+            id: cat.idCategoria,
+            nombre: cat.nombre,
+            descripcion: '',
+            conteoProductos: 0 
+          })),
+          totalCount: res.data.totalRegisters || items.length
+        };
       }
-      return [];
+      return { items: [], totalCount: 0 };
     } catch(e) {
       console.error("Error loading categories", e);
-      return [];
+      return { items: [], totalCount: 0 };
     }
   }
 
