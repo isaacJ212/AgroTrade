@@ -1,17 +1,20 @@
 .search-input-wrapper {
   position: relative;
   width: 100%;
-  display: flex;
-  align-items: center;
+  max-width: 500px;
+  margin-bottom: 24px;
 }
 
 .search-input-icon {
   position: absolute;
-  left: 14px;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
   color: #94a3b8;
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: none;
 }
 
 .search-input-icon svg {
@@ -22,15 +25,15 @@
 .app-search-input {
   width: 100%;
   box-sizing: border-box;
-  height: 44px;
-  padding: 12px 14px 12px 42px;
+  height: 48px;
+  padding: 12px 16px 12px 44px;
   background-color: var(--bg-card);
   border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  font-size: 0.9rem;
+  border-radius: 24px;
+  font-size: 0.95rem;
   color: var(--text-main);
-  box-shadow: var(--shadow-card);
-  transition: var(--transition-normal);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  transition: all 0.2s ease;
 }
 
 .app-search-input:focus {
