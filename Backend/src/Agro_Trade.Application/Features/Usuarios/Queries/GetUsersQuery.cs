@@ -32,6 +32,8 @@ namespace Agro_Trade.Application.Features.Usuarios.Queries
             var totalCount = await query.CountAsync(cancellationToken);
             
             var usuariosEnt = await query
+                .Include(u => u.UsuariosRoles)
+                .ThenInclude(ur => ur.Rol)
                 .Skip((request.PageIndex - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .ToListAsync(cancellationToken);
@@ -46,7 +48,8 @@ namespace Agro_Trade.Application.Features.Usuarios.Queries
                     DireccionBase = u.DireccionBase,
                     Departamento = u.Departamento,
                     EstadoCuenta = u.EstadoCuenta,
-                    FechaRegistro = u.FechaRegistro
+                    FechaRegistro = u.FechaRegistro,
+                    Roles = u.UsuariosRoles.Select(ur => ur.Rol.NombreRol).ToList()
                 })
                 .ToList();
             
