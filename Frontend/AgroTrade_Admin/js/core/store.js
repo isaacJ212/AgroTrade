@@ -68,38 +68,46 @@ class AdminStore {
     try {
       if (typeof apiService !== 'undefined') {
         const res = await apiService.get(`/DeliveryJobRequest?pageIndex=${pageIndex}&pageSize=${pageSize}`);
-        const items = (res.data && res.data.items) ? res.data.items : (res.items || res.data || []);
-        return items.map ? items.map(job => ({
-          idSolicitud: job.id,
-          idUsuario: job.usuarioId || job.repartidorId || job.id,
-          nombreUsuario: job.nombreRepartidor || "Repartidor",
-          tipoRol: "repartidor",
-          rolSubtext: "Repartidor",
-          fechaRelativa: job.fechaCreacion ? new Date(job.fechaCreacion).toLocaleDateString() : 'Reciente',
-          descripcionCorta: `Solicitud de repartidor. Vehículo: ${job.tipoVehiculo || 'No especificado'}`,
-          estado: job.estado === 'Pendiente' ? 0 : (job.estado === 'Aprobada' ? 1 : 2)
-        })) : [];
+        const items = (res.data && res.data.items) ? res.data.items : [];
+        return {
+          items: items.map(job => ({
+            idSolicitud: job.idSolicitud,
+            idUsuario: job.idUsuario,
+            nombreUsuario: job.nombreUsuario || "Repartidor",
+            tipoRol: "repartidor",
+            rolSubtext: "Repartidor",
+            fechaRelativa: job.fechaSolicitud ? new Date(job.fechaSolicitud).toLocaleDateString() : 'Reciente',
+            descripcionCorta: `Solicitud de repartidor. Vehículo: ${job.datosRepartidor?.tipoVehiculo || 'No especificado'}`,
+            estado: job.estado?.toLowerCase() === 'pendiente' ? 0 : (job.estado?.toLowerCase() === 'aprobada' ? 1 : 2)
+          })),
+          totalCount: (res.data && res.data.totalRegisters) ? res.data.totalRegisters : items.length
+        };
       }
-      return [];
+      return { items: [], totalCount: 0 };
     } catch(e) {
       console.error("Error loading verifications", e);
-      return [];
+      throw e; 
     }
   }
 
   async getVerificationById(id) {
-    const list = await this.getVerifications();
-    return list.find(v => v.idSolicitud === Number(id));
+    const list = await this.getVerifications(1, 1000);
+    return list.items.find(v => v.idSolicitud === Number(id));
   }
 
   async getVerificationByUserId(userId) {
-    const list = await this.getVerifications();
-    return list.find(v => v.idUsuario === Number(userId));
+    const list = await this.getVerifications(1, 1000);
+    return list.items.find(v => v.idUsuario === Number(userId));
   }
 
   async getPendingVerifications() {
-    const list = await this.getVerifications();
-    return list.filter(v => v.estado === 0);
+    try {
+      const list = await this.getVerifications(1, 1000);
+      return list.items.filter(v => v.estado === 0);
+    } catch(e) {
+      console.error("Error fetching pending verifications", e);
+      return [];
+    }
   }
 
   async approveVerification(idSolicitud, comment = '') {
@@ -220,18 +228,23 @@ class AdminStore {
 
   async getStats() {
     try {
-      const [usersRes, catsRes, verifRes] = await Promise.all([
-        this.getUsers(1, 1),
+      let stats = { totalUsuarios: 0, totalVentas: 0 };
+      if (typeof apiService !== 'undefined') {
+         try {
+           const resStats = await apiService.get('/Stats');
+           if (resStats && resStats.data) stats = resStats.data;
+         } catch(e) {}
+      }
+      const [catsRes, verifRes, usersRes] = await Promise.all([
         this.getCategories(1, 1),
-        this.getVerifications(1, 1)
+        this.getVerifications(1, 1).catch(() => ({ totalCount: 0 })),
+        this.getUsers(1, 1).catch(() => ({ totalCount: 0 }))
       ]);
 
-      const pendingVerifs = await this.getPendingVerifications();
-
       return {
-        usuariosRegistrados: usersRes.totalCount || 0,
+        usuariosRegistrados: stats.totalUsuarios || usersRes.totalCount || 0,
         productores: 0, 
-        verificacionesPendientes: pendingVerifs.length || verifRes.totalCount || 0,
+        verificacionesPendientes: verifRes.totalCount || 0,
         categorias: catsRes.totalCount || 0
       };
     } catch(e) {
