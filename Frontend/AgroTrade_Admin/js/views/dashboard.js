@@ -6,41 +6,44 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderRecentActivities();
 });
 
-async function renderStats() {
-  const stats = adminStore.getStats(); 
-  const pendingList = await adminStore.getPendingVerifications();
-
-  const usersEl = document.getElementById('dashStatUsers');
-  const producersEl = document.getElementById('dashStatProducers');
-  const pendingEl = document.getElementById('dashStatPending');
-  const categoriesEl = document.getElementById('dashStatCategories');
-
-  if (usersEl) usersEl.textContent = stats.usuariosRegistrados;
-  if (producersEl) producersEl.textContent = stats.productores;
-  if (pendingEl) pendingEl.textContent = pendingList.length;
-  
-  
-  const catList = await adminStore.getCategories();
-  if (categoriesEl) categoriesEl.textContent = catList.length;
+async function initDashboard() {
+  await renderDashboardStats();
+  await renderPendingReviews();
 }
 
-async function renderPendingList() {
-  const container = document.getElementById('dashPendingReviewsList');
+async function renderDashboardStats() {
+  const container = document.getElementById('dashboardStatsContainer');
+  if (!container) return;
+
+  const stats = await adminStore.getStats();
+  const pendingList = await adminStore.getPendingVerifications();
+  const catList = await adminStore.getCategories();
+
+  container.innerHTML = `
+    <div class="stat-card"><h3>Usuarios</h3><p id="dashStatUsers">${stats.usuariosRegistrados}</p></div>
+    <div class="stat-card"><h3>Productores</h3><p id="dashStatProducers">${stats.productores}</p></div>
+    <div class="stat-card"><h3>Pendientes</h3><p id="dashStatPending">${pendingList.length}</p></div>
+    <div class="stat-card"><h3>Categorías</h3><p id="dashStatCategories">${catList.length}</p></div>
+  `;
+}
+
+async function renderPendingReviews() {
+  const container = document.getElementById('dashPendingReviewsContainer');
   if (!container) return;
 
   const pending = await adminStore.getPendingVerifications();
 
   if (pending.length === 0) {
     container.innerHTML = `
-      <div style="text-align:center; padding: 24px; background:#fff; border-radius:var(--radius-lg); border:1px dashed var(--border-light); color:var(--text-secondary);">
-        <div style="font-weight:700; color:var(--text-main);">¡Todo al día!</div>
-        <div style="font-size:0.8rem; margin-top:4px;">No hay verificaciones pendientes de revisión.</div>
+      <div style="text-align:center; padding:30px 16px; color:var(--text-secondary); background:var(--bg-card); border-radius:var(--radius-lg);">
+        <strong style="display:block; color:var(--text-main); margin-bottom:4px;">¡Todo al día!</strong>
+        No hay verificaciones pendientes de revisión.
       </div>
     `;
     return;
   }
 
-  container.innerHTML = pending.map(item => {
+  container.innerHTML = pending.slice(0, 3).map(item => {
     const user = adminStore.getUserById(item.idUsuario) || {};
     const isProductor = item.tipoRol === 'productor';
     const roleIcon = isProductor
