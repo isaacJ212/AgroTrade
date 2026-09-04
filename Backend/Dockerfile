@@ -36,6 +36,6 @@ EXPOSE 8080
 EXPOSE 8081
 
 COPY --from=publish /app/publish .
-COPY --from=build /src/Embebido /app/Embebido
+
 
 ENTRYPOINT ["dotnet", "Agro_Trade.dll"]
