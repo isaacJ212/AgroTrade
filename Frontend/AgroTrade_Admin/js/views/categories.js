@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 let currentCategorySearch = '';
+let currentCategoriesPage = 1;
+const CATEGORIES_PAGE_SIZE = 10;
 
 async function initCategoryList() {
   const searchInput = document.getElementById('categorySearchInput');
@@ -24,11 +26,18 @@ async function initCategoryList() {
   await renderCategoryList();
 }
 
+window.changeCategoriesPage = async (page) => {
+  currentCategoriesPage = page;
+  await renderCategoryList();
+};
+
 async function renderCategoryList() {
   const container = document.getElementById('categoriesListContainer');
   if (!container) return;
 
-  let list = await adminStore.getCategories();
+  const data = await adminStore.getCategories(currentCategoriesPage, CATEGORIES_PAGE_SIZE);
+  let list = data.items;
+  let totalCount = data.totalCount;
 
   if (currentCategorySearch) {
     list = list.filter(c => 
@@ -46,7 +55,7 @@ async function renderCategoryList() {
     return;
   }
 
-  container.innerHTML = list.map(cat => {
+  let html = list.map(cat => {
     
     const iconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 0 1 5 5v1a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5z"></path><path d="M4 14a8 8 0 0 0 16 0"></path></svg>`;
 
@@ -79,6 +88,9 @@ async function renderCategoryList() {
       </div>
     `;
   }).join('');
+
+  html += createPagination(totalCount, currentCategoriesPage, CATEGORIES_PAGE_SIZE, 'changeCategoriesPage');
+  container.innerHTML = html;
 }
 
 window.deleteCategoryAction = async function(id) {

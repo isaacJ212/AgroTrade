@@ -7,40 +7,43 @@ class AdminStore {
     
   }
 
-  async getUsers() {
+  async getUsers(pageIndex = 1, pageSize = 50) {
     try {
       if (typeof apiService !== 'undefined') {
-        
-        const res = await apiService.get('/Proveedores');
-        const items = res.data || res || [];
-        return items.map(p => ({
-          id: p.id,
-          nombreCompleto: p.nombreProveedor || "Productor",
-          nombreCompletoDetalle: p.nombreProveedor,
-          tipoRol: "productor",
-          rolLabel: "Productor",
-          isVerificado: true,
-          estadoCuenta: "Activo",
-          email: p.idUsuario ? `usuario${p.idUsuario}@agrotrade.com` : "N/A",
-          telefono: "N/A",
-          finca: { nombre: p.nombreFinca || 'N/A' },
-          avatarUrl: p.fotoPerfil || null
-        }));
+        const res = await apiService.get(`/Users?pageIndex=${pageIndex}&pageSize=${pageSize}`);
+        const items = (res.data && res.data.items) ? res.data.items : [];
+        return {
+          items: items.map(u => ({
+            id: u.id,
+            nombreCompleto: u.name || "Usuario",
+            nombreCompletoDetalle: u.name,
+            tipoRol: u.roles ? (u.roles.includes("Productor") ? "productor" : (u.roles.includes("Repartidor") ? "repartidor" : "comprador")) : "productor",
+            rolLabel: u.roles ? u.roles.join(', ') : "Usuario",
+            isVerificado: u.identidadVerificada,
+            estadoCuenta: u.estadoCuenta || "Activo",
+            email: u.email || "N/A",
+            telefono: u.telefono || "N/A",
+            fechaRegistro: u.fechaRegistro ? new Date(u.fechaRegistro).toLocaleDateString() : 'N/A',
+            direccion: u.direccionBase || "N/A",
+            avatarUrl: null
+          })),
+          totalCount: res.data.totalRegisters || items.length
+        };
       }
-      return [];
+      return { items: [], totalCount: 0 };
     } catch {
-      return [];
+      return { items: [], totalCount: 0 };
     }
   }
 
   async getUserById(id) {
-    const users = await this.getUsers();
-    return users.find(u => u.id === Number(id));
+    const data = await this.getUsers(1, 1000);
+    return data.items.find(u => u.id === Number(id));
   }
 
   async updateUser(id, updatedData) {
-    const users = await this.getUsers();
-    const index = users.findIndex(u => u.id === Number(id));
+    const data = await this.getUsers(1, 1000);
+    const index = data.items.findIndex(u => u.id === Number(id));
     if (index === -1) return { success: false, message: 'Usuario no encontrado' };
 
     users[index] = { ...users[index], ...updatedData };
@@ -61,42 +64,50 @@ class AdminStore {
     }
   }
 
-  async getVerifications() {
+  async getVerifications(pageIndex = 1, pageSize = 50) {
     try {
       if (typeof apiService !== 'undefined') {
-        const res = await apiService.get('/DeliveryJobRequest?pageSize=50');
-        const items = res.items || res.data || res || [];
-        return items.map ? items.map(job => ({
-          idSolicitud: job.id,
-          idUsuario: job.usuarioId || job.repartidorId || job.id,
-          nombreUsuario: job.nombreRepartidor || "Repartidor",
-          tipoRol: "repartidor",
-          rolSubtext: "Repartidor",
-          fechaRelativa: job.fechaCreacion ? new Date(job.fechaCreacion).toLocaleDateString() : 'Reciente',
-          descripcionCorta: `Solicitud de repartidor. Vehículo: ${job.tipoVehiculo || 'No especificado'}`,
-          estado: job.estado === 'Pendiente' ? 0 : (job.estado === 'Aprobada' ? 1 : 2)
-        })) : [];
+        const res = await apiService.get(`/DeliveryJobRequest?pageIndex=${pageIndex}&pageSize=${pageSize}`);
+        const items = (res.data && res.data.items) ? res.data.items : [];
+        return {
+          items: items.map(job => ({
+            idSolicitud: job.idSolicitud,
+            idUsuario: job.idUsuario,
+            nombreUsuario: job.nombreUsuario || "Repartidor",
+            tipoRol: "repartidor",
+            rolSubtext: "Repartidor",
+            fechaRelativa: job.fechaSolicitud ? new Date(job.fechaSolicitud).toLocaleDateString() : 'Reciente',
+            descripcionCorta: `Solicitud de repartidor. Vehículo: ${job.datosRepartidor?.tipoVehiculo || 'No especificado'}`,
+            estado: job.estado?.toLowerCase() === 'pendiente' ? 0 : (job.estado?.toLowerCase() === 'aprobada' ? 1 : 2)
+          })),
+          totalCount: (res.data && res.data.totalRegisters) ? res.data.totalRegisters : items.length
+        };
       }
-      return [];
+      return { items: [], totalCount: 0 };
     } catch(e) {
       console.error("Error loading verifications", e);
-      return [];
+      throw e; 
     }
   }
 
   async getVerificationById(id) {
-    const list = await this.getVerifications();
-    return list.find(v => v.idSolicitud === Number(id));
+    const list = await this.getVerifications(1, 1000);
+    return list.items.find(v => v.idSolicitud === Number(id));
   }
 
   async getVerificationByUserId(userId) {
-    const list = await this.getVerifications();
-    return list.find(v => v.idUsuario === Number(userId));
+    const list = await this.getVerifications(1, 1000);
+    return list.items.find(v => v.idUsuario === Number(userId));
   }
 
   async getPendingVerifications() {
-    const list = await this.getVerifications();
-    return list.filter(v => v.estado === 0);
+    try {
+      const list = await this.getVerifications(1, 1000);
+      return list.items.filter(v => v.estado === 0);
+    } catch(e) {
+      console.error("Error fetching pending verifications", e);
+      return [];
+    }
   }
 
   async approveVerification(idSolicitud, comment = '') {
@@ -125,22 +136,25 @@ class AdminStore {
     }
   }
 
-  async getCategories() {
+  async getCategories(pageIndex = 1, pageSize = 50) {
     try {
       if (typeof apiService !== 'undefined') {
-        const res = await apiService.get('/Categorias');
-        const items = res.data || res || [];
-        return items.map(cat => ({
-          id: cat.idCategoria,
-          nombre: cat.nombre,
-          descripcion: '',
-          conteoProductos: 0 
-        }));
+        const res = await apiService.get(`/Categorias?pageIndex=${pageIndex}&pageSize=${pageSize}`);
+        const items = (res.data && res.data.items) ? res.data.items : [];
+        return {
+          items: items.map(cat => ({
+            id: cat.idCategoria,
+            nombre: cat.nombre,
+            descripcion: '',
+            conteoProductos: 0 
+          })),
+          totalCount: res.data.totalRegisters || items.length
+        };
       }
-      return [];
+      return { items: [], totalCount: 0 };
     } catch(e) {
       console.error("Error loading categories", e);
-      return [];
+      return { items: [], totalCount: 0 };
     }
   }
 
@@ -212,13 +226,36 @@ class AdminStore {
  
   }
 
-  getStats() {
-    return {
-      usuariosRegistrados: 0,
-      productores: 0,
-      verificacionesPendientes: 0,
-      categorias: 0
-    };
+  async getStats() {
+    try {
+      let stats = { totalUsuarios: 0, totalVentas: 0 };
+      if (typeof apiService !== 'undefined') {
+         try {
+           const resStats = await apiService.get('/Stats');
+           if (resStats && resStats.data) stats = resStats.data;
+         } catch(e) {}
+      }
+      const [catsRes, verifRes, usersRes] = await Promise.all([
+        this.getCategories(1, 1),
+        this.getVerifications(1, 1).catch(() => ({ totalCount: 0 })),
+        this.getUsers(1, 1).catch(() => ({ totalCount: 0 }))
+      ]);
+
+      return {
+        usuariosRegistrados: stats.totalUsuarios || usersRes.totalCount || 0,
+        productores: 0, 
+        verificacionesPendientes: verifRes.totalCount || 0,
+        categorias: catsRes.totalCount || 0
+      };
+    } catch(e) {
+      console.error("Error getting stats", e);
+      return {
+        usuariosRegistrados: 0,
+        productores: 0,
+        verificacionesPendientes: 0,
+        categorias: 0
+      };
+    }
   }
 }
 

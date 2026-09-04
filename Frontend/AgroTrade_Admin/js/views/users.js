@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 let currentUserTab = 'todas';
 let currentUserSearch = '';
 let currentUserLoaded = null;
+let currentUsersPage = 1;
+const USERS_PAGE_SIZE = 10;
 
 async function initUserList() {
   const params = new URLSearchParams(window.location.search);
@@ -42,9 +44,15 @@ async function initUserList() {
       filterTabs.forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       currentUserTab = filterValue;
+      currentUsersPage = 1;
       await renderUserList();
     };
   });
+
+  window.changeUsersPage = async (page) => {
+    currentUsersPage = page;
+    await renderUserList();
+  };
 
   await renderUserList();
 }
@@ -53,7 +61,9 @@ async function renderUserList() {
   const container = document.getElementById('usersCardsContainer');
   if (!container) return;
 
-  let users = await adminStore.getUsers();
+  const data = await adminStore.getUsers(currentUsersPage, USERS_PAGE_SIZE);
+  let users = data.items;
+  let totalCount = data.totalCount;
 
   if (currentUserTab === 'productores') {
     users = users.filter(u => u.tipoRol === 'productor');
@@ -80,7 +90,7 @@ async function renderUserList() {
     return;
   }
 
-  container.innerHTML = users.map(user => {
+  let html = users.map(user => {
     let roleBadgeClass = 'badge-productor';
     if (user.tipoRol === 'comprador') roleBadgeClass = 'badge-comprador';
     if (user.tipoRol === 'repartidor') roleBadgeClass = 'badge-repartidor';
@@ -120,6 +130,9 @@ async function renderUserList() {
       </div>
     `;
   }).join('');
+
+  html += createPagination(totalCount, currentUsersPage, USERS_PAGE_SIZE, 'changeUsersPage');
+  container.innerHTML = html;
 }
 
 async function initUserDetail() {

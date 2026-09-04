@@ -11,11 +11,13 @@ using Agro_Trade.Application.Common.Interface;
 
 namespace Agro_Trade.Application.Features.Usuarios.Queries
 {
-    public class GetUsersQuery : IRequest<Result<List<UserDto>>>
+    public class GetUsersQuery : IRequest<Result<PagedResponse<UserDto>>>
     {
+        public int PageIndex { get; set; } = 1;
+        public int PageSize { get; set; } = 50;
     }
 
-    public class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, Result<List<UserDto>>>
+    public class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, Result<PagedResponse<UserDto>>>
     {
         private readonly IUnitofWork _context;
 
@@ -24,9 +26,18 @@ namespace Agro_Trade.Application.Features.Usuarios.Queries
             _context = context;
         }
 
-        public async Task<Result<List<UserDto>>> Handle(GetUsersQuery request, CancellationToken cancellationToken)
+        public async Task<Result<PagedResponse<UserDto>>> Handle(GetUsersQuery request, CancellationToken cancellationToken)
         {
-            var usuariosEnt = await _context.Usuarios.GetAllAsync(cancellationToken);
+            var query = _context.Usuarios.GetQueryable();
+            var totalCount = await query.CountAsync(cancellationToken);
+            
+            var usuariosEnt = await query
+                .Include(u => u.UsuariosRoles)
+                .ThenInclude(ur => ur.Rol)
+                .Skip((request.PageIndex - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToListAsync(cancellationToken);
+                
             var usuarios = usuariosEnt.Select(u => new UserDto
                 {
                     Id = u.IdUsuario,
@@ -37,11 +48,13 @@ namespace Agro_Trade.Application.Features.Usuarios.Queries
                     DireccionBase = u.DireccionBase,
                     Departamento = u.Departamento,
                     EstadoCuenta = u.EstadoCuenta,
-                    FechaRegistro = u.FechaRegistro
+                    FechaRegistro = u.FechaRegistro,
+                    Roles = u.UsuariosRoles.Select(ur => ur.Rol.NombreRol).ToList()
                 })
                 .ToList();
-
-            return Result<List<UserDto>>.Success(200, usuarios, "Usuarios obtenidos correctamente", true);
+            
+            var pagedData = PagedResponse<UserDto>.ToPagedResponse(usuarios, request.PageIndex, request.PageSize, totalCount);
+            return Result<PagedResponse<UserDto>>.Success(200, pagedData, "Usuarios obtenidos correctamente", true);
         }
     }
 }

@@ -19,10 +19,10 @@ namespace Agro_Trade.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<Result<List<CategoriaDto>>>> Get()
+        public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 50, CancellationToken cancellationToken = default)
         {
-            var result = await _mediator.Send(new GetCategoriasQuery());
-            return Ok(result);
+            var result = await _mediator.Send(new GetCategoriasQuery { PageIndex = pageIndex, PageSize = pageSize }, cancellationToken);
+            return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, new { Mensaje = result.Message });
         }
 
         [HttpGet("{id}")]

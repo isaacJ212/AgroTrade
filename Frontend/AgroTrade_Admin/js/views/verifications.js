@@ -38,7 +38,13 @@ async function renderVerificationsList() {
   const container = document.getElementById('verificationsCardsContainer');
   if (!container) return;
 
-  const all = await adminStore.getVerifications();
+  let res = { items: [] };
+  try {
+    res = await adminStore.getVerifications(1, 100);
+  } catch(e) {
+    console.error("No se pudieron cargar las verificaciones", e);
+  }
+  const all = res.items || [];
   let filtered = all;
 
   if (currentVerifTab === 'pendientes') {
@@ -58,8 +64,11 @@ async function renderVerificationsList() {
     return;
   }
 
+  const allUsersRes = await adminStore.getUsers(1, 1000);
+  const allUsers = allUsersRes.items || [];
+
   container.innerHTML = filtered.map(req => {
-    const user = adminStore.getUserById(req.idUsuario) || {};
+    const user = allUsers.find(u => u.id === Number(req.idUsuario)) || {};
     const statusBadge = req.estado === 0
       ? `<span class="badge-pill badge-pendiente"><span class="status-dot-amber"></span> Pendiente</span>`
       : req.estado === 1
@@ -96,10 +105,17 @@ let currentVerificationUser = null;
 async function initReviewVerification() {
   const params = new URLSearchParams(window.location.search);
   const idSolicitud = parseInt(params.get('idSolicitud') || params.get('id') || '1', 10);
-  const reqs = await adminStore.getVerifications();
-  currentVerificationRequest = reqs.find(v => v.idSolicitud === idSolicitud) || reqs[0];
-  if(currentVerificationRequest) {
-    currentVerificationUser = adminStore.getUserById(currentVerificationRequest.idUsuario) || adminStore.getUsers()[0];
+  
+  currentVerificationRequest = await adminStore.getVerificationById(idSolicitud);
+  if (!currentVerificationRequest) {
+    try {
+      const res = await adminStore.getVerifications(1, 1);
+      currentVerificationRequest = res.items[0];
+    } catch(e) {}
+  }
+  
+  if (currentVerificationRequest) {
+    currentVerificationUser = await adminStore.getUserById(currentVerificationRequest.idUsuario);
   }
 
   const req = currentVerificationRequest;

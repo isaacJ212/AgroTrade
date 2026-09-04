@@ -6,9 +6,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Agro_Trade.Application.Features.Categorias.Queries
 {
-    public record GetCategoriasQuery : IRequest<Result<List<CategoriaDto>>>;
+    public class GetCategoriasQuery : IRequest<Result<PagedResponse<CategoriaDto>>>
+    {
+        public int PageIndex { get; set; } = 1;
+        public int PageSize { get; set; } = 50;
+    }
 
-    public class GetCategoriasQueryHandler : IRequestHandler<GetCategoriasQuery, Result<List<CategoriaDto>>>
+    public class GetCategoriasQueryHandler : IRequestHandler<GetCategoriasQuery, Result<PagedResponse<CategoriaDto>>>
     {
         private readonly IUnitofWork _unitOfWork;
 
@@ -17,14 +21,20 @@ namespace Agro_Trade.Application.Features.Categorias.Queries
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result<List<CategoriaDto>>> Handle(GetCategoriasQuery request, CancellationToken cancellationToken)
+        public async Task<Result<PagedResponse<CategoriaDto>>> Handle(GetCategoriasQuery request, CancellationToken cancellationToken)
         {
-            var categorias = await _unitOfWork.Categorias.GetAllAsync(cancellationToken);
-            if(categorias == null || !categorias.Any())
-                return Result<List<CategoriaDto>>.Failure(200, "No se encontraron categorías.");
-            var data = categorias.Select(c => new CategoriaDto { IdCategoria = c.IdCategoria, Nombre = c.Nombre }).ToList();
+            var query = _unitOfWork.Categorias.GetQueryable();
+            var totalCount = await query.CountAsync(cancellationToken);
+            
+            var categorias = await query
+                .Skip((request.PageIndex - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToListAsync(cancellationToken);
 
-            return Result<List<CategoriaDto>>.Success(200, data, "Categorías obtenidas correctamente.", true);
+            var data = categorias.Select(c => new CategoriaDto { IdCategoria = c.IdCategoria, Nombre = c.Nombre }).ToList();
+            
+            var pagedData = PagedResponse<CategoriaDto>.ToPagedResponse(data, request.PageIndex, request.PageSize, totalCount);
+            return Result<PagedResponse<CategoriaDto>>.Success(200, pagedData, "Categorías obtenidas correctamente.", true);
         }
     }
 }

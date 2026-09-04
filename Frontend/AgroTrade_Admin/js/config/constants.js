@@ -1,5 +1,5 @@
 const APP_CONSTANTS = {
-  API_BASE_URL: 'http://localhost:5080/api',
+  API_BASE_URL: (window.ENV && window.ENV.API_BASE_URL) ? window.ENV.API_BASE_URL : 'http://localhost:5080/api',
   STORAGE_KEYS: {
     AUTH_TOKEN: 'agrotrade_admin_token',
     AUTH_USER: 'agrotrade_admin_user',

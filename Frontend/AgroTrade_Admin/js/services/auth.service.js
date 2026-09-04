@@ -47,13 +47,28 @@ class AuthService {
       if (res.ok) {
         const data = await res.json();
         
+        if (!data.data) {
+           return { success: false, message: 'Respuesta inválida del servidor.' };
+        }
+
+        const token = data.data.token;
+        const roles = data.data.roles || [];
         
-        const token = data.token || (data.data && data.data.token);
-        const user = data.user || (data.data && data.data.user) || APP_CONSTANTS.DEFAULT_ADMIN;
+        const isAdmin = roles.some(r => r.toLowerCase() === 'administrador' || r.toLowerCase() === 'admin');
+        if (!isAdmin) {
+          return { success: false, message: 'Acceso denegado: Se requieren permisos de administrador.' };
+        }
+
+        const user = {
+          nombreCompleto: data.data.userName || 'Administrador',
+          roles: roles,
+          rolLabel: roles.join(', ')
+        };
+
         return { success: true, data: { token, user } };
       } else {
         const errorData = await res.json();
-        return { success: false, message: errorData.message || 'Credenciales inválidas.' };
+        return { success: false, message: errorData.message || errorData.ErrorMessage || 'Credenciales inválidas.' };
       }
     } catch (e) {
       console.error('Error in login', e);
