@@ -6,7 +6,8 @@ namespace Agro_Trade.Application.Common.Interface
     {
         void traerPrompts();
         string GetPrompt(string nombreArchivo);
-        List<History> GetHistory(string userId);
-        void AddToUserHistory(string userId, string message, string role);
+        List<History> GetHistory(string chatId, string userId);
+        void AddToUserHistory(string chatId, string userId, string message, string role);
+        List<BotConversation> GetUserHistory(string userId);
     }
 }
