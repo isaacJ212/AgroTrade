@@ -1,8 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
   authService.guardRoute();
 
-  await renderStats();
-  await renderPendingList();
+  await initDashboard();
   renderRecentActivities();
 });
 
@@ -12,19 +11,17 @@ async function initDashboard() {
 }
 
 async function renderDashboardStats() {
-  const container = document.getElementById('dashboardStatsContainer');
-  if (!container) return;
-
   const stats = await adminStore.getStats();
-  const pendingList = await adminStore.getPendingVerifications();
-  const catList = await adminStore.getCategories();
 
-  container.innerHTML = `
-    <div class="stat-card"><h3>Usuarios</h3><p id="dashStatUsers">${stats.usuariosRegistrados}</p></div>
-    <div class="stat-card"><h3>Productores</h3><p id="dashStatProducers">${stats.productores}</p></div>
-    <div class="stat-card"><h3>Pendientes</h3><p id="dashStatPending">${pendingList.length}</p></div>
-    <div class="stat-card"><h3>Categorías</h3><p id="dashStatCategories">${catList.length}</p></div>
-  `;
+  const usersEl = document.getElementById('dashStatUsers');
+  const producersEl = document.getElementById('dashStatProducers');
+  const pendingEl = document.getElementById('dashStatPending');
+  const categoriesEl = document.getElementById('dashStatCategories');
+
+  if (usersEl) usersEl.textContent = stats.usuariosRegistrados;
+  if (producersEl) producersEl.textContent = stats.productores;
+  if (pendingEl) pendingEl.textContent = stats.verificacionesPendientes;
+  if (categoriesEl) categoriesEl.textContent = stats.categorias;
 }
 
 async function renderPendingReviews() {
@@ -43,8 +40,11 @@ async function renderPendingReviews() {
     return;
   }
 
+  const allUsersRes = await adminStore.getUsers(1, 1000);
+  const allUsers = allUsersRes.items || [];
+
   container.innerHTML = pending.slice(0, 3).map(item => {
-    const user = adminStore.getUserById(item.idUsuario) || {};
+    const user = allUsers.find(u => u.id === Number(item.idUsuario)) || {};
     const isProductor = item.tipoRol === 'productor';
     const roleIcon = isProductor
       ? `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="18" r="3"></circle><path d="M3 18h12v-6H8l-2 3H3"></path><path d="M14 9V4h-4"></path></svg>`
