@@ -49,7 +49,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
         precioUnitario: 25.00,
         cantidad: 2,
         imagenUrl:
-            'https://images.unsplash.com/photo-1546094096-0df9bdcaaadd?auto=format&fit=crop&w=200&q=60',
+            'https://solofruver.com/wp-content/uploads/2020/06/tomate-chonto-e1662500217171.jpg',
       ),
       _ItemCarrito(
         id: 2,
@@ -58,8 +58,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
         unidad: 'lb',
         precioUnitario: 20.00,
         cantidad: 1,
-        imagenUrl:
-            'https://images.unsplash.com/photo-1590502591965-156b8b3f0e53?auto=format&fit=crop&w=200&q=60',
+        imagenUrl: 'https://ecohuertaonline.com/325-large_default/limon.jpg',
       ),
       _ItemCarrito(
         id: 3,
@@ -465,7 +464,9 @@ class _CarritoScreenState extends State<CarritoScreen> {
                   } else {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (_) => const ExploradorProductos()),
+                      MaterialPageRoute(
+                        builder: (_) => const ExploradorProductos(),
+                      ),
                     );
                   }
                 },

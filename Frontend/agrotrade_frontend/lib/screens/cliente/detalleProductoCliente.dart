@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../shared/chat/chatMensajes.dart';
 import 'carrito.dart';
+import 'exploradorProductos.dart' show ProductoMercado;
 import 'perfilProductor.dart';
 
 class DetalleProductoCliente extends StatefulWidget {
-  const DetalleProductoCliente({super.key});
+  final ProductoMercado producto;
+
+  const DetalleProductoCliente({super.key, required this.producto});
 
   @override
   State<DetalleProductoCliente> createState() => _DetalleProductoClienteState();
@@ -13,6 +16,23 @@ class DetalleProductoCliente extends StatefulWidget {
 
 class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
   int _cantidad = 2;
+
+  String _unidadTexto({bool plural = false}) {
+    switch (widget.producto.unidad.toLowerCase()) {
+      case 'lb':
+      case 'libra':
+      case 'libras':
+        return plural ? 'libras' : 'libra';
+      case 'kg':
+        return plural ? 'kilogramos' : 'kilogramo';
+      case 'doc':
+      case 'docena':
+      case 'docenas':
+        return plural ? 'docenas' : 'docena';
+      default:
+        return widget.producto.unidad;
+    }
+  }
 
   void _incrementar() {
     setState(() => _cantidad++);
@@ -26,6 +46,7 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
 
   @override
   Widget build(BuildContext context) {
+    final producto = widget.producto;
     return Scaffold(
       backgroundColor: AppColors.screenBg,
       extendBodyBehindAppBar: true,
@@ -40,14 +61,19 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
           IconButton(
             icon: const Icon(Icons.favorite_border, color: AppColors.titleDark),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text('Agregado a favoritos'),
-                backgroundColor: AppColors.primaryColor,
-              ));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Agregado a favoritos'),
+                  backgroundColor: AppColors.primaryColor,
+                ),
+              );
             },
           ),
           IconButton(
-            icon: const Icon(Icons.shopping_cart_outlined, color: AppColors.titleDark),
+            icon: const Icon(
+              Icons.shopping_cart_outlined,
+              color: AppColors.titleDark,
+            ),
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const CarritoScreen()),
@@ -59,60 +85,63 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-           
             Stack(
               children: [
                 Container(
                   height: 320,
                   width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFDCDCDC),
-                    borderRadius: BorderRadius.only(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFDCDCDC),
+                    borderRadius: const BorderRadius.only(
                       bottomLeft: Radius.circular(24),
                       bottomRight: Radius.circular(24),
                     ),
                     image: DecorationImage(
-                      image: NetworkImage('https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80'),
+                      image: NetworkImage(producto.imagenUrl),
                       fit: BoxFit.cover,
                     ),
                   ),
                 ),
-                Positioned(
-                  bottom: 16,
-                  left: 16,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryColor,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.spa, color: AppColors.White, size: 14),
-                        SizedBox(width: 4),
-                        Text(
-                          'Cosechado hoy',
-                          style: TextStyle(
-                            color: AppColors.White,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                if (producto.cosechadoHoy)
+                  Positioned(
+                    bottom: 16,
+                    left: 16,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryColor,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.spa, color: AppColors.White, size: 14),
+                          SizedBox(width: 4),
+                          Text(
+                            'Cosechado hoy',
+                            style: TextStyle(
+                              color: AppColors.White,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
-            
+
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'VERDURAS',
-                    style: TextStyle(
+                  Text(
+                    producto.categoria.toUpperCase(),
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: AppColors.TextSoft,
@@ -120,31 +149,38 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Tomate',
-                    style: TextStyle(
+                  Text(
+                    producto.nombre,
+                    style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w800,
                       color: AppColors.titleDark,
                     ),
                   ),
                   const SizedBox(height: 12),
-                  
+
                   // Finca
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primarySoftBg,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.verified, color: AppColors.primaryColor, size: 16),
-                        SizedBox(width: 4),
+                        const Icon(
+                          Icons.verified,
+                          color: AppColors.primaryColor,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 4),
                         Text(
-                          'Finca La Esperanza',
-                          style: TextStyle(
+                          producto.finca,
+                          style: const TextStyle(
                             color: AppColors.primaryColor,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
@@ -154,25 +190,35 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  
-                
+
                   Row(
                     children: [
                       const Icon(Icons.star, color: Colors.orange, size: 16),
                       const SizedBox(width: 4),
-                      const Text(
-                        '4.8',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.TextMain),
-                      ),
-                      const SizedBox(width: 4),
-                      const Text(
-                        '·',
-                        style: TextStyle(fontSize: 13, color: AppColors.TextSoft),
-                      ),
-                      const SizedBox(width: 4),
-                      const Text(
-                        '32 valoraciones',
-                        style: TextStyle(
+                      if (producto.calificacion != null) ...[
+                        Text(
+                          producto.calificacion!.toStringAsFixed(1),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            color: AppColors.TextMain,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Text(
+                          '·',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.TextSoft,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                      ],
+                      Text(
+                        producto.valoraciones == null
+                            ? 'Sin valoraciones'
+                            : '${producto.valoraciones} valoraciones',
+                        style: const TextStyle(
                           fontSize: 13,
                           color: AppColors.TextSoft,
                           decoration: TextDecoration.underline,
@@ -181,41 +227,50 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
                       const SizedBox(width: 8),
                       const Text(
                         '·',
-                        style: TextStyle(fontSize: 13, color: AppColors.TextSoft),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.TextSoft,
+                        ),
                       ),
                       const SizedBox(width: 8),
-                      Icon(Icons.location_on_outlined, color: Colors.grey[600], size: 16),
+                      Icon(
+                        Icons.location_on_outlined,
+                        color: Colors.grey[600],
+                        size: 16,
+                      ),
                       const SizedBox(width: 2),
-                      const Text(
-                        'A 4.2 km',
-                        style: TextStyle(fontSize: 13, color: AppColors.TextSoft),
+                      Text(
+                        'A ${producto.distancia}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.TextSoft,
+                        ),
                       ),
                     ],
                   ),
-                  
+
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 20),
                     child: Divider(height: 1, color: AppColors.cardBorder),
                   ),
-                  
-                
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Column(
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'C\$ 25.00',
-                            style: TextStyle(
+                            'C\$ ${producto.precio.toStringAsFixed(2)}',
+                            style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.w800,
                               color: AppColors.primaryColor,
                             ),
                           ),
                           Text(
-                            'por libra',
-                            style: TextStyle(
+                            'por ${_unidadTexto()}',
+                            style: const TextStyle(
                               fontSize: 14,
                               color: AppColors.TextSoft,
                             ),
@@ -224,26 +279,33 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
                       ),
                       Row(
                         children: [
-                          const Icon(Icons.check_circle_outline, color: AppColors.primaryColor, size: 18),
+                          const Icon(
+                            Icons.check_circle_outline,
+                            color: AppColors.primaryColor,
+                            size: 18,
+                          ),
                           const SizedBox(width: 4),
-                            Text(
-                              'Disponible',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.primaryColor.withValues(alpha: 0.9),
+                          Text(
+                            producto.pocoInventario
+                                ? 'Poco inventario'
+                                : 'Disponible',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.primaryColor.withValues(
+                                alpha: 0.9,
                               ),
                             ),
+                          ),
                         ],
                       ),
                     ],
                   ),
                   const SizedBox(height: 24),
-                  
-           
-                  const Text(
-                    'Tomate fresco de producción local, disponible para entrega o retiro en finca.',
-                    style: TextStyle(
+
+                  Text(
+                    producto.descripcion ?? 'Sin descripción disponible.',
+                    style: const TextStyle(
                       fontSize: 15,
                       height: 1.5,
                       color: AppColors.TextSoft,
@@ -253,7 +315,9 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
                   InkWell(
                     onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const PerfilProductorScreen()),
+                      MaterialPageRoute(
+                        builder: (_) => const PerfilProductorScreen(),
+                      ),
                     ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
@@ -272,10 +336,12 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
                     ),
                   ),
                   const SizedBox(height: 32),
-                  
-              
+
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.White,
                       borderRadius: BorderRadius.circular(16),
@@ -326,9 +392,9 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
                               ),
                             ),
                             const SizedBox(width: 12),
-                            const Text(
-                              'libras',
-                              style: TextStyle(
+                            Text(
+                              _unidadTexto(plural: _cantidad != 1),
+                              style: const TextStyle(
                                 fontSize: 14,
                                 color: AppColors.TextSoft,
                               ),
@@ -339,14 +405,16 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
-               
+
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: AppColors.White,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.cardBorder, width: 0.5),
+                      border: Border.all(
+                        color: AppColors.cardBorder,
+                        width: 0.5,
+                      ),
                     ),
                     child: Row(
                       children: [
@@ -356,7 +424,10 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
                             color: AppColors.primarySoftBg,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.local_shipping_outlined, color: AppColors.primaryColor),
+                          child: const Icon(
+                            Icons.local_shipping_outlined,
+                            color: AppColors.primaryColor,
+                          ),
                         ),
                         const SizedBox(width: 16),
                         const Expanded(
@@ -385,7 +456,7 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 100), 
+                  const SizedBox(height: 100),
                 ],
               ),
             ),
@@ -410,7 +481,12 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
               child: OutlinedButton.icon(
                 onPressed: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const ChatMensajes(contactName: "Finca La Esperanza", contactRole: "Productor")),
+                  MaterialPageRoute(
+                    builder: (_) => ChatMensajes(
+                      contactName: producto.finca,
+                      contactRole: "Productor",
+                    ),
+                  ),
                 ),
                 icon: const Icon(Icons.chat_bubble_outline, size: 18),
                 label: const Text('Enviar mensaje'),
@@ -428,10 +504,12 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
             Expanded(
               child: ElevatedButton.icon(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text('Producto agregado al carrito 🛒'),
-                    backgroundColor: AppColors.primaryColor,
-                  ));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Producto agregado al carrito 🛒'),
+                      backgroundColor: AppColors.primaryColor,
+                    ),
+                  );
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const CarritoScreen()),

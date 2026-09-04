@@ -68,7 +68,6 @@ import '../screens/repartidor/confirmarEntregaRepartidor.dart';
 
 import 'app_routes.dart';
 
-
 /// Router centralizado de AgroTrade.
 class AppRouter {
   AppRouter._();
@@ -97,11 +96,10 @@ class AppRouter {
         return _slide(const RecoverPassword());
 
       case AppRoutes.verificarCodigo:
-
         final vcMap = args is Map<String, dynamic> ? args : <String, dynamic>{};
-        return _slide(VerificarCodigo(
-          correo: vcMap['correo'] as String? ?? '',
-        ));
+        return _slide(
+          VerificarCodigo(correo: vcMap['correo'] as String? ?? ''),
+        );
 
       // ── Shared ────────────────────────────────────────────────────────────
       case AppRoutes.profile:
@@ -117,14 +115,18 @@ class AppRouter {
         return _slide(const CentroAyuda());
 
       case AppRoutes.chat:
-   
-        final chatMap = args is Map<String, dynamic> ? args : <String, dynamic>{};
-        return _slide(ChatMensajes(
-          contactName: chatMap['contactName'] as String? ?? 'Usuario',
-          contactRole: chatMap['contactRole'] as String? ?? '',
-          contactAvatar: chatMap['contactAvatar'] as String? ?? 'https://i.pravatar.cc/150',
-        ));
-
+        final chatMap = args is Map<String, dynamic>
+            ? args
+            : <String, dynamic>{};
+        return _slide(
+          ChatMensajes(
+            contactName: chatMap['contactName'] as String? ?? 'Usuario',
+            contactRole: chatMap['contactRole'] as String? ?? '',
+            contactAvatar:
+                chatMap['contactAvatar'] as String? ??
+                'https://i.pravatar.cc/150',
+          ),
+        );
 
       case AppRoutes.inicioComprador:
         return _fade(const InicioComprador());
@@ -136,8 +138,19 @@ class AppRouter {
         return _slide(const BuscarProductos());
 
       case AppRoutes.detalleProductoCliente:
-
-        return _slide(const DetalleProductoCliente());
+        if (args is! ProductoMercado) {
+          return _slide(
+            Scaffold(
+              appBar: AppBar(title: const Text('Detalle del producto')),
+              body: const Center(
+                child: Text(
+                  'Selecciona un producto del catálogo para ver su detalle.',
+                ),
+              ),
+            ),
+          );
+        }
+        return _slide(DetalleProductoCliente(producto: args));
 
       case AppRoutes.perfilProductor:
         return _slide(const PerfilProductorScreen());
@@ -161,11 +174,12 @@ class AppRouter {
         return _slide(const MisPedidosScreen());
 
       case AppRoutes.detallePedidoComprador:
-
         final dpMap = args is Map<String, dynamic> ? args : <String, dynamic>{};
-        return _slide(DetallePedidoComprador(
-          numeroPedido: dpMap['numeroPedido'] as String? ?? '#0000',
-        ));
+        return _slide(
+          DetallePedidoComprador(
+            numeroPedido: dpMap['numeroPedido'] as String? ?? '#0000',
+          ),
+        );
 
       case AppRoutes.seguimientoPedido:
         return _slide(const SeguimientoPedidoScreen());
@@ -202,31 +216,31 @@ class AppRouter {
         return _slide(const AgregarProducto());
 
       case AppRoutes.detalleProductoProductor:
-
         final dpProd = args is Producto
             ? args
             : (args is Map<String, dynamic>
-                ? Producto(
-                    id: args['id'] as int? ?? 0,
-                    nombre: args['nombre'] as String? ?? 'Producto',
-                    cantidad: (args['cantidad'] as num?)?.toDouble() ?? 0.0,
-                    unidad: args['unidad'] as String? ?? 'kg',
-                    precio: (args['precio'] as num?)?.toDouble() ?? 0.0,
-                    estado: args['estado'] as EstadoProducto? ?? EstadoProducto.disponible,
-                    imagenUrl: args['imagenUrl'] as String? ?? '',
-                    descripcion: args['descripcion'] as String?,
-                  )
-                : Producto(
-                    id: 0,
-                    nombre: 'Producto Demo',
-                    cantidad: 0.0,
-                    unidad: 'kg',
-                    precio: 0.0,
-                    estado: EstadoProducto.disponible,
-                    imagenUrl: '',
-                  ));
+                  ? Producto(
+                      id: args['id'] as int? ?? 0,
+                      nombre: args['nombre'] as String? ?? 'Producto',
+                      cantidad: (args['cantidad'] as num?)?.toDouble() ?? 0.0,
+                      unidad: args['unidad'] as String? ?? 'kg',
+                      precio: (args['precio'] as num?)?.toDouble() ?? 0.0,
+                      estado:
+                          args['estado'] as EstadoProducto? ??
+                          EstadoProducto.disponible,
+                      imagenUrl: args['imagenUrl'] as String? ?? '',
+                      descripcion: args['descripcion'] as String?,
+                    )
+                  : Producto(
+                      id: 0,
+                      nombre: 'Producto Demo',
+                      cantidad: 0.0,
+                      unidad: 'kg',
+                      precio: 0.0,
+                      estado: EstadoProducto.disponible,
+                      imagenUrl: '',
+                    ));
         return _slide(DetalleProducto(producto: dpProd));
-
 
       case AppRoutes.registroCosecha:
         return _slide(const RegistroCosecha());
@@ -250,16 +264,19 @@ class AppRouter {
         return _slide(const CalculadoraPrecioJusto());
 
       case AppRoutes.resultadoPrecioJusto:
-
         final rpMap = args is Map<String, dynamic> ? args : <String, dynamic>{};
-        return _slide(ResultadoPrecioJusto(
-          nombreProducto: rpMap['nombreProducto'] as String? ?? 'Producto',
-          precioSugerido: (rpMap['precioSugerido'] as num?)?.toDouble() ?? 0.0,
-          costoTotal: (rpMap['costoTotal'] as num?)?.toDouble() ?? 0.0,
-          margenGanancia: (rpMap['margenGanancia'] as num?)?.toDouble() ?? 0.0,
-          unidad: rpMap['unidad'] as String? ?? 'kg',
-          desglose: (rpMap['desglose'] as List<Map<String, dynamic>>?) ?? [],
-        ));
+        return _slide(
+          ResultadoPrecioJusto(
+            nombreProducto: rpMap['nombreProducto'] as String? ?? 'Producto',
+            precioSugerido:
+                (rpMap['precioSugerido'] as num?)?.toDouble() ?? 0.0,
+            costoTotal: (rpMap['costoTotal'] as num?)?.toDouble() ?? 0.0,
+            margenGanancia:
+                (rpMap['margenGanancia'] as num?)?.toDouble() ?? 0.0,
+            unidad: rpMap['unidad'] as String? ?? 'kg',
+            desglose: (rpMap['desglose'] as List<Map<String, dynamic>>?) ?? [],
+          ),
+        );
 
       case AppRoutes.perfilFinca:
         return _slide(const PerfilFinca());
@@ -283,13 +300,14 @@ class AppRouter {
         return _slide(const AceptarEntregaRepartidor());
 
       case AppRoutes.detalleEntregaRepartidor:
-
         final map = args is Map<String, dynamic> ? args : <String, dynamic>{};
-        return _slide(DetalleEntregaRepartidor(
-          pedidoId: map['pedidoId'] as int? ?? 0,
-          zonaEntrega: map['zonaEntrega'] as String? ?? '',
-          totalPedido: map['totalPedido'] as double? ?? 0.0,
-        ));
+        return _slide(
+          DetalleEntregaRepartidor(
+            pedidoId: map['pedidoId'] as int? ?? 0,
+            zonaEntrega: map['zonaEntrega'] as String? ?? '',
+            totalPedido: map['totalPedido'] as double? ?? 0.0,
+          ),
+        );
 
       case AppRoutes.recogerPedidoRepartidor:
         return _slide(const RecogerPedidoRepartidor());
@@ -311,7 +329,6 @@ class AppRouter {
 
   // ─── Helpers de transición ────────────────────────────────────────────────
 
-
   static PageRouteBuilder<dynamic> _fade(Widget page) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => page,
@@ -330,7 +347,10 @@ class AppRouter {
       pageBuilder: (context, animation, secondaryAnimation) => page,
       transitionDuration: const Duration(milliseconds: 280),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        final curved = CurvedAnimation(parent: animation, curve: Curves.easeOut);
+        final curved = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOut,
+        );
         return SlideTransition(
           position: Tween<Offset>(
             begin: const Offset(1.0, 0.0),
@@ -342,7 +362,6 @@ class AppRouter {
     );
   }
 }
-
 
 class _RouteNotFound extends StatelessWidget {
   final String routeName;
@@ -367,12 +386,11 @@ class _RouteNotFound extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: () =>
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      AppRoutes.login,
-                      (_) => false,
-                    ),
+                onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  AppRoutes.login,
+                  (_) => false,
+                ),
                 child: const Text('Volver al inicio'),
               ),
             ],
