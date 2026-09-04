@@ -1,362 +1,75 @@
 import 'package:flutter/material.dart';
-import '../../services/api_client.dart';
-import '../../services/delivery_api_service.dart';
 import '../../ui/app_theme.dart';
 import 'recogerPedidoRepartidor.dart';
-import '../../services/api_client.dart';
-import '../../services/delivery_api_service.dart';
+import 'repartidor_demo.dart';
+import '../../ui/widgets/repartidor_widgets.dart';
 
 class AceptarEntregaRepartidor extends StatefulWidget {
   final int? pedidoId;
-
   const AceptarEntregaRepartidor({super.key, this.pedidoId});
 
   @override
-  State<AceptarEntregaRepartidor> createState() =>
-      _AceptarEntregaRepartidorState();
+  State<AceptarEntregaRepartidor> createState() => _AceptarEntregaRepartidorState();
 }
 
 class _AceptarEntregaRepartidorState extends State<AceptarEntregaRepartidor> {
   bool _confirmado = false;
 
-  void _showSnack(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.primaryColor,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.scaffoldBg,
-      appBar: AppBar(
-        backgroundColor: AppColors.surfaceAlt,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back, color: AppColors.primaryColor),
-        ),
-        title: const Text(
-          'Entregas',
-          style: TextStyle(
-            color: AppColors.primaryColor,
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => _showSnack(context, 'Notificaciones'),
-            icon: const Icon(
-              Icons.notifications_outlined,
-              color: AppColors.bodyText,
-            ),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-        child: Column(
-          children: [
-            const SizedBox(height: 8),
-            Text(
-              'Aceptar entrega',
-              textAlign: TextAlign.center,
-              style: AppTextStyles.headline.copyWith(fontSize: 28),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Confirmá que podés realizar esta entrega.',
-              textAlign: TextAlign.center,
-              style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
-            ),
-            const SizedBox(height: 24),
-            const _SummaryCard(),
-            const SizedBox(height: 24),
-            _ConfirmationCard(
-              pedidoId: widget.pedidoId,
-              confirmado: _confirmado,
-              onChanged: (value) {
-                setState(() {
-                  _confirmado = value ?? false;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            _NoticeCard(
-              text: 'Al aceptar, esta entrega quedará asignada a tu ruta.',
-              icon: Icons.info_outline,
-              background: const Color(0xFFEEEEEF),
-              iconColor: AppColors.primarySoft,
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton.icon(
-                onPressed: !_confirmado
-                    ? null
-                    : () async {
-                        final id = widget.pedidoId;
-                        if (id == null) {
-                          _showSnack(
-                            context,
-                            'No hay un pedido asociado a esta entrega',
-                          );
-                          return;
-                        }
-
-                        try {
-                          await DeliveryApiService.instance.acceptDelivery(id);
-                          if (!context.mounted) return;
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const RecogerPedidoRepartidor(),
-                            ),
-                          );
-                        } on ApiException catch (e) {
-                          if (!context.mounted) return;
-                          _showSnack(context, e.message);
-                        }
-                      },
-                icon: const Icon(Icons.check_circle, size: 20),
-                label: const Text(
-                  'Aceptar entrega',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+    final demo = RepartidorDemo.instance;
+    final entrega = demo.buscar(widget.pedidoId ?? 101);
+    return RepartidorScaffold(
+      titulo: 'Aceptar entrega', volver: true,
+      body: entrega == null
+          ? const Center(child: Text('No se encontró esta entrega.'))
+          : ListView(padding: const EdgeInsets.all(16), children: [
+              RepartidorCard(child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('Entrega ${entrega.codigo}', style: RepartidorTextStyles.Title),
+                  const SizedBox(height: 16),
+                  DatoRepartidor(icon: Icons.storefront_outlined,
+                    titulo: 'Recoger en', valor: entrega.finca),
+                  DatoRepartidor(icon: Icons.location_on_outlined,
+                    titulo: 'Entregar en', valor: entrega.destino),
+                  DatoRepartidor(icon: Icons.schedule,
+                    titulo: 'Hora de recogida', valor: entrega.hora),
+                  DatoRepartidor(icon: Icons.account_balance_wallet_outlined,
+                    titulo: 'Pago por la entrega', valor: dineroRepartidor(entrega.pago)),
+                ],
+              )),
+              const SizedBox(height: 16),
+              RepartidorCard(color: AppColors.primarySoftBg,
+                child: CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  activeColor: AppColors.primaryColor,
+                  value: _confirmado,
+                  onChanged: (value) => setState(() => _confirmado = value ?? false),
+                  title: const Text('Estoy listo para realizar esta entrega'),
+                  subtitle: const Text('Confirma que puedes recoger los productos.'),
+                )),
+              const SizedBox(height: 12),
+              if (!demo.disponible)
+                const Text(
+                  'Activa tu disponibilidad en Perfil para aceptar entregas.',
+                  style: RepartidorTextStyles.SubTitle,
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  disabledBackgroundColor: AppColors.cardBorder,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28),
-                  ),
-                ),
+              const SizedBox(height: 20),
+              RepartidorBoton(
+                label: 'Aceptar y verificar recogida',
+                onPressed: !_confirmado || !demo.disponible ||
+                    entrega.estado != EstadoEntregaDemo.pendiente ? null : () {
+                  demo.aceptar(entrega.id);
+                  Navigator.pushReplacement(context,
+                    MaterialPageRoute<void>(builder: (_) =>
+                      RecogerPedidoRepartidor(pedidoId: entrega.id)));
+                },
               ),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: OutlinedButton(
-                onPressed: () => Navigator.pop(context),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: AppColors.accentBlue, width: 2),
-                  foregroundColor: AppColors.accentBlue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28),
-                  ),
-                ),
-                child: const Text(
-                  'Volver',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ConfirmationCard extends StatelessWidget {
-  final int? pedidoId;
-  final bool confirmado;
-  final ValueChanged<bool?> onChanged;
-
-  const _ConfirmationCard({
-    required this.pedidoId,
-    required this.confirmado,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.primarySoftBg,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0x4D006E2C)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            pedidoId == null ? 'Confirmación local' : 'Pedido #AT-$pedidoId',
-            style: AppTextStyles.label.copyWith(fontSize: 14),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Marcá esta opción antes de aceptar para validar que estás listo.',
-            style: AppTextStyles.SubTitle.copyWith(fontSize: 13),
-          ),
-          const SizedBox(height: 8),
-          CheckboxListTile(
-            contentPadding: EdgeInsets.zero,
-            controlAffinity: ListTileControlAffinity.leading,
-            value: confirmado,
-            onChanged: onChanged,
-            activeColor: AppColors.primaryColor,
-            title: const Text(
-              'Estoy listo para iniciar esta entrega',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.cardBorder),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0F000000),
-            blurRadius: 2,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          _PickupRow(
-            iconBackground: AppColors.primarySoftBg,
-            icon: Icons.storefront_outlined,
-            title: 'RECOGIDA',
-            name: 'Finca La Esperanza',
-            detail: 'Hora de recogida: 10:30 a. m.',
-            iconColor: AppColors.primarySoft,
-          ),
-          const SizedBox(height: 24),
-          _PickupRow(
-            iconBackground: const Color(0xFFD6E3FF),
-            icon: Icons.person_pin_circle_outlined,
-            title: 'DESTINO',
-            name: 'Jinotepe',
-            detail: 'Ruta disponible al iniciar',
-            iconColor: AppColors.accentBlue,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PickupRow extends StatelessWidget {
-  final Color iconBackground;
-  final IconData icon;
-  final String title;
-  final String name;
-  final String detail;
-  final Color iconColor;
-
-  const _PickupRow({
-    required this.iconBackground,
-    required this.icon,
-    required this.title,
-    required this.name,
-    required this.detail,
-    required this.iconColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: iconBackground,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, size: 20, color: iconColor),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: AppTextStyles.SubTitle.copyWith(
-                  fontSize: 12,
-                  letterSpacing: 0.6,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(name, style: AppTextStyles.label.copyWith(fontSize: 14)),
-              const SizedBox(height: 2),
-              Text(
-                detail,
-                style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _NoticeCard extends StatelessWidget {
-  final String text;
-  final IconData icon;
-  final Color background;
-  final Color iconColor;
-
-  const _NoticeCard({
-    required this.text,
-    required this.icon,
-    required this.background,
-    required this.iconColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: iconColor, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              text,
-              style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
-            ),
-          ),
-        ],
-      ),
+              const SizedBox(height: 12),
+              RepartidorBoton(label: 'Volver', secundario: true,
+                onPressed: () => Navigator.pop(context)),
+            ]),
     );
   }
 }

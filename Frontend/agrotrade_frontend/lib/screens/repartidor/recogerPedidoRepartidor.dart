@@ -1,510 +1,92 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import 'entregaEnCursoRepartidor.dart';
+import 'repartidor_demo.dart';
+import '../../ui/widgets/repartidor_widgets.dart';
 
 class RecogerPedidoRepartidor extends StatefulWidget {
-  const RecogerPedidoRepartidor({super.key});
+  final int? pedidoId;
+  const RecogerPedidoRepartidor({super.key, this.pedidoId});
 
   @override
   State<RecogerPedidoRepartidor> createState() => _RecogerPedidoRepartidorState();
 }
 
 class _RecogerPedidoRepartidorState extends State<RecogerPedidoRepartidor> {
-  static const String _producerImage =
-      'https://www.figma.com/api/mcp/asset/ca883b8c-523e-4bc0-ad54-149aa66d2ef6.png';
-
-  final Map<String, bool> _items = {
-    'Tomate': false,
-    'Naranja': false,
-    'Limón': false,
-  };
-
-  void _showSnack(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.primaryColor,
-      ),
-    );
-  }
-
-  int get _checkedCount => _items.values.where((value) => value).length;
-
-  bool get _canConfirm => _checkedCount == _items.length;
-
-  void _toggleItem(String name) {
-    setState(() {
-      _items[name] = !(_items[name] ?? false);
-    });
-  }
+  final Set<int> _revisados = {};
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.scaffoldBg,
-      appBar: AppBar(
-        backgroundColor: AppColors.surfaceAlt,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back, color: AppColors.primaryColor),
-        ),
-        title: const Text(
-          'Recoger pedido',
-          style: TextStyle(
-            color: AppColors.primaryColor,
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => _showSnack('Notificaciones'),
-            icon: const Icon(
-              Icons.notifications_outlined,
-              color: AppColors.bodyText,
-            ),
-          ),
-        ],
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final bodyWidth = constraints.maxWidth > 600 ? 600.0 : constraints.maxWidth;
-
-          return SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: bodyWidth),
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: AppColors.primarySoftBg,
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.local_shipping_outlined,
-                            color: AppColors.primarySoft,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '$_checkedCount de ${_items.length} listos',
-                            style: AppTextStyles.label.copyWith(
-                              fontSize: 14,
-                              color: AppColors.primarySoft,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    const _ProgressCard(),
-                    const SizedBox(height: 24),
-                    _ProducerCard(
-                      imageUrl: _producerImage,
-                      onCall: () => _showSnack('Llamando a la finca'),
-                    ),
-                    const SizedBox(height: 24),
-                    _ChecklistCard(
-                      items: _items,
-                      onToggle: _toggleItem,
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton.icon(
-                        onPressed: _canConfirm
-                            ? () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const EntregaEnCursoRepartidor(),
-                                  ),
-                                );
-                              }
-                            : null,
-                        icon: const Icon(Icons.inventory_2_outlined, size: 20),
-                        label: Text(
-                          _canConfirm ? 'Confirmar recogida' : 'Marcá todo para confirmar',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryColor,
-                          foregroundColor: Colors.white,
-                          disabledBackgroundColor: AppColors.primaryColor.withOpacity(0.45),
-                          disabledForegroundColor: AppColors.fabIcon,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(28),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: OutlinedButton(
-                        onPressed: () => _showSnack('Faltante reportado'),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppColors.accentBlue, width: 2),
-                          foregroundColor: AppColors.accentBlue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(28),
-                          ),
-                        ),
-                        child: const Text(
-                          'Reportar faltante',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _ProgressCard extends StatelessWidget {
-  const _ProgressCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.cardBorder),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0F000000),
-            blurRadius: 2,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text(
-            'Progreso del Pedido',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppColors.titleDark,
-            ),
-          ),
-          SizedBox(height: 16),
-          _StepRow(active: false, completed: true, title: 'Entrega aceptada'),
-          _StepRow(
-            active: true,
-            completed: false,
-            title: 'Llegada a la finca',
-            subtitle: 'Estás en el punto de recogida',
-          ),
-          _StepRow(active: false, completed: false, title: 'Pedido recibido'),
-          _StepRow(active: false, completed: false, title: 'En camino'),
-          _StepRow(active: false, completed: false, title: 'Entregado'),
-        ],
-      ),
-    );
-  }
-}
-
-class _StepRow extends StatelessWidget {
-  final bool active;
-  final bool completed;
-  final String title;
-  final String? subtitle;
-
-  const _StepRow({
-    required this.active,
-    required this.completed,
-    required this.title,
-    this.subtitle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final Color circleColor = completed || active
-        ? AppColors.primarySoft
-        : AppColors.cardBorder;
-    final Color textColor = completed || active
-        ? AppColors.primarySoft
-        : AppColors.bodyText;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: circleColor,
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: active ? AppColors.primaryColor : Colors.white,
-                width: active ? 4 : 0,
-              ),
-            ),
-            child: Icon(
-              completed
-                  ? Icons.check
-                  : active
-                  ? Icons.radio_button_checked
-                  : Icons.radio_button_unchecked,
-              color: completed || active ? Colors.white : Colors.white,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: AppTextStyles.label.copyWith(
-                      fontSize: 14,
-                      color: textColor,
-                    ),
-                  ),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle!,
-                      style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
-                    ),
-                  ],
+    final demo = RepartidorDemo.instance;
+    final entrega = demo.buscar(widget.pedidoId ?? 101);
+    final listo = entrega != null && entrega.productos.isNotEmpty &&
+        _revisados.length == entrega.productos.length &&
+        entrega.estado == EstadoEntregaDemo.enCurso;
+    return RepartidorScaffold(
+      titulo: 'Recoger pedido', volver: true,
+      body: entrega == null
+          ? const Center(child: Text('No se encontró esta entrega.'))
+          : ListView(padding: const EdgeInsets.all(16), children: [
+              RepartidorCard(child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('Pedido ${entrega.codigo}', style: RepartidorTextStyles.Title),
+                  const SizedBox(height: 12),
+                  DatoRepartidor(icon: Icons.storefront_outlined,
+                    titulo: 'Finca de recogida', valor: entrega.finca),
+                  DatoRepartidor(icon: Icons.schedule,
+                    titulo: 'Hora prevista', valor: entrega.hora),
                 ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ProducerCard extends StatelessWidget {
-  final String imageUrl;
-  final VoidCallback onCall;
-
-  const _ProducerCard({required this.imageUrl, required this.onCall});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.cardBorder),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0F000000),
-            blurRadius: 2,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          ClipOval(
-            child: Image.network(
-              imageUrl,
-              width: 64,
-              height: 64,
-              fit: BoxFit.cover,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Finca La Esperanza',
-                  style: AppTextStyles.label.copyWith(fontSize: 14),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.location_on_outlined,
-                      size: 14,
-                      color: AppColors.bodyText,
+              )),
+              const SizedBox(height: 16),
+              RepartidorCard(child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  const Text('Verifica los productos', style: RepartidorTextStyles.productoTitle),
+                  const SizedBox(height: 8),
+                  Text('${_revisados.length} de ${entrega.productos.length} revisados',
+                    style: RepartidorTextStyles.SubTitle),
+                  const SizedBox(height: 12),
+                  ClipRRect(borderRadius: BorderRadius.circular(6),
+                    child: LinearProgressIndicator(
+                      minHeight: 6,
+                      value: entrega.productos.isEmpty ? 0 :
+                          _revisados.length / entrega.productos.length,
+                      color: AppColors.primaryColor,
+                      backgroundColor: AppColors.navPill,
+                    )),
+                  const SizedBox(height: 12),
+                  for (var i = 0; i < entrega.productos.length; i++)
+                    CheckboxListTile(
+                      contentPadding: EdgeInsets.zero,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      activeColor: AppColors.primaryColor,
+                      value: _revisados.contains(i),
+                      onChanged: (value) => setState(() {
+                        if (value == true) {
+                          _revisados.add(i);
+                        } else {
+                          _revisados.remove(i);
+                        }
+                      }),
+                      title: Text(entrega.productos[i].nombre),
+                      subtitle: Text(
+                        '${entrega.productos[i].cantidad} ${entrega.productos[i].unidad}'),
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Jinotepe',
-                      style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              color: AppColors.primarySoftBg,
-              shape: BoxShape.circle,
-            ),
-            child: InkWell(
-              onTap: onCall,
-              customBorder: const CircleBorder(),
-              child: const Icon(
-                Icons.call_outlined,
-                color: AppColors.primarySoft,
-                size: 20,
+                ],
+              )),
+              const SizedBox(height: 20),
+              RepartidorBoton(
+                label: 'Confirmar recogida',
+                onPressed: !listo ? null : () {
+                  demo.recoger(entrega.id);
+                  Navigator.pushReplacement(context,
+                    MaterialPageRoute<void>(builder: (_) =>
+                      EntregaEnCursoRepartidor(pedidoId: entrega.id)));
+                },
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ChecklistCard extends StatelessWidget {
-  final Map<String, bool> items;
-  final ValueChanged<String> onToggle;
-
-  const _ChecklistCard({
-    required this.items,
-    required this.onToggle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.cardBorder),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0F000000),
-            blurRadius: 2,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Verificá el pedido',
-            style: AppTextStyles.label.copyWith(fontSize: 16),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Revisá que todos los productos estén listos antes de continuar.',
-            style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
-          ),
-          const SizedBox(height: 16),
-          _ChecklistItem(
-            name: 'Tomate',
-            amount: '2 lb',
-            isChecked: items['Tomate'] ?? false,
-            onChanged: (_) => onToggle('Tomate'),
-          ),
-          const SizedBox(height: 10),
-          _ChecklistItem(
-            name: 'Naranja',
-            amount: '2 doc',
-            isChecked: items['Naranja'] ?? false,
-            onChanged: (_) => onToggle('Naranja'),
-          ),
-          const SizedBox(height: 10),
-          _ChecklistItem(
-            name: 'Limón',
-            amount: '1 lb',
-            isChecked: items['Limón'] ?? false,
-            onChanged: (_) => onToggle('Limón'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ChecklistItem extends StatelessWidget {
-  final String name;
-  final String amount;
-  final bool isChecked;
-  final ValueChanged<bool?>? onChanged;
-
-  const _ChecklistItem({
-    required this.name,
-    required this.amount,
-    this.isChecked = false,
-    this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => onChanged?.call(!isChecked),
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(13),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0x33BECABB)),
-        ),
-        child: Row(
-          children: [
-            Checkbox(
-              value: isChecked,
-              onChanged: onChanged,
-              activeColor: AppColors.primaryColor,
-            ),
-            const SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name, style: AppTextStyles.label.copyWith(fontSize: 14)),
-                const SizedBox(height: 2),
-                Text(
-                  amount,
-                  style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+              const SizedBox(height: 12),
+              const Text('Revisa todos los productos antes de continuar.',
+                textAlign: TextAlign.center, style: RepartidorTextStyles.SubTitle),
+            ]),
     );
   }
 }
