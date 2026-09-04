@@ -39,7 +39,7 @@ class OfertaExcedente {
   final String nombre;
   final double precio;
   final double precioOriginal;
-  final int descuento; 
+  final int descuento;
   final String vigencia;
   final String imagenUrl;
 
@@ -59,6 +59,10 @@ class ProductorDestacado {
   final int ventas;
   final bool verificado;
   final String avatarUrl;
+  final String tipo;
+  final String? portadaUrl;
+  final String? ubicacion;
+  final String? descripcion;
 
   const ProductorDestacado({
     required this.nombre,
@@ -66,8 +70,45 @@ class ProductorDestacado {
     required this.ventas,
     required this.verificado,
     required this.avatarUrl,
+    this.tipo = 'Finca',
+    this.portadaUrl,
+    this.ubicacion,
+    this.descripcion,
   });
 }
+
+const cooperativaLosAndes = ProductorDestacado(
+  nombre: 'Cooperativa Los Andes',
+  rating: 4.9,
+  ventas: 120,
+  verificado: true,
+  avatarUrl: 'https://www.cooperativasextremadura.es/media/files/999-media.jpg',
+  portadaUrl:
+      'https://eos.com/wp-content/uploads/2020/06/AGRICULTURAL-COOPERATIVES-img.jpg',
+  ubicacion: 'Diriamba, Carazo',
+  descripcion:
+      'Dedicados a la producción agrícola sostenible '
+      'desde hace más de 20 años.',
+);
+
+const fincaLaEsperanza = ProductorDestacado(
+  nombre: 'Finca La Esperanza',
+  rating: 4.7,
+  ventas: 85,
+  verificado: false,
+  avatarUrl:
+      'https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=200&q=60',
+  portadaUrl:
+      'https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=1200&q=80',
+  ubicacion: 'Jinotepe, Carazo',
+  descripcion:
+      'Dedicados a la producción agrícola sostenible '
+      'desde hace más de 20 años. En Finca La Esperanza, '
+      'cultivamos nuestras tierras respetando los ciclos '
+      'naturales y utilizando prácticas amigables con el '
+      'medio ambiente para ofrecer los productos más '
+      'frescos de la región.',
+);
 
 class InicioComprador extends StatefulWidget {
   const InicioComprador({super.key});
@@ -77,14 +118,34 @@ class InicioComprador extends StatefulWidget {
 }
 
 class _InicioCompradorState extends State<InicioComprador> {
-  int _categoriaSel = 1; 
+  int _categoriaSel = 1;
   int _carritoCount = 1;
 
   static const List<CategoriaMercado> _listaCategorias = [
-    CategoriaMercado('Frutas', Icons.apple, AppColors.navPill, AppColors.primaryColor),
-    CategoriaMercado('Cítricos', Icons.eco, AppColors.blueSoft, AppColors.accentBlue),
-    CategoriaMercado('Verduras', Icons.grass, AppColors.navPill, AppColors.primaryColor),
-    CategoriaMercado('Otros', Icons.category, AppColors.tileBg, AppColors.titleDark),
+    CategoriaMercado(
+      'Frutas',
+      Icons.apple,
+      AppColors.navPill,
+      AppColors.primaryColor,
+    ),
+    CategoriaMercado(
+      'Cítricos',
+      Icons.eco,
+      AppColors.blueSoft,
+      AppColors.accentBlue,
+    ),
+    CategoriaMercado(
+      'Verduras',
+      Icons.grass,
+      AppColors.navPill,
+      AppColors.primaryColor,
+    ),
+    CategoriaMercado(
+      'Otros',
+      Icons.category,
+      AppColors.tileBg,
+      AppColors.titleDark,
+    ),
   ];
 
   static const List<ProductoCercano> _cercanos = [
@@ -94,7 +155,8 @@ class _InicioCompradorState extends State<InicioComprador> {
       precio: 25.00,
       unidad: 'lb',
       distancia: '4.2 km',
-      imagenUrl: 'https://images.unsplash.com/photo-1546094096-0df9bdcaaadd?auto=format&fit=crop&w=600&q=60',
+      imagenUrl:
+          'https://solofruver.com/wp-content/uploads/2020/06/tomate-chonto-e1662500217171.jpg',
     ),
     ProductoCercano(
       nombre: 'Naranja Valencia',
@@ -102,7 +164,8 @@ class _InicioCompradorState extends State<InicioComprador> {
       precio: 18.00,
       unidad: 'doc',
       distancia: '6.8 km',
-      imagenUrl: 'https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=600&q=60',
+      imagenUrl:
+          'https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=600&q=60',
     ),
   ];
 
@@ -112,34 +175,25 @@ class _InicioCompradorState extends State<InicioComprador> {
     precioOriginal: 25.00,
     descuento: 15,
     vigencia: 'Disponible hasta hoy',
-    imagenUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcaea?auto=format&fit=crop&w=300&q=60',
+    imagenUrl:
+        'https://walmartsv.vtexassets.com/arquivos/ids/622011/52574_01.jpg?v=638690322156700000',
   );
 
   static const List<ProductorDestacado> _productores = [
-    ProductorDestacado(
-      nombre: 'Cooperativa Los Andes',
-      rating: 4.9,
-      ventas: 120,
-      verificado: true,
-      avatarUrl: 'https://images.unsplash.com/photo-1595456272726-b3710772fa6f?auto=format&fit=crop&w=200&q=60',
-    ),
-    ProductorDestacado(
-      nombre: 'Finca La Esperanza',
-      rating: 4.7,
-      ventas: 85,
-      verificado: false,
-      avatarUrl: 'https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=200&q=60',
-    ),
+    cooperativaLosAndes,
+    fincaLaEsperanza,
   ];
 
   void _mostrarSnack(String mensaje) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(mensaje),
-      backgroundColor: AppColors.primaryColor,
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      duration: const Duration(seconds: 2),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensaje),
+        backgroundColor: AppColors.primaryColor,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   void _agregarAlCarrito(String producto) {
@@ -194,22 +248,28 @@ class _InicioCompradorState extends State<InicioComprador> {
                     oferta: _oferta,
                     onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const ExploradorProductos()),
+                      MaterialPageRoute(
+                        builder: (_) => const ExploradorProductos(),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 28),
                   _tituloSeccion('Productores destacados'),
                   const SizedBox(height: 12),
-                  ..._productores.map((p) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: _ProductorCard(
-                          productor: p,
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const PerfilProductorScreen()),
+                  ..._productores.map(
+                    (p) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _ProductorCard(
+                        productor: p,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => PerfilProductorScreen(productor: p),
                           ),
                         ),
-                      )),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -218,10 +278,26 @@ class _InicioCompradorState extends State<InicioComprador> {
       ),
       bottomNavigationBar: ProductorBottomNav(
         items: const [
-          NavElemento(label: 'Inicio', icon: Icons.home_outlined, activeIcon: Icons.home),
-          NavElemento(label: 'Explorar', icon: Icons.search_outlined, activeIcon: Icons.search),
-          NavElemento(label: 'Pedidos', icon: Icons.shopping_bag_outlined, activeIcon: Icons.shopping_bag),
-          NavElemento(label: 'Perfil', icon: Icons.person_outline, activeIcon: Icons.person),
+          NavElemento(
+            label: 'Inicio',
+            icon: Icons.home_outlined,
+            activeIcon: Icons.home,
+          ),
+          NavElemento(
+            label: 'Explorar',
+            icon: Icons.search_outlined,
+            activeIcon: Icons.search,
+          ),
+          NavElemento(
+            label: 'Pedidos',
+            icon: Icons.shopping_bag_outlined,
+            activeIcon: Icons.shopping_bag,
+          ),
+          NavElemento(
+            label: 'Perfil',
+            icon: Icons.person_outline,
+            activeIcon: Icons.person,
+          ),
         ],
         currentIndex: 0,
         onTap: _irATab,
@@ -272,9 +348,17 @@ class _InicioCompradorState extends State<InicioComprador> {
     );
   }
 
-  Widget _botonCircular(IconData icon, {bool conBadge = false, VoidCallback? onTap}) {
+  Widget _botonCircular(
+    IconData icon, {
+    bool conBadge = false,
+    VoidCallback? onTap,
+  }) {
     return GestureDetector(
-      onTap: onTap ?? () => _mostrarSnack(conBadge ? 'Carrito: $_carritoCount producto(s)' : 'Notificaciones'),
+      onTap:
+          onTap ??
+          () => _mostrarSnack(
+            conBadge ? 'Carrito: $_carritoCount producto(s)' : 'Notificaciones',
+          ),
       child: Container(
         width: 44,
         height: 44,
@@ -284,9 +368,7 @@ class _InicioCompradorState extends State<InicioComprador> {
         ),
         child: Stack(
           children: [
-            Center(
-              child: Icon(icon, size: 20, color: AppColors.titleDark),
-            ),
+            Center(child: Icon(icon, size: 20, color: AppColors.titleDark)),
             if (conBadge && _carritoCount > 0)
               Positioned(
                 top: 10,
@@ -317,7 +399,9 @@ class _InicioCompradorState extends State<InicioComprador> {
         decoration: BoxDecoration(
           color: AppColors.White,
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: AppColors.inputBorderColor.withValues(alpha: 0.5)),
+          border: Border.all(
+            color: AppColors.inputBorderColor.withValues(alpha: 0.5),
+          ),
         ),
         child: Row(
           children: [
@@ -439,7 +523,10 @@ class _CategoriaTile extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             categoria.label,
-            style: AppTextStyles.SubTitle.copyWith(fontSize: 12, color: AppColors.titleDark),
+            style: AppTextStyles.SubTitle.copyWith(
+              fontSize: 12,
+              color: AppColors.titleDark,
+            ),
           ),
         ],
       ),
@@ -483,15 +570,21 @@ class _ProductoCercanoCard extends StatelessWidget {
                   errorBuilder: (_, __, ___) => Container(
                     height: 110,
                     color: AppColors.tileBg,
-                    child: const Icon(Icons.image_not_supported_outlined,
-                        size: 28, color: AppColors.bodyText),
+                    child: const Icon(
+                      Icons.image_not_supported_outlined,
+                      size: 28,
+                      color: AppColors.bodyText,
+                    ),
                   ),
                 ),
                 Positioned(
                   top: 8,
                   right: 8,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.White.withValues(alpha: 0.9),
                       borderRadius: BorderRadius.circular(12),
@@ -499,8 +592,11 @@ class _ProductoCercanoCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.location_on_outlined,
-                            size: 11, color: AppColors.primaryColor),
+                        const Icon(
+                          Icons.location_on_outlined,
+                          size: 11,
+                          color: AppColors.primaryColor,
+                        ),
                         const SizedBox(width: 2),
                         Text(
                           producto.distancia,
@@ -555,7 +651,9 @@ class _ProductoCercanoCard extends StatelessWidget {
                           ),
                           Text(
                             'por ${producto.unidad}',
-                            style: AppTextStyles.SubTitle.copyWith(fontSize: 10),
+                            style: AppTextStyles.SubTitle.copyWith(
+                              fontSize: 10,
+                            ),
                           ),
                         ],
                       ),
@@ -568,7 +666,11 @@ class _ProductoCercanoCard extends StatelessWidget {
                             color: AppColors.primaryColor,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.add, size: 18, color: AppColors.White),
+                          child: const Icon(
+                            Icons.add,
+                            size: 18,
+                            color: AppColors.White,
+                          ),
                         ),
                       ),
                     ],
@@ -625,7 +727,10 @@ class _OfertaCard extends StatelessWidget {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.amber,
                           borderRadius: BorderRadius.circular(6),
@@ -738,11 +843,19 @@ class _ProductorCard extends StatelessWidget {
                           productor.nombre,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.label.copyWith(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.titleDark),
+                          style: AppTextStyles.label.copyWith(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.titleDark,
+                          ),
                         ),
                       ),
                       if (productor.verificado)
-                        const Icon(Icons.verified, size: 16, color: AppColors.accentBlue),
+                        const Icon(
+                          Icons.verified,
+                          size: 16,
+                          color: AppColors.accentBlue,
+                        ),
                     ],
                   ),
                   const SizedBox(height: 3),
@@ -752,7 +865,10 @@ class _ProductorCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         productor.rating.toStringAsFixed(1),
-                        style: AppTextStyles.label.copyWith(fontSize: 13, color: AppColors.titleDark),
+                        style: AppTextStyles.label.copyWith(
+                          fontSize: 13,
+                          color: AppColors.titleDark,
+                        ),
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -764,7 +880,11 @@ class _ProductorCard extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, size: 20, color: AppColors.bodyText),
+            const Icon(
+              Icons.chevron_right,
+              size: 20,
+              color: AppColors.bodyText,
+            ),
           ],
         ),
       ),

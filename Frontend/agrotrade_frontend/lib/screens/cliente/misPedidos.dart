@@ -49,7 +49,7 @@ class _MisPedidosScreenState extends State<MisPedidosScreen>
       fecha: 'Hoy',
       productores: '2 productores',
       imagenesUrl: [
-        'https://images.unsplash.com/photo-1546094096-0df9bdcaaadd?auto=format&fit=crop&w=100&q=60',
+        'https://solofruver.com/wp-content/uploads/2020/06/tomate-chonto-e1662500217171.jpg',
         'https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=100&q=60',
       ],
     ),
@@ -457,7 +457,6 @@ class _CardEnCamino extends StatelessWidget {
             ],
           ),
 
-    
           if (pedido.finca != null) ...[
             const SizedBox(height: 8),
             Row(

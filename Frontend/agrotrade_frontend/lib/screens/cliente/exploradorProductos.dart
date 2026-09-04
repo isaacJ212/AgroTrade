@@ -19,6 +19,10 @@ class ProductoMercado {
   final String categoria;
   final bool pocoInventario;
   final String imagenUrl;
+  final String? descripcion;
+  final double? calificacion;
+  final int? valoraciones;
+  final bool cosechadoHoy;
 
   const ProductoMercado({
     required this.id,
@@ -30,11 +34,27 @@ class ProductoMercado {
     required this.categoria,
     required this.imagenUrl,
     this.pocoInventario = false,
+    this.descripcion,
+    this.calificacion,
+    this.valoraciones,
+    this.cosechadoHoy = false,
   });
 }
 
 class ExploradorProductos extends StatefulWidget {
   const ExploradorProductos({super.key});
+
+  static List<ProductoMercado> productosDeFinca(String nombreFinca) {
+    String normalizar(String nombre) => nombre
+        .trim()
+        .toLowerCase()
+        .replaceFirst(RegExp(r'^coop\.\s*'), 'cooperativa ');
+
+    final nombre = normalizar(nombreFinca);
+    return _ExploradorProductosState._productos
+        .where((producto) => normalizar(producto.finca) == nombre)
+        .toList(growable: false);
+  }
 
   @override
   State<ExploradorProductos> createState() => _ExploradorProductosState();
@@ -45,18 +65,29 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
   String _busqueda = '';
   final Set<int> _favoritos = {};
 
-  static const List<String> _tabLabels = ['Todos', 'Frutas', 'Cítricos', 'Verduras'];
+  static const List<String> _tabLabels = [
+    'Todos',
+    'Frutas',
+    'Cítricos',
+    'Verduras',
+  ];
 
   static const List<ProductoMercado> _productos = [
     ProductoMercado(
       id: 1,
       nombre: 'Tomate',
-      finca: 'Finca La Esperanza',
+      finca: 'Coop. Los Andes',
       precio: 25.00,
       unidad: 'lb',
       distancia: '4.2 km',
       categoria: 'Verduras',
-      imagenUrl: 'https://images.unsplash.com/photo-1546094096-0df9bdcaaadd?auto=format&fit=crop&w=800&q=60',
+      imagenUrl:
+          'https://solofruver.com/wp-content/uploads/2020/06/tomate-chonto-e1662500217171.jpg',
+      descripcion:
+          'Tomate fresco de producción local, disponible para entrega o retiro en finca.',
+      calificacion: 4.8,
+      valoraciones: 32,
+      cosechadoHoy: true,
     ),
     ProductoMercado(
       id: 2,
@@ -66,46 +97,51 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
       unidad: 'doc',
       distancia: '6.1 km',
       categoria: 'Cítricos',
-      imagenUrl: 'https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=800&q=60',
+      imagenUrl:
+          'https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=800&q=60',
     ),
     ProductoMercado(
       id: 3,
       nombre: 'Limón',
-      finca: 'Finca San José',
+      finca: 'Finca La Esperanza',
       precio: 20.00,
       unidad: 'lb',
       distancia: '3.8 km',
       categoria: 'Cítricos',
       pocoInventario: true,
-      imagenUrl: 'https://images.unsplash.com/photo-1590502591965-156b8b3f0e53?auto=format&fit=crop&w=800&q=60',
+      imagenUrl:
+          'https://www.cincoazul.com/cdn/shop/products/limon_organico_organic_lemon_delivery_domicilio_762f4fcb-9e94-41e2-8bb4-1a23ff3686c8.jpg?v=1756240411',
     ),
     ProductoMercado(
       id: 4,
       nombre: 'Manzana Roja',
-      finca: 'Finca El Carmen',
+      finca: 'Finca La Esperanza',
       precio: 32.00,
       unidad: 'lb',
       distancia: '7.5 km',
       categoria: 'Frutas',
-      imagenUrl: 'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=800&q=60',
+      imagenUrl:
+          'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=800&q=60',
     ),
   ];
 
   List<ProductoMercado> get _filtrados => _productos.where((p) {
-        final porTab = _tabSel == 0 || p.categoria == _tabLabels[_tabSel];
-        final texto = _busqueda.trim().toLowerCase();
-        final porTexto = texto.isEmpty || p.nombre.toLowerCase().contains(texto);
-        return porTab && porTexto;
-      }).toList();
+    final porTab = _tabSel == 0 || p.categoria == _tabLabels[_tabSel];
+    final texto = _busqueda.trim().toLowerCase();
+    final porTexto = texto.isEmpty || p.nombre.toLowerCase().contains(texto);
+    return porTab && porTexto;
+  }).toList();
 
   void _mostrarSnack(String mensaje) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(mensaje),
-      backgroundColor: AppColors.primaryColor,
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      duration: const Duration(seconds: 2),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensaje),
+        backgroundColor: AppColors.primaryColor,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   void _toggleFavorito(int id) {
@@ -162,10 +198,26 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
       ),
       bottomNavigationBar: ProductorBottomNav(
         items: const [
-          NavElemento(label: 'Inicio', icon: Icons.home_outlined, activeIcon: Icons.home),
-          NavElemento(label: 'Explorar', icon: Icons.search_outlined, activeIcon: Icons.search),
-          NavElemento(label: 'Pedidos', icon: Icons.shopping_bag_outlined, activeIcon: Icons.shopping_bag),
-          NavElemento(label: 'Perfil', icon: Icons.person_outline, activeIcon: Icons.person),
+          NavElemento(
+            label: 'Inicio',
+            icon: Icons.home_outlined,
+            activeIcon: Icons.home,
+          ),
+          NavElemento(
+            label: 'Explorar',
+            icon: Icons.search_outlined,
+            activeIcon: Icons.search,
+          ),
+          NavElemento(
+            label: 'Pedidos',
+            icon: Icons.shopping_bag_outlined,
+            activeIcon: Icons.shopping_bag,
+          ),
+          NavElemento(
+            label: 'Perfil',
+            icon: Icons.person_outline,
+            activeIcon: Icons.person,
+          ),
         ],
         currentIndex: 1,
         onTap: _irATab,
@@ -200,8 +252,11 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.shopping_cart_outlined,
-                color: AppColors.titleDark, size: 22),
+            icon: const Icon(
+              Icons.shopping_cart_outlined,
+              color: AppColors.titleDark,
+              size: 22,
+            ),
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const CarritoScreen()),
@@ -241,8 +296,9 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
                           color: AppColors.bodyText.withValues(alpha: 0.7),
                         ),
                         border: InputBorder.none,
-                        contentPadding:
-                            const EdgeInsets.symmetric(vertical: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                        ),
                       ),
                     ),
                   ),
@@ -264,7 +320,11 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.cardBorder),
               ),
-              child: const Icon(Icons.tune, color: AppColors.primaryColor, size: 20),
+              child: const Icon(
+                Icons.tune,
+                color: AppColors.primaryColor,
+                size: 20,
+              ),
             ),
           ),
         ],
@@ -277,9 +337,7 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
-        children: [
-          for (int i = 0; i < _tabLabels.length; i++) _tab(i),
-        ],
+        children: [for (int i = 0; i < _tabLabels.length; i++) _tab(i)],
       ),
     );
   }
@@ -321,8 +379,10 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
           children: [
             const Icon(Icons.search_off, size: 40, color: AppColors.bodyText),
             const SizedBox(height: 8),
-            Text('No se encontraron productos',
-                style: AppTextStyles.cardTitle.copyWith(fontSize: 13)),
+            Text(
+              'No se encontraron productos',
+              style: AppTextStyles.cardTitle.copyWith(fontSize: 13),
+            ),
           ],
         ),
       );
@@ -339,7 +399,9 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
         onAgregar: () => _agregar(productos[i].nombre),
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const DetalleProductoCliente()),
+          MaterialPageRoute(
+            builder: (_) => DetalleProductoCliente(producto: productos[i]),
+          ),
         ),
       ),
     );
@@ -385,16 +447,21 @@ class _ProductoCard extends StatelessWidget {
                   errorBuilder: (_, __, ___) => Container(
                     height: 160,
                     color: AppColors.tileBg,
-                    child: const Icon(Icons.image_not_supported_outlined,
-                        size: 36, color: AppColors.bodyText),
+                    child: const Icon(
+                      Icons.image_not_supported_outlined,
+                      size: 36,
+                      color: AppColors.bodyText,
+                    ),
                   ),
                 ),
                 Positioned(
                   top: 10,
                   left: 10,
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.White.withValues(alpha: 0.9),
                       borderRadius: BorderRadius.circular(12),
@@ -402,8 +469,11 @@ class _ProductoCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.location_on_outlined,
-                            size: 13, color: AppColors.primaryColor),
+                        const Icon(
+                          Icons.location_on_outlined,
+                          size: 13,
+                          color: AppColors.primaryColor,
+                        ),
                         const SizedBox(width: 3),
                         Text(
                           producto.distancia,
@@ -443,7 +513,9 @@ class _ProductoCard extends StatelessWidget {
                     left: 10,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.amberSoft,
                         borderRadius: BorderRadius.circular(8),
@@ -495,7 +567,9 @@ class _ProductoCard extends StatelessWidget {
                             ),
                             Text(
                               ' / ${producto.unidad}',
-                              style: AppTextStyles.SubTitle.copyWith(fontSize: 12),
+                              style: AppTextStyles.SubTitle.copyWith(
+                                fontSize: 12,
+                              ),
                             ),
                           ],
                         ),
@@ -510,7 +584,9 @@ class _ProductoCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 10),
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
                     ),
                     child: const Text(
                       'Agregar',

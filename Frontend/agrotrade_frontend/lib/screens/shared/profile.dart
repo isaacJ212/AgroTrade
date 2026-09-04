@@ -4,7 +4,7 @@ import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
 import '../cliente/inicioComprador.dart';
 import '../cliente/misPedidos.dart';
-import '../productor/pedidos/sales.dart';
+import '../cliente/exploradorProductos.dart';
 import 'auth/Login.dart';
 import 'editarPerfil.dart';
 import 'centroAyuda.dart';
@@ -32,10 +32,7 @@ class Profile extends StatelessWidget {
             }
           },
         ),
-        title: const Text(
-          'Mi perfil',
-          style: AppTextStyles.Title,
-        ),
+        title: const Text('Mi perfil', style: AppTextStyles.Title),
       ),
 
       body: SingleChildScrollView(
@@ -83,7 +80,10 @@ class Profile extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: AppColors.primaryColor,
                             shape: BoxShape.circle,
-                            border: Border.all(color: AppColors.White, width: 2),
+                            border: Border.all(
+                              color: AppColors.White,
+                              width: 2,
+                            ),
                           ),
                           child: const Icon(
                             Icons.verified_user_outlined,
@@ -166,7 +166,9 @@ class Profile extends StatelessWidget {
                     title: 'Mis pedidos y compras',
                     onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const MisPedidosScreen()),
+                      MaterialPageRoute(
+                        builder: (_) => const MisPedidosScreen(),
+                      ),
                     ),
                   ),
 
@@ -243,18 +245,49 @@ class Profile extends StatelessWidget {
         ),
       ),
 
-      bottomNavigationBar: AgroBottomNavBar(
+      bottomNavigationBar: ProductorBottomNav(
+        items: const [
+          NavElemento(
+            label: 'Inicio',
+            icon: Icons.home_outlined,
+            activeIcon: Icons.home,
+          ),
+          NavElemento(
+            label: 'Explorar',
+            icon: Icons.search_outlined,
+            activeIcon: Icons.search,
+          ),
+          NavElemento(
+            label: 'Pedidos',
+            icon: Icons.shopping_bag_outlined,
+            activeIcon: Icons.shopping_bag,
+          ),
+          NavElemento(
+            label: 'Perfil',
+            icon: Icons.person_outline,
+            activeIcon: Icons.person,
+          ),
+        ],
         currentIndex: 3,
         onTap: (index) {
-          if (index == 3) {
-            return;
+          final Widget pagina;
+          switch (index) {
+            case 0:
+              pagina = const InicioComprador();
+              break;
+            case 1:
+              pagina = const ExploradorProductos();
+              break;
+            case 2:
+              pagina = const MisPedidosScreen();
+              break;
+            default:
+              return;
           }
-          if (index == 2) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const Sales()),
-            );
-          }
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => pagina),
+          );
         },
       ),
     );

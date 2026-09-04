@@ -19,7 +19,6 @@ import 'package:agrotrade_frontend/services/auth_api_service.dart';
 import 'package:agrotrade_frontend/ui/app_theme.dart';
 import 'package:agrotrade_frontend/ui/components.dart';
 
-
 class Login extends StatefulWidget {
   const Login({super.key});
 
@@ -168,7 +167,6 @@ class _LoginState extends State<Login> {
                   ),
                   const SizedBox(height: 24),
 
-           
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -176,15 +174,24 @@ class _LoginState extends State<Login> {
                     children: [
                       _DemoChip(
                         label: "Comprador",
-                        onTap: () => _autofillDemo("cliente@agrotrade.com", "cliente123"),
+                        onTap: () => _autofillDemo(
+                          "cliente@agrotrade.com",
+                          "cliente123",
+                        ),
                       ),
                       _DemoChip(
                         label: "Productor",
-                        onTap: () => _autofillDemo("productor@agrotrade.com", "productor123"),
+                        onTap: () => _autofillDemo(
+                          "productor@agrotrade.com",
+                          "productor123",
+                        ),
                       ),
                       _DemoChip(
                         label: "Repartidor",
-                        onTap: () => _autofillDemo("repartidor@agrotrade.com", "repartidor123"),
+                        onTap: () => _autofillDemo(
+                          "repartidor@agrotrade.com",
+                          "repartidor123",
+                        ),
                       ),
                     ],
                   ),
@@ -209,14 +216,14 @@ class _LoginState extends State<Login> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-
                       Flexible(
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Checkbox(
                               value: _remember,
-                              onChanged: (v) => setState(() => _remember = v ?? false),
+                              onChanged: (v) =>
+                                  setState(() => _remember = v ?? false),
                             ),
                             const Text(
                               "Recordarme",
@@ -252,10 +259,43 @@ class _LoginState extends State<Login> {
                   const SizedBox(height: 16),
                   const OrDivider(),
                   const SizedBox(height: 16),
-                  const SecondaryButton(
-                    label: "Continuar Con Google",
-                    icon: Icons.g_mobiledata,
-                    onPressed: null,
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: OutlinedButton(
+                      onPressed: null,
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        disabledBackgroundColor: Colors.white,
+                        side: const BorderSide(
+                          color: Color(0xFF747775),
+                          width: 1,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.network(
+                            'https://developers.google.com/identity/images/g-logo.png',
+                            width: 22,
+                            height: 22,
+                            fit: BoxFit.contain,
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Continuar con Google',
+                            style: TextStyle(
+                              color: Color(0xFF1F1F1F),
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 20),
                   Row(

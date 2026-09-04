@@ -38,34 +38,96 @@ class _BuscarProductosState extends State<BuscarProductos> {
   FiltrosMercado _filtros = const FiltrosMercado();
 
   static const List<ProductoMercado> _productos = [
-    ProductoMercado(id: 1, nombre: 'Tomate Chonto', finca: 'Finca La Esperanza', precio: 3.50, unidad: 'kg', distancia: '4.2 km', categoria: 'Verduras', imagenUrl: 'https://images.unsplash.com/photo-1546094096-0df9bdcaaadd?auto=format&fit=crop&w=400&q=60'),
-    ProductoMercado(id: 2, nombre: 'Tomate Cherry Orgánico', finca: 'Finca El Sol', precio: 5.20, unidad: 'lb', distancia: '6.1 km', categoria: 'Verduras', imagenUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcaea?auto=format&fit=crop&w=400&q=60'),
-    ProductoMercado(id: 3, nombre: 'Naranja Valencia', finca: 'Coop. Los Andes', precio: 2.80, unidad: 'kg', distancia: '8.4 km', categoria: 'Cítricos', imagenUrl: 'https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=400&q=60'),
-    ProductoMercado(id: 4, nombre: 'Limón Persa', finca: 'Finca San José', precio: 4.00, unidad: 'kg', distancia: '3.8 km', categoria: 'Cítricos', pocoInventario: true, imagenUrl: 'https://images.unsplash.com/photo-1590502591965-156b8b3f0e53?auto=format&fit=crop&w=400&q=60'),
-    ProductoMercado(id: 5, nombre: 'Papa Criolla', finca: 'Finca El Carmen', precio: 1.90, unidad: 'kg', distancia: '9.5 km', categoria: 'Tubérculos', imagenUrl: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=400&q=60'),
-    ProductoMercado(id: 6, nombre: 'Manzana Roja', finca: 'Finca El Carmen', precio: 6.50, unidad: 'kg', distancia: '12.0 km', categoria: 'Frutas', imagenUrl: 'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=400&q=60'),
+    ProductoMercado(
+      id: 1,
+      nombre: 'Tomate Chonto',
+      finca: 'Finca La Esperanza',
+      precio: 3.50,
+      unidad: 'kg',
+      distancia: '4.2 km',
+      categoria: 'Verduras',
+      imagenUrl:
+          'https://solofruver.com/wp-content/uploads/2020/06/tomate-chonto-e1662500217171.jpg',
+    ),
+    ProductoMercado(
+      id: 2,
+      nombre: 'Tomate Cherry Orgánico',
+      finca: 'Finca El Sol',
+      precio: 5.20,
+      unidad: 'lb',
+      distancia: '6.1 km',
+      categoria: 'Verduras',
+      imagenUrl:
+          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9v_IGE243ziKG_57lnj9EZouxRrCSBh9Dl1scgG6pqxuy4DTCVmyu7u1S&s=10',
+    ),
+    ProductoMercado(
+      id: 3,
+      nombre: 'Naranja Valencia',
+      finca: 'Coop. Los Andes',
+      precio: 2.80,
+      unidad: 'kg',
+      distancia: '8.4 km',
+      categoria: 'Cítricos',
+      imagenUrl:
+          'https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=400&q=60',
+    ),
+    ProductoMercado(
+      id: 4,
+      nombre: 'Limón Persa',
+      finca: 'Finca San José',
+      precio: 4.00,
+      unidad: 'kg',
+      distancia: '3.8 km',
+      categoria: 'Cítricos',
+      pocoInventario: true,
+      imagenUrl:
+          'https://images.unsplash.com/photo-1590502591965-156b8b3f0e53?auto=format&fit=crop&w=400&q=60',
+    ),
+    ProductoMercado(
+      id: 5,
+      nombre: 'Papa Criolla',
+      finca: 'Finca El Carmen',
+      precio: 1.90,
+      unidad: 'kg',
+      distancia: '9.5 km',
+      categoria: 'Tubérculos',
+      imagenUrl:
+          'https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=400&q=60',
+    ),
+    ProductoMercado(
+      id: 6,
+      nombre: 'Manzana Roja',
+      finca: 'Finca El Carmen',
+      precio: 6.50,
+      unidad: 'kg',
+      distancia: '12.0 km',
+      categoria: 'Frutas',
+      imagenUrl:
+          'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=400&q=60',
+    ),
   ];
 
   double _distanciaKm(ProductoMercado p) =>
       double.tryParse(p.distancia.split(' ').first) ?? 0;
 
   List<ProductoMercado> get _resultados => _productos.where((p) {
-        final texto = _searchController.text.trim().toLowerCase();
-        final porTexto = texto.isEmpty || p.nombre.toLowerCase().contains(texto);
+    final texto = _searchController.text.trim().toLowerCase();
+    final porTexto = texto.isEmpty || p.nombre.toLowerCase().contains(texto);
 
-        final porCat = _filtros.categorias.isEmpty ||
-            _filtros.categorias.contains(p.categoria);
+    final porCat =
+        _filtros.categorias.isEmpty ||
+        _filtros.categorias.contains(p.categoria);
 
-        final porDist = _distanciaKm(p) <= _filtros.distanciaMax;
+    final porDist = _distanciaKm(p) <= _filtros.distanciaMax;
 
-        final porPrecio =
-            (_filtros.precioMin == null || p.precio >= _filtros.precioMin!) &&
-            (_filtros.precioMax == null || p.precio <= _filtros.precioMax!);
+    final porPrecio =
+        (_filtros.precioMin == null || p.precio >= _filtros.precioMin!) &&
+        (_filtros.precioMax == null || p.precio <= _filtros.precioMax!);
 
-        final porStock = _pasaStock(p);
+    final porStock = _pasaStock(p);
 
-        return porTexto && porCat && porDist && porPrecio && porStock;
-      }).toList();
+    return porTexto && porCat && porDist && porPrecio && porStock;
+  }).toList();
 
   bool _pasaStock(ProductoMercado p) {
     if (_filtros.disponibleAhora && _filtros.pocoInventario) return true;
@@ -77,7 +139,7 @@ class _BuscarProductosState extends State<BuscarProductos> {
   Future<void> _abrirFiltros() async {
     final resultado = await showModalBottomSheet<FiltrosMercado>(
       context: context,
-      isScrollControlled: true, 
+      isScrollControlled: true,
       backgroundColor: AppColors.scaffoldBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -123,11 +185,19 @@ class _BuscarProductosState extends State<BuscarProductos> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.tune, color: AppColors.primaryColor, size: 22),
+            icon: const Icon(
+              Icons.tune,
+              color: AppColors.primaryColor,
+              size: 22,
+            ),
             onPressed: _abrirFiltros,
           ),
           IconButton(
-            icon: const Icon(Icons.shopping_cart_outlined, color: AppColors.titleDark, size: 22),
+            icon: const Icon(
+              Icons.shopping_cart_outlined,
+              color: AppColors.titleDark,
+              size: 22,
+            ),
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const CarritoScreen()),
@@ -153,10 +223,16 @@ class _BuscarProductosState extends State<BuscarProductos> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.search_off, size: 40, color: AppColors.bodyText),
+                        const Icon(
+                          Icons.search_off,
+                          size: 40,
+                          color: AppColors.bodyText,
+                        ),
                         const SizedBox(height: 8),
-                        Text('Sin resultados con estos filtros',
-                            style: AppTextStyles.cardTitle.copyWith(fontSize: 13)),
+                        Text(
+                          'Sin resultados con estos filtros',
+                          style: AppTextStyles.cardTitle.copyWith(fontSize: 13),
+                        ),
                       ],
                     ),
                   )
@@ -174,7 +250,9 @@ class _BuscarProductosState extends State<BuscarProductos> {
         decoration: BoxDecoration(
           color: AppColors.White,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.inputBorderColor.withValues(alpha: 0.6)),
+          border: Border.all(
+            color: AppColors.inputBorderColor.withValues(alpha: 0.6),
+          ),
         ),
         child: Row(
           children: [
@@ -183,7 +261,7 @@ class _BuscarProductosState extends State<BuscarProductos> {
             Expanded(
               child: TextField(
                 controller: _searchController,
-                onChanged: (_) => setState(() {}), 
+                onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
                   hintText: 'Buscar productos',
                   hintStyle: AppTextStyles.SubTitle.copyWith(
@@ -191,9 +269,16 @@ class _BuscarProductosState extends State<BuscarProductos> {
                     color: AppColors.bodyText.withValues(alpha: 0.7),
                   ),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 8,
+                  ),
                   suffixIcon: IconButton(
-                    icon: const Icon(Icons.close, size: 18, color: AppColors.bodyText),
+                    icon: const Icon(
+                      Icons.close,
+                      size: 18,
+                      color: AppColors.bodyText,
+                    ),
                     onPressed: () => setState(() => _searchController.clear()),
                   ),
                 ),
@@ -212,7 +297,7 @@ class _BuscarProductosState extends State<BuscarProductos> {
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 0.72, 
+        mainAxisExtent: 180,
       ),
       itemCount: lista.length,
       itemBuilder: (context, i) => _GridCard(
@@ -254,8 +339,11 @@ class _GridCard extends StatelessWidget {
               errorBuilder: (_, __, ___) => Container(
                 height: 100,
                 color: AppColors.tileBg,
-                child: const Icon(Icons.image_not_supported_outlined,
-                    size: 24, color: AppColors.bodyText),
+                child: const Icon(
+                  Icons.image_not_supported_outlined,
+                  size: 24,
+                  color: AppColors.bodyText,
+                ),
               ),
             ),
             Padding(
@@ -267,7 +355,10 @@ class _GridCard extends StatelessWidget {
                     producto.nombre,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.label.copyWith(fontSize: 13, color: AppColors.titleDark),
+                    style: AppTextStyles.label.copyWith(
+                      fontSize: 13,
+                      color: AppColors.titleDark,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -299,16 +390,21 @@ class _FiltrosSheet extends StatefulWidget {
 class _FiltrosSheetState extends State<_FiltrosSheet> {
   late final Set<String> _cats = {...widget.initial.categorias};
   late double _distancia = widget.initial.distanciaMax;
-  late final TextEditingController _minC =
-      TextEditingController(text: widget.initial.precioMin?.toString() ?? '');
-  late final TextEditingController _maxC =
-      TextEditingController(text: widget.initial.precioMax?.toString() ?? '');
+  late final TextEditingController _minC = TextEditingController(
+    text: widget.initial.precioMin?.toString() ?? '',
+  );
+  late final TextEditingController _maxC = TextEditingController(
+    text: widget.initial.precioMax?.toString() ?? '',
+  );
   late bool _disp;
   late bool _poco;
   late String? _metodo;
 
   static const List<String> _catsDisponibles = [
-    'Frutas', 'Cítricos', 'Verduras', 'Tubérculos',
+    'Frutas',
+    'Cítricos',
+    'Verduras',
+    'Tubérculos',
   ];
 
   @override
@@ -379,15 +475,24 @@ class _FiltrosSheetState extends State<_FiltrosSheet> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Filtros', style: AppTextStyles.Title.copyWith(fontSize: 18)),
+                Text(
+                  'Filtros',
+                  style: AppTextStyles.Title.copyWith(fontSize: 18),
+                ),
                 TextButton(
                   onPressed: _limpiar,
-                  child: const Text('Limpiar', style: TextStyle(color: AppColors.primaryColor)),
+                  child: const Text(
+                    'Limpiar',
+                    style: TextStyle(color: AppColors.primaryColor),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            const Text('Categorías', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+            const Text(
+              'Categorías',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+            ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
@@ -410,8 +515,10 @@ class _FiltrosSheetState extends State<_FiltrosSheet> {
               }).toList(),
             ),
             const SizedBox(height: 20),
-            Text('Distancia máxima: ${_distancia.toInt()} km',
-                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+            Text(
+              'Distancia máxima: ${_distancia.toInt()} km',
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+            ),
             Slider(
               value: _distancia,
               min: 1,
