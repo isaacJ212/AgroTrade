@@ -34,7 +34,7 @@ namespace Agro_Trade.Middlewares
                 context.Response.StatusCode = 500;
                 await context.Response.WriteAsJsonAsync(new
                 {
-                    Error = "error inesperado en el servidor por favor intente mas tarde"
+                    Error = $"error inesperado en el servidor por favor intente mas tarde {ex.Message}"
                 });
             }
            
