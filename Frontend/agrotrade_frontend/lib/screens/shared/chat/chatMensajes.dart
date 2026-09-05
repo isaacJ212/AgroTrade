@@ -6,12 +6,18 @@ class ChatMensajes extends StatefulWidget {
   final String contactName;
   final String contactRole;
   final String contactAvatar;
+  final List<Map<String, dynamic>>? initialMessages;
+  final ValueChanged<List<Map<String, dynamic>>>? onMessagesChanged;
+  final bool producerMode;
 
   const ChatMensajes({
     super.key,
     required this.contactName,
     required this.contactRole,
     this.contactAvatar = 'https://i.pravatar.cc/150', // placeholder
+    this.initialMessages,
+    this.onMessagesChanged,
+    this.producerMode = false,
   });
 
   @override
@@ -19,6 +25,7 @@ class ChatMensajes extends StatefulWidget {
 }
 
 class _ChatMensajesState extends State<ChatMensajes> {
+  final _scrollController = ScrollController();
 
   final List<Map<String, dynamic>> _messages = [
     {
@@ -43,7 +50,16 @@ class _ChatMensajesState extends State<ChatMensajes> {
     },
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialMessages != null) {
+      _messages..clear()..addAll(widget.initialMessages!.map((m) => Map<String, dynamic>.from(m)));
+    }
+  }
+
   void _sendMessage(String text) {
+    if (text.trim().isEmpty) return;
     setState(() {
       _messages.add({
         'text': text,
@@ -51,7 +67,17 @@ class _ChatMensajesState extends State<ChatMensajes> {
         'isMe': true,
       });
     });
+    widget.onMessagesChanged?.call(List.of(_messages));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _scrollController.hasClients) {
+        _scrollController.animateTo(_scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
+      }
+    });
   }
+
+  @override
+  void dispose() { _scrollController.dispose(); super.dispose(); }
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +92,8 @@ class _ChatMensajesState extends State<ChatMensajes> {
           children: [
             CircleAvatar(
               radius: 18,
-              backgroundImage: NetworkImage(widget.contactAvatar),
+              backgroundImage: widget.producerMode ? null : NetworkImage(widget.contactAvatar),
+              child: widget.producerMode ? const Icon(Icons.person_outline) : null,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -88,7 +115,7 @@ class _ChatMensajesState extends State<ChatMensajes> {
             ),
           ],
         ),
-        actions: [
+        actions: widget.producerMode ? [] : [
           IconButton(
             icon: const Icon(Icons.phone),
             onPressed: () {
@@ -107,6 +134,7 @@ class _ChatMensajesState extends State<ChatMensajes> {
         children: [
           Expanded(
             child: ListView.builder(
+              controller: _scrollController,
               padding: const EdgeInsets.symmetric(vertical: 16),
               itemCount: _messages.length,
               itemBuilder: (context, index) {
@@ -119,7 +147,7 @@ class _ChatMensajesState extends State<ChatMensajes> {
               },
             ),
           ),
-          ChatInputField(onSend: _sendMessage),
+          ChatInputField(onSend: _sendMessage, showAttachment: !widget.producerMode),
         ],
       ),
     );

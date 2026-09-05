@@ -3,8 +3,13 @@ import 'package:agrotrade_frontend/ui/app_theme.dart';
 
 class ChatInputField extends StatefulWidget {
   final Function(String) onSend;
+  final bool showAttachment;
 
-  const ChatInputField({super.key, required this.onSend});
+  const ChatInputField({
+    super.key,
+    required this.onSend,
+    this.showAttachment = true,
+  });
 
   @override
   State<ChatInputField> createState() => _ChatInputFieldState();
@@ -12,6 +17,11 @@ class ChatInputField extends StatefulWidget {
 
 class _ChatInputFieldState extends State<ChatInputField> {
   final TextEditingController _controller = TextEditingController();
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   void _handleSend() {
     final text = _controller.text.trim();
@@ -32,7 +42,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
             color: Colors.black.withAlpha(13), // 13 is roughly 0.05 opacity
             blurRadius: 10,
             offset: const Offset(0, -2),
-          )
+          ),
         ],
       ),
       child: SafeArea(
@@ -50,12 +60,14 @@ class _ChatInputFieldState extends State<ChatInputField> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.attach_file, color: AppColors.TextSoft),
-                      onPressed: () {
-                        
-                      },
-                    ),
+                    if (widget.showAttachment)
+                      IconButton(
+                        icon: const Icon(
+                          Icons.attach_file,
+                          color: AppColors.TextSoft,
+                        ),
+                        onPressed: () {},
+                      ),
                     Expanded(
                       child: TextField(
                         controller: _controller,
@@ -88,11 +100,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
                   color: AppColors.primaryColor,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.send,
-                  color: AppColors.White,
-                  size: 20,
-                ),
+                child: const Icon(Icons.send, color: AppColors.White, size: 20),
               ),
             ),
           ],

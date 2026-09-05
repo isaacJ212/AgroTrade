@@ -1,229 +1,225 @@
 import 'package:flutter/material.dart';
-import '../../services/api_session.dart';
-import '../../ui/app_theme.dart';
-import '../../ui/components.dart';
-import 'package:agrotrade_frontend/models/pedido.dart';
+import '../../models/productor_models.dart';
 import '../../routes/app_routes.dart';
-import '../shared/auth/Login.dart';
+import '../../routes/productor_navigation.dart';
+import '../../services/api_session.dart';
+import '../../services/productor_store.dart';
+import '../../ui/widgets/productor_widgets.dart';
+import '../../ui/app_theme.dart';
+import 'productorShell.dart';
+import 'precio_justo/calculadoraPrecioJusto.dart';
 
-
-
-class InicioProductor extends StatefulWidget {
-  const InicioProductor({super.key});
-
-  @override
-  State<InicioProductor> createState() => _InicioProductorState();
-}
-
-class _InicioProductorState extends State<InicioProductor> {
-  int _tabActual = 0;
-
-
-  static const List<NavElemento> _navItems = [
-    NavElemento(
-      label: 'Inicio',
-      icon: Icons.home_outlined,
-      activeIcon: Icons.home,
-    ),
-    NavElemento(
-      label: 'Explorar',
-      icon: Icons.explore_outlined,
-      activeIcon: Icons.explore,
-    ),
-    NavElemento(
-      label: 'Pedidos',
-      icon: Icons.shopping_bag_outlined,
-      activeIcon: Icons.shopping_bag,
-      badge: true,
-    ),
-    NavElemento(
-      label: 'Perfil',
-      icon: Icons.person_outline,
-      activeIcon: Icons.person,
-    ),
-  ];
-
-  static const List<Pedido> _pedidosRecientes = [
-    Pedido(
-      id: 4829,
-      comprador: 'Mercado Central',
-      monto: '\$1,250',
-      estado: 'Preparado',
-    ),
-    Pedido(
-      id: 4830,
-      comprador: 'Restaurante El cielo',
-      monto: '\$12,250',
-      estado: 'Listo',
-    ),
-  ];
-
-  String get _saludo {
-    final hora = DateTime.now().hour;
-    if (hora < 19) return 'Buenos dias';
-    if (hora > 19) return 'Buenas tardes';
-    return 'Buenas noches';
-  }
-
-  void _mostrarSnack(String mensaje) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(mensaje),
-        backgroundColor: AppColors.primaryColor,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        duration: const Duration(seconds: 2),
+class InicioProductor extends StatelessWidget {
+  final bool embedded;
+  const InicioProductor({super.key, this.embedded = false});
+  Future<void> _calcularPrecio(BuildContext context) async {
+    final store = ProductorStore.instance;
+    if (store.productos.isEmpty) {
+      mensajeProductor(context, 'Agrega un producto para calcular su precio.');
+      return;
+    }
+    final producto = await showModalBottomSheet<Producto>(
+      context: context,
+      builder: (sheet) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Text('Selecciona el producto', style: AppTextStyles.Title),
+            ),
+            for (final p in store.productos)
+              ListTile(
+                title: Text(p.nombre),
+                subtitle: Text(p.unidad),
+                onTap: () => Navigator.pop(sheet, p),
+              ),
+          ],
+        ),
       ),
     );
-  }
-
-  void _cambiarTab(int index) {
-    if (index == _tabActual) return;
-    if (index == 1) {
-      Navigator.pushReplacementNamed(context, AppRoutes.inventario);
-    } else if (index == 2) {
-      Navigator.pushReplacementNamed(context, AppRoutes.pedidosRecibidos);
-    } else if (index == 3) {
-      Navigator.pushNamed(context, AppRoutes.perfilFinca);
-    } else {
-      setState(() => _tabActual = index);
+    if (!context.mounted || producto == null) return;
+    final cantidad = producto.cantidad > 0 ? producto.cantidad : 1.0;
+    final precio = await Navigator.push<double>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CalculadoraPrecioJusto(
+          nombreProducto: producto.nombre,
+          unidadInicial: producto.unidad,
+          costoInicial: producto.costoProduccion * cantidad,
+          cantidadInicial: cantidad,
+          devolverPrecio: true,
+        ),
+      ),
+    );
+    if (context.mounted &&
+        precio != null &&
+        accionProductor(
+          context,
+          () => store.aplicarPrecio(producto.id, precio),
+        )) {
+      mensajeProductor(context, 'Precio actualizado.');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.scaffoldBg,
-      body: SafeArea(
-        bottom: false,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 24, 20, 80),
+    if (!embedded) return const ProductorShell();
+    final store = ProductorStore.instance;
+    return AnimatedBuilder(
+      animation: store,
+      builder: (context, _) {
+        final now = DateTime.now();
+        final pendientes = store.pedidos
+            .where((p) => p.estado == EstadoPedido.pendiente)
+            .length;
+        final ventas = store.pedidos
+            .where(
+              (p) =>
+                  p.estado == EstadoPedido.listo &&
+                  p.fecha.year == now.year &&
+                  p.fecha.month == now.month,
+            )
+            .fold<double>(0, (sum, p) => sum + p.subtotal);
+        final alertas = store.productos
+            .where((p) => p.estado != EstadoProducto.disponible)
+            .length;
+        final hora = now.hour;
+        final saludo = hora < 12
+            ? 'Buenos días'
+            : hora < 19
+            ? 'Buenas tardes'
+            : 'Buenas noches';
+        return ProductorPage(
+          title: 'Inicio',
+          rootIndex: 0,
+          actions: [
+            IconButton(
+              tooltip: 'Notificaciones',
+              icon: const Icon(Icons.notifications_outlined),
+              onPressed: () =>
+                  Navigator.pushNamed(context, '/productor/notificaciones'),
+            ),
+          ],
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                const CircleAvatar(
+                  backgroundColor: AppColors.primarySoftBg,
+                  child: Icon(
+                    Icons.person_outline,
+                    color: AppColors.primaryColor,
+                  ),
+                ),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('$_saludo, ${ApiSession.instance.userName ?? 'Carlos'}', style: AppTextStyles.headline),
-                      const SizedBox(height: 8),
+                      Text(saludo, style: AppTextStyles.SubTitle),
                       Text(
-                        'Aquí tienes un resumen de tu actividad de hoy.',
-                        style: AppTextStyles.SubTitle.copyWith(
-                          fontSize: 12,
-                          color: AppColors.bodyText,
-                        ),
+                        ApiSession.instance.userName ?? store.persona.nombre,
+                        style: AppTextStyles.Title,
                       ),
                     ],
-                  ),
-                ),
-                IconButton(
-                  tooltip: 'Cerrar sesión',
-                  onPressed: () {
-                    ApiSession.instance.clear();
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (_) => const Login()),
-                      (_) => false,
-                    );
-                  },
-                  icon: const Icon(
-                    Icons.logout_rounded,
-                    color: AppColors.bodyText,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 24),
-
-
-            StatCard(
-              title: 'Ventas del Mes',
-              value: '\$45,200',
-              icon: Icons.trending_up,
-              glow: true,
-              footer: Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: '+12% ',
-                      style: AppTextStyles.label.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primaryColor,
-                      ),
+            const ProductorSection('Resumen de hoy'),
+            LayoutBuilder(
+              builder: (context, constraints) => Wrap(
+                spacing: 12,
+                children: [
+                  SizedBox(
+                    width: constraints.maxWidth,
+                    child: ProductorStat(
+                      label: 'Ventas del mes',
+                      value: dinero(ventas),
+                      icon: Icons.payments_outlined,
+                      onTap: () =>
+                          Navigator.pushNamed(context, AppRoutes.ventas),
                     ),
-                    TextSpan(
-                      text: 'vs mes pasado',
-                      style: AppTextStyles.cardTitle.copyWith(
-                        color: AppColors.titleDark,
-                      ),
+                  ),
+                  SizedBox(
+                    width: (constraints.maxWidth - 12) / 2,
+                    child: ProductorStat(
+                      label: 'Pedidos pendientes',
+                      value: '$pendientes',
+                      icon: Icons.shopping_bag_outlined,
+                      onTap: () => ProductorNavigation.cambiarTab(context, 2),
                     ),
-                  ],
-                ),
+                  ),
+                  SizedBox(
+                    width: (constraints.maxWidth - 12) / 2,
+                    child: ProductorStat(
+                      label: 'Alertas de inventario',
+                      value: '$alertas',
+                      icon: Icons.inventory_2_outlined,
+                      onTap: () => ProductorNavigation.cambiarTab(context, 1),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
-
-        
-            StatCard(
-              title: 'Pedidos Pendientes',
-              value: '14',
-              icon: Icons.pending_actions,
-              accent: AppColors.titleDark,
-              iconColor: AppColors.amber,
-              footer: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => Navigator.pushReplacementNamed(
-                  context, AppRoutes.pedidosRecibidos,
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Ver todos',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.primarySoft,
-                      ),
+            const ProductorSection('Gestiona tu finca'),
+            ProductorCard(
+              padding: EdgeInsets.zero,
+              child: Column(
+                children: [
+                  ProductorMenuItem(
+                    label: 'Agregar producto',
+                    icon: Icons.add_box_outlined,
+                    onTap: () =>
+                        Navigator.pushNamed(context, AppRoutes.agregarProducto),
+                  ),
+                  const Divider(height: 1),
+                  ProductorMenuItem(
+                    label: 'Ofertas de excedentes',
+                    icon: Icons.local_offer_outlined,
+                    onTap: () =>
+                        Navigator.pushNamed(context, AppRoutes.crearOferta),
+                  ),
+                  const Divider(height: 1),
+                  ProductorMenuItem(
+                    label: 'Mapa de demanda',
+                    icon: Icons.map_outlined,
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      AppRoutes.mapaCalorDemanda,
                     ),
-                    SizedBox(width: 6),
-                    Icon(
-                      Icons.arrow_forward,
-                      size: 16,
-                      color: AppColors.primarySoft,
-                    ),
-                  ],
-                ),
+                  ),
+                  const Divider(height: 1),
+                  ProductorMenuItem(
+                    label: 'Mi impacto',
+                    icon: Icons.eco_outlined,
+                    onTap: () =>
+                        Navigator.pushNamed(context, AppRoutes.tableroImpacto),
+                  ),
+                  const Divider(height: 1),
+                  ProductorMenuItem(
+                    label: 'Calcular precio justo',
+                    icon: Icons.calculate_outlined,
+                    onTap: () => _calcularPrecio(context),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
-
-        
-            StatCard(
-              title: 'Alertas de Inventario',
-              value: '3',
-              icon: Icons.warning,
-              accent: AppColors.errorDark,
-              iconColor: AppColors.inputErrorColor,
-              titleColor: AppColors.errorDark,
-              background: AppColors.errorBg,
-              border: AppColors.inputErrorColor.withValues(alpha: 0.2),
-              footer: Text(
-                'Tomates (Bajo stock)',
-                style: AppTextStyles.cardTitle.copyWith(
-                  color: AppColors.errorDark,
+            const ProductorSection('Pedidos recientes'),
+            if (store.pedidos.isEmpty)
+              const ProductorEmpty('Todavía no tienes pedidos.'),
+            for (final pedido in store.pedidos.take(3))
+              ProductorOrderTile(
+                pedido: pedido,
+                onTap: () => Navigator.pushNamed(
+                  context,
+                  AppRoutes.orderDetail,
+                  arguments: pedido.codigo,
                 ),
               ),
-            ),
-            const SizedBox(height: 32),
-
-        
-            Text('Pedidos Recientes', style: AppTextStyles.sectionTitle),
-            const SizedBox(height: 16),
-            _tarjetaPedidosRecientes(),
           ],
+
         ),
       ),
       floatingActionButton: Padding(
@@ -270,6 +266,10 @@ class _InicioProductorState extends State<InicioProductor> {
           ],
         ],
       ),
+
+        );
+      },
+
     );
   }
 }

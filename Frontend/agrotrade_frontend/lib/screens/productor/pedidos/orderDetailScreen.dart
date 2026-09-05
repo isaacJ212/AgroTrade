@@ -1,415 +1,216 @@
 import 'package:flutter/material.dart';
+import '../../../models/productor_models.dart';
+import '../../../services/productor_store.dart';
+import '../../../routes/app_routes.dart';
+import '../../../routes/productor_navigation.dart';
 import '../../../ui/app_theme.dart';
-import '../../../ui/components.dart';
-import 'prepareOrderScreen.dart';
+import '../../../ui/widgets/productor_widgets.dart';
 
 class OrderDetailsScreen extends StatelessWidget {
-  const OrderDetailsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: const Icon(Icons.arrow_back),
-        ),
-        title: Text(
-          'Detalle del pedido',
-          style: AppTextStyles.Title.copyWith(
-            fontSize: 24,
-            fontWeight: FontWeight.w600,
+  final String? pedidoId;
+  const OrderDetailsScreen({super.key, this.pedidoId});
+  Future<void> _rechazar(BuildContext context, PedidoRecibido pedido) async {
+    final aceptar = await showDialog<bool>(
+      context: context,
+      builder: (dialog) => AlertDialog(
+        title: const Text('Rechazar pedido'),
+        content: Text('El pedido ${pedido.codigo} pasará a rechazado.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialog, false),
+            child: const Text('Volver'),
           ),
-        ),
-      ),
-
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
-
-          child: Column(
-            children: [
-              Container(
-                width: double.infinity,
-
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
-
-                decoration: BoxDecoration(
-                  color: AppColors.White,
-
-                  borderRadius: BorderRadius.circular(16),
-
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            'Pedido #AT-2048',
-                            style: AppTextStyles.Title.copyWith(fontSize: 24),
-                          ),
-                        ),
-
-                        // Estado pendiente
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 5,
-                          ),
-
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF1F3F2),
-
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: const Color(0xFFDADDDC),
-                              width: 1,
-                            ),
-                          ),
-
-                          child: Text(
-                            'Pendiente',
-                            style: AppTextStyles.SubTitle.copyWith(
-                              fontSize: 12,
-                              color: const Color(0xFF5F6663),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 4),
-                    Text(
-                      '06 de agosto de 2026 · 10:30 a. m.',
-                      style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
-                    ),
-
-                    const SizedBox(height: 18),
-
-                    // Linea divisora
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: Color(0xFFEEEEEE),
-                    ),
-                    const SizedBox(height: 18),
-
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-
-                      children: [
-                        const CircleAvatar(
-                          radius: 22,
-                          backgroundColor: Color(0xFF546167),
-
-                          child: Text(
-                            'ML',
-                            style: TextStyle(
-                              color: Color(0xFFCFDBE3),
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(width: 12),
-
-                        // Nombre y ubicación
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-
-                            children: [
-                              Text(
-                                'María López',
-                                style: AppTextStyles.label.copyWith(
-                                  fontSize: 16,
-                                ),
-                              ),
-
-                              const SizedBox(height: 4),
-
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.location_on_outlined,
-                                    size: 15,
-                                    color: AppColors.TextSoft,
-                                  ),
-
-                                  const SizedBox(width: 3),
-
-                                  Text(
-                                    'Jinotepe, Carazo',
-                                    style: AppTextStyles.SubTitle.copyWith(
-                                      color: Color(0xFF3F493E),
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(width: 8),
-                        SizedBox(
-                          width: 48,
-                          height: 48,
-
-                          child: OutlinedButton(
-                            onPressed: () {
-                            },
-
-                            style: OutlinedButton.styleFrom(
-                              padding: EdgeInsets.zero,
-
-                              side: const BorderSide(
-                                color: AppColors.accentBlue,
-                                width: 1.2,
-                              ),
-
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(9),
-                              ),
-                            ),
-
-                            child: const Icon(
-                              Icons.chat_outlined,
-                              color: AppColors.accentBlue,
-                              size: 24,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.White,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Productos',
-                      style: AppTextStyles.Title.copyWith(fontSize: 20),
-                    ),
-                    const SizedBox(height: 18),
-
-                    const _OrderProductItem(
-                      name: 'Tomate',
-                      quantity: '4 libras',
-                      unitPrice: 'C\$ 25.00',
-                      total: 'C\$ 100.00',
-                    ),
-                    const SizedBox(height: 18),
-
-                    const _OrderProductItem(
-                      name: 'Naranjas',
-                      quantity: '2 docenas',
-                      unitPrice: 'C\$ 18.00',
-                      total: 'C\$ 36.00',
-                    ),
-
-                    const SizedBox(height: 18),
-
-                    const _OrderProductItem(
-                      name: 'Limón',
-                      quantity: '3 libras',
-                      unitPrice: 'C\$ 20.00',
-                      total: 'C\$ 60.00',
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.White,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Subtotal',
-                          style: AppTextStyles.SubTitle.copyWith(fontSize: 13),
-                        ),
-                        Text(
-                          'c\$ 236.00',
-                          style: AppTextStyles.SubTitle.copyWith(fontSize: 13),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Entrega',
-                          style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
-                        ),
-                        Text(
-                          'c\$ 40.00',
-                          style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: Color(0xFFEEEEEE),
-                    ),
-                    const SizedBox(height: 18),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Total',
-                          style: AppTextStyles.SubTitle.copyWith(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          'c\$ 276',
-                          style: AppTextStyles.SubTitle.copyWith(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.primaryColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 28),
-              PrimaryButton(
-                label: 'Confirmar pedido',
-                radius: 8,
-                onPressed: () {
-                },
-              ),
-              const SizedBox(height: 10),
-              SecondaryButton(
-                label: 'Ver preparacion',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const PrepareOrderScreen(),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 10),
-              TertiaryButton(
-                label: 'Rechazar pedido',
-                onPressed: () {
-                },
-              ),
-            ],
+          TextButton(
+            onPressed: () => Navigator.pop(dialog, true),
+            child: const Text('Rechazar'),
           ),
-        ),
+        ],
       ),
     );
+    if (context.mounted && aceptar == true) {
+      accionProductor(
+        context,
+        () => ProductorStore.instance.cambiarEstado(
+          pedido.codigo,
+          EstadoPedido.rechazado,
+        ),
+      );
+    }
   }
-}
-
-//clase para los detalles de un pedido
-class _OrderProductItem extends StatelessWidget {
-  final String name;
-  final String quantity;
-  final String unitPrice;
-  final String total;
-
-  const _OrderProductItem({
-    required this.name,
-    required this.quantity,
-    required this.total,
-    required this.unitPrice,
-  });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: const Color(0xFFE8F5EC),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: const Icon(
-            Icons.eco_outlined,
-            color: AppColors.primaryColor,
-            size: 22,
-          ),
-        ),
-
-        const SizedBox(width: 12),
-
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    final store = ProductorStore.instance;
+    return AnimatedBuilder(
+      animation: store,
+      builder: (context, _) {
+        final p = pedidoId == null ? null : store.pedido(pedidoId!);
+        if (p == null)
+          return const ProductorPage(
+            title: 'Detalle del pedido',
             children: [
-              Text(name, style: AppTextStyles.label.copyWith(fontSize: 14)),
-
-              const SizedBox(height: 3),
-
-              Text(
-                '$quantity × $unitPrice',
-                style: AppTextStyles.SubTitle.copyWith(fontSize: 12),
+              ProductorEmpty(
+                'Selecciona un pedido de la lista para ver su detalle.',
               ),
             ],
-          ),
-        ),
-
-        Text(total, style: AppTextStyles.label.copyWith(fontSize: 13)),
-      ],
+          );
+        return ProductorPage(
+          title: 'Detalle del pedido',
+          children: [
+            ProductorCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(p.codigo, style: AppTextStyles.Title),
+                  const SizedBox(height: 10),
+                  ProductorStatus(
+                    p.estado.label,
+                    warning:
+                        p.estado == EstadoPedido.pendiente ||
+                        p.estado == EstadoPedido.rechazado,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(fechaCorta(p.fecha), style: AppTextStyles.SubTitle),
+                ],
+              ),
+            ),
+            const ProductorSection('Información del comprador'),
+            ProductorCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(p.cliente, style: AppTextStyles.productoTitle),
+                  const SizedBox(height: 8),
+                  Text(p.direccion),
+                  if (p.nota.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Text(p.nota),
+                  ],
+                  const SizedBox(height: 16),
+                  ProductorButton(
+                    label: 'Enviar mensaje al comprador',
+                    outlined: true,
+                    icon: Icons.chat_bubble_outline,
+                    onPressed: () =>
+                        ProductorNavigation.chat(context, p.cliente),
+                  ),
+                ],
+              ),
+            ),
+            const ProductorSection('Productos del pedido'),
+            ProductorCard(
+              child: Column(
+                children: [
+                  for (final item in p.productos)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ProductorImage(
+                            url: item.imagenUrl,
+                            width: 64,
+                            height: 64,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.nombre,
+                                  style: AppTextStyles.productoTitle,
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  '${numero(item.cantidad)} ${item.unidad} × ${dinero(item.precio)}',
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  dinero(item.total),
+                                  style: AppTextStyles.label,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  const Divider(),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Expanded(child: Text('Subtotal')),
+                      Text(dinero(p.subtotal)),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      const Expanded(child: Text('Entrega')),
+                      Text(dinero(p.envio)),
+                    ],
+                  ),
+                  const Divider(height: 28),
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: Text('Total', style: AppTextStyles.Title),
+                      ),
+                      Flexible(
+                        child: Text(
+                          p.montoTexto,
+                          style: AppTextStyles.statValue,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            if (p.estado == EstadoPedido.pendiente) ...[
+              ProductorButton(
+                label: 'Confirmar pedido',
+                icon: Icons.check,
+                onPressed: () {
+                  if (accionProductor(
+                    context,
+                    () => store.cambiarEstado(
+                      p.codigo,
+                      EstadoPedido.enPreparacion,
+                    ),
+                  )) {
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.prepareOrder,
+                      arguments: p.codigo,
+                    );
+                  }
+                },
+              ),
+              const SizedBox(height: 12),
+              ProductorButton(
+                label: 'Rechazar pedido',
+                outlined: true,
+                danger: true,
+                onPressed: () => _rechazar(context, p),
+              ),
+            ],
+            if (p.estado == EstadoPedido.enPreparacion ||
+                p.estado == EstadoPedido.listo)
+              ProductorButton(
+                label: p.estado == EstadoPedido.listo
+                    ? 'Ver preparación'
+                    : 'Continuar preparación',
+                onPressed: () => Navigator.pushNamed(
+                  context,
+                  AppRoutes.prepareOrder,
+                  arguments: p.codigo,
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }
