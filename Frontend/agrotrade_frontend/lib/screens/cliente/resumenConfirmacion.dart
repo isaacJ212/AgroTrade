@@ -3,6 +3,8 @@ import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
 import 'pago.dart';
 import 'pedidoConfirmado.dart';
+import '../../services/cart_service.dart';
+import '../../services/consumer_api_service.dart';
 
 class _LineaProducto {
   final String nombre;
@@ -16,35 +18,21 @@ class _LineaProducto {
   });
 }
 
-class _GrupoProductor {
-  final String finca;
-  final List<_LineaProducto> productos;
 
-  const _GrupoProductor({required this.finca, required this.productos});
-}
 
-class ResumenConfirmacionScreen extends StatelessWidget {
+class ResumenConfirmacionScreen extends StatefulWidget {
   const ResumenConfirmacionScreen({super.key});
 
-  static const double _subtotalProductos = 106.00;
-  static const double _costoEntrega = 40.00;
-  static double get _total => _subtotalProductos + _costoEntrega;
+  @override
+  State<ResumenConfirmacionScreen> createState() => _ResumenConfirmacionScreenState();
+}
 
-  static const List<_GrupoProductor> _grupos = [
-    _GrupoProductor(
-      finca: 'Finca La Esperanza',
-      productos: [
-        _LineaProducto(nombre: 'Tomate', cantidad: '2 lb', precio: 50.00),
-        _LineaProducto(nombre: 'Limón', cantidad: '1 lb', precio: 20.00),
-      ],
-    ),
-    _GrupoProductor(
-      finca: 'Cooperativa Los Andes',
-      productos: [
-        _LineaProducto(nombre: 'Naranja', cantidad: '2 doc', precio: 36.00),
-      ],
-    ),
-  ];
+class _ResumenConfirmacionScreenState extends State<ResumenConfirmacionScreen> {
+  static const double _costoEntrega = 40.00;
+  double get _subtotalProductos => CartService.instance.subtotalProductos;
+  double get _total => _subtotalProductos + _costoEntrega;
+  
+  bool _procesando = false;
 
   @override
   Widget build(BuildContext context) {
@@ -199,6 +187,8 @@ class ResumenConfirmacionScreen extends StatelessWidget {
   }
 
   Widget _buildProductosCard() {
+    final grupos = CartService.instance.agrupadoPorFinca;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -215,7 +205,7 @@ class ResumenConfirmacionScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ..._grupos.expand(
+          ...grupos.entries.expand(
             (grupo) => [
 
               Container(
@@ -235,7 +225,7 @@ class ResumenConfirmacionScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      grupo.finca,
+                      grupo.key,
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -246,7 +236,7 @@ class ResumenConfirmacionScreen extends StatelessWidget {
                 ),
               ),
 
-              ...grupo.productos.map(
+              ...grupo.value.map(
                 (p) => Padding(
                   padding: const EdgeInsets.fromLTRB(14, 10, 14, 4),
                   child: Row(
@@ -265,7 +255,7 @@ class ResumenConfirmacionScreen extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              p.cantidad,
+                              '${p.cantidad} ${p.unidad}',
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: AppColors.TextSoft,
@@ -275,7 +265,7 @@ class ResumenConfirmacionScreen extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'C\$${p.precio.toStringAsFixed(2)}',
+                        'C\$${p.subtotal.toStringAsFixed(2)}',
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -307,7 +297,7 @@ class ResumenConfirmacionScreen extends StatelessWidget {
                 const SizedBox(width: 7),
                 Expanded(
                   child: Text(
-                    'Tu compra contiene productos de ${_grupos.length} productores.',
+                    'Tu compra contiene productos de ${grupos.length} productores.',
                     style: const TextStyle(
                       fontSize: 12,
                       color: AppColors.primarySoft,
@@ -384,18 +374,43 @@ class ResumenConfirmacionScreen extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            PrimaryButton(
-              label: 'Confirmar pedido',
-              radius: 100,
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const PedidoConfirmadoScreen(),
-                  ),
-                );
-              },
-            ),
+            if (_procesando)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  child: CircularProgressIndicator(color: AppColors.primaryColor),
+                ),
+              )
+            else
+              PrimaryButton(
+                label: 'Confirmar pedido',
+                radius: 100,
+                onPressed: () async {
+                  setState(() => _procesando = true);
+                  final success = await ConsumerApiService.instance.checkout(
+                    _total,
+                    CartService.instance.totalItems,
+                  );
+                  if (!context.mounted) return;
+                  if (success) {
+                    CartService.instance.clearCart();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const PedidoConfirmadoScreen(),
+                      ),
+                    );
+                  } else {
+                    setState(() => _procesando = false);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Hubo un error al procesar tu pago. Intenta de nuevo.'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                },
+              ),
             const SizedBox(height: 10),
             SizedBox(
               width: double.infinity,

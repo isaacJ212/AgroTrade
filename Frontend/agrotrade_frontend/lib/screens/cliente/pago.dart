@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
-import 'entrega.dart';
 import 'resumenConfirmacion.dart';
+import '../../services/cart_service.dart';
 
 enum _MetodoPago { tarjeta, transferencia, billetera }
 
@@ -23,9 +23,9 @@ class _PagoScreenState extends State<PagoScreen> {
   final _vencCtrl = TextEditingController(text: '12/28');
   final _cvvCtrl = TextEditingController(text: '•••');
 
-  static const double _subtotal = 106.00;
+  double get _subtotal => CartService.instance.subtotalProductos;
   static const double _entrega = 40.00;
-  static double get _total => _subtotal + _entrega;
+  double get _total => _subtotal + _entrega;
 
   @override
   void dispose() {
@@ -92,11 +92,6 @@ class _PagoScreenState extends State<PagoScreen> {
         onPressed: () {
           if (Navigator.canPop(context)) {
             Navigator.pop(context);
-          } else {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const EntregaScreen()),
-            );
           }
         },
       ),

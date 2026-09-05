@@ -74,7 +74,9 @@ class UserDto {
   final String? telefono;
   final String? direccionBase;
   final String? departamento;
+  final String estadoCuenta;
   final DateTime? fechaRegistro;
+  final List<String> roles;
 
   const UserDto({
     required this.id,
@@ -84,7 +86,9 @@ class UserDto {
     this.telefono,
     this.direccionBase,
     this.departamento,
+    this.estadoCuenta = '',
     this.fechaRegistro,
+    this.roles = const [],
   });
 
   factory UserDto.fromJson(Map<String, dynamic> json) {
@@ -96,7 +100,9 @@ class UserDto {
       telefono: readString(json, const ['Telefono', 'telefono']),
       direccionBase: readString(json, const ['DireccionBase', 'direccionBase']),
       departamento: readString(json, const ['Departamento', 'departamento']),
+      estadoCuenta: readString(json, const ['EstadoCuenta', 'estadoCuenta']) ?? '',
       fechaRegistro: readDateTime(json, const ['FechaRegistro', 'fechaRegistro']),
+      roles: (json['Roles'] ?? json['roles'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
     );
   }
 }

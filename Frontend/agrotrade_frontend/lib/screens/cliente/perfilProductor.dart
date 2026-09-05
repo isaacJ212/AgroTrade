@@ -5,6 +5,9 @@ import '../../ui/app_theme.dart';
 import 'carrito.dart';
 import 'exploradorProductos.dart';
 import 'inicioComprador.dart';
+import '../../models/Consumidor/consumidor_models.dart';
+import '../../services/consumer_api_service.dart';
+import '../../services/cart_service.dart';
 
 class _Valoracion {
   final String iniciales;
@@ -42,13 +45,39 @@ class PerfilProductorScreen extends StatefulWidget {
 
 class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
   final Set<int> _carrito = {};
+  
+  List<ProductoMercado> _productos = [];
+  bool _cargando = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarProductos();
+  }
+
+  Future<void> _cargarProductos() async {
+    final todos = await ConsumerApiService.instance.getProductos();
+    
+    String normalizar(String nombre) => nombre
+        .trim()
+        .toLowerCase()
+        .replaceFirst(RegExp(r'^coop\.\s*'), 'cooperativa ');
+
+    final nombreProductor = normalizar(widget.productor.nombre);
+    
+    if (mounted) {
+      setState(() {
+        _productos = todos
+          .where((producto) => normalizar(producto.finca) == nombreProductor)
+          .toList(growable: false);
+        _cargando = false;
+      });
+    }
+  }
 
   String get _heroUrl =>
       widget.productor.portadaUrl ?? widget.productor.avatarUrl;
   String get _avatarUrl => widget.productor.avatarUrl;
-
-  List<ProductoMercado> get _productos =>
-      ExploradorProductos.productosDeFinca(widget.productor.nombre);
 
   List<_Valoracion> get _valoraciones =>
       widget.productor.nombre == fincaLaEsperanza.nombre
@@ -74,14 +103,25 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
     ),
   ];
 
-  void _toggleCarrito(int index) {
-    setState(() {
-      if (_carrito.contains(index)) {
-        _carrito.remove(index);
-      } else {
-        _carrito.add(index);
-      }
-    });
+  void _toggleCarrito(ProductoMercado producto) {
+    CartService.instance.addItem(ItemCarrito(
+      id: producto.id,
+      nombre: producto.nombre,
+      finca: producto.finca,
+      unidad: producto.unidad,
+      precioUnitario: producto.precio,
+      cantidad: 1,
+      imagenUrl: producto.imagenUrl,
+    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${producto.nombre} agregado al carrito 🛒'),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: AppColors.primaryColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   void _enviarMensaje() {
@@ -130,44 +170,50 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: !widget.soloLectura && _carrito.isNotEmpty
-          ? Container(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(top: BorderSide(color: Color(0xFFE4E7E5), width: 1)),
-              ),
-              child: SafeArea(
-                top: false,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const CarritoScreen()),
+      bottomNavigationBar: !widget.soloLectura
+          ? AnimatedBuilder(
+              animation: CartService.instance,
+              builder: (context, _) {
+                if (CartService.instance.items.isEmpty) return const SizedBox.shrink();
+                return Container(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    border: Border(top: BorderSide(color: Color(0xFFE4E7E5), width: 1)),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryColor,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Ver Carrito (${_carrito.length} seleccionados)',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                  child: SafeArea(
+                    top: false,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const CarritoScreen()),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(100),
                         ),
                       ),
-                    ],
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Ver Carrito (${CartService.instance.totalItems} items)',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             )
           : null,
     );
@@ -463,7 +509,9 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
             ],
           ),
           const SizedBox(height: 14),
-          if (productos.isEmpty)
+          if (_cargando)
+            const Center(child: CircularProgressIndicator(color: AppColors.primaryColor))
+          else if (productos.isEmpty)
             const Text(
               'No hay productos registrados para esta finca.',
               style: TextStyle(fontSize: 13, color: AppColors.TextSoft),
@@ -481,8 +529,8 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
             itemBuilder: (context, index) {
               return _ProductoCard(
                 producto: productos[index],
-                inCarrito: _carrito.contains(index),
-                onToggle: () => _toggleCarrito(index),
+                inCarrito: false, // Could check CartService if wanted
+                onToggle: () => _toggleCarrito(productos[index]),
               );
             },
           ),

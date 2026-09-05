@@ -23,6 +23,7 @@ import '../screens/shared/agrobot/agrobot_history.dart';
 
 // ── Cliente ────────────────────────────────────────────────────────────────────
 import '../screens/cliente/inicioComprador.dart';
+import '../models/Consumidor/consumidor_models.dart';
 import '../screens/cliente/exploradorProductos.dart';
 import '../screens/cliente/buscarProductos.dart';
 import '../screens/cliente/detalleProductoCliente.dart';
@@ -168,7 +169,7 @@ class AppRouter {
             ),
           );
         }
-        return _slide(DetalleProductoCliente(producto: args));
+        return _slide(DetalleProductoCliente(producto: args as ProductoMercado));
 
       case AppRoutes.perfilProductor:
         return _slide(const PerfilProductorScreen());

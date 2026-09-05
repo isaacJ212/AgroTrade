@@ -8,7 +8,9 @@ import 'carrito.dart';
 import 'exploradorProductos.dart';
 import 'misPedidos.dart';
 import 'perfilProductor.dart';
-
+import '../../models/Consumidor/consumidor_models.dart';
+import '../../services/consumer_api_service.dart';
+import '../../services/cart_service.dart';
 class CategoriaMercado {
   final String label;
   final IconData icon;
@@ -16,42 +18,6 @@ class CategoriaMercado {
   final Color color;
 
   const CategoriaMercado(this.label, this.icon, this.bg, this.color);
-}
-
-class ProductoCercano {
-  final String nombre;
-  final String finca;
-  final double precio;
-  final String unidad;
-  final String distancia;
-  final String imagenUrl;
-
-  const ProductoCercano({
-    required this.nombre,
-    required this.finca,
-    required this.precio,
-    required this.unidad,
-    required this.distancia,
-    required this.imagenUrl,
-  });
-}
-
-class OfertaExcedente {
-  final String nombre;
-  final double precio;
-  final double precioOriginal;
-  final int descuento;
-  final String vigencia;
-  final String imagenUrl;
-
-  const OfertaExcedente({
-    required this.nombre,
-    required this.precio,
-    required this.precioOriginal,
-    required this.descuento,
-    required this.vigencia,
-    required this.imagenUrl,
-  });
 }
 
 class ProductorDestacado {
@@ -120,7 +86,42 @@ class InicioComprador extends StatefulWidget {
 
 class _InicioCompradorState extends State<InicioComprador> {
   int _categoriaSel = 1;
-  int _carritoCount = 1;
+
+  List<ProductoCercano> _cercanos = [];
+  OfertaExcedente? _oferta;
+  bool _cargando = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarDatos();
+  }
+
+  Future<void> _cargarDatos() async {
+    final cercanos = await ConsumerApiService.instance.getProductosCercanos();
+    final oferta = await ConsumerApiService.instance.getOfertaDia();
+    if (mounted) {
+      setState(() {
+        _cercanos = cercanos;
+        _oferta = oferta;
+        _cargando = false;
+      });
+    }
+  }
+
+  void _mostrarSnack(String mensaje) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensaje),
+        backgroundColor: AppColors.primaryColor,
+      ),
+    );
+  }
+
+  static const List<ProductorDestacado> _productores = [
+    cooperativaLosAndes,
+    fincaLaEsperanza,
+  ];
 
   static const List<CategoriaMercado> _listaCategorias = [
     CategoriaMercado(
@@ -149,57 +150,17 @@ class _InicioCompradorState extends State<InicioComprador> {
     ),
   ];
 
-  static const List<ProductoCercano> _cercanos = [
-    ProductoCercano(
-      nombre: 'Tomate Chonto Fresco',
-      finca: 'Finca La Esperanza',
-      precio: 25.00,
-      unidad: 'lb',
-      distancia: '4.2 km',
-      imagenUrl:
-          'https://solofruver.com/wp-content/uploads/2020/06/tomate-chonto-e1662500217171.jpg',
-    ),
-    ProductoCercano(
-      nombre: 'Naranja Valencia',
-      finca: 'Coop. Los Andes',
-      precio: 18.00,
-      unidad: 'doc',
-      distancia: '6.8 km',
-      imagenUrl:
-          'https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=600&q=60',
-    ),
-  ];
-
-  static const OfertaExcedente _oferta = OfertaExcedente(
-    nombre: 'Tomate (Granel)',
-    precio: 21.25,
-    precioOriginal: 25.00,
-    descuento: 15,
-    vigencia: 'Disponible hasta hoy',
-    imagenUrl:
-        'https://walmartsv.vtexassets.com/arquivos/ids/622011/52574_01.jpg?v=638690322156700000',
-  );
-
-  static const List<ProductorDestacado> _productores = [
-    cooperativaLosAndes,
-    fincaLaEsperanza,
-  ];
-
-  void _mostrarSnack(String mensaje) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(mensaje),
-        backgroundColor: AppColors.primaryColor,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  void _agregarAlCarrito(String producto) {
-    setState(() => _carritoCount++);
-    _mostrarSnack('$producto agregado al carrito 🛒');
+  void _agregarAlCarrito(ProductoCercano prod) {
+    CartService.instance.addItem(ItemCarrito(
+      id: prod.hashCode, // Usando hashCode temporalmente por falta de ID en ProductoCercano
+      nombre: prod.nombre,
+      finca: prod.finca,
+      unidad: prod.unidad,
+      precioUnitario: prod.precio,
+      cantidad: 1,
+      imagenUrl: prod.imagenUrl,
+    ));
+    _mostrarSnack('${prod.nombre} agregado al carrito 🛒');
   }
 
   void _irATab(int index) {
@@ -235,7 +196,9 @@ class _InicioCompradorState extends State<InicioComprador> {
           children: [
             _encabezado(),
             Expanded(
-              child: ListView(
+              child: _cargando 
+              ? const Center(child: CircularProgressIndicator(color: AppColors.primaryColor))
+              : ListView(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
                 children: [
                   _buscador(),
@@ -246,18 +209,20 @@ class _InicioCompradorState extends State<InicioComprador> {
                   const SizedBox(height: 12),
                   _scrollProductos(),
                   const SizedBox(height: 28),
-                  _tituloSeccion('Ofertas por excedente'),
-                  const SizedBox(height: 12),
-                  _OfertaCard(
-                    oferta: _oferta,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const ExploradorProductos(),
+                  if (_oferta != null) ...[
+                    _tituloSeccion('Ofertas por excedente'),
+                    const SizedBox(height: 12),
+                    _OfertaCard(
+                      oferta: _oferta!,
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ExploradorProductos(),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 28),
+                    const SizedBox(height: 28),
+                  ],
                   _tituloSeccion('Productores destacados'),
                   const SizedBox(height: 12),
                   ..._productores.map(
@@ -339,12 +304,16 @@ class _InicioCompradorState extends State<InicioComprador> {
             onTap: () => _mostrarSnack('No tienes notificaciones pendientes'),
           ),
           const SizedBox(width: 10),
-          _botonCircular(
-            Icons.shopping_cart_outlined,
-            conBadge: true,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const CarritoScreen()),
+          AnimatedBuilder(
+            animation: CartService.instance,
+            builder: (context, _) => _botonCircular(
+              Icons.shopping_cart_outlined,
+              conBadge: CartService.instance.totalItems > 0,
+              badgeCount: CartService.instance.totalItems,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CarritoScreen()),
+              ),
             ),
           ),
         ],
@@ -355,13 +324,14 @@ class _InicioCompradorState extends State<InicioComprador> {
   Widget _botonCircular(
     IconData icon, {
     bool conBadge = false,
+    int badgeCount = 0,
     VoidCallback? onTap,
   }) {
     return GestureDetector(
       onTap:
           onTap ??
           () => _mostrarSnack(
-            conBadge ? 'Carrito: $_carritoCount producto(s)' : 'Notificaciones',
+            conBadge ? 'Carrito: $badgeCount producto(s)' : 'Notificaciones',
           ),
       child: Container(
         width: 44,
@@ -373,7 +343,7 @@ class _InicioCompradorState extends State<InicioComprador> {
         child: Stack(
           children: [
             Center(child: Icon(icon, size: 20, color: AppColors.titleDark)),
-            if (conBadge && _carritoCount > 0)
+            if (conBadge && badgeCount > 0)
               Positioned(
                 top: 10,
                 right: 10,
@@ -483,7 +453,7 @@ class _InicioCompradorState extends State<InicioComprador> {
         separatorBuilder: (_, __) => const SizedBox(width: 12),
         itemBuilder: (context, i) => _ProductoCercanoCard(
           producto: _cercanos[i],
-          onAdd: () => _agregarAlCarrito(_cercanos[i].nombre),
+          onAdd: () => _agregarAlCarrito(_cercanos[i]),
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const PerfilProductorScreen()),

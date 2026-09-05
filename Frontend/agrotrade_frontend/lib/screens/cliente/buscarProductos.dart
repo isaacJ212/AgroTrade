@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
 import 'carrito.dart';
-import 'exploradorProductos.dart';
+import '../../models/Consumidor/consumidor_models.dart';
 import 'inicioComprador.dart';
 import 'perfilProductor.dart';
 
@@ -37,7 +37,7 @@ class _BuscarProductosState extends State<BuscarProductos> {
   final TextEditingController _searchController = TextEditingController();
   FiltrosMercado _filtros = const FiltrosMercado();
 
-  static const List<ProductoMercado> _productos = [
+  static final List<ProductoMercado> _productos = [
     ProductoMercado(
       id: 1,
       nombre: 'Tomate Chonto',
@@ -336,7 +336,7 @@ class _GridCard extends StatelessWidget {
               height: 100,
               width: double.infinity,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
+              errorBuilder: (context, error, stackTrace) => Container(
                 height: 100,
                 color: AppColors.tileBg,
                 child: const Icon(
