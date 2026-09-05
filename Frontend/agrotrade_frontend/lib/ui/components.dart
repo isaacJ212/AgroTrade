@@ -19,3 +19,5 @@ export 'widgets/message_bubble.dart';
 export 'widgets/chat_input_field.dart';
 export 'widgets/profile_menu_item.dart';
 export 'widgets/notification_tile.dart';
+export 'widgets/agrobot_bottom_nav.dart';
+

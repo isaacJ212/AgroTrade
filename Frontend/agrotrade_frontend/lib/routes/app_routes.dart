@@ -19,6 +19,11 @@ class AppRoutes {
   static const String centroAyuda    = '/centro-ayuda';
   static const String chat           = '/chat';
 
+  // ── AgroBot (compartido – todos los roles) ────────────────────────────────
+  static const String agrobotWelcome = '/agrobot/bienvenida';
+  static const String agrobotChat    = '/agrobot/chat';
+  static const String agrobotHistory = '/agrobot/historial';
+
   // ── Cliente (Comprador) ───────────────────────────────────────────────────
   static const String inicioComprador         = '/comprador/inicio';
   static const String explorarProductos       = '/comprador/explorar';

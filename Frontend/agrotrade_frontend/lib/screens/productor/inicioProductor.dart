@@ -219,8 +219,57 @@ class InicioProductor extends StatelessWidget {
                 ),
               ),
           ],
+
+        ),
+      ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: SupportFab(
+          onPressed: () => Navigator.pushNamed(context, AppRoutes.agrobotWelcome),
+        ),
+      ),
+      bottomNavigationBar: ProductorBottomNav(
+        items: _navItems,
+        currentIndex: _tabActual,
+        onTap: _cambiarTab,
+      ),
+    );
+  }
+
+
+  Widget _tarjetaPedidosRecientes() {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.White,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.cardBorder),
+        boxShadow: const [
+          BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1)),
+        ],
+      ),
+      child: Column(
+        children: [
+          for (int i = 0; i < _pedidosRecientes.length; i++) ...[
+            if (i > 0) const Divider(height: 1, color: AppColors.cardBorder),
+            PedidoTile(
+              icon: _pedidosRecientes[i].estado == 'Completado'
+                  ? Icons.check_circle_outline
+                  : Icons.local_shipping_outlined,
+              iconColor: _pedidosRecientes[i].estado == 'Completado'
+                  ? AppColors.bodyText
+                  : AppColors.primaryColor,
+              titulo: 'Pedido #${_pedidosRecientes[i].id}',
+              comprador: _pedidosRecientes[i].comprador,
+              monto: _pedidosRecientes[i].monto,
+              estado: _pedidosRecientes[i].estado,
+            ),
+          ],
+        ],
+      ),
+
         );
       },
+
     );
   }
 }

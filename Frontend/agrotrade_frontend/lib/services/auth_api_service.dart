@@ -25,7 +25,11 @@ class AuthApiService {
           token: 'demo_token_cliente_agrotrade',
           roles: ['Cliente'],
         );
-        ApiSession.instance.setAuth(token: demoUser.token, userName: demoUser.userName);
+        ApiSession.instance.setAuth(
+          token: demoUser.token,
+          userName: demoUser.userName,
+          roles: demoUser.roles,
+        );
         return demoUser;
       }
     } else if (cleanEmail == 'productor@agrotrade.com' || cleanEmail == 'carlos@agrotrade.com') {
@@ -35,7 +39,11 @@ class AuthApiService {
           token: 'demo_token_productor_agrotrade',
           roles: ['Productor/Proveedor'],
         );
-        ApiSession.instance.setAuth(token: demoUser.token, userName: demoUser.userName);
+        ApiSession.instance.setAuth(
+          token: demoUser.token,
+          userName: demoUser.userName,
+          roles: demoUser.roles,
+        );
         return demoUser;
       }
     } else if (cleanEmail == 'repartidor@agrotrade.com' || cleanEmail == 'juan@agrotrade.com') {
@@ -45,7 +53,11 @@ class AuthApiService {
           token: 'demo_token_repartidor_agrotrade',
           roles: ['Repartidor'],
         );
-        ApiSession.instance.setAuth(token: demoUser.token, userName: demoUser.userName);
+        ApiSession.instance.setAuth(
+          token: demoUser.token,
+          userName: demoUser.userName,
+          roles: demoUser.roles,
+        );
         return demoUser;
       }
     } else if (cleanEmail == 'admin@agrotrade.com') {
@@ -55,7 +67,11 @@ class AuthApiService {
           token: 'demo_token_admin_agrotrade',
           roles: ['Administrador'],
         );
-        ApiSession.instance.setAuth(token: demoUser.token, userName: demoUser.userName);
+        ApiSession.instance.setAuth(
+          token: demoUser.token,
+          userName: demoUser.userName,
+          roles: demoUser.roles,
+        );
         return demoUser;
       }
     }
@@ -76,6 +92,7 @@ class AuthApiService {
         ApiSession.instance.setAuth(
           token: result.data!.token,
           userName: result.data!.userName,
+          roles: result.data!.roles,
         );
         return result.data!;
       }
@@ -112,6 +129,7 @@ class AuthApiService {
     ApiSession.instance.setAuth(
       token: result.data!.token,
       userName: result.data!.userName,
+      roles: result.data!.roles,
     );
     return result.data!;
   }
