@@ -6,26 +6,8 @@ import '../../../services/api_client.dart';
 import '../../../services/users_api_service.dart';
 import '../../../ui/app_theme.dart';
 import '../../../ui/components.dart';
-import '../onboarding/onBoarding.dart';
-import 'Login.dart';
+import '../../../routes/app_routes.dart';
 
-import 'package:flutter/material.dart';
-import '../../../models/api/user_models.dart';
-import '../../../services/api_client.dart';
-import '../../../services/users_api_service.dart';
-import '../../../ui/app_theme.dart';
-import '../../../ui/components.dart';
-import '../onboarding/onBoarding.dart';
-
-import 'package:flutter/foundation.dart';
-import '../../../models/api/user_models.dart';
-import '../../../services/api_client.dart';
-import '../../../services/users_api_service.dart';
-import 'Login.dart';
-import '../onboarding/onBoarding.dart';
-import 'package:flutter/material.dart';
-import '../../../ui/app_theme.dart';
-import '../../../ui/components.dart';
 
 
 
@@ -180,10 +162,7 @@ class _RegistroState extends State<Registro> {
 
       if (!mounted) return;
       _mostrarSnackBar("¡Cuenta creada con éxito!", error: false);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const OnBoarding()),
-      );
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
     } on ApiException catch (e) {
       if (!mounted) return;
       _mostrarSnackBar(e.message);
@@ -314,7 +293,10 @@ class _RegistroState extends State<Registro> {
                       style: AppTextStyles.SubTitle,
                     ),
                     GestureDetector(
-                      onTap: () => Navigator.pop(context),
+                      onTap: () {
+                        print("DEBUG: [Registro] Navegando a Login");
+                        Navigator.pushReplacementNamed(context, AppRoutes.login);
+                      },
                       child: Text(
                         " Inicia Sesion",
                         style: AppTextStyles.SubTitle.copyWith(

@@ -3,7 +3,9 @@ import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
 import 'seguimientoPedido.dart';
 
-class DetallePedidoComprador extends StatelessWidget {
+import '../../services/consumer_api_service.dart';
+
+class DetallePedidoComprador extends StatefulWidget {
   final String numeroPedido;
 
   const DetallePedidoComprador({
@@ -12,7 +14,37 @@ class DetallePedidoComprador extends StatelessWidget {
   });
 
   @override
+  State<DetallePedidoComprador> createState() => _DetallePedidoCompradorState();
+}
+
+class _DetallePedidoCompradorState extends State<DetallePedidoComprador> {
+  Map<String, dynamic> _detalle = {};
+  bool _cargando = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarDetalle();
+  }
+
+  Future<void> _cargarDetalle() async {
+    final detalle = await ConsumerApiService.instance.getPedidoDetalle(widget.numeroPedido);
+    if (mounted) {
+      setState(() {
+        _detalle = detalle;
+        _cargando = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final detallesItems = _detalle['detalles'] as List? ?? [];
+    final double subtotal = _detalle['subtotal']?.toDouble() ?? 146.00;
+    final double total = _detalle['total']?.toDouble() ?? 156.00;
+    final double envio = 10.0;
+    final estadoEnvio = _detalle['estadoEnvio'] ?? 'Confirmado';
+    
     return Scaffold(
       backgroundColor: AppColors.screenBg,
       appBar: AppBar(
@@ -23,163 +55,179 @@ class DetallePedidoComprador extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Pedido $numeroPedido',
+          'Pedido ${widget.numeroPedido}',
           style: AppTextStyles.Title,
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Resumen de estado
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.White,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.cardBorder),
-              ),
-              child: Row(
+      body: _cargando
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primaryColor))
+          : SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Resumen de estado
                   Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: const BoxDecoration(
-                      color: AppColors.primarySoftBg,
-                      shape: BoxShape.circle,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.White,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.cardBorder),
                     ),
-                    child: const Icon(
-                      Icons.check_circle_outline,
-                      color: AppColors.primaryColor,
-                      size: 28,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
                       children: [
-                        Text(
-                          'Pedido Confirmado',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.TextMain,
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: const BoxDecoration(
+                            color: AppColors.primarySoftBg,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.check_circle_outline,
+                            color: AppColors.primaryColor,
+                            size: 28,
                           ),
                         ),
-                        SizedBox(height: 4),
-                        Text(
-                          'El productor está preparando tus productos.',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: AppColors.TextSoft,
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Pedido $estadoEnvio',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.TextMain,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              const Text(
+                                'El productor está preparando tus productos.',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: AppColors.TextSoft,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            
-          
-            PrimaryButton(
-              label: 'Ver Seguimiento',
-              radius: 12,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SeguimientoPedidoScreen()),
-                );
-              },
-            ),
-            
-            const SizedBox(height: 30),
-            
-            const Text(
-              'Detalles del pedido',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: AppColors.TextMain,
-              ),
-            ),
-            const SizedBox(height: 12),
-            
-            // Items del Pedido
-            Container(
-              decoration: BoxDecoration(
-                color: AppColors.White,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.cardBorder),
-              ),
-              child: Column(
-                children: [
-                  _buildOrderItem('Tomates Frescos (Caja)', '2x', '\$ 45.00'),
-                  const Divider(height: 1, indent: 16, endIndent: 16, color: AppColors.cardBorder),
-                  _buildOrderItem('Cebolla Morada (Saco)', '1x', '\$ 35.00'),
-                  const Divider(height: 1, indent: 16, endIndent: 16, color: AppColors.cardBorder),
-                  _buildOrderItem('Papa Blanca (Saco)', '1x', '\$ 66.00'),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            
-            const Text(
-              'Resumen de Pago',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: AppColors.TextMain,
-              ),
-            ),
-            const SizedBox(height: 12),
-            
-            // Desglose de Pago
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.White,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.cardBorder),
-              ),
-              child: Column(
-                children: [
-                  _buildPaymentRow('Subtotal', '\$ 146.00'),
-                  const SizedBox(height: 8),
-                  _buildPaymentRow('Costo de envío', '\$ 10.00'),
-                  const SizedBox(height: 8),
-                  _buildPaymentRow('Descuentos', '-\$ 0.00', isDiscount: true),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Divider(height: 1, color: AppColors.cardBorder),
+                  const SizedBox(height: 20),
+                  
+                
+                  PrimaryButton(
+                    label: 'Ver Seguimiento',
+                    radius: 12,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => SeguimientoPedidoScreen(idPedido: widget.numeroPedido)),
+                      );
+                    },
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text(
-                        'Total',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.TextMain,
-                        ),
-                      ),
-                      Text(
-                        '\$ 156.00',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.primaryColor,
-                        ),
-                      ),
-                    ],
+                  
+                  const SizedBox(height: 30),
+                  
+                  const Text(
+                    'Detalles del pedido',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.TextMain,
+                    ),
                   ),
-                ],
-              ),
-            ),
+                  const SizedBox(height: 12),
+                  
+                  // Items del Pedido
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.White,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.cardBorder),
+                    ),
+                    child: Column(
+                      children: detallesItems.isEmpty
+                          ? [
+                              _buildOrderItem('Tomates Frescos (Caja)', '2x', '\$ 45.00'),
+                              const Divider(height: 1, indent: 16, endIndent: 16, color: AppColors.cardBorder),
+                              _buildOrderItem('Cebolla Morada (Saco)', '1x', '\$ 35.00'),
+                              const Divider(height: 1, indent: 16, endIndent: 16, color: AppColors.cardBorder),
+                              _buildOrderItem('Papa Blanca (Saco)', '1x', '\$ 66.00'),
+                            ]
+                          : detallesItems.map<Widget>((item) {
+                              final productName = item['producto']?['nombre'] ?? 'Producto';
+                              final quantity = item['cantidad']?.toString() ?? '1';
+                              final price = item['precioUnitario']?.toDouble() ?? 0.0;
+                              final sub = price * int.parse(quantity);
+                              return Column(
+                                children: [
+                                  _buildOrderItem(productName, '${quantity}x', 'C\$ ${sub.toStringAsFixed(2)}'),
+                                  if (item != detallesItems.last)
+                                    const Divider(height: 1, indent: 16, endIndent: 16, color: AppColors.cardBorder),
+                                ],
+                              );
+                            }).toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  const Text(
+                    'Resumen de Pago',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.TextMain,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  // Desglose de Pago
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.White,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.cardBorder),
+                    ),
+                    child: Column(
+                      children: [
+                        _buildPaymentRow('Subtotal', 'C\$ ${subtotal.toStringAsFixed(2)}'),
+                        const SizedBox(height: 8),
+                        _buildPaymentRow('Costo de envío', 'C\$ ${envio.toStringAsFixed(2)}'),
+                        const SizedBox(height: 8),
+                        _buildPaymentRow('Descuentos', '-C\$ 0.00', isDiscount: true),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          child: Divider(height: 1, color: AppColors.cardBorder),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Total',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.TextMain,
+                              ),
+                            ),
+                            Text(
+                              'C\$ ${total.toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.primaryColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
             
             const SizedBox(height: 24),
             

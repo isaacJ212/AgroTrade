@@ -1,3 +1,40 @@
+import 'package:flutter/material.dart';
+
+class CategoriaMercado {
+  final String label;
+  final IconData icon;
+  final Color bg;
+  final Color color;
+
+  const CategoriaMercado(this.label, this.icon, this.bg, this.color);
+}
+
+class ProductorDestacado {
+  final int? id;
+  final String nombre;
+  final double rating;
+  final int ventas;
+  final bool verificado;
+  final String avatarUrl;
+  final String tipo;
+  final String? portadaUrl;
+  final String? ubicacion;
+  final String? descripcion;
+
+  const ProductorDestacado({
+    this.id,
+    required this.nombre,
+    required this.rating,
+    required this.ventas,
+    required this.verificado,
+    required this.avatarUrl,
+    this.tipo = 'Finca',
+    this.portadaUrl,
+    this.ubicacion,
+    this.descripcion,
+  });
+}
+
 class ProductoMercado {
   final int id;
   final String nombre;

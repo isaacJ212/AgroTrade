@@ -11,38 +11,7 @@ import 'perfilProductor.dart';
 import '../../models/Consumidor/consumidor_models.dart';
 import '../../services/consumer_api_service.dart';
 import '../../services/cart_service.dart';
-class CategoriaMercado {
-  final String label;
-  final IconData icon;
-  final Color bg;
-  final Color color;
 
-  const CategoriaMercado(this.label, this.icon, this.bg, this.color);
-}
-
-class ProductorDestacado {
-  final String nombre;
-  final double rating;
-  final int ventas;
-  final bool verificado;
-  final String avatarUrl;
-  final String tipo;
-  final String? portadaUrl;
-  final String? ubicacion;
-  final String? descripcion;
-
-  const ProductorDestacado({
-    required this.nombre,
-    required this.rating,
-    required this.ventas,
-    required this.verificado,
-    required this.avatarUrl,
-    this.tipo = 'Finca',
-    this.portadaUrl,
-    this.ubicacion,
-    this.descripcion,
-  });
-}
 
 const cooperativaLosAndes = ProductorDestacado(
   nombre: 'Cooperativa Los Andes',
@@ -89,6 +58,7 @@ class _InicioCompradorState extends State<InicioComprador> {
 
   List<ProductoCercano> _cercanos = [];
   OfertaExcedente? _oferta;
+  List<ProductorDestacado> _productoresLista = [];
   bool _cargando = true;
 
   @override
@@ -100,10 +70,12 @@ class _InicioCompradorState extends State<InicioComprador> {
   Future<void> _cargarDatos() async {
     final cercanos = await ConsumerApiService.instance.getProductosCercanos();
     final oferta = await ConsumerApiService.instance.getOfertaDia();
+    final productores = await ConsumerApiService.instance.getProductoresDestacados(_productores);
     if (mounted) {
       setState(() {
         _cercanos = cercanos;
         _oferta = oferta;
+        _productoresLista = productores;
         _cargando = false;
       });
     }
@@ -225,7 +197,7 @@ class _InicioCompradorState extends State<InicioComprador> {
                   ],
                   _tituloSeccion('Productores destacados'),
                   const SizedBox(height: 12),
-                  ..._productores.map(
+                  ..._productoresLista.map(
                     (p) => Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: _ProductorCard(

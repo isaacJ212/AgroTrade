@@ -30,6 +30,13 @@ namespace Agro_Trade.Controllers
             return Ok(result);
         }
 
+        [HttpGet("destacados")]
+        public async Task<ActionResult<Result<List<ProveedorDto>>>> GetDestacados([FromQuery] int limit = 5)
+        {
+            var result = await _mediator.Send(new GetProveedoresDestacadosQuery(limit));
+            return Ok(result);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Result<ProveedorDto?>>> GetById(int id)
         {

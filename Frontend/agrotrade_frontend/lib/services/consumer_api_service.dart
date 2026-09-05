@@ -99,11 +99,17 @@ class ConsumerApiService {
     ),
   ];
 
-  Future<PaginatedResponse<ProductoMercado>> getProductos({int page = 1, int limit = 20, String? search}) async {
+  Future<PaginatedResponse<ProductoMercado>> getProductos({int page = 1, int limit = 20, String? search, int? idProveedor, int? categoriaId}) async {
     try {
       String path = '/api/productos?page=$page&limit=$limit';
       if (search != null && search.isNotEmpty) {
         path += '&search=${Uri.encodeComponent(search)}';
+      }
+      if (idProveedor != null) {
+        path += '&idProveedor=$idProveedor';
+      }
+      if (categoriaId != null) {
+        path += '&categoriaId=$categoriaId';
       }
       
       final response = await ApiClient.instance.get(path)
@@ -166,14 +172,108 @@ class ConsumerApiService {
   }
 
   Future<List<ProductoCercano>> getProductosCercanos() async {
-    // Para simplificar, utilizamos la misma estrategia de fallback
-    await Future.delayed(const Duration(milliseconds: 500));
-    return _mockCercanos;
+    try {
+      final response = await ApiClient.instance.get('/api/productos/cercanos?limit=5').timeout(_timeout);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> decoded = json.decode(response.rawBody);
+        final List<dynamic> jsonList = decoded['data'] ?? [];
+        return jsonList.map((json) => ProductoCercano(
+          id: json['idProducto'] ?? 0,
+          nombre: json['nombre'] ?? '',
+          finca: 'Productor', 
+          precio: json['precio']?.toDouble() ?? 0.0,
+          unidad: json['unidadMedida'] ?? 'unidad',
+          distancia: '4.2 km', // Mock por ahora
+          imagenUrl: json['fotoUrl'] ?? 'https://via.placeholder.com/150',
+        )).toList();
+      }
+      return _mockCercanos;
+    } catch (e) {
+      print('Error getProductosCercanos: $e');
+      return _mockCercanos;
+    }
   }
 
   Future<OfertaExcedente> getOfertaDia() async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    return _mockOferta;
+    try {
+      final response = await ApiClient.instance.get('/api/productos/ofertas?limit=1').timeout(_timeout);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> decoded = json.decode(response.rawBody);
+        final List<dynamic> jsonList = decoded['data'] ?? [];
+        if (jsonList.isNotEmpty) {
+          final prod = jsonList.first;
+          return OfertaExcedente(
+            nombre: prod['nombre'] ?? '',
+            precio: prod['precio']?.toDouble() ?? 0.0,
+            precioOriginal: (prod['precio']?.toDouble() ?? 0.0) + (prod['precio']?.toDouble() * 0.15 ?? 0.0), 
+            descuento: 15,
+            vigencia: 'Disponible hasta hoy',
+            imagenUrl: prod['fotoUrl'] ?? 'https://via.placeholder.com/150',
+          );
+        }
+      }
+      return _mockOferta;
+    } catch (e) {
+      print('Error getOfertaDia: $e');
+      return _mockOferta;
+    }
+  }
+
+  Future<List<ProductorDestacado>> getProductoresDestacados(List<ProductorDestacado> fallbackList) async {
+    try {
+      final response = await ApiClient.instance.get('/api/proveedores/destacados?limit=5').timeout(_timeout);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> decoded = json.decode(response.rawBody);
+        final List<dynamic> jsonList = decoded['data'] ?? [];
+        return jsonList.map((json) => ProductorDestacado(
+          id: json['idProveedor'],
+          nombre: json['nombreProveedor'] ?? json['nombreFinca'] ?? 'Productor',
+          tipo: 'Finca',
+          ubicacion: json['ubicacionGps'] ?? 'Nicaragua',
+          rating: json['calificacionPromedio']?.toDouble() ?? 5.0,
+          ventas: 50, // mock
+          verificado: true,
+          avatarUrl: 'https://via.placeholder.com/150',
+          portadaUrl: 'https://via.placeholder.com/600x300',
+          descripcion: json['biografia'],
+        )).toList();
+      }
+      return fallbackList;
+    } catch (e) {
+      print('Error getProductoresDestacados: $e');
+      return fallbackList;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getValoraciones(int idProveedor) async {
+    try {
+      final response = await ApiClient.instance.get('/api/Valoraciones/proveedor/$idProveedor').timeout(_timeout);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> decoded = json.decode(response.rawBody);
+        final List<dynamic> jsonList = decoded['data'] ?? [];
+        return jsonList.cast<Map<String, dynamic>>();
+      }
+      return [];
+    } catch (e) {
+      print('Error getValoraciones: $e');
+      return [];
+    }
+  }
+
+  Future<Map<String, dynamic>> getPedidoDetalle(String idPedido) async {
+    try {
+      final cleanId = idPedido.replaceAll('PED-', '');
+      final response = await ApiClient.instance.get('/api/Pedidos/$cleanId', authorized: true).timeout(_timeout);
+      
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.rawBody);
+        return decoded['data'] ?? {};
+      }
+      return {};
+    } catch (e) {
+      print('Error getPedidoDetalle: $e');
+      return {};
+    }
   }
 
   Future<bool> checkout(List<ItemCarrito> items, String metodoPago) async {
@@ -184,9 +284,6 @@ class ConsumerApiService {
         'quantity': e.cantidad,
       }).toList();
       
-      print('Payload de items a enviar: $itemsList');
-      print('Método de pago: $metodoPago');
-
       final response = await ApiClient.instance.post('/api/Pedidos/checkout-directo', 
         authorized: true,
         body: {
@@ -195,28 +292,34 @@ class ConsumerApiService {
         }).timeout(_timeout);
 
       print('Status Code devuelto por el Backend: ${response.statusCode}');
-      print('Cuerpo de la respuesta: ${response.rawBody}');
-
+      
       if (response.statusCode == 201 || response.statusCode == 200) {
-        print('Checkout completado exitosamente en el backend.');
         return true;
+      } else {
+        final decoded = json.decode(response.rawBody);
+        final errorMessage = decoded['message'] ?? 'Error al procesar el pago';
+        throw Exception(errorMessage);
       }
     } catch (e) {
-      print('Checkout error atrapado en catch: $e');
+      print('Checkout error: $e');
+      if (e is Exception && !e.toString().contains('Timeout') && !e.toString().contains('Socket')) {
+        rethrow;
+      }
+      
+      // Fallback solo para errores de red en desarrollo
+      print('El checkout falló por red, usando fallback mock local.');
+      double total = items.fold(0, (sum, item) => sum + (item.precioUnitario * item.cantidad));
+      int itemsCount = items.fold(0, (sum, item) => sum + item.cantidad);
+      
+      _mockPedidos.add(PedidoConsumidor(
+        id: 'PED-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
+        fecha: DateTime.now().toString().split(' ')[0],
+        estado: 'Procesando',
+        total: total,
+        itemsCount: itemsCount,
+      ));
+      return true;
     }
-    
-    print('El checkout al backend falló, usando fallback mock local.');
-    double total = items.fold(0, (sum, item) => sum + (item.precioUnitario * item.cantidad));
-    int itemsCount = items.fold(0, (sum, item) => sum + item.cantidad);
-    
-    _mockPedidos.add(PedidoConsumidor(
-      id: 'PED-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
-      fecha: DateTime.now().toString().split(' ')[0],
-      estado: 'Procesando',
-      total: total,
-      itemsCount: itemsCount,
-    ));
-    return true; // Éxito simulado
   }
 
   Future<List<PedidoConsumidor>> getMisPedidos() async {

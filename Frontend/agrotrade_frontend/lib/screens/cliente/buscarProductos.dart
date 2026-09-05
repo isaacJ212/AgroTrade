@@ -409,12 +409,13 @@ class _FiltrosSheetState extends State<_FiltrosSheet> {
   late bool _poco;
   late String? _metodo;
 
-  static const List<String> _catsDisponibles = [
+  List<String> _catsDisponibles = [
     'Frutas',
     'Cítricos',
     'Verduras',
     'Tubérculos',
   ];
+  bool _cargandoCats = true;
 
   @override
   void initState() {
@@ -422,6 +423,23 @@ class _FiltrosSheetState extends State<_FiltrosSheet> {
     _disp = widget.initial.disponibleAhora;
     _poco = widget.initial.pocoInventario;
     _metodo = widget.initial.metodoEntrega;
+    _cargarCategorias();
+  }
+
+  Future<void> _cargarCategorias() async {
+    try {
+      final cats = await ConsumerApiService.instance.getCategoriasActivas();
+      if (mounted && cats.isNotEmpty) {
+        setState(() {
+          _catsDisponibles = cats;
+          _cargandoCats = false;
+        });
+      } else {
+        setState(() => _cargandoCats = false);
+      }
+    } catch (e) {
+      if (mounted) setState(() => _cargandoCats = false);
+    }
   }
 
   @override
@@ -503,26 +521,35 @@ class _FiltrosSheetState extends State<_FiltrosSheet> {
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
             ),
             const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _catsDisponibles.map((cat) {
-                final sel = _cats.contains(cat);
-                return FilterChip(
-                  label: Text(cat),
-                  selected: sel,
-                  onSelected: (val) => setState(() {
-                    val ? _cats.add(cat) : _cats.remove(cat);
-                  }),
-                  selectedColor: AppColors.primarySoftBg,
-                  checkmarkColor: AppColors.primaryColor,
-                  labelStyle: TextStyle(
-                    color: sel ? AppColors.primaryColor : AppColors.titleDark,
-                    fontWeight: sel ? FontWeight.w700 : FontWeight.w500,
+            _cargandoCats
+              ? const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryColor,
+                    ),
                   ),
-                );
-              }).toList(),
-            ),
+                )
+              : Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _catsDisponibles.map((cat) {
+                    final sel = _cats.contains(cat);
+                    return FilterChip(
+                      label: Text(cat),
+                      selected: sel,
+                      onSelected: (val) => setState(() {
+                        val ? _cats.add(cat) : _cats.remove(cat);
+                      }),
+                      selectedColor: AppColors.primarySoftBg,
+                      checkmarkColor: AppColors.primaryColor,
+                      labelStyle: TextStyle(
+                        color: sel ? AppColors.primaryColor : AppColors.titleDark,
+                        fontWeight: sel ? FontWeight.w700 : FontWeight.w500,
+                      ),
+                    );
+                  }).toList(),
+                ),
             const SizedBox(height: 20),
             Text(
               'Distancia máxima: ${_distancia.toInt()} km',

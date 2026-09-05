@@ -6,17 +6,7 @@ import 'pedidoConfirmado.dart';
 import '../../services/cart_service.dart';
 import '../../services/consumer_api_service.dart';
 
-class _LineaProducto {
-  final String nombre;
-  final String cantidad;
-  final double precio;
 
-  const _LineaProducto({
-    required this.nombre,
-    required this.cantidad,
-    required this.precio,
-  });
-}
 
 
 
@@ -387,24 +377,27 @@ class _ResumenConfirmacionScreenState extends State<ResumenConfirmacionScreen> {
                 radius: 100,
                 onPressed: () async {
                   setState(() => _procesando = true);
-                  final success = await ConsumerApiService.instance.checkout(
-                    CartService.instance.items,
-                    "Tarjeta", // asumiendo método de pago por defecto para este ejemplo
-                  );
-                  if (!context.mounted) return;
-                  if (success) {
-                    CartService.instance.clearCart();
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const PedidoConfirmadoScreen(),
-                      ),
+                  try {
+                    final success = await ConsumerApiService.instance.checkout(
+                      CartService.instance.items,
+                      "Tarjeta",
                     );
-                  } else {
+                    if (!context.mounted) return;
+                    if (success) {
+                      CartService.instance.clearCart();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PedidoConfirmadoScreen(),
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (!context.mounted) return;
                     setState(() => _procesando = false);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Hubo un error al procesar tu pago. Intenta de nuevo.'),
+                      SnackBar(
+                        content: Text(e.toString().replaceAll('Exception: ', '')),
                         backgroundColor: Colors.red,
                       ),
                     );

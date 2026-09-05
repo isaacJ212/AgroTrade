@@ -3,9 +3,8 @@ import '../../models/productor_models.dart';
 import '../../services/productor_store.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/widgets/productor_widgets.dart';
-import '../cliente/inicioComprador.dart' show ProductorDestacado;
+import '../../models/Consumidor/consumidor_models.dart' show ProductorDestacado;
 import '../cliente/perfilProductor.dart';
-import '../shared/chat/chatMensajes.dart';
 
 class PerfilPublicoProductor extends StatelessWidget {
   const PerfilPublicoProductor({super.key});

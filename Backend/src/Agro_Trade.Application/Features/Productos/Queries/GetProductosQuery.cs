@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Agro_Trade.Application.Features.Productos.Queries
 {
-    public record GetProductosQuery(int Page = 1, int Limit = 20, string? Search = null) : IRequest<Result<PaginatedResultDto<ProductoDto>>>;
+    public record GetProductosQuery(int Page = 1, int Limit = 20, string? Search = null, int? IdProveedor = null, int? CategoriaId = null) : IRequest<Result<PaginatedResultDto<ProductoDto>>>;
 
     public class GetProductosQueryHandler : IRequestHandler<GetProductosQuery, Result<PaginatedResultDto<ProductoDto>>>
     {
@@ -30,6 +30,16 @@ namespace Agro_Trade.Application.Features.Productos.Queries
             {
                 var lowerSearch = request.Search.ToLower();
                 query = query.Where(p => p.Nombre.ToLower().Contains(lowerSearch));
+            }
+            
+            if (request.IdProveedor.HasValue)
+            {
+                query = query.Where(p => p.IdProveedor == request.IdProveedor.Value);
+            }
+
+            if (request.CategoriaId.HasValue)
+            {
+                query = query.Where(p => p.IdCategoria == request.CategoriaId.Value);
             }
             
             var totalItems = await query.CountAsync(cancellationToken);

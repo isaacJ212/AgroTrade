@@ -49,28 +49,70 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
   List<ProductoMercado> _productos = [];
   bool _cargando = true;
 
+  List<_Valoracion> _valoracionesLista = [];
+
   @override
   void initState() {
     super.initState();
     _cargarProductos();
+    _cargarValoraciones();
   }
 
   Future<void> _cargarProductos() async {
-    final todos = await ConsumerApiService.instance.getProductos();
-    
-    String normalizar(String nombre) => nombre
-        .trim()
-        .toLowerCase()
-        .replaceFirst(RegExp(r'^coop\.\s*'), 'cooperativa ');
+    if (widget.productor.id != null) {
+      final res = await ConsumerApiService.instance.getProductos(idProveedor: widget.productor.id);
+      if (mounted) {
+        setState(() {
+          _productos = res.items;
+          _cargando = false;
+        });
+      }
+    } else {
+      final todos = await ConsumerApiService.instance.getProductos();
+      
+      String normalizar(String nombre) => nombre
+          .trim()
+          .toLowerCase()
+          .replaceFirst(RegExp(r'^coop\.\s*'), 'cooperativa ');
 
-    final nombreProductor = normalizar(widget.productor.nombre);
+      final nombreProductor = normalizar(widget.productor.nombre);
+      
+      if (mounted) {
+        setState(() {
+          _productos = todos.items
+            .where((producto) => normalizar(producto.finca) == nombreProductor)
+            .toList(growable: false);
+          _cargando = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _cargarValoraciones() async {
+    if (widget.productor.id != null) {
+      final valMap = await ConsumerApiService.instance.getValoraciones(widget.productor.id!);
+      if (valMap.isNotEmpty) {
+        if (mounted) {
+          setState(() {
+            _valoracionesLista = valMap.map((v) => _Valoracion(
+              iniciales: (v['nombreCliente'] ?? 'C').toString().substring(0, 1).toUpperCase(),
+              avatarColor: AppColors.primaryColor,
+              nombre: v['nombreCliente'] ?? 'Cliente',
+              rating: v['puntuacion']?.toDouble() ?? 5.0,
+              comentario: v['comentario'] ?? '',
+            )).toList();
+          });
+        }
+        return;
+      }
+    }
     
+    // Fallback
     if (mounted) {
       setState(() {
-        _productos = todos.items
-          .where((producto) => normalizar(producto.finca) == nombreProductor)
-          .toList(growable: false);
-        _cargando = false;
+        _valoracionesLista = widget.productor.nombre == fincaLaEsperanza.nombre
+            ? _valoracionesEsperanza
+            : const [];
       });
     }
   }
@@ -79,10 +121,7 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
       widget.productor.portadaUrl ?? widget.productor.avatarUrl;
   String get _avatarUrl => widget.productor.avatarUrl;
 
-  List<_Valoracion> get _valoraciones =>
-      widget.productor.nombre == fincaLaEsperanza.nombre
-          ? _valoracionesEsperanza
-          : const [];
+  List<_Valoracion> get _valoraciones => _valoracionesLista;
 
   static const List<_Valoracion> _valoracionesEsperanza = [
     _Valoracion(

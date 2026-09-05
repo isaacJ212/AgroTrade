@@ -8,7 +8,7 @@ import 'buscarProductos.dart';
 import 'carrito.dart';
 import 'inicioComprador.dart';
 import 'misPedidos.dart';
-import 'perfilProductor.dart';
+
 import 'detalleProductoCliente.dart';
 import '../../models/Consumidor/consumidor_models.dart';
 import '../../services/consumer_api_service.dart';
