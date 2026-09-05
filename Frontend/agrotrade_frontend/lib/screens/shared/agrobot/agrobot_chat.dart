@@ -44,53 +44,86 @@ class _AgrobotChatState extends State<AgrobotChat> {
     ),
   ];
 
-  // Respuestas demo basadas en palabras clave
-  static const Map<String, _AgrobotMessage> _responses = {
-    'inventario': _AgrobotMessage(
-      text:
-          'Es muy fácil. Desde la sección de Inventario, seleccioná el producto '
-          'que querés modificar y tocá el botón "Actualizar inventario". '
-          'Podés ajustar la cantidad disponible y el precio por cajón.',
-      isUser: false,
-      time: 'Ahora',
-      actionLabel: 'Ir a Mi Inventario →',
-      actionRoute: AppRoutes.inventario,
-    ),
-    'precio': _AgrobotMessage(
-      text:
-          'La calculadora de Precio Justo te ayuda a definir un precio '
-          'basado en tus costos de producción y el margen de ganancia que deseás.',
-      isUser: false,
-      time: 'Ahora',
-      actionLabel: 'Calculadora de Precio Justo →',
-      actionRoute: AppRoutes.calculadoraPrecioJusto,
-    ),
-    'pedido': _AgrobotMessage(
-      text:
-          'Podés consultar el estado de tus pedidos desde la sección '
-          '"Mis Pedidos". Allí verás el historial completo y el seguimiento en tiempo real.',
-      isUser: false,
-      time: 'Ahora',
-      actionLabel: 'Ver Mis Pedidos →',
-      actionRoute: AppRoutes.misPedidos,
-    ),
-    'entrega': _AgrobotMessage(
-      text:
-          'Para ver tus entregas activas, dirigite a la sección de Entregas. '
-          'Podés ver la ruta y comunicarte con el repartidor.',
-      isUser: false,
-      time: 'Ahora',
-    ),
-    'perfil': _AgrobotMessage(
-      text:
-          'Desde tu perfil podés editar tus datos personales, '
-          'cambiar tu contraseña y gestionar la información de tu cuenta.',
-      isUser: false,
-      time: 'Ahora',
-      actionLabel: 'Ir a Mi Perfil →',
-      actionRoute: AppRoutes.profile,
-    ),
-  };
+  Map<String, _AgrobotMessage> _getRoleSpecificResponses() {
+    final roles = ApiSession.instance.roles;
+    final isProductor = roles.contains('Productor/Proveedor');
+    final isRepartidor = roles.contains('Repartidor');
+    final isComprador = !isProductor && !isRepartidor;
+
+    final responses = <String, _AgrobotMessage>{
+      'perfil': const _AgrobotMessage(
+        text:
+            'Desde tu perfil podés editar tus datos personales, '
+            'cambiar tu contraseña y gestionar la información de tu cuenta.',
+        isUser: false,
+        time: 'Ahora',
+        actionLabel: 'Ir a Mi Perfil',
+        actionRoute: AppRoutes.profile,
+      ),
+    };
+
+    if (isProductor) {
+      responses['inventario'] = const _AgrobotMessage(
+        text:
+            'Es muy fácil. Desde la sección de Inventario, seleccioná el producto '
+            'que querés modificar y tocá el botón "Actualizar inventario".',
+        isUser: false,
+        time: 'Ahora',
+        actionLabel: 'Ir a Mi Inventario',
+        actionRoute: AppRoutes.inventario,
+      );
+      responses['precio'] = const _AgrobotMessage(
+        text:
+            'La calculadora de Precio Justo te ayuda a definir un precio '
+            'basado en tus costos de producción y el margen de ganancia que deseás.',
+        isUser: false,
+        time: 'Ahora',
+        actionLabel: 'Calculadora Precio Justo',
+        actionRoute: AppRoutes.calculadoraPrecioJusto,
+      );
+      responses['pedido'] = const _AgrobotMessage(
+        text:
+            'Podés gestionar todos los pedidos recibidos desde tu sección "Mis Pedidos".',
+        isUser: false,
+        time: 'Ahora',
+        actionLabel: 'Ver Mis Pedidos',
+        actionRoute: AppRoutes.misPedidos,
+      );
+    } else if (isRepartidor) {
+      responses['entrega'] = const _AgrobotMessage(
+        text:
+            'Para ver tus entregas activas, dirigite a la sección de Entregas. '
+            'Podés ver la ruta y comunicarte con el cliente.',
+        isUser: false,
+        time: 'Ahora',
+      );
+      responses['ruta'] = const _AgrobotMessage(
+        text:
+            'En la sección de entregas activas podrás visualizar tu ruta recomendada.',
+        isUser: false,
+        time: 'Ahora',
+      );
+    } else if (isComprador) {
+      responses['pedido'] = const _AgrobotMessage(
+        text:
+            'Podés seguir el estado de tus compras en la sección de pedidos activos.',
+        isUser: false,
+        time: 'Ahora',
+        actionLabel: 'Mis Pedidos',
+        actionRoute: AppRoutes.misPedidos,
+      );
+      responses['comprar'] = const _AgrobotMessage(
+        text:
+            'En el Mercado podrás encontrar los mejores productos frescos directamente de los productores.',
+        isUser: false,
+        time: 'Ahora',
+        actionLabel: 'Explorar Mercado',
+        actionRoute: AppRoutes.explorarProductos,
+      );
+    }
+
+    return responses;
+  }
 
   static const _AgrobotMessage _defaultResponse = _AgrobotMessage(
     text:
@@ -98,36 +131,36 @@ class _AgrobotChatState extends State<AgrobotChat> {
         'pero podés explorar las secciones de la app o consultar el Centro de Ayuda.',
     isUser: false,
     time: 'Ahora',
-    actionLabel: 'Centro de Ayuda →',
-    actionRoute: AppRoutes.centroAyuda,
   );
 
   void _sendMessage(String text) {
+    if (text.trim().isEmpty) return;
+
     final userMsg = _AgrobotMessage(
       text: text,
       isUser: true,
       time: 'Ahora',
     );
 
-    // Buscar respuesta por palabra clave
-    final lower = text.toLowerCase();
-    _AgrobotMessage botResponse = _defaultResponse;
-    for (final key in _responses.keys) {
-      if (lower.contains(key)) {
-        botResponse = _responses[key]!;
-        break;
-      }
-    }
-
     setState(() {
       _messages.add(userMsg);
     });
 
-
     Future.delayed(const Duration(milliseconds: 800), () {
       if (!mounted) return;
       setState(() {
-        _messages.add(botResponse);
+        final lower = text.toLowerCase();
+        final responsesMap = _getRoleSpecificResponses();
+        final matchKey = responsesMap.keys.firstWhere(
+          (key) => lower.contains(key),
+          orElse: () => '',
+        );
+
+        if (matchKey.isNotEmpty) {
+          _messages.add(responsesMap[matchKey]!);
+        } else {
+          _messages.add(_defaultResponse);
+        }
       });
       _scrollToBottom();
     });
@@ -426,15 +459,6 @@ class _ActionChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 24,
-            height: 24,
-            margin: const EdgeInsets.only(right: 8),
-            child: Image.asset(
-              'lib/assets/images/Agrobot/assets-removebg-preview.png', 
-              fit: BoxFit.contain,
-            ),
-          ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(

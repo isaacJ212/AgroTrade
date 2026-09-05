@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../routes/app_routes.dart';
 import '../../services/api_session.dart';
 import '../../ui/app_theme.dart';
-import '../../ui/widgets/repartidor_bottom_nav.dart';
+import '../../ui/components.dart';
 import 'repartidor_demo.dart';
 import 'repartidor_navigation.dart';
 import '../../ui/widgets/repartidor_widgets.dart';
@@ -29,6 +30,9 @@ class InicioRepartidor extends StatelessWidget {
         return RepartidorTheme(
           child: Scaffold(
             backgroundColor: AppColors.scaffoldBg,
+            floatingActionButton: SupportFab(
+              onPressed: () => Navigator.pushNamed(context, AppRoutes.agrobotWelcome),
+            ),
             appBar: AppBar(
               automaticallyImplyLeading: false,
               toolbarHeight: 80,
