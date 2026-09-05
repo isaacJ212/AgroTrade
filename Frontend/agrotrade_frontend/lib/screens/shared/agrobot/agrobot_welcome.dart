@@ -14,58 +14,109 @@ class AgrobotWelcome extends StatefulWidget {
 
 class _AgrobotWelcomeState extends State<AgrobotWelcome> {
 
-  static const List<_FaqItem> _faqItems = [
-    _FaqItem(
-      icon: Icons.inventory_2_outlined,
-      label: 'Productos e inventario',
-      content:
-          'Podés agregar, editar y eliminar productos de tu inventario. '
-          'También podés registrar cosechas y ver el historial de stock.',
-      iconColor: Color(0xFF059669),
-      bgColor: Color(0xFFECFDF5),
-    ),
-    _FaqItem(
-      icon: Icons.balance_outlined,
-      label: 'Precio Justo',
-      content:
-          'Usá la calculadora de Precio Justo para determinar el precio '
-          'sugerido de tus productos con base en tus costos y margen de ganancia.',
-      iconColor: Color(0xFFD97706),
-      bgColor: Color(0xFFFEF3C7),
-    ),
-    _FaqItem(
-      icon: Icons.receipt_long_outlined,
-      label: 'Pedidos',
-      content:
-          'Desde la sección de Pedidos podés ver todos los pedidos recibidos, '
-          'prepararlos y marcarlos como listos para entrega.',
-      iconColor: Color(0xFF2563EB),
-      bgColor: Color(0xFFDBEAFE),
-    ),
-    _FaqItem(
-      icon: Icons.local_shipping_outlined,
-      label: 'Entregas',
-      content:
-          'Podés hacer seguimiento de tus entregas en tiempo real y comunicarte '
-          'con el repartidor asignado.',
-      iconColor: Color(0xFF4B5563),
-      bgColor: Color(0xFFF3F4F6),
-    ),
-    _FaqItem(
-      icon: Icons.person_outline,
-      label: 'Cuenta',
-      content:
-          'Editá tu perfil, cambiá tu contraseña y gestioná la información '
-          'de tu finca o cuenta de comprador.',
-      iconColor: Color(0xFF059669),
-      bgColor: Color(0xFFECFDF5),
-    ),
-  ];
+  List<_FaqItem> _getRoleSpecificFaqItems() {
+    final roles = ApiSession.instance.roles;
+    final isProductor = roles.contains('Productor/Proveedor');
+    final isRepartidor = roles.contains('Repartidor');
+    final isComprador = !isProductor && !isRepartidor;
+
+    final faqItems = <_FaqItem>[];
+
+    if (isProductor) {
+      faqItems.addAll([
+        const _FaqItem(
+          icon: Icons.inventory_2_outlined,
+          label: 'Productos e inventario',
+          content:
+              'Podés agregar, editar y eliminar productos de tu inventario. '
+              'También podés registrar cosechas y ver el historial de stock.',
+          iconColor: Color(0xFF059669),
+          bgColor: Color(0xFFECFDF5),
+        ),
+        const _FaqItem(
+          icon: Icons.balance_outlined,
+          label: 'Precio Justo',
+          content:
+              'Usá la calculadora de Precio Justo para determinar el precio '
+              'sugerido de tus productos con base en tus costos y margen de ganancia.',
+          iconColor: Color(0xFFD97706),
+          bgColor: Color(0xFFFEF3C7),
+        ),
+        const _FaqItem(
+          icon: Icons.receipt_long_outlined,
+          label: 'Pedidos',
+          content:
+              'Desde la sección de Pedidos podés ver todos los pedidos recibidos, '
+              'prepararlos y marcarlos como listos para entrega.',
+          iconColor: Color(0xFF2563EB),
+          bgColor: Color(0xFFDBEAFE),
+        ),
+      ]);
+    } else if (isRepartidor) {
+      faqItems.addAll([
+        const _FaqItem(
+          icon: Icons.local_shipping_outlined,
+          label: 'Entregas Asignadas',
+          content:
+              'Podés visualizar los pedidos que tenés asignados, revisar '
+              'direcciones y cambiar su estado de entrega.',
+          iconColor: Color(0xFF059669),
+          bgColor: Color(0xFFECFDF5),
+        ),
+        const _FaqItem(
+          icon: Icons.map_outlined,
+          label: 'Rutas Recomendadas',
+          content:
+              'Al iniciar una entrega, podés usar el sistema de navegación '
+              'para obtener la ruta más rápida hacia el cliente.',
+          iconColor: Color(0xFFD97706),
+          bgColor: Color(0xFFFEF3C7),
+        ),
+      ]);
+    } else if (isComprador) {
+      faqItems.addAll([
+        const _FaqItem(
+          icon: Icons.shopping_basket_outlined,
+          label: 'Comprar en Mercado',
+          content:
+              'Explorá el mercado para encontrar frutas, verduras y productos '
+              'frescos directamente de los productores.',
+          iconColor: Color(0xFF059669),
+          bgColor: Color(0xFFECFDF5),
+        ),
+        const _FaqItem(
+          icon: Icons.receipt_long_outlined,
+          label: 'Mis Compras',
+          content:
+              'Hacé seguimiento de tus pedidos activos, verificá el estado del '
+              'envío y revisá tu historial de compras.',
+          iconColor: Color(0xFF2563EB),
+          bgColor: Color(0xFFDBEAFE),
+        ),
+      ]);
+    }
+
+    // Común para todos
+    faqItems.add(
+      const _FaqItem(
+        icon: Icons.person_outline,
+        label: 'Cuenta y Perfil',
+        content:
+            'Editá tu perfil, cambiá tu contraseña y gestioná la información '
+            'de tu cuenta.',
+        iconColor: Color(0xFF4B5563),
+        bgColor: Color(0xFFF3F4F6),
+      ),
+    );
+
+    return faqItems;
+  }
 
 
 
   @override
   Widget build(BuildContext context) {
+    final faqItems = _getRoleSpecificFaqItems();
     return Scaffold(
       backgroundColor: AppColors.scaffoldBg,
       appBar: AppBar(
@@ -190,8 +241,8 @@ class _AgrobotWelcomeState extends State<AgrobotWelcome> {
             const SizedBox(height: 16),
 
 
-            ...List.generate(_faqItems.length, (index) {
-              final item = _faqItems[index];
+            ...List.generate(faqItems.length, (index) {
+              final item = faqItems[index];
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Material(

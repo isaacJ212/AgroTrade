@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../routes/app_routes.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
 import '../shared/profile.dart';
@@ -225,6 +226,9 @@ class _InicioCompradorState extends State<InicioComprador> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldBg,
+      floatingActionButton: SupportFab(
+        onPressed: () => Navigator.pushNamed(context, AppRoutes.agrobotWelcome),
+      ),
       body: SafeArea(
         bottom: false,
         child: Column(

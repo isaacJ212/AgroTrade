@@ -1,6 +1,8 @@
 import 'package:agrotrade_frontend/screens/repartidor/perfilRepartidor.dart';
 import 'package:flutter/material.dart';
+import '../../routes/app_routes.dart';
 import '../../ui/app_theme.dart';
+import '../../ui/components.dart';
 import '../../ui/widgets/repartidor_bottom_nav.dart';
 import 'detalleEntregaRepartidor.dart';
 import 'entregasRepartidor.dart';
@@ -71,6 +73,9 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
 
         return Scaffold(
           backgroundColor: AppColors.scaffoldBg,
+          floatingActionButton: SupportFab(
+            onPressed: () => Navigator.pushNamed(context, AppRoutes.agrobotWelcome),
+          ),
           body: SafeArea(
             bottom: false,
             child: Column(
