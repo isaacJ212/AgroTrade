@@ -209,7 +209,13 @@ class AppRouter {
         return _slide(const EntregaScreen());
 
       case AppRoutes.valorarPedido:
-        return _slide(const ValorarPedidoScreen());
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return _slide(
+          ValorarPedidoScreen(
+            idPedido: args['idPedido'] as int? ?? 0,
+            idProveedor: args['idProveedor'] as int? ?? 1,
+          ),
+        );
 
       case AppRoutes.suscripciones:
         return _slide(const SuscripcionesScreen());

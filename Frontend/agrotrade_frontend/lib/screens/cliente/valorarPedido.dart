@@ -2,9 +2,17 @@ import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
 import 'misPedidos.dart';
+import '../../services/consumer_api_service.dart';
 
 class ValorarPedidoScreen extends StatefulWidget {
-  const ValorarPedidoScreen({super.key});
+  final int idPedido;
+  final int idProveedor;
+
+  const ValorarPedidoScreen({
+    super.key,
+    required this.idPedido,
+    required this.idProveedor,
+  });
 
   @override
   State<ValorarPedidoScreen> createState() => _ValorarPedidoScreenState();
@@ -18,6 +26,7 @@ class _ValorarPedidoScreenState extends State<ValorarPedidoScreen> {
   final Set<String> _destacados = {'Precio justo'};
 
   final TextEditingController _comentarioCtrl = TextEditingController();
+  bool _isSubmitting = false;
 
   static const List<String> _chips = [
     'Productos frescos',
@@ -32,16 +41,52 @@ class _ValorarPedidoScreenState extends State<ValorarPedidoScreen> {
     super.dispose();
   }
 
-  void _enviarValoracion() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('¡Gracias por tu valoración!'),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.primaryColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-    );
-    Navigator.of(context).pop();
+  Future<void> _enviarValoracion() async {
+    // Calculamos un promedio básico de las 3 estrellas para enviarlo al backend, o mandamos 1 si no marcaron
+    int promedio = ((_estrellaCalidad + _estrellaProductor + _estrellaEntrega) / 3).round();
+    if (promedio == 0) promedio = 1;
+
+    // Juntamos los destacados con el comentario
+    String comentarioFinal = _comentarioCtrl.text.trim();
+    if (_destacados.isNotEmpty) {
+      final tags = _destacados.join(', ');
+      comentarioFinal = "Destacados: $tags. $comentarioFinal";
+    }
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      print('DEBUG: [ValorarPedido] Enviando valoración para Pedido ID: ${widget.idPedido}, Proveedor ID: ${widget.idProveedor}');
+      final success = await ConsumerApiService.instance.valorarPedido(
+        idPedido: widget.idPedido,
+        idProveedor: widget.idProveedor,
+        puntuacion: promedio,
+        comentario: comentarioFinal,
+      );
+
+      if (!mounted) return;
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('¡Gracias por tu valoración!'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: AppColors.primaryColor,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+        Navigator.of(context).pop();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error al enviar la valoración. Inténtalo de nuevo.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
 
   @override
@@ -92,9 +137,9 @@ class _ValorarPedidoScreenState extends State<ValorarPedidoScreen> {
                       color: AppColors.primarySoftBg,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Text(
-                      'Pedido #AT-2038',
-                      style: TextStyle(
+                    child: Text(
+                      'Pedido #AT-${widget.idPedido}',
+                      style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: AppColors.primaryColor,
@@ -302,11 +347,13 @@ class _ValorarPedidoScreenState extends State<ValorarPedidoScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            PrimaryButton(
-              label: 'Enviar valoración',
-              radius: 100,
-              onPressed: _enviarValoracion,
-            ),
+            _isSubmitting
+                ? const CircularProgressIndicator(color: AppColors.primaryColor)
+                : PrimaryButton(
+                    label: 'Enviar valoración',
+                    radius: 100,
+                    onPressed: _enviarValoracion,
+                  ),
             const SizedBox(height: 12),
             GestureDetector(
               onTap: () => Navigator.of(context).pop(),

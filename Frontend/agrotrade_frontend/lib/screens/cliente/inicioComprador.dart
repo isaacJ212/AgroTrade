@@ -8,6 +8,8 @@ import 'carrito.dart';
 import 'exploradorProductos.dart';
 import 'misPedidos.dart';
 import 'perfilProductor.dart';
+import 'suscripciones.dart';
+import 'productoresCercanos.dart';
 import '../../models/Consumidor/consumidor_models.dart';
 import '../../services/consumer_api_service.dart';
 import '../../services/cart_service.dart';
@@ -195,7 +197,17 @@ class _InicioCompradorState extends State<InicioComprador> {
                     ),
                     const SizedBox(height: 28),
                   ],
-                  _tituloSeccion('Productores destacados'),
+                  _tituloSeccion(
+                    'Productores destacados',
+                    conVerTodo: true,
+                    textoBoton: 'Ver en mapa',
+                    onVerTodo: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ProductoresCercanos(),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 12),
                   ..._productoresLista.map(
                     (p) => Padding(
@@ -389,7 +401,7 @@ class _InicioCompradorState extends State<InicioComprador> {
     );
   }
 
-  Widget _tituloSeccion(String texto, {bool conVerTodo = false}) {
+  Widget _tituloSeccion(String texto, {bool conVerTodo = false, VoidCallback? onVerTodo, String textoBoton = 'Ver todo'}) {
     return Row(
       children: [
         Expanded(
@@ -400,12 +412,12 @@ class _InicioCompradorState extends State<InicioComprador> {
         ),
         if (conVerTodo)
           GestureDetector(
-            onTap: () => Navigator.push(
+            onTap: onVerTodo ?? () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const ExploradorProductos()),
             ),
             child: Text(
-              'Ver todo',
+              textoBoton,
               style: AppTextStyles.label.copyWith(
                 fontSize: 13,
                 color: AppColors.primaryColor,

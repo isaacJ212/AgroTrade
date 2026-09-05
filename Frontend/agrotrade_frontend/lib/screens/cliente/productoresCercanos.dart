@@ -1,9 +1,44 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
+import '../../services/consumer_api_service.dart';
+import '../../models/Consumidor/consumidor_models.dart';
 
-class ProductoresCercanos extends StatelessWidget {
+class ProductoresCercanos extends StatefulWidget {
   const ProductoresCercanos({super.key});
+
+  @override
+  State<ProductoresCercanos> createState() => _ProductoresCercanosState();
+}
+
+class _ProductoresCercanosState extends State<ProductoresCercanos> {
+  List<ProductorDestacado> _productores = [];
+  bool _cargando = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarProductores();
+  }
+
+  Future<void> _cargarProductores() async {
+    print('DEBUG: [ProductoresCercanos] Obteniendo lista de productores de la API...');
+    try {
+      final lista = await ConsumerApiService.instance.getProductoresDestacados([]);
+      print('DEBUG: [ProductoresCercanos] Se cargaron ${lista.length} productores exitosamente.');
+      if (mounted) {
+        setState(() {
+          _productores = lista;
+          _cargando = false;
+        });
+      }
+    } catch (e) {
+      print('DEBUG: [ProductoresCercanos] Error al cargar productores: $e');
+      if (mounted) {
+        setState(() => _cargando = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,57 +72,59 @@ class ProductoresCercanos extends StatelessWidget {
               painter: _MapGridPainter(),
             ),
           ),
-          
-         
-          Positioned(
-            top: MediaQuery.of(context).size.height * 0.2,
-            left: MediaQuery.of(context).size.width * 0.4,
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryColor,
-                    borderRadius: BorderRadius.circular(8),
+          if (_cargando)
+            const Center(child: CircularProgressIndicator(color: AppColors.primaryColor))
+          else if (_productores.isNotEmpty)
+            ..._productores.asMap().entries.map((entry) {
+              final idx = entry.key;
+              final prod = entry.value;
+              // Mock randomish positions based on index
+              final topOffset = 0.15 + (idx * 0.1) % 0.6;
+              final leftOffset = 0.2 + (idx * 0.3) % 0.6;
+              
+              if (idx == 0) {
+                // El primer productor se muestra destacado
+                return Positioned(
+                  top: MediaQuery.of(context).size.height * topOffset,
+                  left: MediaQuery.of(context).size.width * leftOffset,
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryColor,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          prod.nombre.length > 15 ? prod.nombre.substring(0, 15) : prod.nombre,
+                          style: const TextStyle(
+                            color: AppColors.White,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Icon(
+                        Icons.location_on,
+                        color: AppColors.primaryColor,
+                        size: 32,
+                      ),
+                    ],
                   ),
-                  child: const Text(
-                    'La Esperanza',
-                    style: TextStyle(
-                      color: AppColors.White,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
+                );
+              }
+              
+              return Positioned(
+                top: MediaQuery.of(context).size.height * topOffset,
+                left: MediaQuery.of(context).size.width * leftOffset,
+                child: const CircleAvatar(
+                  radius: 10,
+                  backgroundColor: Colors.white70,
+                  child: Icon(Icons.agriculture, size: 12, color: Colors.grey),
                 ),
-                const SizedBox(height: 4),
-                const Icon(
-                  Icons.location_on,
-                  color: AppColors.primaryColor,
-                  size: 32,
-                ),
-              ],
-            ),
-          ),
-          
-        
-          Positioned(
-            top: MediaQuery.of(context).size.height * 0.15,
-            right: MediaQuery.of(context).size.width * 0.2,
-            child: const CircleAvatar(
-              radius: 10,
-              backgroundColor: Colors.white70,
-              child: Icon(Icons.agriculture, size: 12, color: Colors.grey),
-            ),
-          ),
-          Positioned(
-            top: MediaQuery.of(context).size.height * 0.4,
-            left: MediaQuery.of(context).size.width * 0.2,
-            child: const CircleAvatar(
-              radius: 10,
-              backgroundColor: Colors.white70,
-              child: Icon(Icons.storefront, size: 12, color: Colors.grey),
-            ),
-          ),
+              );
+            }).toList(),
 
        
           Positioned(
@@ -135,9 +172,9 @@ class ProductoresCercanos extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Finca La Esperanza',
-                      style: TextStyle(
+                    Text(
+                      _productores.isNotEmpty ? _productores[0].nombre : 'Seleccione un productor',
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: AppColors.TextMain,
@@ -198,10 +235,10 @@ class ProductoresCercanos extends StatelessWidget {
                         color: AppColors.primarySoftBg,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Column(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'ESPECIALIDADES',
                             style: TextStyle(
                               fontSize: 11,
@@ -210,10 +247,12 @@ class ProductoresCercanos extends StatelessWidget {
                               letterSpacing: 0.5,
                             ),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
-                            'Tomate, naranja y limón',
-                            style: TextStyle(
+                            _productores.isNotEmpty && _productores[0].descripcion != null && _productores[0].descripcion!.isNotEmpty
+                                ? _productores[0].descripcion!
+                                : 'Productos frescos',
+                            style: const TextStyle(
                               fontSize: 14,
                               color: AppColors.TextMain,
                             ),

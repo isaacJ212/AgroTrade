@@ -2,6 +2,7 @@ import 'dart:convert';
 import '../models/Consumidor/consumidor_models.dart';
 import 'api_client.dart';
 import 'cart_service.dart';
+import 'api_session.dart';
 
 class ConsumerApiService {
   static final ConsumerApiService _instance = ConsumerApiService._internal();
@@ -372,4 +373,109 @@ class ConsumerApiService {
       throw Exception('Excepción al cargar categorías');
     }
   }
+
+  Future<List<Map<String, dynamic>>> getSuscripciones(int idUsuario) async {
+    print('DEBUG: [ConsumerApiService] Iniciando transacción GET /api/Suscripciones/usuario/$idUsuario');
+    try {
+      final response = await ApiClient.instance.get('/api/Suscripciones/usuario/$idUsuario', authorized: true).timeout(_timeout);
+      print('DEBUG: [ConsumerApiService] Transacción GET completada. StatusCode: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.rawBody);
+        final data = decoded['data'];
+        List<dynamic> jsonList = [];
+        if (data is Map<String, dynamic>) {
+          jsonList = data['items'] ?? [];
+        } else if (data is List) {
+          jsonList = data;
+        }
+        print('DEBUG: [ConsumerApiService] Parseo exitoso. Registros obtenidos: ${jsonList.length}');
+        return jsonList.cast<Map<String, dynamic>>();
+      }
+      print('DEBUG: [ConsumerApiService] La petición falló. Body: ${response.rawBody}');
+      return [];
+    } catch (e) {
+      print('DEBUG: [ConsumerApiService] Error (Catch) en getSuscripciones: $e');
+      return [];
+    }
+  }
+
+  Future<bool> cancelarSuscripcion(int idSuscripcion) async {
+    print('DEBUG: [ConsumerApiService] Iniciando transacción PUT /api/Suscripciones/$idSuscripcion/cancelar');
+    try {
+      final response = await ApiClient.instance.put('/api/Suscripciones/$idSuscripcion/cancelar', authorized: true).timeout(_timeout);
+      print('DEBUG: [ConsumerApiService] Transacción PUT completada. StatusCode: ${response.statusCode}');
+      return response.statusCode == 200 || response.statusCode == 204;
+    } catch (e) {
+      print('DEBUG: [ConsumerApiService] Error (Catch) en cancelarSuscripcion: $e');
+      return false;
+    }
+  }
+
+  Future<bool> valorarPedido({
+    required int idPedido,
+    required int idProveedor,
+    required int puntuacion,
+    String? comentario,
+  }) async {
+    print('DEBUG: [ConsumerApiService] Iniciando transacción POST /api/Valoraciones');
+    final String? userId = ApiSession.instance.userId;
+    int idUsuarioCliente = 12; // fallback para demo
+    if (userId != null && userId.isNotEmpty) {
+      idUsuarioCliente = int.tryParse(userId) ?? 12;
+    }
+
+    final payload = {
+      "idPedido": idPedido,
+      "idProveedor": idProveedor,
+      "tipoValoracion": "General",
+      "puntuacion": puntuacion,
+      "comentario": comentario ?? "",
+    };
+    
+    print('DEBUG: [ConsumerApiService] Payload: $payload (idUsuarioCliente: $idUsuarioCliente)');
+
+    try {
+      final response = await ApiClient.instance.post(
+        '/api/Valoraciones?idUsuarioCliente=$idUsuarioCliente',
+        authorized: true,
+        body: payload,
+      ).timeout(_timeout);
+
+      print('DEBUG: [ConsumerApiService] Transacción POST completada. StatusCode: ${response.statusCode}');
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      print('DEBUG: [ConsumerApiService] Error (Catch) en valorarPedido: $e');
+      return false;
+    }
+  }
+
+  // Mock para Reportar Problema
+  Future<bool> reportarProblema(int idPedido, String tipo, String detalles) async {
+    print('DEBUG: [ConsumerApiService] Iniciando transacción POST /api/Reportes');
+    print('DEBUG: [ConsumerApiService] Payload: { idPedido: $idPedido, tipo: $tipo, detalles: $detalles }');
+    try {
+      // Simulamos la llamada a una API que aún no existe en el backend
+      await Future.delayed(const Duration(seconds: 2)); 
+      print('DEBUG: [ConsumerApiService] Transacción POST completada. StatusCode: 201 (Simulado)');
+      return true;
+    } catch (e) {
+      print('DEBUG: [ConsumerApiService] Error (Catch) en reportarProblema: $e');
+      return false;
+    }
+  }
+
+  // Mock para Seguimiento de Ruta
+  Future<Map<String, double>> getUbicacionRepartidor(int idPedido) async {
+    print('DEBUG: [ConsumerApiService] Iniciando transacción GET /api/Envios/$idPedido/ubicacion');
+    try {
+      // Simulamos lat/lng (porcentajes de pantalla para el diseño actual)
+      await Future.delayed(const Duration(milliseconds: 800));
+      print('DEBUG: [ConsumerApiService] Transacción GET completada. StatusCode: 200 (Simulado)');
+      return { 'lat': 0.5, 'lng': 0.6 }; // Coordenadas simuladas en formato relativo
+    } catch (e) {
+      print('DEBUG: [ConsumerApiService] Error (Catch) en getUbicacionRepartidor: $e');
+      return {};
+    }
+  }
 }
+

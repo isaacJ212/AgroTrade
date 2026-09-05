@@ -590,10 +590,16 @@ class _CardEntregado extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: OutlinedButton(
               onPressed: () {
+                final idStr = pedido.numero.replaceAll(RegExp(r'[^0-9]'), '');
+                final int idPedido = int.tryParse(idStr) ?? 0;
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const ValorarPedidoScreen(),
+                    builder: (_) => ValorarPedidoScreen(
+                      idPedido: idPedido,
+                      idProveedor: 1, // Proveedor fallback para el demo
+                    ),
                   ),
                 );
               },
