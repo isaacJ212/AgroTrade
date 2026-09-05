@@ -67,12 +67,15 @@ import '../screens/repartidor/rutaEntregaRepartidor.dart';
 import '../screens/repartidor/confirmarEntregaRepartidor.dart';
 
 import 'app_routes.dart';
+import 'productor_router.dart';
 
 /// Router centralizado de AgroTrade.
 class AppRouter {
   AppRouter._();
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
+    final productorRoute = ProductorRouter.generateRoute(settings);
+    if (productorRoute != null) return productorRoute;
     final args = settings.arguments;
 
     switch (settings.name) {

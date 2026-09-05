@@ -1,179 +1,163 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import '../../ui/app_theme.dart';
-import '../../ui/widgets/buttons.dart';
-import '../../ui/widgets/app_text_field.dart';
+import 'package:image_picker/image_picker.dart';
+import '../../models/productor_models.dart';
+import '../../services/productor_store.dart';
+import '../../ui/widgets/productor_widgets.dart';
 
 class EditarFincaScreen extends StatefulWidget {
   const EditarFincaScreen({super.key});
-
   @override
   State<EditarFincaScreen> createState() => _EditarFincaScreenState();
 }
 
 class _EditarFincaScreenState extends State<EditarFincaScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _nombreCtrl = TextEditingController(text: 'Finca El Encanto');
-  final _tamanoCtrl = TextEditingController(text: '15');
-  final _ubicacionCtrl = TextEditingController(text: 'Matagalpa, Nicaragua');
-  String _tipoCultivo = 'Café';
-
+  final _form = GlobalKey<FormState>();
+  late final DatosFinca _initial = ProductorStore.instance.finca;
+  late final _nombre = TextEditingController(text: _initial.nombre);
+  late final _tamano = TextEditingController(text: numero(_initial.hectareas));
+  late final _ubicacion = TextEditingController(text: _initial.ubicacion);
+  final _ubicacionFocus = FocusNode();
+  late String _cultivo = _initial.cultivo;
+  late Uint8List? _foto = _initial.foto;
+  bool _cargando = false;
   @override
   void dispose() {
-    _nombreCtrl.dispose();
-    _tamanoCtrl.dispose();
-    _ubicacionCtrl.dispose();
+    _nombre.dispose();
+    _tamano.dispose();
+    _ubicacion.dispose();
+    _ubicacionFocus.dispose();
     super.dispose();
   }
 
-  void _guardarCambios() {
-    if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Información de finca actualizada')),
+  Future<void> _cambiarFoto() async {
+    setState(() => _cargando = true);
+    try {
+      final selected = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+        maxWidth: 1600,
       );
-      Navigator.pop(context);
+      if (selected != null) {
+        final bytes = await selected.readAsBytes();
+        if (mounted) setState(() => _foto = bytes);
+      }
+    } catch (_) {
+      if (mounted)
+        mensajeProductor(
+          context,
+          'No se pudo abrir la imagen. Revisa el acceso a la galería.',
+        );
+    } finally {
+      if (mounted) setState(() => _cargando = false);
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.scaffoldBg,
-      appBar: AppBar(
-        title: const Text('Editar Finca', style: TextStyle(fontWeight: FontWeight.bold)),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Cover Image with Edit Button
-              Stack(
-                alignment: Alignment.bottomRight,
-                children: [
-                  Container(
-                    height: 140,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      image: const DecorationImage(
-                        image: NetworkImage('https://images.unsplash.com/photo-1595841696677-6489ff3f8cd1?auto=format&fit=crop&w=800'),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: CircleAvatar(
-                      backgroundColor: AppColors.primaryColor,
-                      child: IconButton(
-                        icon: const Icon(Icons.camera_alt, color: Colors.white),
-                        onPressed: () {},
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              const Text('Datos Generales', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.titleDark)),
-              const SizedBox(height: 12),
-              
-              AppTextField(
-                controller: _nombreCtrl,
-                label: 'Nombre de la Finca',
-                hint: 'Ej. Finca La Esperanza',
-              ),
-              const SizedBox(height: 12),
-              
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AppTextField(
-                          controller: _tamanoCtrl,
-                          label: 'Tamaño (Hectáreas)',
-                          hint: '0.0',
-                          keyboard: TextInputType.number,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      decoration: appInputDecoration(label: 'Cultivo Principal', hint: ''),
-                      isExpanded: true,
-                      value: _tipoCultivo,
-                      icon: const Icon(Icons.arrow_drop_down, color: AppColors.TextSoft),
-                      items: ['Café', 'Cacao', 'Frijoles', 'Hortalizas'].map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value, style: const TextStyle(fontSize: 15)),
-                        );
-                      }).toList(),
-                      onChanged: (newValue) {
-                        setState(() {
-                          _tipoCultivo = newValue!;
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              
-              const SizedBox(height: 20),
-              const Text('Ubicación', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.titleDark)),
-              const SizedBox(height: 12),
-              AppTextField(
-                controller: _ubicacionCtrl,
-                label: 'Dirección Exacta',
-                hint: 'Departamento, Municipio',
-              ),
-              const SizedBox(height: 12),
-              
-              Container(
-                height: 100,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE0E0E0),
-                  borderRadius: BorderRadius.circular(12),
-                  image: const DecorationImage(
-                    image: NetworkImage('https://maps.googleapis.com/maps/api/staticmap?center=Matagalpa,Nicaragua&zoom=10&size=400x120&sensor=false'),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: Center(
-                  child: ElevatedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.pin_drop),
-                    label: const Text('Ajustar en mapa'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: AppColors.primaryColor,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -2))],
-        ),
-        child: PrimaryButton(
-          label: 'Guardar Cambios',
-          onPressed: _guardarCambios,
-          radius: 12,
-        ),
+  void _guardar() {
+    if (!_form.currentState!.validate()) return;
+    ProductorStore.instance.guardarFinca(
+      DatosFinca(
+        nombre: _nombre.text.trim(),
+        ubicacion: _ubicacion.text.trim(),
+        cultivo: _cultivo,
+        hectareas: decimal(_tamano.text)!,
+        descripcion: _initial.descripcion,
+        portadaUrl: _initial.portadaUrl,
+        foto: _foto,
       ),
     );
+    mensajeProductor(context, 'Información de la finca actualizada.');
+    Navigator.pop(context, true);
   }
+
+  @override
+  Widget build(BuildContext context) => ProductorPage(
+    title: 'Editar finca',
+    bottom: ProductorButton(
+      label: 'Guardar cambios',
+      onPressed: _cargando ? null : _guardar,
+    ),
+    children: [
+      Form(
+        key: _form,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                ProductorImage(
+                  url: _initial.portadaUrl,
+                  bytes: _foto,
+                  height: 160,
+                ),
+                Positioned(
+                  bottom: 8,
+                  right: 8,
+                  child: IconButton.filled(
+                    tooltip: 'Cambiar foto de la finca',
+                    onPressed: _cargando ? null : _cambiarFoto,
+                    icon: const Icon(Icons.camera_alt_outlined),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            const ProductorSection('Datos generales'),
+            ProductorField(
+              controller: _nombre,
+              label: 'Nombre de la finca',
+              validator: (v) =>
+                  v == null || v.trim().isEmpty ? 'Ingresa el nombre.' : null,
+            ),
+            ProductorField(
+              controller: _tamano,
+              label: 'Tamaño (hectáreas)',
+              keyboard: const TextInputType.numberWithOptions(decimal: true),
+              validator: (v) => decimal(v ?? '') == null || decimal(v!)! <= 0
+                  ? 'Ingresa un tamaño válido.'
+                  : null,
+            ),
+            DropdownButtonFormField<String>(
+              value: _cultivo,
+              isExpanded: true,
+              decoration: const InputDecoration(labelText: 'Cultivo principal'),
+              items: {
+                'Café',
+                'Cacao',
+                'Frijoles',
+                'Hortalizas',
+                _cultivo,
+              }.map((v) => DropdownMenuItem(value: v, child: Text(v))).toList(),
+              onChanged: (v) => setState(() => _cultivo = v!),
+            ),
+            const SizedBox(height: 20),
+            const ProductorSection('Ubicación'),
+            ProductorField(
+              controller: _ubicacion,
+              focusNode: _ubicacionFocus,
+              label: 'Dirección exacta',
+              validator: (v) => v == null || v.trim().isEmpty
+                  ? 'Ingresa la dirección.'
+                  : null,
+            ),
+            ValueListenableBuilder<TextEditingValue>(
+              valueListenable: _ubicacion,
+              builder: (_, value, __) => ProductorMap(
+                label: value.text.isEmpty
+                    ? 'Ubicación de la finca'
+                    : value.text,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ProductorButton(
+              label: 'Editar dirección',
+              outlined: true,
+              icon: Icons.location_on_outlined,
+              onPressed: () => _ubicacionFocus.requestFocus(),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
 }
