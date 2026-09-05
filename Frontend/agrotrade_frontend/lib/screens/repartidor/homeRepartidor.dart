@@ -6,8 +6,19 @@ import 'repartidor_demo.dart';
 import 'repartidor_navigation.dart';
 import '../../ui/widgets/repartidor_widgets.dart';
 
-class InicioRepartidor extends StatelessWidget {
+class InicioRepartidor extends StatefulWidget {
   const InicioRepartidor({super.key});
+
+  @override
+  State<InicioRepartidor> createState() => _InicioRepartidorState();
+}
+
+class _InicioRepartidorState extends State<InicioRepartidor> {
+  @override
+  void initState() {
+    super.initState();
+    RepartidorDemo.instance.cargarDesdeApi();
+  }
 
   String get _saludo {
     final hora = DateTime.now().hour;
@@ -16,6 +27,7 @@ class InicioRepartidor extends StatelessWidget {
     return 'Buenas noches';
   }
 
+  @override
   @override
   Widget build(BuildContext context) {
     final demo = RepartidorDemo.instance;
@@ -141,6 +153,14 @@ class InicioRepartidor extends StatelessWidget {
                     EntregaDemoCard(entrega: entrega),
                     const SizedBox(height: 12),
                   ],
+                  if (demo.apiError != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Text(
+                        'Mostrando datos demo: ${demo.apiError}',
+                        style: RepartidorTextStyles.SubTitle,
+                      ),
+                    ),
                 ],
               ),
             ),
