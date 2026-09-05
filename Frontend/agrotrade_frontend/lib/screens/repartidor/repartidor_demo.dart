@@ -234,6 +234,16 @@ class RepartidorDemo extends ChangeNotifier {
     }
   }
 
+  void registrarPendientesApi(List<PendingDeliveryNotificationDto> pendientes) {
+    for (final pendiente in pendientes) {
+      if (pendiente.pedidoId <= 0 || buscar(pendiente.pedidoId) != null) {
+        continue;
+      }
+      _entregas.add(EntregaDemo.fromApi(pendiente));
+    }
+    notifyListeners();
+  }
+
   void aceptar(int id) {
     if (!disponible) {
       return;

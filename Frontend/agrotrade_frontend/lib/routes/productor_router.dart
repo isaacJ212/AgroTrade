@@ -58,7 +58,7 @@ class ProductorRouter {
         page = const ProductorShell(initialIndex: 3);
         break;
       case AppRoutes.agregarProducto:
-        page = AgregarProducto(producto: producto);
+        page = const AgregarProducto();
         break;
       case AppRoutes.detalleProductoProductor:
         page = producto == null
