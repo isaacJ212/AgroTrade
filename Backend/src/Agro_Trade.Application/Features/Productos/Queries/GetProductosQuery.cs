@@ -3,11 +3,14 @@ using Agro_Trade.Application.Common;
 using Agro_Trade.Application.Common.DTOs.ProductosDtos;
 using Agro_Trade.Application.Common.Interface;
 
+using Agro_Trade.Application.Common.DTOs;
+using Microsoft.EntityFrameworkCore;
+
 namespace Agro_Trade.Application.Features.Productos.Queries
 {
-    public record GetProductosQuery : IRequest<Result<List<ProductoDto>>>;
+    public record GetProductosQuery(int Page = 1, int Limit = 20, string? Search = null) : IRequest<Result<PaginatedResultDto<ProductoDto>>>;
 
-    public class GetProductosQueryHandler : IRequestHandler<GetProductosQuery, Result<List<ProductoDto>>>
+    public class GetProductosQueryHandler : IRequestHandler<GetProductosQuery, Result<PaginatedResultDto<ProductoDto>>>
     {
         private readonly IUnitofWork _unitOfWork;
 
@@ -16,23 +19,44 @@ namespace Agro_Trade.Application.Features.Productos.Queries
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result<List<ProductoDto>>> Handle(GetProductosQuery request, CancellationToken cancellationToken)
+        public async Task<Result<PaginatedResultDto<ProductoDto>>> Handle(GetProductosQuery request, CancellationToken cancellationToken)
         {
-            var productos = await _unitOfWork.Productos.GetAllAsync(cancellationToken);
-            if (productos == null || !productos.Any())
-                return Result<List<ProductoDto>>.Failure(200, "No se encontraron productos.");
+            var query = _unitOfWork.Productos.GetQueryable().Include(p => p.Categoria).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(request.Search))
+            {
+                var lowerSearch = request.Search.ToLower();
+                query = query.Where(p => p.Nombre.ToLower().Contains(lowerSearch));
+            }
+            
+            var totalItems = await query.CountAsync(cancellationToken);
+            var totalPages = (int)Math.Ceiling(totalItems / (double)request.Limit);
+
+            var productos = await query
+                .Skip((request.Page - 1) * request.Limit)
+                .Take(request.Limit)
+                .ToListAsync(cancellationToken);
+
             var data = productos.Select(p => new ProductoDto
             {
                 IdProducto = p.IdProducto,
                 IdCategoria = p.IdCategoria,
+                CategoriaNombre = p.Categoria?.Nombre,
                 IdProveedor = p.IdProveedor,
                 Nombre = p.Nombre,
                 Descripcion = p.Descripcion,
                 UnidadMedida = p.UnidadMedida
-               
             }).ToList();
 
-            return Result<List<ProductoDto>>.Success(200, data, "Productos obtenidos correctamente.", true);
+            var paginatedResult = new PaginatedResultDto<ProductoDto>
+            {
+                TotalItems = totalItems,
+                TotalPages = totalPages,
+                CurrentPage = request.Page,
+                Items = data
+            };
+
+            return Result<PaginatedResultDto<ProductoDto>>.Success(200, paginatedResult, "Productos obtenidos correctamente.", true);
         }
     }
 }

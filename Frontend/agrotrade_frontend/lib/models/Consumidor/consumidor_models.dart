@@ -81,3 +81,17 @@ class PedidoConsumidor {
     required this.itemsCount,
   });
 }
+
+class PaginatedResponse<T> {
+  final int totalItems;
+  final int totalPages;
+  final int currentPage;
+  final List<T> items;
+
+  const PaginatedResponse({
+    required this.totalItems,
+    required this.totalPages,
+    required this.currentPage,
+    required this.items,
+  });
+}

@@ -22,9 +22,9 @@ namespace Agro_Trade.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<Result<List<ProductoDto>>>> Get()
+        public async Task<ActionResult> Get([FromQuery] int page = 1, [FromQuery] int limit = 20, [FromQuery] string? search = null)
         {
-            var result = await _mediator.Send(new GetProductosQuery());
+            var result = await _mediator.Send(new GetProductosQuery(page, limit, search));
             return Ok(result);
         }
 

@@ -7,7 +7,7 @@ class ConsumerApiService {
   static ConsumerApiService get instance => _instance;
   ConsumerApiService._internal();
 
-  final Duration _timeout = const Duration(seconds: 3);
+  final Duration _timeout = const Duration(seconds: 15);
   
   // Mock Data
   static const List<ProductoMercado> _mockProductos = [
@@ -96,27 +96,69 @@ class ConsumerApiService {
     ),
   ];
 
-  Future<List<ProductoMercado>> getProductos() async {
+  Future<PaginatedResponse<ProductoMercado>> getProductos({int page = 1, int limit = 20, String? search}) async {
     try {
-      final response = await ApiClient.instance.get('/api/productos')
+      String path = '/api/productos?page=$page&limit=$limit';
+      if (search != null && search.isNotEmpty) {
+        path += '&search=${Uri.encodeComponent(search)}';
+      }
+      
+      final response = await ApiClient.instance.get(path)
           .timeout(_timeout);
       
       if (response.statusCode == 200) {
-        final List<dynamic> jsonList = json.decode(response.rawBody);
-        return jsonList.map((json) => ProductoMercado(
+        final Map<String, dynamic> decoded = json.decode(response.rawBody);
+        
+        // Support both old backend format (List) and new backend format (Map)
+        final data = decoded['data'];
+        
+        List<dynamic> jsonList = [];
+        int totalItems = 0;
+        int totalPages = 1;
+        int currentPage = 1;
+
+        if (data is Map<String, dynamic>) {
+          jsonList = data['items'] ?? [];
+          totalItems = data['totalItems'] ?? 0;
+          totalPages = data['totalPages'] ?? 1;
+          currentPage = data['currentPage'] ?? 1;
+        } else if (data is List) {
+          jsonList = data;
+          totalItems = jsonList.length;
+        }
+
+        final items = jsonList.map((json) => ProductoMercado(
           id: json['idProducto'] ?? 0,
           nombre: json['nombre'] ?? '',
           finca: 'Productor', // Placeholder mapping
           precio: json['precio']?.toDouble() ?? 0.0,
           unidad: json['unidadMedida'] ?? 'unidad',
           distancia: 'Calculando...',
-          categoria: 'General',
+          categoria: json['categoriaNombre'] ?? 'General',
           imagenUrl: json['fotoUrl'] ?? 'https://via.placeholder.com/150',
         )).toList();
+
+        return PaginatedResponse<ProductoMercado>(
+          totalItems: totalItems,
+          totalPages: totalPages,
+          currentPage: currentPage,
+          items: items,
+        );
       }
-      return _mockProductos;
-    } catch (_) {
-      return _mockProductos;
+      return PaginatedResponse<ProductoMercado>(
+        totalItems: _mockProductos.length,
+        totalPages: 1,
+        currentPage: 1,
+        items: _mockProductos,
+      );
+    } catch (e) {
+      print('Error al obtener productos: $e');
+      return PaginatedResponse<ProductoMercado>(
+        totalItems: _mockProductos.length,
+        totalPages: 1,
+        currentPage: 1,
+        items: _mockProductos,
+      );
     }
   }
 

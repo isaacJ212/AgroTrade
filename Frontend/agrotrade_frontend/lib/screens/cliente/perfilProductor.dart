@@ -67,7 +67,7 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
     
     if (mounted) {
       setState(() {
-        _productos = todos
+        _productos = todos.items
           .where((producto) => normalizar(producto.finca) == nombreProductor)
           .toList(growable: false);
         _cargando = false;

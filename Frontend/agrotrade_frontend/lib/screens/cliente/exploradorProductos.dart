@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
@@ -26,6 +28,10 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
   
   List<ProductoMercado> _productos = [];
   bool _cargando = true;
+  int _page = 1;
+  int _totalPages = 1;
+
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -33,11 +39,34 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
     _cargarProductos();
   }
 
+  void _onSearchChanged(String val) {
+    setState(() => _busqueda = val);
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        _page = 1;
+        _cargarProductos();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
   Future<void> _cargarProductos() async {
-    final productos = await ConsumerApiService.instance.getProductos();
+    setState(() => _cargando = true);
+    final response = await ConsumerApiService.instance.getProductos(
+      page: _page, 
+      limit: 20,
+      search: _busqueda.trim()
+    );
     if (mounted) {
       setState(() {
-        _productos = productos;
+        _productos = response.items;
+        _totalPages = response.totalPages;
         _cargando = false;
       });
     }
@@ -51,10 +80,8 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
   ];
 
   List<ProductoMercado> get _filtrados => _productos.where((p) {
-    final porTab = _tabSel == 0 || p.categoria == _tabLabels[_tabSel];
-    final texto = _busqueda.trim().toLowerCase();
-    final porTexto = texto.isEmpty || p.nombre.toLowerCase().contains(texto);
-    return porTab && porTexto;
+    final porTab = _tabSel == 0 || p.categoria.toLowerCase() == _tabLabels[_tabSel].toLowerCase();
+    return porTab;
   }).toList();
 
   void _mostrarSnack(String mensaje) {
@@ -113,6 +140,41 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
     }
   }
 
+  Widget _paginacionWidget() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+      color: AppColors.White,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          TextButton.icon(
+            onPressed: _page > 1 && !_cargando
+                ? () {
+                    _page--;
+                    _cargarProductos();
+                  }
+                : null,
+            icon: const Icon(Icons.chevron_left),
+            label: const Text('Anterior'),
+          ),
+          Text('Página $_page de ${max(1, _totalPages)}'),
+          TextButton(
+            onPressed: _page < _totalPages && !_cargando
+                ? () {
+                    _page++;
+                    _cargarProductos();
+                  }
+                : null,
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [Text('Siguiente'), Icon(Icons.chevron_right)],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -131,6 +193,7 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
               ? const Center(child: CircularProgressIndicator(color: AppColors.primaryColor))
               : _lista(),
             ),
+            _paginacionWidget(),
           ],
         ),
       ),
@@ -235,7 +298,7 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
-                      onChanged: (v) => setState(() => _busqueda = v),
+                      onChanged: _onSearchChanged,
                       decoration: InputDecoration(
                         hintText: 'Buscar productos',
                         hintStyle: AppTextStyles.SubTitle.copyWith(
