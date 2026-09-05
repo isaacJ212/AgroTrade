@@ -21,7 +21,10 @@ namespace Agro_Trade.Application.Features.Productos.Queries
 
         public async Task<Result<PaginatedResultDto<ProductoDto>>> Handle(GetProductosQuery request, CancellationToken cancellationToken)
         {
-            var query = _unitOfWork.Productos.GetQueryable().Include(p => p.Categoria).AsQueryable();
+            var query = _unitOfWork.Productos.GetQueryable()
+                .Include(p => p.Categoria)
+                .Include(p => p.Inventarios)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
@@ -37,15 +40,21 @@ namespace Agro_Trade.Application.Features.Productos.Queries
                 .Take(request.Limit)
                 .ToListAsync(cancellationToken);
 
-            var data = productos.Select(p => new ProductoDto
+            var data = productos.Select(p => 
             {
-                IdProducto = p.IdProducto,
-                IdCategoria = p.IdCategoria,
-                CategoriaNombre = p.Categoria?.Nombre,
-                IdProveedor = p.IdProveedor,
-                Nombre = p.Nombre,
-                Descripcion = p.Descripcion,
-                UnidadMedida = p.UnidadMedida
+                var inventario = p.Inventarios.FirstOrDefault(i => i.Disponible);
+                return new ProductoDto
+                {
+                    IdProducto = p.IdProducto,
+                    IdCategoria = p.IdCategoria,
+                    CategoriaNombre = p.Categoria?.Nombre,
+                    IdProveedor = p.IdProveedor,
+                    Nombre = p.Nombre,
+                    Descripcion = p.Descripcion,
+                    UnidadMedida = p.UnidadMedida,
+                    Precio = inventario?.PrecioVenta ?? 0,
+                    FotoUrl = inventario?.FotoUrl
+                };
             }).ToList();
 
             var paginatedResult = new PaginatedResultDto<ProductoDto>

@@ -36,7 +36,30 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
   @override
   void initState() {
     super.initState();
+    _cargarCategorias();
     _cargarProductos();
+  }
+
+  Future<void> _cargarCategorias() async {
+    try {
+      final cats = await ConsumerApiService.instance.getCategoriasActivas();
+      if (cats.isNotEmpty) {
+        final unicas = cats.toSet().toList();
+        unicas.insert(0, 'Todos');
+        if (mounted) {
+          setState(() {
+            _tabLabels = unicas;
+            // Si la categoría seleccionada actual es mayor al nuevo número de pestañas,
+            // la reiniciamos a 0 ("Todos")
+            if (_tabSel >= _tabLabels.length) {
+              _tabSel = 0;
+            }
+          });
+        }
+      }
+    } catch (_) {
+      // Fallback a las categorías por defecto si hay error de red
+    }
   }
 
   void _onSearchChanged(String val) {
@@ -72,7 +95,7 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
     }
   }
 
-  static const List<String> _tabLabels = [
+  List<String> _tabLabels = [
     'Todos',
     'Frutas',
     'Cítricos',

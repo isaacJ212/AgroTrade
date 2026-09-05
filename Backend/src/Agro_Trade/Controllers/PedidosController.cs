@@ -18,7 +18,7 @@ namespace Agro_Trade.Controllers
         public async Task<ActionResult<Result<CheckoutResponseDto>>> CheckoutDirecto([FromBody] CompraDirectaRequestDto request)
         {
             if (!TryGetUserId(out var userId)) return Unauthorized(Result<CheckoutResponseDto>.Failure(401, "JWT invalido."));
-            var result = await mediator.Send(new ProcesarCompraDirectaCommand(userId, request.ProductId, request.Quantity, request.MetodoPago));
+            var result = await mediator.Send(new ProcesarCompraDirectaCommand(userId, request.Items, request.MetodoPago));
             return StatusCode(result.StatusCode, result);
         }
 

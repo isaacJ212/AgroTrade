@@ -12,14 +12,12 @@ class LoginResponseDto {
   });
 
   factory LoginResponseDto.fromJson(Map<String, dynamic> json) {
+    final rawRoles = json['Roles'] ?? json['roles'];
+    final rolesList = rawRoles is List ? rawRoles.map((e) => e.toString()).toList() : <String>[];
     return LoginResponseDto(
       userName: readString(json, const ['UserName', 'userName']) ?? '',
       token: readString(json, const ['Token', 'token']) ?? '',
-      roles:
-          (json['Roles'] ?? json['roles'] as List<dynamic>?)
-              ?.map((item) => item.toString())
-              .toList() ??
-          [],
+      roles: rolesList,
     );
   }
 }

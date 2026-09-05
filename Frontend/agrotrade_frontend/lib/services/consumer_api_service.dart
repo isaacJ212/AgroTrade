@@ -1,6 +1,7 @@
 import 'dart:convert';
 import '../models/Consumidor/consumidor_models.dart';
 import 'api_client.dart';
+import 'cart_service.dart';
 
 class ConsumerApiService {
   static final ConsumerApiService _instance = ConsumerApiService._internal();
@@ -60,6 +61,7 @@ class ConsumerApiService {
 
   static const List<ProductoCercano> _mockCercanos = [
     ProductoCercano(
+      id: 1,
       nombre: 'Tomate Chonto Fresco',
       finca: 'Finca La Esperanza',
       precio: 25.00,
@@ -68,6 +70,7 @@ class ConsumerApiService {
       imagenUrl: 'https://solofruver.com/wp-content/uploads/2020/06/tomate-chonto-e1662500217171.jpg',
     ),
     ProductoCercano(
+      id: 2,
       nombre: 'Naranja Valencia',
       finca: 'Coop. Los Andes',
       precio: 18.00,
@@ -173,43 +176,101 @@ class ConsumerApiService {
     return _mockOferta;
   }
 
-  Future<bool> checkout(double total, int itemsCount) async {
+  Future<bool> checkout(List<ItemCarrito> items, String metodoPago) async {
     try {
-      // Simular intento de post
-      final response = await ApiClient.instance.post('/api/pedidos/checkout', body: {
-        'total': total,
-        'itemsCount': itemsCount,
-      }).timeout(_timeout);
+      print('--- INICIANDO PROCESO DE CHECKOUT ---');
+      final List<Map<String, dynamic>> itemsList = items.map((e) => {
+        'productId': e.id,
+        'quantity': e.cantidad,
+      }).toList();
+      
+      print('Payload de items a enviar: $itemsList');
+      print('Método de pago: $metodoPago');
 
-      if (response.statusCode == 200) {
+      final response = await ApiClient.instance.post('/api/Pedidos/checkout-directo', 
+        authorized: true,
+        body: {
+          'items': itemsList,
+          'metodoPago': metodoPago,
+        }).timeout(_timeout);
+
+      print('Status Code devuelto por el Backend: ${response.statusCode}');
+      print('Cuerpo de la respuesta: ${response.rawBody}');
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        print('Checkout completado exitosamente en el backend.');
         return true;
       }
-    } catch (_) {
-      // Fallback: guardar pedido de forma local (mock)
-      _mockPedidos.add(PedidoConsumidor(
-        id: 'PED-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
-        fecha: DateTime.now().toString().split(' ')[0],
-        estado: 'Procesando',
-        total: total,
-        itemsCount: itemsCount,
-      ));
-      return true; // Éxito simulado
+    } catch (e) {
+      print('Checkout error atrapado en catch: $e');
     }
-    return false;
+    
+    print('El checkout al backend falló, usando fallback mock local.');
+    double total = items.fold(0, (sum, item) => sum + (item.precioUnitario * item.cantidad));
+    int itemsCount = items.fold(0, (sum, item) => sum + item.cantidad);
+    
+    _mockPedidos.add(PedidoConsumidor(
+      id: 'PED-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
+      fecha: DateTime.now().toString().split(' ')[0],
+      estado: 'Procesando',
+      total: total,
+      itemsCount: itemsCount,
+    ));
+    return true; // Éxito simulado
   }
 
   Future<List<PedidoConsumidor>> getMisPedidos() async {
     try {
-      final response = await ApiClient.instance.get('/api/pedidos/mis-pedidos')
+      final response = await ApiClient.instance.get('/api/Pedidos/historial', authorized: true)
           .timeout(_timeout);
       
       if (response.statusCode == 200) {
-        // ... mapping logic
-        return _mockPedidos; // Fallback for simplicity if not fully mapped
+        final decoded = json.decode(response.rawBody);
+        final data = decoded['data'];
+        
+        List<dynamic> jsonList = [];
+        if (data is Map<String, dynamic>) {
+          jsonList = data['items'] ?? [];
+        } else if (data is List) {
+          jsonList = data;
+        }
+
+        return jsonList.map((json) {
+          return PedidoConsumidor(
+            id: 'PED-${json['idPedido'] ?? json['id']}',
+            fecha: (json['fechaPedido'] ?? '').toString().split('T')[0],
+            estado: json['estadoEnvio'] ?? 'Procesando',
+            total: (json['total'] ?? 0).toDouble(),
+            itemsCount: (json['detalles'] as List?)?.length ?? 0,
+          );
+        }).toList();
       }
-      return _mockPedidos;
+      return _mockPedidos; // Fallback
+    } catch (e) {
+      print('Error mis pedidos: $e');
+      return _mockPedidos; // Fallback
+    }
+  }
+
+  Future<List<String>> getCategoriasActivas() async {
+    try {
+      final response = await ApiClient.instance.get('/api/categorias?hasProducts=true&pageSize=50')
+          .timeout(_timeout);
+      
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.rawBody);
+        
+        final data = decoded['data'] ?? {};
+        final List<dynamic> jsonList = data['items'] ?? [];
+
+        return jsonList
+            .map((json) => json['nombre']?.toString() ?? '')
+            .where((name) => name.isNotEmpty)
+            .toList();
+      }
+      throw Exception('Fallo al cargar categorías');
     } catch (_) {
-      return _mockPedidos;
+      throw Exception('Excepción al cargar categorías');
     }
   }
 }

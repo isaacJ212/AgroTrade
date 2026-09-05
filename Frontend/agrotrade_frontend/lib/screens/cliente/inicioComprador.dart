@@ -152,7 +152,7 @@ class _InicioCompradorState extends State<InicioComprador> {
 
   void _agregarAlCarrito(ProductoCercano prod) {
     CartService.instance.addItem(ItemCarrito(
-      id: prod.hashCode, // Usando hashCode temporalmente por falta de ID en ProductoCercano
+      id: prod.id,
       nombre: prod.nombre,
       finca: prod.finca,
       unidad: prod.unidad,

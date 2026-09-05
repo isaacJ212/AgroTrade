@@ -388,8 +388,8 @@ class _ResumenConfirmacionScreenState extends State<ResumenConfirmacionScreen> {
                 onPressed: () async {
                   setState(() => _procesando = true);
                   final success = await ConsumerApiService.instance.checkout(
-                    _total,
-                    CartService.instance.totalItems,
+                    CartService.instance.items,
+                    "Tarjeta", // asumiendo método de pago por defecto para este ejemplo
                   );
                   if (!context.mounted) return;
                   if (success) {

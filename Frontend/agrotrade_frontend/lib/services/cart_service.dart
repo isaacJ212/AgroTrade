@@ -36,11 +36,15 @@ class CartService extends ChangeNotifier {
   int get totalItems => _items.fold(0, (sum, item) => sum + item.cantidad);
 
   void addItem(ItemCarrito item) {
+    print('--- AGREGANDO PRODUCTO AL CARRITO ---');
+    print('ID: ${item.id}, Producto: ${item.nombre}, Cantidad: ${item.cantidad}, Precio: ${item.precioUnitario}');
     final index = _items.indexWhere((i) => i.id == item.id);
     if (index >= 0) {
       _items[index].cantidad += item.cantidad;
+      print('El producto ya existía. Nueva cantidad: ${_items[index].cantidad}');
     } else {
       _items.add(item);
+      print('Producto nuevo agregado al carrito.');
     }
     notifyListeners();
   }

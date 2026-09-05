@@ -31,6 +31,7 @@ class ProductoMercado {
 }
 
 class ProductoCercano {
+  final int id;
   final String nombre;
   final String finca;
   final double precio;
@@ -39,6 +40,7 @@ class ProductoCercano {
   final String imagenUrl;
 
   const ProductoCercano({
+    required this.id,
     required this.nombre,
     required this.finca,
     required this.precio,
