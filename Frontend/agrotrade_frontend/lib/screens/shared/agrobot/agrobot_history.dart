@@ -17,9 +17,7 @@ class _HistorialItem {
   });
 }
 
-/// Pantalla de Historial de AgroBot.
-/// Muestra las conversaciones previas del usuario con AgroBot.
-/// Accesible para todos los roles.
+/// Pantalla de hstorial de AgroBot.
 class AgrobotHistory extends StatelessWidget {
   const AgrobotHistory({super.key});
 
@@ -43,7 +41,7 @@ class AgrobotHistory extends StatelessWidget {
 
   void _onNavTap(BuildContext context, int index) {
     if (index == 2) {
-      // AgroBot → ir a Bienvenida
+      // AgroBot -> ir a bienvenida
       Navigator.pushReplacementNamed(context, AppRoutes.agrobotWelcome);
       return;
     }
@@ -74,20 +72,32 @@ class AgrobotHistory extends StatelessWidget {
         surfaceTintColor: Colors.transparent,
         title: Row(
           children: [
-            SizedBox(
-              width: 34,
-              height: 34,
-              child: Image.asset(
-                'lib/assets/images/Agrobot/assets_preview_rev_1.png',
-                fit: BoxFit.contain,
+            Container(
+              width: 32,
+              height: 32,
+              decoration: const BoxDecoration(
+                color: Color(0xFFF3F6F4),
+                shape: BoxShape.circle,
+              ),
+              padding: const EdgeInsets.only(top: 4),
+              child: ClipOval(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Image.asset(
+                    'lib/assets/images/Agrobot/assets_preview_rev_1.png',
+                    fit: BoxFit.contain,
+                    width: 26,
+                  ),
+                ),
               ),
             ),
             const SizedBox(width: 8),
             Text(
               'AgroBot',
-              style: AppTextStyles.headline.copyWith(
+              style: AppTextStyles.Title.copyWith(
                 fontSize: 18,
-                color: AppColors.primaryColor,
+                color: AppColors.titleDark,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ],
@@ -98,7 +108,6 @@ class AgrobotHistory extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 24, 20, 100),
           children: [
-            // ── Encabezado ────────────────────────────────────────────────
             Text(
               'Historial de AgroBot',
               style: AppTextStyles.sectionTitle.copyWith(
@@ -117,7 +126,7 @@ class AgrobotHistory extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // ── Lista de conversaciones ───────────────────────────────────
+            //Lista de conversaciones
             if (_historial.isEmpty)
               _EmptyHistorial()
             else
@@ -141,7 +150,7 @@ class AgrobotHistory extends StatelessWidget {
   }
 }
 
-/// Tarjeta de conversación del historial.
+// Tarjeta de conversación del historial.
 class _HistorialCard extends StatelessWidget {
   final _HistorialItem item;
   final VoidCallback onContinuar;
@@ -157,29 +166,30 @@ class _HistorialCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.White,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.cardBorder),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade100),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x08000000),
-            blurRadius: 4,
-            offset: Offset(0, 2),
+            color: Color(0x05000000),
+            blurRadius: 10,
+            offset: Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Encabezado de la tarjeta ──────────────────────────────────
+          // Encabezado de la tarjeta
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                 child: Text(
                   item.titulo,
                   style: AppTextStyles.label.copyWith(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.titleDark,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF1F2937),
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -188,40 +198,39 @@ class _HistorialCard extends StatelessWidget {
                 item.fecha,
                 style: AppTextStyles.SubTitle.copyWith(
                   fontSize: 12,
-                  color: AppColors.bodyText,
+                  color: const Color(0xFF9CA3AF),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
 
-          // ── Descripción ──────────────────────────────────────────────
+          // descripcion
           Text(
             item.descripcion,
             style: AppTextStyles.SubTitle.copyWith(
-              fontSize: 13,
-              color: AppColors.bodyText,
+              fontSize: 14,
+              color: const Color(0xFF6B7280),
               height: 1.4,
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
 
-          // ── Botón Continuar ──────────────────────────────────────────
+          // botón Continuar
           Align(
             alignment: Alignment.centerRight,
-            child: OutlinedButton(
+            child: ElevatedButton(
               onPressed: onContinuar,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primaryColor,
-                side: BorderSide(
-                  color: AppColors.primaryColor.withValues(alpha: 0.5),
-                ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFF3F4F6),
+                foregroundColor: const Color(0xFF064E3B), 
+                elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 8,
+                  horizontal: 24,
+                  vertical: 10,
                 ),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -229,8 +238,9 @@ class _HistorialCard extends StatelessWidget {
               child: Text(
                 'Continuar',
                 style: AppTextStyles.label.copyWith(
-                  fontSize: 13,
-                  color: AppColors.primaryColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF064E3B),
                 ),
               ),
             ),
@@ -253,13 +263,13 @@ class _EmptyHistorial extends StatelessWidget {
             width: 72,
             height: 72,
             decoration: BoxDecoration(
-              color: AppColors.primarySoftBg,
+              color: const Color(0xFFF3F4F6),
               borderRadius: BorderRadius.circular(18),
             ),
             child: const Icon(
               Icons.chat_bubble_outline_rounded,
               size: 36,
-              color: AppColors.primaryColor,
+              color: Color(0xFF9CA3AF),
             ),
           ),
           const SizedBox(height: 16),
@@ -267,7 +277,7 @@ class _EmptyHistorial extends StatelessWidget {
             'Sin historial aún',
             style: AppTextStyles.headline.copyWith(
               fontSize: 16,
-              color: AppColors.titleDark,
+              color: const Color(0xFF1F2937),
             ),
           ),
           const SizedBox(height: 8),
@@ -276,7 +286,7 @@ class _EmptyHistorial extends StatelessWidget {
             textAlign: TextAlign.center,
             style: AppTextStyles.SubTitle.copyWith(
               fontSize: 14,
-              color: AppColors.bodyText,
+              color: const Color(0xFF6B7280),
             ),
           ),
         ],

@@ -4,8 +4,7 @@ import '../../../services/api_session.dart';
 import '../../../ui/app_theme.dart';
 import '../../../ui/components.dart';
 
-/// Pantalla de bienvenida de AgroBot.
-/// Accesible para todos los roles: Cliente, Productor y Repartidor.
+
 class AgrobotWelcome extends StatefulWidget {
   const AgrobotWelcome({super.key});
 
@@ -14,7 +13,7 @@ class AgrobotWelcome extends StatefulWidget {
 }
 
 class _AgrobotWelcomeState extends State<AgrobotWelcome> {
-  // Categorías del FAQ
+
   static const List<_FaqItem> _faqItems = [
     _FaqItem(
       icon: Icons.inventory_2_outlined,
@@ -22,6 +21,8 @@ class _AgrobotWelcomeState extends State<AgrobotWelcome> {
       content:
           'Podés agregar, editar y eliminar productos de tu inventario. '
           'También podés registrar cosechas y ver el historial de stock.',
+      iconColor: Color(0xFF059669),
+      bgColor: Color(0xFFECFDF5),
     ),
     _FaqItem(
       icon: Icons.balance_outlined,
@@ -29,6 +30,8 @@ class _AgrobotWelcomeState extends State<AgrobotWelcome> {
       content:
           'Usá la calculadora de Precio Justo para determinar el precio '
           'sugerido de tus productos con base en tus costos y margen de ganancia.',
+      iconColor: Color(0xFFD97706),
+      bgColor: Color(0xFFFEF3C7),
     ),
     _FaqItem(
       icon: Icons.receipt_long_outlined,
@@ -36,6 +39,8 @@ class _AgrobotWelcomeState extends State<AgrobotWelcome> {
       content:
           'Desde la sección de Pedidos podés ver todos los pedidos recibidos, '
           'prepararlos y marcarlos como listos para entrega.',
+      iconColor: Color(0xFF2563EB),
+      bgColor: Color(0xFFDBEAFE),
     ),
     _FaqItem(
       icon: Icons.local_shipping_outlined,
@@ -43,6 +48,8 @@ class _AgrobotWelcomeState extends State<AgrobotWelcome> {
       content:
           'Podés hacer seguimiento de tus entregas en tiempo real y comunicarte '
           'con el repartidor asignado.',
+      iconColor: Color(0xFF4B5563),
+      bgColor: Color(0xFFF3F4F6),
     ),
     _FaqItem(
       icon: Icons.person_outline,
@@ -50,31 +57,12 @@ class _AgrobotWelcomeState extends State<AgrobotWelcome> {
       content:
           'Editá tu perfil, cambiá tu contraseña y gestioná la información '
           'de tu finca o cuenta de comprador.',
+      iconColor: Color(0xFF059669),
+      bgColor: Color(0xFFECFDF5),
     ),
   ];
 
-  void _onNavTap(int index) {
-    if (index == 2) return; // ya estamos en AgroBot
-    final session = ApiSession.instance;
-    final roles = session.roles;
 
-    if (index == 0) {
-      // Inicio → redirige según rol
-      if (roles.contains('Productor/Proveedor')) {
-        Navigator.pushReplacementNamed(context, AppRoutes.inicioProductor);
-      } else if (roles.contains('Repartidor')) {
-        Navigator.pushReplacementNamed(context, AppRoutes.inicioRepartidor);
-      } else {
-        Navigator.pushReplacementNamed(context, AppRoutes.inicioComprador);
-      }
-    } else if (index == 1) {
-      // Mercado
-      Navigator.pushNamed(context, AppRoutes.explorarProductos);
-    } else if (index == 3) {
-      // Perfil
-      Navigator.pushNamed(context, AppRoutes.profile);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,9 +86,10 @@ class _AgrobotWelcomeState extends State<AgrobotWelcome> {
             const SizedBox(width: 8),
             Text(
               'AgroBot',
-              style: AppTextStyles.headline.copyWith(
+              style: AppTextStyles.Title.copyWith(
                 fontSize: 18,
-                color: AppColors.primaryColor,
+                color: AppColors.titleDark,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ],
@@ -118,7 +107,7 @@ class _AgrobotWelcomeState extends State<AgrobotWelcome> {
               'Historial',
               style: AppTextStyles.SubTitle.copyWith(
                 color: AppColors.bodyText,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -128,182 +117,195 @@ class _AgrobotWelcomeState extends State<AgrobotWelcome> {
       body: SafeArea(
         bottom: false,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
           children: [
-            const SizedBox(height: 32),
+            const SizedBox(height: 40),
 
-            // ── Ilustración + saludo ────────────────────────────────────────────────
+            // Ilustración + saludo 
             Center(
               child: Container(
-                width: 130,
-                height: 130,
-                decoration: BoxDecoration(
-                  color: AppColors.navPill,
+                width: 140,
+                height: 140,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF3F6F4), 
                   shape: BoxShape.circle,
                 ),
-                padding: const EdgeInsets.all(14),
-                child: Image.asset(
-                  'lib/assets/images/Agrobot/assets_preview_rev_1.png',
-                  fit: BoxFit.contain,
+                padding: const EdgeInsets.only(top: 15), 
+                child: ClipOval(
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Image.asset(
+                      'lib/assets/images/Agrobot/AgrobotCompleto.png',
+                      fit: BoxFit.contain,
+                      width: 110,
+                    ),
+                  ),
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             Text(
               'Hola, soy AgroBot',
               textAlign: TextAlign.center,
               style: AppTextStyles.sectionTitle.copyWith(
-                fontSize: 22,
-                color: AppColors.primaryColor,
+                fontSize: 24,
+                color: const Color(0xFF064E3B), 
                 fontWeight: FontWeight.w800,
               ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             Text(
               'Tu asistente en AgroTrade',
               textAlign: TextAlign.center,
               style: AppTextStyles.headline.copyWith(
-                fontSize: 16,
-                color: AppColors.titleDark,
+                fontSize: 18,
+                color: const Color(0xFF1F2937),
+                fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 10),
-            Text(
-              'Estoy acá para ayudarte a usar\nAgroTrade de forma fácil y rápida.',
-              textAlign: TextAlign.center,
-              style: AppTextStyles.SubTitle.copyWith(
-                fontSize: 14,
-                color: AppColors.bodyText,
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'Estoy acá para ayudarte a usar\nAgroTrade de forma fácil y rápida.',
+                textAlign: TextAlign.center,
+                style: AppTextStyles.SubTitle.copyWith(
+                  fontSize: 15,
+                  color: const Color(0xFF6B7280),
+                  height: 1.4,
+                ),
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 40),
 
-            // ── FAQ ───────────────────────────────────────────────────────
+            // ── FAQ
             Text(
               '¿En qué puedo ayudarte?',
               style: AppTextStyles.label.copyWith(
-                fontSize: 15,
-                color: AppColors.titleDark,
+                fontSize: 14,
+                color: const Color(0xFF4B5563),
+                fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
 
-            Material(
-              color: AppColors.White,
-              borderRadius: BorderRadius.circular(14),
-              clipBehavior: Clip.antiAlias,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.cardBorder),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-              child: Column(
-                children: List.generate(_faqItems.length, (index) {
-                  final item = _faqItems[index];
-                  final isLast = index == _faqItems.length - 1;
-                  return Column(
-                    children: [
-                      Theme(
-                        data: Theme.of(context).copyWith(
-                          dividerColor: Colors.transparent,
-                        ),
-                        child: ExpansionTile(
-                          tilePadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 2,
-                          ),
-                          childrenPadding: const EdgeInsets.fromLTRB(
-                            16, 0, 16, 14,
-                          ),
-                          leading: Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: AppColors.primarySoftBg,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(
-                              item.icon,
-                              size: 18,
-                              color: AppColors.primaryColor,
-                            ),
-                          ),
-                          title: Text(
-                            item.label,
-                            style: AppTextStyles.label.copyWith(
-                              fontSize: 14,
-                              color: AppColors.titleDark,
-                            ),
-                          ),
-                          iconColor: AppColors.bodyText,
-                          collapsedIconColor: AppColors.bodyText,
-                          children: [
-                            Text(
-                              item.content,
-                              style: AppTextStyles.SubTitle.copyWith(
-                                fontSize: 13,
-                                color: AppColors.bodyText,
-                                height: 1.5,
-                              ),
-                            ),
-                          ],
-                        ),
+
+            ...List.generate(_faqItems.length, (index) {
+              final item = _faqItems[index];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Material(
+                  color: AppColors.White,
+                  borderRadius: BorderRadius.circular(16),
+                  elevation: 0,
+                  clipBehavior: Clip.antiAlias,
+                  child: Theme(
+                    data: Theme.of(context).copyWith(
+                      dividerColor: Colors.transparent,
+                    ),
+                    child: ExpansionTile(
+                      tilePadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 4,
                       ),
-                      if (!isLast)
-                        const Divider(
-                          height: 1,
-                          indent: 16,
-                          endIndent: 16,
-                          color: AppColors.cardBorder,
+                      childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                        leading: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: item.bgColor,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            item.icon,
+                            size: 20,
+                            color: item.iconColor,
+                          ),
                         ),
-                    ],
-                  );
-                }),
-              ),
-            ),
-            ),
+                        title: Text(
+                          item.label,
+                          style: AppTextStyles.label.copyWith(
+                            fontSize: 15,
+                            color: const Color(0xFF1F2937),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        iconColor: const Color(0xFF9CA3AF),
+                        collapsedIconColor: const Color(0xFF9CA3AF),
+                        children: [
+                          Text(
+                            item.content,
+                            style: AppTextStyles.SubTitle.copyWith(
+                              fontSize: 14,
+                              color: const Color(0xFF6B7280),
+                              height: 1.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              );
+            }),
 
             const SizedBox(height: 24),
 
-            // ── CTA ───────────────────────────────────────────────────────
+            
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
               decoration: BoxDecoration(
-                color: AppColors.White,
+                color: const Color(0xFFF3F4F6),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.cardBorder),
               ),
               child: Column(
                 children: [
                   Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: AppColors.primarySoftBg,
-                      borderRadius: BorderRadius.circular(14),
+                    width: 56,
+                    height: 56,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFD1FAE5),
+                      shape: BoxShape.circle,
                     ),
                     child: const Icon(
-                      Icons.smart_toy_outlined,
+                      Icons.smart_toy,
                       size: 28,
-                      color: AppColors.primaryColor,
+                      color: Color(0xFF064E3B),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   Text(
                     '¿No encontraste lo que buscabas?',
                     textAlign: TextAlign.center,
                     style: AppTextStyles.label.copyWith(
-                      fontSize: 14,
-                      color: AppColors.titleDark,
+                      fontSize: 15,
+                      color: const Color(0xFF4B5563),
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  PrimaryButton(
-                    label: 'Preguntarle a AgroBot',
-                    radius: 12,
-                    icon: Icons.chat_bubble_outline_rounded,
-                    onPressed: () =>
-                        Navigator.pushNamed(context, AppRoutes.agrobotChat),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF064E3B), 
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      onPressed: () =>
+                          Navigator.pushNamed(context, AppRoutes.agrobotChat),
+                      icon: const Icon(Icons.chat_bubble_outline_rounded, size: 20),
+                      label: const Text(
+                        'Preguntarle a AgroBot',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -320,10 +322,14 @@ class _FaqItem {
   final IconData icon;
   final String label;
   final String content;
+  final Color iconColor;
+  final Color bgColor;
 
   const _FaqItem({
     required this.icon,
     required this.label,
     required this.content,
+    required this.iconColor,
+    required this.bgColor,
   });
 }
