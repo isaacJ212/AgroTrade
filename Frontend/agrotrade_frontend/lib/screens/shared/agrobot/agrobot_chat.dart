@@ -4,13 +4,12 @@ import '../../../services/api_session.dart';
 import '../../../ui/app_theme.dart';
 import '../../../ui/components.dart';
 
-/// Modelo simple de mensaje de AgroBot.
+
 class _AgrobotMessage {
   final String text;
   final bool isUser;
   final String time;
 
-  /// Ruta de acción contextual (opcional, solo en mensajes del bot).
   final String? actionLabel;
   final String? actionRoute;
 
@@ -23,8 +22,8 @@ class _AgrobotMessage {
   });
 }
 
-/// Pantalla de chat con AgroBot.
-/// Accesible para todos los roles.
+
+
 class AgrobotChat extends StatefulWidget {
   const AgrobotChat({super.key});
 
@@ -124,7 +123,7 @@ class _AgrobotChatState extends State<AgrobotChat> {
       _messages.add(userMsg);
     });
 
-    // Simular typing delay
+
     Future.delayed(const Duration(milliseconds: 800), () {
       if (!mounted) return;
       setState(() {
@@ -175,41 +174,26 @@ class _AgrobotChatState extends State<AgrobotChat> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.screenBg,
+      backgroundColor: const Color(0xFFF9FAFB),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: AppColors.White,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
-        centerTitle: true,
-        title: Column(
+        title: Row(
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: Image.asset(
-                    'lib/assets/images/Agrobot/assets_preview_rev_1.png',
-                    fit: BoxFit.contain,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'AgroBot',
-                  style: AppTextStyles.headline.copyWith(
-                    fontSize: 17,
-                    color: AppColors.primaryColor,
-                  ),
-                ),
-              ],
+            const Icon(
+              Icons.smart_toy_outlined, 
+              color: Color(0xFF064E3B),
+              size: 24,
             ),
+            const SizedBox(width: 8),
             Text(
-              'Asistente virtual 24/7',
-              style: AppTextStyles.SubTitle.copyWith(
-                fontSize: 12,
-                color: AppColors.bodyText,
+              'AgroBot',
+              style: AppTextStyles.Title.copyWith(
+                fontSize: 20,
+                color: const Color(0xFF1F2937),
+                fontWeight: FontWeight.w700,
               ),
             ),
           ],
@@ -220,33 +204,72 @@ class _AgrobotChatState extends State<AgrobotChat> {
                 Navigator.pushNamed(context, AppRoutes.agrobotHistory),
             icon: const Icon(
               Icons.history_rounded,
-              size: 18,
-              color: AppColors.bodyText,
+              size: 20,
+              color: Color(0xFF4B5563),
             ),
             label: Text(
               'Historial',
               style: AppTextStyles.SubTitle.copyWith(
-                color: AppColors.bodyText,
-                fontWeight: FontWeight.w600,
+                color: const Color(0xFF4B5563),
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
               ),
             ),
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 8),
         ],
       ),
       body: Column(
         children: [
-          // ── Lista de mensajes ──────────────────────────────────────────
+    
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              padding: const EdgeInsets.only(bottom: 24),
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 if (index == 0) {
-                  // Primer mensaje: muestra timestamp centrado arriba
+               
                   return Column(
                     children: [
+                      const SizedBox(height: 32),
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFF3F6F4),
+                          shape: BoxShape.circle,
+                        ),
+                        padding: const EdgeInsets.only(top: 8),
+                        child: ClipOval(
+                          child: Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Image.asset(
+                              'lib/assets/images/Agrobot/AgrobotCompleto.png',
+                              fit: BoxFit.contain,
+                              width: 60,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'AgroBot',
+                        style: AppTextStyles.Title.copyWith(
+                          fontSize: 24,
+                          color: const Color(0xFF1F2937),
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Asistente virtual 24/7',
+                        style: AppTextStyles.SubTitle.copyWith(
+                          fontSize: 14,
+                          color: const Color(0xFF6B7280),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
                       _TimestampChip(label: _messages[0].time),
                       const SizedBox(height: 8),
                       _buildBubble(_messages[0]),
@@ -258,7 +281,6 @@ class _AgrobotChatState extends State<AgrobotChat> {
             ),
           ),
 
-          // ── Input ─────────────────────────────────────────────────────
           _AgrobotInputField(
             onSend: _sendMessage,
           ),
@@ -273,25 +295,25 @@ class _AgrobotChatState extends State<AgrobotChat> {
       return Align(
         alignment: Alignment.centerRight,
         child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+          margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.75,
           ),
           decoration: const BoxDecoration(
-            color: AppColors.primaryColor,
+            color: Color(0xFF064E3B),
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(16),
               topRight: Radius.circular(16),
               bottomLeft: Radius.circular(16),
-              bottomRight: Radius.circular(0),
+              bottomRight: Radius.circular(4),
             ),
           ),
           child: Text(
             msg.text,
             style: const TextStyle(
               fontSize: 14,
-              color: AppColors.White,
+              color: Colors.white,
               fontWeight: FontWeight.w400,
               height: 1.4,
             ),
@@ -300,18 +322,18 @@ class _AgrobotChatState extends State<AgrobotChat> {
       );
     }
 
-    // Burbuja del bot
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          // Avatar del bot
-          SizedBox(
-            width: 32,
-            height: 32,
+          Container(
+            width: 24,
+            height: 24,
+            margin: const EdgeInsets.only(bottom: 2), 
             child: Image.asset(
-              'lib/assets/images/Agrobot/assets_preview_rev_1.png',
+              'lib/assets/images/Agrobot/assets-removebg-preview.png',
               fit: BoxFit.contain,
             ),
           ),
@@ -322,29 +344,26 @@ class _AgrobotChatState extends State<AgrobotChat> {
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    vertical: 10,
-                    horizontal: 14,
+                    vertical: 12,
+                    horizontal: 16,
                   ),
                   constraints: BoxConstraints(
                     maxWidth: MediaQuery.of(context).size.width * 0.72,
                   ),
-                  decoration: BoxDecoration(
-                    color: AppColors.primarySoftBg,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(0),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF72A9FE), 
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(16),
                       topRight: Radius.circular(16),
-                      bottomLeft: Radius.circular(16),
+                      bottomLeft: Radius.circular(4),
                       bottomRight: Radius.circular(16),
-                    ),
-                    border: Border.all(
-                      color: AppColors.primaryColor.withValues(alpha: 0.15),
                     ),
                   ),
                   child: Text(
                     msg.text,
                     style: AppTextStyles.SubTitle.copyWith(
                       fontSize: 14,
-                      color: AppColors.TextMain,
+                      color: const Color(0xFF1F2937),
                       height: 1.5,
                     ),
                   ),
@@ -366,7 +385,7 @@ class _AgrobotChatState extends State<AgrobotChat> {
   }
 }
 
-/// Chip con timestamp centrado en la conversación.
+
 class _TimestampChip extends StatelessWidget {
   final String label;
   const _TimestampChip({required this.label});
@@ -393,7 +412,7 @@ class _TimestampChip extends StatelessWidget {
   }
 }
 
-/// Botón de acción contextual dentro de la burbuja del bot.
+
 class _ActionChip extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
@@ -404,37 +423,51 @@ class _ActionChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-        decoration: BoxDecoration(
-          color: AppColors.White,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.primaryColor.withValues(alpha: 0.4)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.arrow_forward_rounded,
-              size: 14,
-              color: AppColors.primaryColor,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 24,
+            height: 24,
+            margin: const EdgeInsets.only(right: 8),
+            child: Image.asset(
+              'lib/assets/images/Agrobot/assets-removebg-preview.png', 
+              fit: BoxFit.contain,
             ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: AppTextStyles.label.copyWith(
-                fontSize: 13,
-                color: AppColors.primaryColor,
-              ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColors.White,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFF059669).withValues(alpha: 0.3)),
             ),
-          ],
-        ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: AppTextStyles.label.copyWith(
+                    fontSize: 13,
+                    color: const Color(0xFF059669),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                const Icon(
+                  Icons.arrow_forward_rounded,
+                  size: 14,
+                  color: Color(0xFF059669),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-/// Campo de input adaptado para AgroBot con hint específico.
 class _AgrobotInputField extends StatefulWidget {
   final Function(String) onSend;
 
@@ -486,9 +519,9 @@ class _AgrobotInputFieldState extends State<_AgrobotInputField> {
               child: Container(
                 constraints: const BoxConstraints(maxHeight: 110),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceAlt,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: AppColors.cardBorder),
+                  color: const Color(0xFFF3F4F6), 
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: Colors.grey.shade300),
                 ),
                 child: TextField(
                   controller: _controller,
@@ -500,30 +533,30 @@ class _AgrobotInputFieldState extends State<_AgrobotInputField> {
                     hintText: 'Preguntale algo a AgroBot...',
                     hintStyle: AppTextStyles.SubTitle.copyWith(
                       fontSize: 14,
-                      color: AppColors.bodyText.withValues(alpha: 0.7),
+                      color: const Color(0xFF9CA3AF),
                     ),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 18,
+                      horizontal: 20,
                       vertical: 12,
                     ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
             GestureDetector(
               onTap: _handleSend,
               child: Container(
-                width: 44,
-                height: 44,
+                width: 48,
+                height: 48,
                 decoration: const BoxDecoration(
-                  color: AppColors.primaryColor,
+                  color: Color(0xFF064E3B),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.send_rounded,
-                  color: AppColors.White,
+                  color: Colors.white,
                   size: 20,
                 ),
               ),
