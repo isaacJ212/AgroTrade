@@ -229,8 +229,7 @@ class _InicioProductorState extends State<InicioProductor> {
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 8),
         child: SupportFab(
-          icono: Icons.smart_toy_outlined,
-          onPressed: () => Navigator.pushNamed(context, '/chat', arguments: {'contactName': 'Soporte AgroTrade', 'contactRole': 'Asistencia Técnica'}),
+          onPressed: () => Navigator.pushNamed(context, AppRoutes.agrobotWelcome),
         ),
       ),
       bottomNavigationBar: ProductorBottomNav(

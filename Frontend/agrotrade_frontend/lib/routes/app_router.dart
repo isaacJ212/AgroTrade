@@ -16,6 +16,11 @@ import '../screens/shared/notificaciones.dart';
 import '../screens/shared/centroAyuda.dart';
 import '../screens/shared/chat/chatMensajes.dart';
 
+// ── AgroBot ───────────────────────────────────────────────────────────────────
+import '../screens/shared/agrobot/agrobot_welcome.dart';
+import '../screens/shared/agrobot/agrobot_chat.dart';
+import '../screens/shared/agrobot/agrobot_history.dart';
+
 // ── Cliente ────────────────────────────────────────────────────────────────────
 import '../screens/cliente/inicioComprador.dart';
 import '../screens/cliente/exploradorProductos.dart';
@@ -113,6 +118,16 @@ class AppRouter {
 
       case AppRoutes.centroAyuda:
         return _slide(const CentroAyuda());
+
+      // ── AgroBot ──────────────────────────────────────────────────────────
+      case AppRoutes.agrobotWelcome:
+        return _slide(const AgrobotWelcome());
+
+      case AppRoutes.agrobotChat:
+        return _slide(const AgrobotChat());
+
+      case AppRoutes.agrobotHistory:
+        return _slide(const AgrobotHistory());
 
       case AppRoutes.chat:
         final chatMap = args is Map<String, dynamic>
