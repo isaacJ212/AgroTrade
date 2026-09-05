@@ -323,7 +323,7 @@ class AppRouter {
           DetalleEntregaRepartidor(
             pedidoId: map['pedidoId'] as int? ?? 0,
             zonaEntrega: map['zonaEntrega'] as String? ?? '',
-            totalPedido: map['totalPedido'] as double? ?? 0.0,
+            totalPedido: (map['totalPedido'] as num?)?.toDouble() ?? 0.0,
           ),
         );
 
