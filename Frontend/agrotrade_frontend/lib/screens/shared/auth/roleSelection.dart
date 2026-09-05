@@ -40,9 +40,11 @@ class _RoleSelection extends State<Roleselection> {
     if (_rolSeleccionado == null) return;
     
     print("DEBUG: [RoleSelection] Rol seleccionado: $_rolSeleccionado, navegando a Registro");
-    // Aquí idealmente pasaríamos el _rolSeleccionado a la pantalla de registro
-    // Por ahora, navegamos a registro.
-    Navigator.pushReplacementNamed(context, AppRoutes.registro);
+    Navigator.pushReplacementNamed(
+      context, 
+      AppRoutes.registro, 
+      arguments: _rolSeleccionado
+    );
   }
 
   @override

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
-
+import 'dart:convert';
+import 'api_client.dart';
 class ItemCarrito {
   final int id;
   final String nombre;
@@ -47,6 +48,23 @@ class CartService extends ChangeNotifier {
       print('Producto nuevo agregado al carrito.');
     }
     notifyListeners();
+    _syncAddItemToBackend(item.id, item.cantidad);
+  }
+
+  Future<void> _syncAddItemToBackend(int productId, int quantity) async {
+    try {
+      print('DEBUG: [CartService] Sincronizando con backend: agregando productId $productId cant $quantity');
+      await ApiClient.instance.post(
+        '/api/carrito/add',
+        authorized: true,
+        body: {
+          'productId': productId,
+          'quantity': quantity
+        }
+      );
+    } catch (e) {
+      print('DEBUG: [CartService] Error sincronizando carrito: $e');
+    }
   }
 
   void updateCantidad(int id, int delta) {
@@ -55,14 +73,31 @@ class CartService extends ChangeNotifier {
       final nuevaCantidad = _items[index].cantidad + delta;
       if (nuevaCantidad <= 0) {
         _items.removeAt(index);
+        _syncRemoveFromBackend(id);
       } else {
         _items[index].cantidad = nuevaCantidad;
+        // La API Add suma o resta. Si queremos mandar un update exacto, o un delta.
+        // El endpoint Add del backend suma a la cantidad actual.
+        // Por lo que mandar `delta` es correcto.
+        _syncAddItemToBackend(id, delta);
       }
       notifyListeners();
     }
   }
 
+  Future<void> _syncRemoveFromBackend(int productId) async {
+    // Si la API no tiene un remove individual (solo add y clear), mandamos cantidad negativa
+    // para llegar a 0.
+    final itemActual = _items.firstWhere((i) => i.id == productId, orElse: () => ItemCarrito(id: -1, nombre: '', finca: '', unidad: '', precioUnitario: 0, cantidad: 0, imagenUrl: ''));
+    if (itemActual.id != -1) {
+      _syncAddItemToBackend(productId, -itemActual.cantidad);
+    } else {
+      _syncAddItemToBackend(productId, -9999); // Force reset
+    }
+  }
+
   void removeItem(int id) {
+    _syncRemoveFromBackend(id);
     _items.removeWhere((i) => i.id == id);
     notifyListeners();
   }
@@ -70,6 +105,19 @@ class CartService extends ChangeNotifier {
   void clearCart() {
     _items.clear();
     notifyListeners();
+    _syncClearCartToBackend();
+  }
+
+  Future<void> _syncClearCartToBackend() async {
+    try {
+      print('DEBUG: [CartService] Sincronizando con backend: limpiando carrito');
+      await ApiClient.instance.delete(
+        '/api/carrito/clear',
+        authorized: true,
+      );
+    } catch (e) {
+      print('DEBUG: [CartService] Error limpiando carrito en backend: $e');
+    }
   }
 
   Map<String, List<ItemCarrito>> get agrupadoPorFinca {

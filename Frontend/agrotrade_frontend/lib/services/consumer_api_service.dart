@@ -279,15 +279,11 @@ class ConsumerApiService {
   Future<bool> checkout(List<ItemCarrito> items, String metodoPago) async {
     try {
       print('--- INICIANDO PROCESO DE CHECKOUT ---');
-      final List<Map<String, dynamic>> itemsList = items.map((e) => {
-        'productId': e.id,
-        'quantity': e.cantidad,
-      }).toList();
+      print('DEBUG: [ConsumerApiService] Haciendo checkout del carrito sincronizado...');
       
-      final response = await ApiClient.instance.post('/api/Pedidos/checkout-directo', 
+      final response = await ApiClient.instance.post('/api/pedido/checkout', 
         authorized: true,
         body: {
-          'items': itemsList,
           'metodoPago': metodoPago,
         }).timeout(_timeout);
 

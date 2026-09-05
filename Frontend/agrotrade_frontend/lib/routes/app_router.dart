@@ -96,7 +96,9 @@ class AppRouter {
         return _fade(const Login());
 
       case AppRoutes.registro:
-        return _slide(const Registro());
+        print("DEBUG: [AppRouter] args para registro: $args, tipo: ${args.runtimeType}");
+        final idRol = args is int ? args : null;
+        return _slide(Registro(idRol: idRol));
 
       case AppRoutes.roleSelection:
         return _slide(const Roleselection());
