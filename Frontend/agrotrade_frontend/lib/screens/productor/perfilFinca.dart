@@ -12,7 +12,7 @@ class PerfilFinca extends StatelessWidget {
   const PerfilFinca({super.key, this.embedded = false});
   @override
   Widget build(BuildContext context) {
-    if (!embedded) return const ProductorShell(initialIndex: 3);
+    if (!embedded) return const ProductorShell(initialIndex: 4);
     final store = ProductorStore.instance;
     return AnimatedBuilder(
       animation: store,
@@ -24,7 +24,7 @@ class PerfilFinca extends StatelessWidget {
             .length;
         return ProductorPage(
           title: 'Mi perfil',
-          rootIndex: 3,
+          rootIndex: 4,
           children: [
             ProductorCard(
               child: Column(

@@ -243,7 +243,7 @@ class ProductorStore extends ChangeNotifier {
     _pedidos.clear();
     _ofertas.clear();
     _conversaciones.clear();
-    _nextId = 4;
+    _nextId = 7;
     notificaciones = true;
     finca = const DatosFinca(
       nombre: 'Finca La Esperanza',
@@ -302,18 +302,67 @@ class ProductorStore extends ChangeNotifier {
         imagenUrl:
             'https://images.unsplash.com/photo-1551754655-cd27e38d2076?auto=format&fit=crop&w=900&q=60',
       ),
+      Producto(
+        id: 4,
+        nombre: 'Café Jinotega Tostado',
+        cantidad: 85,
+        unidad: 'lb',
+        precio: 95,
+        costoProduccion: 62,
+        categoria: 'Granos',
+        estado: EstadoProducto.disponible,
+        fechaCosecha: now.subtract(const Duration(days: 12)),
+        imagenUrl:
+            'https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=900&q=60',
+        descripcion:
+            'Café de altura de Jinotega, tostado en pequeños lotes y empacado en origen.',
+      ),
+      Producto(
+        id: 5,
+        nombre: 'Queso Fresco Artesanal',
+        cantidad: 28,
+        unidad: 'lb',
+        precio: 78,
+        costoProduccion: 55,
+        categoria: 'Lácteos',
+        estado: EstadoProducto.disponible,
+        fechaCosecha: now,
+        imagenUrl:
+            'https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=900&q=60',
+        descripcion:
+            'Queso fresco elaborado por familias productoras de La Conquista, Carazo.',
+      ),
+      Producto(
+        id: 6,
+        nombre: 'Banano de Ticuantepe',
+        cantidad: 9,
+        unidad: 'kg',
+        precio: 68,
+        costoProduccion: 42,
+        categoria: 'Frutas',
+        estado: EstadoProducto.pocoInventario,
+        fechaCosecha: now,
+        imagenUrl:
+            'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=900&q=60',
+        descripcion:
+            'Banano dulce cosechado esta mañana en las comunidades de Ticuantepe.',
+      ),
     ]);
     final clientes = [
       'María López',
       'Cooperativa Los Andes',
       'Distribuidora Central',
       'Agromercados S.A.',
+      'Pulpería La Bendición',
+      'Restaurante El Güegüense',
     ];
     final estados = [
       EstadoPedido.pendiente,
       EstadoPedido.enPreparacion,
       EstadoPedido.listo,
       EstadoPedido.pendiente,
+      EstadoPedido.listo,
+      EstadoPedido.rechazado,
     ];
     for (var i = 0; i < clientes.length; i++) {
       _pedidos.add(
@@ -322,16 +371,31 @@ class ProductorStore extends ChangeNotifier {
           cliente: clientes[i],
           fecha: now.subtract(Duration(days: i * 4)),
           estado: estados[i],
-          direccion: i.isEven ? 'Barrio Centro, Jinotepe' : 'Diriamba, Carazo',
-          nota: i == 0 ? 'Casa de portón verde, frente al parque.' : '',
+          direccion: [
+            'Barrio Centro, Jinotepe',
+            'Diriamba, Carazo',
+            'Mercado Municipal de Jinotepe',
+            'San Marcos, Carazo',
+            'Barrio San Antonio, Jinotepe',
+            'Masaya, Masaya',
+          ][i],
+          nota: i == 0
+              ? 'Casa de portón verde, frente al parque.'
+              : i == 4
+              ? 'Recibir antes de las 11:00 a. m.'
+              : '',
           envio: 40,
           productos: List.unmodifiable([
-            for (final p in _productos.take(2))
+            for (final p in _productos.take(i >= 4 ? 3 : 2))
               LineaPedido(
                 productoId: p.id,
                 nombre: p.nombre,
                 unidad: p.unidad,
-                cantidad: p.id == 1 ? 4 : 2,
+                cantidad: p.id == 1
+                    ? 4
+                    : p.id == 4
+                    ? 1
+                    : 2,
                 precio: p.precio,
                 imagenUrl: p.imagenUrl,
                 preparado:

@@ -7,7 +7,8 @@ import '../../ui/app_theme.dart';
 import '../../ui/widgets/productor_widgets.dart';
 
 class MapaCalorDemanda extends StatefulWidget {
-  const MapaCalorDemanda({super.key});
+  final bool embedded;
+  const MapaCalorDemanda({super.key, this.embedded = false});
   @override
   State<MapaCalorDemanda> createState() => _MapaCalorDemandaState();
 }
@@ -52,6 +53,7 @@ class _MapaCalorDemandaState extends State<MapaCalorDemanda> {
           ..sort((a, b) => b.value.compareTo(a.value));
         return ProductorPage(
           title: 'Mapa de demanda',
+          rootIndex: widget.embedded ? 3 : null,
           actions: [
             IconButton(
               tooltip: 'Copiar reporte de demanda',

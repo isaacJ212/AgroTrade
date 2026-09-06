@@ -21,6 +21,7 @@ class ProductorNavigation extends InheritedWidget {
       AppRoutes.inicioProductor,
       AppRoutes.inventario,
       AppRoutes.pedidosRecibidos,
+      AppRoutes.mapaCalorDemanda,
       AppRoutes.perfilFinca,
     ];
     if (index >= 0 && index < routes.length)
