@@ -131,6 +131,11 @@ class ProductorPage extends StatelessWidget {
                     activeIcon: Icons.shopping_bag,
                   ),
                   NavElemento(
+                    label: 'Demanda',
+                    icon: Icons.map_outlined,
+                    activeIcon: Icons.map,
+                  ),
+                  NavElemento(
                     label: 'Perfil',
                     icon: Icons.person_outline,
                     activeIcon: Icons.person,
