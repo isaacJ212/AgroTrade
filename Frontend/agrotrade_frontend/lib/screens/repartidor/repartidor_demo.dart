@@ -108,6 +108,12 @@ class RepartidorDemo extends ChangeNotifier {
       'https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=240&q=80';
   static const manzana =
       'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=240&q=80';
+  static const cafe =
+      'https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=240&q=80';
+  static const queso =
+      'https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=240&q=80';
+  static const banano =
+      'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=240&q=80';
 
   bool disponible = true;
   bool notificaciones = true;
@@ -174,6 +180,31 @@ class RepartidorDemo extends ChangeNotifier {
       estado: EstadoEntregaDemo.completada,
       recogido: true,
       productos: const [ProductoEntregaDemo('Naranja', 2, 'doc', 18, naranja)],
+    ),
+    EntregaDemo(
+      id: 106,
+      finca: 'Finca San José',
+      cliente: 'Restaurante El Güegüense',
+      destino: 'Masaya, Masaya',
+      hora: '12:30 p. m.',
+      distancia: 15.2,
+      minutos: 35,
+      pago: 90,
+      productos: const [
+        ProductoEntregaDemo('Banano', 4, 'kg', 68, banano),
+        ProductoEntregaDemo('Queso fresco', 2, 'lb', 78, queso),
+      ],
+    ),
+    EntregaDemo(
+      id: 107,
+      finca: 'Cooperativa El Progreso',
+      cliente: 'Pulpería La Bendición',
+      destino: 'Barrio San Antonio, Jinotepe',
+      hora: '1:15 p. m.',
+      distancia: 7.4,
+      minutos: 22,
+      pago: 60,
+      productos: const [ProductoEntregaDemo('Café tostado', 3, 'lb', 95, cafe)],
     ),
   ];
 

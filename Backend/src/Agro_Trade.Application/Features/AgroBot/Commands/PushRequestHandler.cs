@@ -59,7 +59,7 @@ namespace Agro_Trade.Application.Features.AgroBot.Commands
                 Parts = new List<Part> { new Part { Text = dto.Message } }
             });
 
-            // 7. Inicializamos el cliente de Gemini y configuración
+            
             var apiKey = cfg["Gemini:ApiKey"] ?? System.Environment.GetEnvironmentVariable("GEMINI_API_KEY") ?? "";
             var modelName = cfg["Gemini:Model"] ?? "gemini-3.6-flash";
             var ai = new Client(apiKey: apiKey);

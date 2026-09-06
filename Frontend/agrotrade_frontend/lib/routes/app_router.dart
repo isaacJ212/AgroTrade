@@ -130,7 +130,10 @@ class AppRouter {
         return _slide(const AgrobotWelcome());
 
       case AppRoutes.agrobotChat:
-        return _slide(const AgrobotChat());
+        final chatMap = args is Map<String, dynamic>
+            ? args
+            : <String, dynamic>{};
+        return _slide(AgrobotChat(chatId: chatMap['chatId'] as String?));
 
       case AppRoutes.agrobotHistory:
         return _slide(const AgrobotHistory());
