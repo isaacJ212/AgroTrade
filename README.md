@@ -11,6 +11,24 @@
 </div>
 
 ---
+## 📱 ¡Prueba la App!
+
+Puedes descargar e instalar la aplicación móvil ingresando al siguiente enlace:
+👉 **[Descargar AgroTrade APK](https://agrotrade2026.onrender.com)**
+
+Para probar la plataforma, puedes iniciar sesión usando cualquiera de estos tres usuarios de prueba (cada uno con un rol distinto). Todos comparten la misma contraseña: **`Agrotrade123*`**
+
+| Rol | Correo electrónico | Contraseña |
+|---|---|---|
+| 🧑‍🌾 **Productor** | `usuario13@agrotradenica.com` | `Agrotrade123*` |
+| 🛒 **Cliente** | `usuario12@agrotradenica.com` | `Agrotrade123*` |
+| 🛵 **Repartidor** | `usuario14@agrotradenica.com` | `Agrotrade123*` |
+
+---
+
+
+
+---
 
 ## Tabla de Contenidos
 
