@@ -739,11 +739,11 @@ dbContext.Database.Migrate();
 
 | Nombre | Rol |
 |---|---|
-| Isaac Acuña | Desarrollador Backend |
-| Jafet | Desarrollador Backend |
+| Isaac Acuña | Desarrollador |
+| Jafet | Desarrollador |
 | Anielka Sequeira| Marketing |
 | Sandy Salinas| Comunicación |
-| Fabian Arteaga | Diseño UI/UX |
+| Fabian Arteaga | Diseño UI/UX / Desarrollador |
 
 ---
 
