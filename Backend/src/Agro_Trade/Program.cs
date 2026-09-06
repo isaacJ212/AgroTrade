@@ -49,6 +49,7 @@ namespace Agro_Trade
                     };
                 });
             builder.Services.AddAuthorization();
+            builder.Services.AddSignalR();
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
@@ -116,6 +117,7 @@ namespace Agro_Trade
 
 
             app.MapControllers();
+            app.MapHub<Agro_Trade.Hubs.ChatHub>("/chathub");
 
 
             // Aplicar migraciones de EF Core automáticamente al iniciar el contenedor

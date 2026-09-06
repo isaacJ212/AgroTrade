@@ -158,7 +158,16 @@ class _RutaSeguimientoClienteScreenState extends State<RutaSeguimientoClienteScr
                       const SizedBox(width: 8),
                       IconButton(
                         icon: const Icon(Icons.chat_bubble, color: AppColors.primaryColor),
-                        onPressed: () => Navigator.pushNamed(context, '/chat'),
+                        onPressed: () => Navigator.pushNamed(
+                          context, 
+                          '/chat',
+                          arguments: {
+                            'idPedido': 1, // Reemplazar con ID real si se tiene
+                            'idReceptor': 14, // Repartidor mock
+                            'nombreReceptor': 'Repartidor',
+                            'codigoPedido': '#PED-000',
+                          },
+                        ),
                         style: IconButton.styleFrom(backgroundColor: AppColors.primarySoftBg),
                       ),
                     ],

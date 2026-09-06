@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
-import '../shared/chat/chatMensajes.dart';
 import 'carrito.dart';
 import '../../models/Consumidor/consumidor_models.dart';
 import '../../services/cart_service.dart';
@@ -489,14 +488,15 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
           children: [
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: () => Navigator.push(
+                onPressed: () => Navigator.pushNamed(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => ChatMensajes(
-                      contactName: producto.finca,
-                      contactRole: "Productor",
-                    ),
-                  ),
+                  '/chat',
+                  arguments: {
+                    'idPedido': 0, // Consulta general
+                    'idReceptor': 13, // MOCK DEFAULT
+                    'nombreReceptor': producto.finca,
+                    'codigoPedido': 'Consulta',
+                  },
                 ),
                 icon: const Icon(Icons.chat_bubble_outline, size: 18),
                 label: const Text('Enviar mensaje'),

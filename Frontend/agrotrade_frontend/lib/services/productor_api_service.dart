@@ -340,4 +340,133 @@ class ProductorApiService {
     print('DEBUG: [ProductorApiService] ✓ Eliminado en store (offline)');
     return true;
   }
+
+  // ─────────────────────────────────────────────
+  //  GET /api/Pedidos/proveedor/{idProveedor}
+  //  pedidosRecibidos.dart / sales.dart → lista pedidos del productor
+  // ─────────────────────────────────────────────
+  Future<List<PedidoRecibido>> getPedidosProveedor() async {
+    final myId = _idProveedor;
+    print('DEBUG: [ProductorApiService] ══ GET /api/Pedidos/proveedor/$myId ══');
+    try {
+      final response = await ApiClient.instance
+          .get('/api/Pedidos/proveedor/$myId', authorized: true)
+          .timeout(_timeout);
+
+      print('DEBUG: [ProductorApiService] GET Pedidos Status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final data = response.jsonBody?['data'];
+        final jsonList = data is List ? data : [];
+        print('DEBUG: [ProductorApiService] Pedidos del proveedor $myId: ${jsonList.length}');
+
+        final pedidos = (jsonList as List).map((json) {
+          final idPedido = json['idPedido'] as int? ?? 0;
+          final estadoEnvio = (json['estadoEnvio'] ?? 'Pendiente') as String;
+          final detalles = (json['detalles'] as List? ?? []);
+
+          final lineas = detalles.map((d) => LineaPedido(
+            productoId: d['id'] as int? ?? 0,
+            nombre: d['producto'] ?? 'Producto',
+            unidad: 'u',
+            cantidad: (d['cantidad'] as num?)?.toDouble() ?? 0,
+            precio: (d['totalLinea'] as num?)?.toDouble() ?? 0,
+          )).toList();
+
+            final p = PedidoRecibido(
+              codigo: '#PED-$idPedido',
+              cliente: json['nombreCliente'] ?? 'Cliente',
+              idCliente: json['idUsuarioCliente'] as int? ?? 0,
+              fecha: json['fechaPedido'] != null
+                  ? DateTime.tryParse(json['fechaPedido']) ?? DateTime.now()
+                  : DateTime.now(),
+            estado: _parseEstado(estadoEnvio),
+            direccion: '',
+            nota: '',
+            envio: 0,
+            productos: List.unmodifiable(lineas),
+          );
+          print('DEBUG: [Pedido] id=$idPedido cliente="${p.cliente}" estado="${p.estado.label}" lineas=${lineas.length}');
+          return p;
+        }).toList();
+
+        // Sincronizar al store local
+        ProductorStore.instance.cargarPedidosDesdeApi(pedidos);
+        print('DEBUG: [ProductorApiService] ✓ Pedidos sincronizados al store');
+        return pedidos;
+      }
+      print('DEBUG: [ProductorApiService] ⚠ GET Pedidos status=${response.statusCode} → fallback store');
+    } on SocketException catch (_) {
+      print('DEBUG: [ProductorApiService] ✗ Sin conexión → Modo OFFLINE: pedidos del store');
+    } on TimeoutException catch (_) {
+      print('DEBUG: [ProductorApiService] ✗ Timeout → Modo OFFLINE: pedidos del store');
+    } catch (e) {
+      print('DEBUG: [ProductorApiService] ✗ Error getPedidos: $e → Modo OFFLINE');
+    }
+
+    final storePedidos = List<PedidoRecibido>.from(ProductorStore.instance.pedidos);
+    print('DEBUG: [ProductorApiService] Fallback store → ${storePedidos.length} pedidos en memoria');
+    return storePedidos;
+  }
+
+  // ─────────────────────────────────────────────
+  //  PATCH /api/Pedidos/{id}/estado
+  //  prepareOrderScreen / orderDetailScreen → cambia estado
+  // ─────────────────────────────────────────────
+  Future<bool> actualizarEstadoPedido(String codigoPedido, EstadoPedido nuevoEstado) async {
+    // Extraer ID numérico del código '#PED-123' → 123
+    final idStr = codigoPedido.replaceAll(RegExp(r'[^0-9]'), '');
+    final id = int.tryParse(idStr) ?? 0;
+    final estadoBackend = _estadoToBackend(nuevoEstado);
+
+    print('DEBUG: [ProductorApiService] ══ PATCH /api/Pedidos/$id/estado ══');
+    print('DEBUG: [ProductorApiService] codigo=$codigoPedido → id=$id estado="$estadoBackend"');
+
+    if (id > 0) {
+      try {
+        final response = await ApiClient.instance
+            .patch('/api/Pedidos/$id/estado', authorized: true, body: {'nuevoEstado': estadoBackend})
+            .timeout(_timeout);
+
+        print('DEBUG: [ProductorApiService] PATCH Estado Status: ${response.statusCode}');
+        print('DEBUG: [ProductorApiService] PATCH Estado Body: ${response.rawBody}');
+
+        if (response.statusCode == 200 || response.statusCode == 204) {
+          print('DEBUG: [ProductorApiService] ✓ Estado actualizado en API');
+          return true;
+        }
+        print('DEBUG: [ProductorApiService] ⚠ PATCH Estado fallido → actualizando solo en store');
+      } on SocketException catch (_) {
+        print('DEBUG: [ProductorApiService] ✗ Sin conexión → actualizando solo en store');
+      } catch (e) {
+        print('DEBUG: [ProductorApiService] ✗ Error PATCH estado: $e → Modo OFFLINE');
+      }
+    }
+
+    // FALLBACK: el store.cambiarEstado() lo llama la pantalla directamente
+    print('DEBUG: [ProductorApiService] → Store manejará el cambio de estado local');
+    return true;
+  }
+
+  EstadoPedido _parseEstado(String estadoEnvio) {
+    switch (estadoEnvio.toLowerCase()) {
+      case 'preparando': return EstadoPedido.enPreparacion;
+      case 'listo': return EstadoPedido.listo;
+      case 'entregado': return EstadoPedido.listo;
+      case 'cancelado': return EstadoPedido.rechazado;
+      case 'rechazado': return EstadoPedido.rechazado;
+      default: return EstadoPedido.pendiente;
+    }
+  }
+
+  String _estadoToBackend(EstadoPedido estado) {
+    switch (estado) {
+      case EstadoPedido.enPreparacion: return 'Preparando';
+      case EstadoPedido.listo: return 'Listo';
+      case EstadoPedido.rechazado: return 'Cancelado';
+      default: return 'Pendiente';
+    }
+  }
+
+
 }

@@ -12,7 +12,7 @@ class ProductorStore extends ChangeNotifier {
   final List<Producto> _productos = [];
   final List<PedidoRecibido> _pedidos = [];
   final Map<int, OfertaProductor> _ofertas = {};
-  final Map<String, List<Map<String, dynamic>>> _conversaciones = {};
+
   int _nextId = 4;
   String? _sessionToken;
   late DatosFinca finca;
@@ -36,14 +36,6 @@ class ProductorStore extends ChangeNotifier {
   }
 
   OfertaProductor? oferta(int id) => _ofertas[id];
-  List<Map<String, dynamic>> mensajes(String contacto) => List.unmodifiable(
-    (_conversaciones[contacto] ?? []).map((m) => Map<String, dynamic>.from(m)),
-  );
-  void guardarMensajes(String contacto, List<Map<String, dynamic>> mensajes) {
-    _conversaciones[contacto] = mensajes
-        .map((m) => Map<String, dynamic>.from(m))
-        .toList();
-  }
 
   double precioActual(Producto p, {DateTime? now}) {
     final o = oferta(p.id);
@@ -110,6 +102,14 @@ class ProductorStore extends ChangeNotifier {
     print('DEBUG: [ProductorStore] eliminarProducto id=$id');
     _productos.removeWhere((p) => p.id == id);
     _ofertas.remove(id);
+    notifyListeners();
+  }
+
+  /// Sincroniza pedidos traídos del API sin borrar otras colecciones.
+  void cargarPedidosDesdeApi(List<PedidoRecibido> pedidosApi) {
+    print('DEBUG: [ProductorStore] cargarPedidosDesdeApi → ${pedidosApi.length} pedidos');
+    _pedidos.clear();
+    _pedidos.addAll(pedidosApi);
     notifyListeners();
   }
 
@@ -242,7 +242,7 @@ class ProductorStore extends ChangeNotifier {
     _productos.clear();
     _pedidos.clear();
     _ofertas.clear();
-    _conversaciones.clear();
+
     _nextId = 4;
     notificaciones = true;
     finca = const DatosFinca(
@@ -320,6 +320,7 @@ class ProductorStore extends ChangeNotifier {
         PedidoRecibido(
           codigo: '#PED-0012${4 - i}',
           cliente: clientes[i],
+          idCliente: i + 1,
           fecha: now.subtract(Duration(days: i * 4)),
           estado: estados[i],
           direccion: i.isEven ? 'Barrio Centro, Jinotepe' : 'Diriamba, Carazo',

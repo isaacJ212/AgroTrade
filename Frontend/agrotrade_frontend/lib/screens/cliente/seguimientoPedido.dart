@@ -377,7 +377,16 @@ class _SeguimientoPedidoScreenState extends State<SeguimientoPedidoScreen> {
           width: double.infinity,
           height: 48,
           child: ElevatedButton.icon(
-            onPressed: () => Navigator.pushNamed(context, '/chat'),
+            onPressed: () => Navigator.pushNamed(
+              context, 
+              '/chat',
+              arguments: {
+                'idPedido': int.tryParse(_idPedidoVisible.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0,
+                'idReceptor': 13, // Productor por defecto / mock
+                'nombreReceptor': 'Productor',
+                'codigoPedido': '#$_idPedidoVisible',
+              },
+            ),
             icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
             label: const Text(
               'Enviar mensaje',

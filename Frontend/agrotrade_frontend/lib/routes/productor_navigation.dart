@@ -35,10 +35,10 @@ class ProductorNavigation extends InheritedWidget {
     ).pushNamedAndRemoveUntil(AppRoutes.login, (_) => false);
   }
 
-  static void chat(BuildContext context, String cliente) => Navigator.pushNamed(
+  static void chat(BuildContext context, dynamic pedido) => Navigator.pushNamed(
     context,
     '/productor/chat',
-    arguments: {'contactName': cliente, 'contactRole': 'Comprador'},
+    arguments: pedido,
   );
   @override
   bool updateShouldNotify(ProductorNavigation oldWidget) => false;

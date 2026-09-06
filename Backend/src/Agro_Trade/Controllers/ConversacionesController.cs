@@ -19,10 +19,12 @@ namespace Agro_Trade.Controllers
     {
 
         private readonly IMediator _mediator;
+        private readonly Microsoft.AspNetCore.SignalR.IHubContext<Agro_Trade.Hubs.ChatHub> _hubContext;
 
-        public ConversacionesController(IMediator mediator)
+        public ConversacionesController(IMediator mediator, Microsoft.AspNetCore.SignalR.IHubContext<Agro_Trade.Hubs.ChatHub> hubContext)
         {
             _mediator = mediator;
+            _hubContext = hubContext;
         }
 
         /// <summary>
@@ -47,6 +49,14 @@ namespace Agro_Trade.Controllers
                 return BadRequest(Result<int>.Failure(400, "El ID de la ruta no coincide con el cuerpo de la petición."));
 
             var result = await _mediator.Send(new SendMessageCommand(dto), ct);
+            
+            if (result.IsSuccess && result.Data != null)
+            {
+                // Emitir el mensaje por SignalR al grupo de esta conversación
+                await _hubContext.Clients.Group(idConversacion.ToString())
+                    .SendAsync("ReceiveMessage", result.Data, ct);
+            }
+            
             return StatusCode(result.StatusCode, result);
         }
 

@@ -14,7 +14,7 @@ import '../screens/shared/profile.dart';
 import '../screens/shared/editarPerfil.dart';
 import '../screens/shared/notificaciones.dart';
 import '../screens/shared/centroAyuda.dart';
-import '../screens/shared/chat/chatMensajes.dart';
+import '../screens/shared/chat_screen.dart';
 
 // ── AgroBot ───────────────────────────────────────────────────────────────────
 import '../screens/shared/agrobot/agrobot_welcome.dart';
@@ -96,7 +96,6 @@ class AppRouter {
         return _fade(const Login());
 
       case AppRoutes.registro:
-        print("DEBUG: [AppRouter] args para registro: $args, tipo: ${args.runtimeType}");
         final idRol = args is int ? args : null;
         return _slide(Registro(idRol: idRol));
 
@@ -140,12 +139,11 @@ class AppRouter {
             ? args
             : <String, dynamic>{};
         return _slide(
-          ChatMensajes(
-            contactName: chatMap['contactName'] as String? ?? 'Usuario',
-            contactRole: chatMap['contactRole'] as String? ?? '',
-            contactAvatar:
-                chatMap['contactAvatar'] as String? ??
-                'https://i.pravatar.cc/150',
+          ChatScreen(
+            idPedido: chatMap['idPedido'] as int? ?? 0,
+            idReceptor: chatMap['idReceptor'] as int? ?? 0,
+            nombreReceptor: chatMap['nombreReceptor'] as String? ?? 'Usuario',
+            codigoPedido: chatMap['codigoPedido'] as String? ?? '#PED-000',
           ),
         );
 
@@ -171,7 +169,7 @@ class AppRouter {
             ),
           );
         }
-        return _slide(DetalleProductoCliente(producto: args as ProductoMercado));
+        return _slide(DetalleProductoCliente(producto: args));
 
       case AppRoutes.perfilProductor:
         return _slide(const PerfilProductorScreen());
