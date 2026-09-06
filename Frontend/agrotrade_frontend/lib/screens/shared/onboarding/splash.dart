@@ -76,7 +76,7 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
       final prefs = await SharedPreferences.getInstance();
       
       // DESCOMENTAR LA SIGUIENTE LÍNEA PARA REINICIAR EL ONBOARDING TEMPORALMENTE
-      await prefs.clear(); 
+      // await prefs.clear(); 
 
       isFirstLaunch = prefs.getBool('is_first_launch') ?? true;
       print("DEBUG: [Splash] SharedPreferences cargado correctamente. isFirstLaunch=$isFirstLaunch");

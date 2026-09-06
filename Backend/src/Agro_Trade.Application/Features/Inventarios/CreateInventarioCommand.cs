@@ -47,7 +47,7 @@ namespace Agro_Trade.Application.Features.Inventarios
                 return Result<int>.Failure(404, "Producto no encontrado.");
 
             // 2. Subir imagen a Storage
-            string bucketName = "imagenes_Agro_Trade"; // O inyectarlo desde configuración
+            string bucketName = "imagenes_meseta_verde";
             string uniqueFileName = $"{Guid.NewGuid()}{extension}";
             string fotoUrl = await _storageService.UploadFileAsync(file, bucketName, uniqueFileName, ct);
 
@@ -64,7 +64,10 @@ namespace Agro_Trade.Application.Features.Inventarios
                 PrecioVenta = dto.PrecioVenta,
                 EsOfertaExcedente = dto.EsOfertaExcedente,
                 PorcentajeDescuento = dto.PorcentajeDescuento,
-                FechaCosecha = dto.FechaCosecha,
+                // Convertir a UTC para evitar error de PostgreSQL timestamptz
+                FechaCosecha = dto.FechaCosecha.HasValue
+                    ? DateTime.SpecifyKind(dto.FechaCosecha.Value, DateTimeKind.Utc)
+                    : (DateTime?)null,
                 FotoUrl = fotoUrl,
                 Disponible = true
             };

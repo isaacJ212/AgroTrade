@@ -6,6 +6,7 @@ import '../../../ui/components.dart';
 import '../../../ui/widgets/app_text_field.dart';
 import '../../../ui/widgets/buttons.dart';
 import '../../../ui/widgets/app_dropdown.dart';
+import '../../../models/productor_models.dart';
 import 'registroCosecha.dart';
 
 class AgregarProducto extends StatefulWidget {
@@ -96,9 +97,23 @@ class _AgregarProductoState extends State<AgregarProducto> {
       return _mostrarSnack('Selecciona una unidad de medida');
     }
 
+    final tempProducto = Producto(
+      id: 0, // 0 significa nuevo producto
+      nombre: _nombreController.text.trim(),
+      categoria: _categoriaSeleccionada!,
+      unidad: _unidadSeleccionada!,
+      descripcion: _descripcionController.text.trim(),
+      precio: double.tryParse(_precioController.text.trim()) ?? 0.0,
+      cantidad: 0,
+      estado: EstadoProducto.disponible,
+      imagenUrl: _imagenes.isNotEmpty ? _imagenes.first.path : '',
+    );
+
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const RegistroCosecha()),
+      MaterialPageRoute(
+        builder: (_) => RegistroCosecha(producto: tempProducto),
+      ),
     );
   }
 

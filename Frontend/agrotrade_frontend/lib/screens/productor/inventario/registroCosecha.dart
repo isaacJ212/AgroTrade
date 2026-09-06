@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../models/productor_models.dart';
 import '../../../services/productor_store.dart';
+import '../../../services/productor_api_service.dart';
 import '../../../routes/app_routes.dart';
 import '../../../ui/widgets/productor_widgets.dart';
 import '../precio_justo/calculadoraPrecioJusto.dart';
@@ -84,9 +85,10 @@ class _RegistroCosechaState extends State<RegistroCosecha> {
       setState(() => _precio.text = precio.toStringAsFixed(2));
   }
 
-  void _guardar() {
+  Future<void> _guardar() async {
     if (_guardando || !_form.currentState!.validate()) return;
     setState(() => _guardando = true);
+    
     final p = widget.producto!.copyWith(
       cantidad: decimal(_cantidad.text)!,
       costoProduccion: decimal(_costo.text)!,
@@ -94,13 +96,29 @@ class _RegistroCosechaState extends State<RegistroCosecha> {
       fechaCosecha: _fecha,
       publicado: _publicado,
     );
-    if (accionProductor(
-      context,
-      () => ProductorStore.instance.guardarProducto(p),
-    )) {
-      mensajeProductor(context, 'Inventario actualizado.');
-      Navigator.pop(context, true);
+
+    bool success = false;
+    
+    if (p.id == 0) {
+      // Nuevo producto -> Crear en API de Productos y luego en Inventarios
+      success = await ProductorApiService.instance.crearInventario(p);
     } else {
+      // Actualizar stock existente
+      success = await ProductorApiService.instance.actualizarInventario(
+        p.id, // Se asume que p.id mapea a idInventario
+        p.cantidad,
+        p.precio,
+        p.fechaCosecha
+      );
+    }
+
+    if (success && mounted) {
+      // Opcional: Fallback local para que se vea en UI de inmediato si la API no recarga todo rápido
+      ProductorStore.instance.guardarProducto(p);
+      mensajeProductor(context, 'Inventario actualizado con éxito.');
+      Navigator.pop(context, true);
+    } else if (mounted) {
+      mensajeProductor(context, 'Error al guardar en el servidor. Revise la consola.');
       setState(() => _guardando = false);
     }
   }

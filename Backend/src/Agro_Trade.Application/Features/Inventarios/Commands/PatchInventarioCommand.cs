@@ -55,13 +55,14 @@ namespace Agro_Trade.Application.Features.Inventarios.Commands
 
 
 
-            // Mapeo Parcial: Solo se actualiza si el valor tiene datos (.HasValue)
             if (request.Dto.StockActual.HasValue) inventario.StockActual = request.Dto.StockActual.Value;
             if (request.Dto.CostoProduccion.HasValue) inventario.CostoProduccion = request.Dto.CostoProduccion.Value;
             if (request.Dto.PrecioVenta.HasValue) inventario.PrecioVenta = request.Dto.PrecioVenta.Value;
             if (request.Dto.EsOfertaExcedente.HasValue) inventario.EsOfertaExcedente = request.Dto.EsOfertaExcedente.Value;
             if (request.Dto.PorcentajeDescuento.HasValue) inventario.PorcentajeDescuento = request.Dto.PorcentajeDescuento.Value;
-            if (request.Dto.FechaCosecha.HasValue) inventario.FechaCosecha = request.Dto.FechaCosecha.Value;
+            // Convertir a UTC para evitar error de PostgreSQL timestamptz
+            if (request.Dto.FechaCosecha.HasValue) 
+                inventario.FechaCosecha = DateTime.SpecifyKind(request.Dto.FechaCosecha.Value, DateTimeKind.Utc);
             if (request.Dto.Disponible.HasValue) inventario.Disponible = request.Dto.Disponible.Value;
 
             // Guardar en la base de datos

@@ -5,6 +5,7 @@ import '../../../services/productor_store.dart';
 import '../../../ui/app_theme.dart';
 import '../../../ui/widgets/productor_widgets.dart';
 import '../productorShell.dart';
+import '../../../services/productor_api_service.dart';
 export '../../../models/productor_models.dart'
     show Producto, Costo, EstadoProducto;
 
@@ -18,6 +19,35 @@ class InventarioProductor extends StatefulWidget {
 class _InventarioProductorState extends State<InventarioProductor> {
   String _busqueda = '';
   EstadoProducto? _filtro;
+  List<Producto> _apiProductos = [];
+  bool _cargando = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInventario();
+  }
+
+  Future<void> _loadInventario() async {
+    print('DEBUG: [InventarioProductor] ══ Cargando inventario ══');
+    setState(() => _cargando = true);
+    final inventario = await ProductorApiService.instance.getInventario();
+    if (mounted) {
+      setState(() {
+        _apiProductos = inventario;
+        _cargando = false;
+      });
+      print('DEBUG: [InventarioProductor] Productos mostrados: ${inventario.length}');
+    }
+  }
+
+  Future<void> _navegarYRecargar(String route, {Object? arguments}) async {
+    print('DEBUG: [InventarioProductor] Navegando a $route');
+    await Navigator.pushNamed(context, route, arguments: arguments);
+    print('DEBUG: [InventarioProductor] Regresó de $route → recargando inventario');
+    _loadInventario();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!widget.embedded) return const ProductorShell(initialIndex: 1);
@@ -25,7 +55,8 @@ class _InventarioProductorState extends State<InventarioProductor> {
     return AnimatedBuilder(
       animation: store,
       builder: (context, _) {
-        final productos = store.productos
+        final List<Producto> listaBase = _apiProductos.isNotEmpty ? _apiProductos : store.productos;
+        final productos = listaBase
             .where(
               (p) =>
                   (_filtro == null || p.estado == _filtro) &&
@@ -42,8 +73,7 @@ class _InventarioProductorState extends State<InventarioProductor> {
             foregroundColor: Colors.white,
             icon: const Icon(Icons.add),
             label: const Text('Agregar producto'),
-            onPressed: () =>
-                Navigator.pushNamed(context, AppRoutes.agregarProducto),
+            onPressed: () => _navegarYRecargar(AppRoutes.agregarProducto),
           ),
           children: [
             TextField(
@@ -72,7 +102,9 @@ class _InventarioProductorState extends State<InventarioProductor> {
               ],
             ),
             const SizedBox(height: 16),
-            if (productos.isEmpty)
+            if (_cargando)
+              const Center(child: CircularProgressIndicator())
+            else if (productos.isEmpty)
               const ProductorEmpty('No hay productos para esta búsqueda.'),
             for (final p in productos)
               ProductorCard(
@@ -80,8 +112,7 @@ class _InventarioProductorState extends State<InventarioProductor> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     InkWell(
-                      onTap: () => Navigator.pushNamed(
-                        context,
+                      onTap: () => _navegarYRecargar(
                         AppRoutes.detalleProductoProductor,
                         arguments: p,
                       ),
@@ -122,8 +153,7 @@ class _InventarioProductorState extends State<InventarioProductor> {
                     ProductorButton(
                       label: 'Ver producto',
                       outlined: true,
-                      onPressed: () => Navigator.pushNamed(
-                        context,
+                      onPressed: () => _navegarYRecargar(
                         AppRoutes.detalleProductoProductor,
                         arguments: p,
                       ),

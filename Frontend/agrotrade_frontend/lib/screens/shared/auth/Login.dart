@@ -102,7 +102,7 @@ class _LoginState extends State<Login> {
   void _redirectNavigation(LoginResponseDto user) {
     if (user.roles.contains('Cliente')) {
       Navigator.pushReplacementNamed(context, AppRoutes.inicioComprador);
-    } else if (user.roles.contains('Productor/Proveedor')) {
+    } else if (user.roles.contains('Productor/Proveedor') || user.roles.contains('Productor') || user.roles.contains('Proveedor')) {
       Navigator.pushReplacementNamed(context, AppRoutes.inicioProductor);
     } else if (user.roles.contains('Repartidor')) {
       Navigator.pushReplacementNamed(context, AppRoutes.inicioRepartidor);

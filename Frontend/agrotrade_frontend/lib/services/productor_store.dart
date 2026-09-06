@@ -94,6 +94,25 @@ class ProductorStore extends ChangeNotifier {
     guardarProducto(p.copyWith(precio: precio));
   }
 
+  /// Sincroniza los productos traídos del API sin borrar pedidos/ofertas/conversaciones.
+  void cargarDesdeApi(List<Producto> productosApi) {
+    print('DEBUG: [ProductorStore] cargarDesdeApi → ${productosApi.length} productos');
+    _productos.clear();
+    _productos.addAll(productosApi);
+    // Actualizar _nextId para evitar colisiones con IDs reales
+    final maxId = _productos.isEmpty ? 4 : _productos.map((p) => p.id).reduce((a, b) => a > b ? a : b);
+    _nextId = maxId + 1;
+    notifyListeners();
+  }
+
+  /// Elimina un producto del store local (modo offline).
+  void eliminarProducto(int id) {
+    print('DEBUG: [ProductorStore] eliminarProducto id=$id');
+    _productos.removeWhere((p) => p.id == id);
+    _ofertas.remove(id);
+    notifyListeners();
+  }
+
   void cambiarEstado(String codigo, EstadoPedido nuevo) {
     final i = _pedidos.indexWhere((p) => p.codigo == codigo);
     if (i < 0) throw StateError('Pedido no encontrado.');

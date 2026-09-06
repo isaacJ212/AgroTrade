@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../../../models/productor_models.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/productor_store.dart';
+import '../../../services/productor_api_service.dart';
 import '../../../ui/app_theme.dart';
 import '../../../ui/widgets/productor_widgets.dart';
 import '../precio_justo/calculadoraPrecioJusto.dart';
@@ -24,11 +25,16 @@ class DetalleProducto extends StatelessWidget {
       ),
     );
     if (context.mounted && precio != null) {
-      if (accionProductor(
-        context,
-        () => ProductorStore.instance.aplicarPrecio(p.id, precio),
-      )) {
-        mensajeProductor(context, 'Precio actualizado.');
+      // Update in API
+      final success = await ProductorApiService.instance.actualizarInventario(
+        p.id, p.cantidad, precio, p.fechaCosecha
+      );
+      if (success && context.mounted) {
+        mensajeProductor(context, 'Precio actualizado en el servidor.');
+      } else if (context.mounted) {
+        // Local fallback
+        ProductorStore.instance.aplicarPrecio(p.id, precio);
+        mensajeProductor(context, 'Precio actualizado localmente (API fallback).');
       }
     }
   }
@@ -39,7 +45,8 @@ class DetalleProducto extends StatelessWidget {
     return AnimatedBuilder(
       animation: store,
       builder: (context, _) {
-        final p = store.producto(producto.id);
+        // Find local, else use passed from API
+        final p = store.producto(producto.id) ?? producto;
         if (p == null)
           return const ProductorPage(
             title: 'Detalle del producto',
