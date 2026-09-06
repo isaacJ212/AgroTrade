@@ -1,31 +1,26 @@
 import 'package:flutter/material.dart';
 import '../../../routes/app_routes.dart';
-import '../../../services/api_session.dart';
+import '../../../services/agrobot_api_service.dart';
+import '../../../services/api_client.dart';
 import '../../../ui/app_theme.dart';
 import '../../../ui/components.dart';
-
 
 class _AgrobotMessage {
   final String text;
   final bool isUser;
   final String time;
 
-  final String? actionLabel;
-  final String? actionRoute;
-
   const _AgrobotMessage({
     required this.text,
     required this.isUser,
     required this.time,
-    this.actionLabel,
-    this.actionRoute,
   });
 }
 
-
-
 class AgrobotChat extends StatefulWidget {
-  const AgrobotChat({super.key});
+  final String? chatId;
+
+  const AgrobotChat({super.key, this.chatId});
 
   @override
   State<AgrobotChat> createState() => _AgrobotChatState();
@@ -33,6 +28,9 @@ class AgrobotChat extends StatefulWidget {
 
 class _AgrobotChatState extends State<AgrobotChat> {
   final ScrollController _scrollController = ScrollController();
+  String? _chatId;
+  bool _isLoading = false;
+  String? _errorMessage;
 
   final List<_AgrobotMessage> _messages = [
     _AgrobotMessage(
@@ -44,126 +42,67 @@ class _AgrobotChatState extends State<AgrobotChat> {
     ),
   ];
 
-  Map<String, _AgrobotMessage> _getRoleSpecificResponses() {
-    final roles = ApiSession.instance.roles;
-    final isProductor = roles.contains('Productor/Proveedor');
-    final isRepartidor = roles.contains('Repartidor');
-    final isComprador = !isProductor && !isRepartidor;
-
-    final responses = <String, _AgrobotMessage>{
-      'perfil': const _AgrobotMessage(
-        text:
-            'Desde tu perfil podés editar tus datos personales, '
-            'cambiar tu contraseña y gestionar la información de tu cuenta.',
-        isUser: false,
-        time: 'Ahora',
-        actionLabel: 'Ir a Mi Perfil',
-        actionRoute: AppRoutes.profile,
-      ),
-    };
-
-    if (isProductor) {
-      responses['inventario'] = const _AgrobotMessage(
-        text:
-            'Es muy fácil. Desde la sección de Inventario, seleccioná el producto '
-            'que querés modificar y tocá el botón "Actualizar inventario".',
-        isUser: false,
-        time: 'Ahora',
-        actionLabel: 'Ir a Mi Inventario',
-        actionRoute: AppRoutes.inventario,
-      );
-      responses['precio'] = const _AgrobotMessage(
-        text:
-            'La calculadora de Precio Justo te ayuda a definir un precio '
-            'basado en tus costos de producción y el margen de ganancia que deseás.',
-        isUser: false,
-        time: 'Ahora',
-        actionLabel: 'Calculadora Precio Justo',
-        actionRoute: AppRoutes.calculadoraPrecioJusto,
-      );
-      responses['pedido'] = const _AgrobotMessage(
-        text:
-            'Podés gestionar todos los pedidos recibidos desde tu sección "Mis Pedidos".',
-        isUser: false,
-        time: 'Ahora',
-        actionLabel: 'Ver Mis Pedidos',
-        actionRoute: AppRoutes.misPedidos,
-      );
-    } else if (isRepartidor) {
-      responses['entrega'] = const _AgrobotMessage(
-        text:
-            'Para ver tus entregas activas, dirigite a la sección de Entregas. '
-            'Podés ver la ruta y comunicarte con el cliente.',
-        isUser: false,
-        time: 'Ahora',
-      );
-      responses['ruta'] = const _AgrobotMessage(
-        text:
-            'En la sección de entregas activas podrás visualizar tu ruta recomendada.',
-        isUser: false,
-        time: 'Ahora',
-      );
-    } else if (isComprador) {
-      responses['pedido'] = const _AgrobotMessage(
-        text:
-            'Podés seguir el estado de tus compras en la sección de pedidos activos.',
-        isUser: false,
-        time: 'Ahora',
-        actionLabel: 'Mis Pedidos',
-        actionRoute: AppRoutes.misPedidos,
-      );
-      responses['comprar'] = const _AgrobotMessage(
-        text:
-            'En el Mercado podrás encontrar los mejores productos frescos directamente de los productores.',
-        isUser: false,
-        time: 'Ahora',
-        actionLabel: 'Explorar Mercado',
-        actionRoute: AppRoutes.explorarProductos,
-      );
-    }
-
-    return responses;
+  @override
+  void initState() {
+    super.initState();
+    _chatId = widget.chatId;
+    if (_chatId != null && _chatId!.isNotEmpty) _loadConversation(_chatId!);
   }
 
-  static const _AgrobotMessage _defaultResponse = _AgrobotMessage(
-    text:
-        'Entendido. Por el momento no tengo información específica sobre eso, '
-        'pero podés explorar las secciones de la app o consultar el Centro de Ayuda.',
-    isUser: false,
-    time: 'Ahora',
-  );
+  Future<void> _loadConversation(String chatId) async {
+    setState(() => _isLoading = true);
+    try {
+      final history = await AgrobotApiService.instance.getConversation(chatId);
+      if (!mounted) return;
+      setState(() {
+        _messages
+          ..clear()
+          ..addAll(
+            history.map(
+              (message) => _AgrobotMessage(
+                text: message.content,
+                isUser: message.role.toLowerCase() == 'user',
+                time: 'Historial',
+              ),
+            ),
+          );
+        _errorMessage = null;
+      });
+    } on ApiException catch (error) {
+      if (mounted) setState(() => _errorMessage = error.message);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
-  void _sendMessage(String text) {
+  Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
 
-    final userMsg = _AgrobotMessage(
-      text: text,
-      isUser: true,
-      time: 'Ahora',
-    );
+    final userMsg = _AgrobotMessage(text: text, isUser: true, time: 'Ahora');
 
     setState(() {
       _messages.add(userMsg);
+      _isLoading = true;
+      _errorMessage = null;
     });
-
-    Future.delayed(const Duration(milliseconds: 800), () {
+    try {
+      final result = await AgrobotApiService.instance.sendMessage(
+        chatId: _chatId ?? '',
+        message: text,
+      );
       if (!mounted) return;
       setState(() {
-        final lower = text.toLowerCase();
-        final responsesMap = _getRoleSpecificResponses();
-        final matchKey = responsesMap.keys.firstWhere(
-          (key) => lower.contains(key),
-          orElse: () => '',
+        _chatId = result.chatId;
+        _messages.add(
+          _AgrobotMessage(text: result.response, isUser: false, time: 'Ahora'),
         );
-
-        if (matchKey.isNotEmpty) {
-          _messages.add(responsesMap[matchKey]!);
-        } else {
-          _messages.add(_defaultResponse);
-        }
       });
+    } on ApiException catch (error) {
+      if (mounted) setState(() => _errorMessage = error.message);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
       _scrollToBottom();
-    });
+    }
 
     _scrollToBottom();
   }
@@ -178,24 +117,6 @@ class _AgrobotChatState extends State<AgrobotChat> {
         );
       }
     });
-  }
-
-  void _onNavTap(int index) {
-    if (index == 2) return;
-    final roles = ApiSession.instance.roles;
-    if (index == 0) {
-      if (roles.contains('Productor/Proveedor')) {
-        Navigator.pushReplacementNamed(context, AppRoutes.inicioProductor);
-      } else if (roles.contains('Repartidor')) {
-        Navigator.pushReplacementNamed(context, AppRoutes.inicioRepartidor);
-      } else {
-        Navigator.pushReplacementNamed(context, AppRoutes.inicioComprador);
-      }
-    } else if (index == 1) {
-      Navigator.pushNamed(context, AppRoutes.explorarProductos);
-    } else if (index == 3) {
-      Navigator.pushNamed(context, AppRoutes.profile);
-    }
   }
 
   @override
@@ -216,7 +137,7 @@ class _AgrobotChatState extends State<AgrobotChat> {
         title: Row(
           children: [
             const Icon(
-              Icons.smart_toy_outlined, 
+              Icons.smart_toy_outlined,
               color: Color(0xFF064E3B),
               size: 24,
             ),
@@ -254,7 +175,17 @@ class _AgrobotChatState extends State<AgrobotChat> {
       ),
       body: Column(
         children: [
-    
+          if (_errorMessage != null)
+            MaterialBanner(
+              content: Text(_errorMessage!),
+              actions: [
+                TextButton(
+                  onPressed: () => setState(() => _errorMessage = null),
+                  child: const Text('Cerrar'),
+                ),
+              ],
+            ),
+
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
@@ -262,7 +193,6 @@ class _AgrobotChatState extends State<AgrobotChat> {
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 if (index == 0) {
-               
                   return Column(
                     children: [
                       const SizedBox(height: 32),
@@ -314,9 +244,8 @@ class _AgrobotChatState extends State<AgrobotChat> {
             ),
           ),
 
-          _AgrobotInputField(
-            onSend: _sendMessage,
-          ),
+          if (_isLoading) const LinearProgressIndicator(minHeight: 2),
+          _AgrobotInputField(onSend: _sendMessage),
         ],
       ),
       bottomNavigationBar: const AgrobotBottomNav(),
@@ -355,7 +284,6 @@ class _AgrobotChatState extends State<AgrobotChat> {
       );
     }
 
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
       child: Row(
@@ -364,7 +292,7 @@ class _AgrobotChatState extends State<AgrobotChat> {
           Container(
             width: 24,
             height: 24,
-            margin: const EdgeInsets.only(bottom: 2), 
+            margin: const EdgeInsets.only(bottom: 2),
             child: Image.asset(
               'lib/assets/images/Agrobot/assets-removebg-preview.png',
               fit: BoxFit.contain,
@@ -384,7 +312,7 @@ class _AgrobotChatState extends State<AgrobotChat> {
                     maxWidth: MediaQuery.of(context).size.width * 0.72,
                   ),
                   decoration: const BoxDecoration(
-                    color: Color(0xFF72A9FE), 
+                    color: Color(0xFF72A9FE),
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(16),
                       topRight: Radius.circular(16),
@@ -401,14 +329,6 @@ class _AgrobotChatState extends State<AgrobotChat> {
                     ),
                   ),
                 ),
-                if (msg.actionLabel != null && msg.actionRoute != null) ...[
-                  const SizedBox(height: 8),
-                  _ActionChip(
-                    label: msg.actionLabel!,
-                    onTap: () =>
-                        Navigator.pushNamed(context, msg.actionRoute!),
-                  ),
-                ],
               ],
             ),
           ),
@@ -417,7 +337,6 @@ class _AgrobotChatState extends State<AgrobotChat> {
     );
   }
 }
-
 
 class _TimestampChip extends StatelessWidget {
   final String label;
@@ -440,53 +359,6 @@ class _TimestampChip extends StatelessWidget {
             color: AppColors.bodyText,
           ),
         ),
-      ),
-    );
-  }
-}
-
-
-class _ActionChip extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-
-  const _ActionChip({required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppColors.White,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFF059669).withValues(alpha: 0.3)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  label,
-                  style: AppTextStyles.label.copyWith(
-                    fontSize: 13,
-                    color: const Color(0xFF059669),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                const Icon(
-                  Icons.arrow_forward_rounded,
-                  size: 14,
-                  color: Color(0xFF059669),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -524,9 +396,7 @@ class _AgrobotInputFieldState extends State<_AgrobotInputField> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.White,
-        border: const Border(
-          top: BorderSide(color: AppColors.cardBorder),
-        ),
+        border: const Border(top: BorderSide(color: AppColors.cardBorder)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(10),
@@ -543,7 +413,7 @@ class _AgrobotInputFieldState extends State<_AgrobotInputField> {
               child: Container(
                 constraints: const BoxConstraints(maxHeight: 110),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF3F4F6), 
+                  color: const Color(0xFFF3F4F6),
                   borderRadius: BorderRadius.circular(30),
                   border: Border.all(color: Colors.grey.shade300),
                 ),

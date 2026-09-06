@@ -10,9 +10,11 @@ class UsersApiService {
   static final UsersApiService instance = UsersApiService._();
 
   Future<UserDto> createUser(CreateUserRequestDto dto) async {
+    final payload = dto.toJson();
+    print("DEBUG: [UsersApiService] Payload enviado a registro: $payload");
     final response = await ApiClient.instance.post(
       UserRoutes.base,
-      body: dto.toJson(),
+      body: payload,
     );
 
     final result = _decodeResult<UserDto>(

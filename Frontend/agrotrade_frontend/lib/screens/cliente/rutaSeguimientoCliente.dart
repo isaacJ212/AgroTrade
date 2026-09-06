@@ -1,8 +1,39 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 
-class RutaSeguimientoClienteScreen extends StatelessWidget {
+import '../../services/consumer_api_service.dart';
+
+class RutaSeguimientoClienteScreen extends StatefulWidget {
   const RutaSeguimientoClienteScreen({super.key});
+
+  @override
+  State<RutaSeguimientoClienteScreen> createState() => _RutaSeguimientoClienteScreenState();
+}
+
+class _RutaSeguimientoClienteScreenState extends State<RutaSeguimientoClienteScreen> {
+  double _repartidorLat = 0.5;
+  double _repartidorLng = 0.6;
+  bool _cargando = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarUbicacion();
+  }
+
+  Future<void> _cargarUbicacion() async {
+    // ID simulado para el pedido actual
+    final idPedidoSimulado = 1045;
+    final ubi = await ConsumerApiService.instance.getUbicacionRepartidor(idPedidoSimulado);
+    
+    if (mounted && ubi.isNotEmpty) {
+      setState(() {
+        _repartidorLat = ubi['lat'] ?? 0.5;
+        _repartidorLng = ubi['lng'] ?? 0.6;
+        _cargando = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,11 +79,22 @@ class RutaSeguimientoClienteScreen extends StatelessWidget {
             left: MediaQuery.of(context).size.width * 0.2,
             child: const _MapPin(icon: Icons.storefront, label: 'Productor', color: AppColors.TextSoft),
           ),
-          Positioned(
-            top: MediaQuery.of(context).size.height * 0.5,
-            left: MediaQuery.of(context).size.width * 0.6,
-            child: const _MapPin(icon: Icons.delivery_dining, label: 'En camino', color: AppColors.primaryColor),
-          ),
+          
+          if (_cargando)
+            Center(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                child: const CircularProgressIndicator(color: AppColors.primaryColor),
+              ),
+            )
+          else
+            Positioned(
+              top: MediaQuery.of(context).size.height * _repartidorLat,
+              left: MediaQuery.of(context).size.width * _repartidorLng,
+              child: const _MapPin(icon: Icons.delivery_dining, label: 'En camino', color: AppColors.primaryColor),
+            ),
+
           Positioned(
             top: MediaQuery.of(context).size.height * 0.7,
             left: MediaQuery.of(context).size.width * 0.4,
@@ -116,7 +158,16 @@ class RutaSeguimientoClienteScreen extends StatelessWidget {
                       const SizedBox(width: 8),
                       IconButton(
                         icon: const Icon(Icons.chat_bubble, color: AppColors.primaryColor),
-                        onPressed: () => Navigator.pushNamed(context, '/chat'),
+                        onPressed: () => Navigator.pushNamed(
+                          context, 
+                          '/chat',
+                          arguments: {
+                            'idPedido': 1, // Reemplazar con ID real si se tiene
+                            'idReceptor': 14, // Repartidor mock
+                            'nombreReceptor': 'Repartidor',
+                            'codigoPedido': '#PED-000',
+                          },
+                        ),
                         style: IconButton.styleFrom(backgroundColor: AppColors.primarySoftBg),
                       ),
                     ],

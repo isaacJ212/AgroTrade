@@ -5,6 +5,7 @@ import 'inicioProductor.dart';
 import 'inventario/inventarioProductor.dart';
 import 'pedidos/pedidosRecibidos.dart';
 import 'perfilFinca.dart';
+import 'mapaCalorDemanda.dart';
 
 class ProductorShell extends StatefulWidget {
   final int initialIndex;
@@ -37,6 +38,7 @@ class _ProductorShellState extends State<ProductorShell> {
           InicioProductor(embedded: true),
           InventarioProductor(embedded: true),
           PedidosRecibidos(embedded: true),
+          MapaCalorDemanda(embedded: true),
           PerfilFinca(embedded: true),
         ],
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
+import '../../services/consumer_api_service.dart';
 
 class ReportarProblemaScreen extends StatefulWidget {
   const ReportarProblemaScreen({super.key});
@@ -106,7 +107,7 @@ class _ReportarProblemaScreenState extends State<ReportarProblemaScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.primarySoftBg,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.primaryColor.withOpacity(0.5), style: BorderStyle.solid),
+                  border: Border.all(color: AppColors.primaryColor.withValues(alpha: 0.5), style: BorderStyle.solid),
                 ),
                 child: const Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -134,19 +135,42 @@ class _ReportarProblemaScreenState extends State<ReportarProblemaScreen> {
           ],
         ),
         child: ElevatedButton(
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Reporte enviado con éxito')),
-            );
-            Navigator.pop(context);
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primaryColor,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-          child: const Text('Enviar Reporte', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          onPressed: () async {
+            // Simulamos el ID del pedido (debería venir por parámetro en un caso real)
+            final idPedidoSimulado = 1045;
+              
+              // Evitar doble submit mostrando un loader si se quisiera,
+              // aquí usamos un SnackBar para informar que inicia
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Enviando reporte al servidor...'), duration: Duration(seconds: 1)),
+              );
+
+              final success = await ConsumerApiService.instance.reportarProblema(
+                idPedidoSimulado, 
+                _tipoProblema, 
+                _detallesController.text,
+              );
+
+              if (!context.mounted) return;
+
+              if (success) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Reporte enviado con éxito'), backgroundColor: Colors.green),
+                );
+                Navigator.pop(context);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Error al enviar el reporte'), backgroundColor: Colors.red),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('Enviar Reporte', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         ),
       ),
     );

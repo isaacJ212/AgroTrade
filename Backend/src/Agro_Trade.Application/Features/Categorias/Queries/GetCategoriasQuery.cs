@@ -10,6 +10,7 @@ namespace Agro_Trade.Application.Features.Categorias.Queries
     {
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 50;
+        public bool HasProducts { get; set; } = false;
     }
 
     public class GetCategoriasQueryHandler : IRequestHandler<GetCategoriasQuery, Result<PagedResponse<CategoriaDto>>>
@@ -24,6 +25,12 @@ namespace Agro_Trade.Application.Features.Categorias.Queries
         public async Task<Result<PagedResponse<CategoriaDto>>> Handle(GetCategoriasQuery request, CancellationToken cancellationToken)
         {
             var query = _unitOfWork.Categorias.GetQueryable();
+
+            if (request.HasProducts)
+            {
+                query = query.Where(c => c.Productos.Any());
+            }
+
             var totalCount = await query.CountAsync(cancellationToken);
             
             var categorias = await query

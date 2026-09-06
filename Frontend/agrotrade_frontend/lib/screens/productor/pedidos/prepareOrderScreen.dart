@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../models/productor_models.dart';
+import '../../../services/productor_api_service.dart';
 import '../../../services/productor_store.dart';
 import '../../../routes/productor_navigation.dart';
 import '../../../ui/app_theme.dart';
@@ -86,17 +87,23 @@ class PrepareOrderScreen extends StatelessWidget {
                 icon: Icons.check_circle_outline,
                 onPressed: !p.todoPreparado
                     ? null
-                    : () {
+                    : () async {
+                        print('DEBUG: [PrepareOrder] Marcando listo pedido ${p.codigo}');
                         if (accionProductor(
                           context,
                           () =>
                               store.cambiarEstado(p.codigo, EstadoPedido.listo),
                         )) {
-                          mensajeProductor(
-                            context,
-                            'Pedido listo para la recogida.',
-                          );
-                          Navigator.pop(context, true);
+                          // Sincronizar con API
+                          await ProductorApiService.instance
+                              .actualizarEstadoPedido(p.codigo, EstadoPedido.listo);
+                          if (context.mounted) {
+                            mensajeProductor(
+                              context,
+                              'Pedido listo para la recogida.',
+                            );
+                            Navigator.pop(context, true);
+                          }
                         }
                       },
               ),

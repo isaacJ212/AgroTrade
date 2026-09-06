@@ -38,20 +38,13 @@ class _RoleSelection extends State<Roleselection> {
   void _continuar() {
     FocusScope.of(context).unfocus();
     if (_rolSeleccionado == null) return;
-    final rolSeleccionado = _roles.firstWhere((r) => r.RolId == _rolSeleccionado);
-
-    if (rolSeleccionado.RolId == 1) {
-      Navigator.pushReplacementNamed(context, AppRoutes.inicioComprador);
-      return;
-    }
-    if (rolSeleccionado.RolId == 2) {
-      Navigator.pushReplacementNamed(context, AppRoutes.inicioProductor);
-      return;
-    }
-    if (rolSeleccionado.RolId == 3) {
-      Navigator.pushReplacementNamed(context, AppRoutes.inicioRepartidor);
-      return;
-    }
+    
+    print("DEBUG: [RoleSelection] Rol seleccionado: $_rolSeleccionado, navegando a Registro");
+    Navigator.pushReplacementNamed(
+      context, 
+      AppRoutes.registro, 
+      arguments: _rolSeleccionado
+    );
   }
 
   @override

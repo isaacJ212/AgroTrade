@@ -19,9 +19,9 @@ namespace Agro_Trade.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 50, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 50, [FromQuery] bool hasProducts = false, CancellationToken cancellationToken = default)
         {
-            var result = await _mediator.Send(new GetCategoriasQuery { PageIndex = pageIndex, PageSize = pageSize }, cancellationToken);
+            var result = await _mediator.Send(new GetCategoriasQuery { PageIndex = pageIndex, PageSize = pageSize, HasProducts = hasProducts }, cancellationToken);
             return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, new { Mensaje = result.Message });
         }
 

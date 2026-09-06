@@ -10,6 +10,8 @@ namespace Agro_Trade.Application.Common.DTOs.InventarioDtos
         public int IdInventario { get; set; }
         public int IdProveedor { get; set; }
         public int IdProducto { get; set; }
+        public string? NombreProducto { get; set; }
+        public string? UnidadMedida { get; set; }
         public string? FotoUrl { get; set; }
         public string? VideoUrl { get; set; }
         public float StockActual { get; set; }

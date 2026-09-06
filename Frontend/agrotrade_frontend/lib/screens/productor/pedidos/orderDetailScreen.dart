@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../models/productor_models.dart';
+import '../../../services/productor_api_service.dart';
 import '../../../services/productor_store.dart';
 import '../../../routes/app_routes.dart';
 import '../../../routes/productor_navigation.dart';
@@ -28,6 +29,7 @@ class OrderDetailsScreen extends StatelessWidget {
       ),
     );
     if (context.mounted && aceptar == true) {
+      print('DEBUG: [OrderDetail] Rechazando pedido ${pedido.codigo}');
       accionProductor(
         context,
         () => ProductorStore.instance.cambiarEstado(
@@ -35,6 +37,9 @@ class OrderDetailsScreen extends StatelessWidget {
           EstadoPedido.rechazado,
         ),
       );
+      // Sincronizar con API
+      await ProductorApiService.instance.actualizarEstadoPedido(
+          pedido.codigo, EstadoPedido.rechazado);
     }
   }
 
@@ -92,7 +97,7 @@ class OrderDetailsScreen extends StatelessWidget {
                     outlined: true,
                     icon: Icons.chat_bubble_outline,
                     onPressed: () =>
-                        ProductorNavigation.chat(context, p.cliente),
+                        ProductorNavigation.chat(context, p),
                   ),
                 ],
               ),
@@ -172,19 +177,25 @@ class OrderDetailsScreen extends StatelessWidget {
               ProductorButton(
                 label: 'Confirmar pedido',
                 icon: Icons.check,
-                onPressed: () {
+                onPressed: () async {
+                  print('DEBUG: [OrderDetail] Confirmando pedido ${p.codigo}');
                   if (accionProductor(
                     context,
-                    () => store.cambiarEstado(
+                    () => ProductorStore.instance.cambiarEstado(
                       p.codigo,
                       EstadoPedido.enPreparacion,
                     ),
                   )) {
-                    Navigator.pushNamed(
-                      context,
-                      AppRoutes.prepareOrder,
-                      arguments: p.codigo,
-                    );
+                    // Sincronizar con API en background
+                    await ProductorApiService.instance.actualizarEstadoPedido(
+                        p.codigo, EstadoPedido.enPreparacion);
+                    if (context.mounted) {
+                      Navigator.pushNamed(
+                        context,
+                        AppRoutes.prepareOrder,
+                        arguments: p.codigo,
+                      );
+                    }
                   }
                 },
               ),

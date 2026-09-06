@@ -18,7 +18,8 @@ class AuthApiService {
     final cleanPass = password.trim();
 
     // 1. Acceso instantáneo para usuarios predefinidos de prueba (0 ms)
-    if (cleanEmail == 'cliente@agrotrade.com' || cleanEmail == 'maria@agrotrade.com') {
+    if (cleanEmail == 'cliente@agrotrade.com' ||
+        cleanEmail == 'maria@agrotrade.com') {
       if (cleanPass == 'cliente123' || cleanPass == '123456') {
         const demoUser = LoginResponseDto(
           userName: 'María López',
@@ -32,7 +33,8 @@ class AuthApiService {
         );
         return demoUser;
       }
-    } else if (cleanEmail == 'productor@agrotrade.com' || cleanEmail == 'carlos@agrotrade.com') {
+    } else if (cleanEmail == 'productor@agrotrade.com' ||
+        cleanEmail == 'carlos@agrotrade.com') {
       if (cleanPass == 'productor123' || cleanPass == '123456') {
         const demoUser = LoginResponseDto(
           userName: 'Carlos Martínez',
@@ -46,7 +48,8 @@ class AuthApiService {
         );
         return demoUser;
       }
-    } else if (cleanEmail == 'repartidor@agrotrade.com' || cleanEmail == 'juan@agrotrade.com') {
+    } else if (cleanEmail == 'repartidor@agrotrade.com' ||
+        cleanEmail == 'juan@agrotrade.com') {
       if (cleanPass == 'repartidor123' || cleanPass == '123456') {
         const demoUser = LoginResponseDto(
           userName: 'Juan Pérez',
@@ -78,32 +81,57 @@ class AuthApiService {
 
     // 2. Si no es un usuario demo, intentar autenticación con el Backend
     try {
+      print('--- INICIANDO LOGIN CON BACKEND ---');
+      final payload = LoginRequestDto(
+        email: email,
+        password: password,
+      ).toJson();
+      print('Payload: $payload');
+
       final response = await ApiClient.instance.post(
         AuthRoutes.login,
-        body: LoginRequestDto(email: email, password: password).toJson(),
+        body: payload,
       );
+
+      print('Status Code: ${response.statusCode}');
+      print('Raw Body: ${response.rawBody}');
 
       final result = _decodeResult<LoginResponseDto>(
         response.jsonBody,
         (json) => LoginResponseDto.fromJson(ensureJsonMap(json)),
       );
 
-      if (result.isSuccess && result.data != null) {
+      print('IsSuccess: ${result.isSuccess}, Data: ${result.data != null}');
+
+      if (response.statusCode == 200 &&
+          result.isSuccess &&
+          result.data != null) {
         ApiSession.instance.setAuth(
           token: result.data!.token,
           userName: result.data!.userName,
           roles: result.data!.roles,
         );
+        print('Login exitoso.');
         return result.data!;
+      } else {
+        print('Error en la respuesta del backend: ${result.message}');
+        throw ApiException(
+          response.statusCode,
+          result.message.isNotEmpty
+              ? result.message
+              : 'Credenciales inválidas o error del servidor.',
+        );
       }
-    } catch (_) {
-      // Backend offline o error de conexión
+    } catch (e) {
+      print('Excepción capturada en login: $e');
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw const ApiException(
+        500,
+        'Error de conexión. Revisa que el backend esté ejecutándose.',
+      );
     }
-
-    throw const ApiException(
-      401,
-      'Credenciales inválidas. Usa los usuarios demo (ej: cliente@agrotrade.com / cliente123).',
-    );
   }
 
   Future<LoginResponseDto> googleSignIn(String idToken) async {

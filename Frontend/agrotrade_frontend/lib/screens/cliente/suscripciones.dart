@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
+import '../../services/consumer_api_service.dart';
+import '../../services/api_session.dart';
 
 enum _EstadoSuscripcion { activa, pausada, cancelada }
 
@@ -31,26 +33,57 @@ class SuscripcionesScreen extends StatefulWidget {
 }
 
 class _SuscripcionesScreenState extends State<SuscripcionesScreen> {
-  final List<_SuscripcionItem> _suscripciones = [
-    const _SuscripcionItem(
-      id: 1,
-      titulo: 'Canasta semanal',
-      finca: 'Finca La Esperanza',
-      frecuencia: 'Entrega cada semana',
-      proximaEntrega: '13 de agosto',
-      estado: _EstadoSuscripcion.activa,
-      icono: Icons.shopping_basket_outlined,
-    ),
-    const _SuscripcionItem(
-      id: 2,
-      titulo: 'Frutas para el hogar',
-      finca: null,
-      frecuencia: 'Entrega cada 15 días',
-      proximaEntrega: null,
-      estado: _EstadoSuscripcion.pausada,
-      icono: Icons.eco_outlined,
-    ),
-  ];
+  List<_SuscripcionItem> _suscripciones = [];
+  bool _cargando = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarSuscripciones();
+  }
+
+  Future<void> _cargarSuscripciones() async {
+    final userId = ApiSession.instance.userId;
+    print('DEBUG: [Suscripciones] Obteniendo suscripciones activas del usuario $userId...');
+    
+    if (userId == null) {
+      setState(() => _cargando = false);
+      return;
+    }
+
+    final parsedUserId = int.tryParse(userId);
+    if (parsedUserId == null) {
+      setState(() => _cargando = false);
+      return;
+    }
+
+    final data = await ConsumerApiService.instance.getSuscripciones(parsedUserId);
+    print('DEBUG: [Suscripciones] Se obtuvieron ${data.length} suscripciones desde el servidor.');
+
+    final items = data.map((json) {
+      final estadoStr = (json['estado'] ?? '').toString().toLowerCase();
+      _EstadoSuscripcion estado;
+      if (estadoStr.contains('cancel')) estado = _EstadoSuscripcion.cancelada;
+      else if (estadoStr.contains('paus')) estado = _EstadoSuscripcion.pausada;
+      else estado = _EstadoSuscripcion.activa;
+
+      return _SuscripcionItem(
+        id: json['idSuscripcionApp'] ?? 0,
+        titulo: json['tipoPlan'] ?? 'Plan',
+        finca: 'Varias Fincas',
+        frecuencia: json['renovacionAutomatica'] == true ? 'Renovación Auto' : 'Manual',
+        estado: estado,
+        icono: Icons.local_florist_outlined,
+      );
+    }).toList();
+
+    if (mounted) {
+      setState(() {
+        _suscripciones = items;
+        _cargando = false;
+      });
+    }
+  }
 
   void _crearSuscripcion() {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -64,12 +97,37 @@ class _SuscripcionesScreenState extends State<SuscripcionesScreen> {
   }
 
   void _administrarSuscripcion(_SuscripcionItem item) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Administrar: ${item.titulo}'),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.primaryColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Administrar: ${item.titulo}'),
+        content: const Text('¿Deseas cancelar esta suscripción?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Volver'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              setState(() => _cargando = true);
+              print('DEBUG: [Suscripciones] Iniciando cancelación de la suscripcion ID: ${item.id}');
+              
+              final exito = await ConsumerApiService.instance.cancelarSuscripcion(item.id);
+              if (exito) {
+                print('DEBUG: [Suscripciones] Suscripción cancelada con éxito (Status 200 o 204).');
+                _cargarSuscripciones();
+              } else {
+                setState(() => _cargando = false);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Error al cancelar la suscripción')),
+                );
+              }
+            },
+            child: const Text('Cancelar Suscripción', style: TextStyle(color: Colors.white)),
+          ),
+        ],
       ),
     );
   }
@@ -95,7 +153,15 @@ class _SuscripcionesScreenState extends State<SuscripcionesScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            ..._suscripciones.map((sub) => _buildSuscripcionCard(sub)),
+            if (_cargando)
+              const Center(child: CircularProgressIndicator(color: AppColors.primaryColor))
+            else if (_suscripciones.isEmpty)
+              const Center(child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Text('No tienes suscripciones activas.', style: TextStyle(color: AppColors.TextSoft)),
+              ))
+            else
+              ..._suscripciones.map((sub) => _buildSuscripcionCard(sub)),
             const SizedBox(height: 8),
             _buildCrearNuevaCard(),
             const SizedBox(height: 24),

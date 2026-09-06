@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../ui/app_theme.dart';
 import '../../../routes/app_routes.dart';
 
@@ -32,9 +33,10 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
     _logoScale = Tween<double>(begin: 0.70, end: 1.0).animate(
       CurvedAnimation(parent: _logoController, curve: Curves.easeOutBack),
     );
-    _logoOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _logoController, curve: Curves.easeIn),
-    );
+    _logoOpacity = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _logoController, curve: Curves.easeIn));
 
     _taglineController = AnimationController(
       vsync: this,
@@ -43,12 +45,10 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
     _taglineOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _taglineController, curve: Curves.easeOut),
     );
-    _taglineSlide = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _taglineController, curve: Curves.easeOut),
-    );
+    _taglineSlide = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
+        .animate(
+          CurvedAnimation(parent: _taglineController, curve: Curves.easeOut),
+        );
 
     _pulseController = AnimationController(
       vsync: this,
@@ -70,7 +70,27 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
     await Future.delayed(const Duration(milliseconds: 2600));
     if (!mounted) return;
 
-    Navigator.pushReplacementNamed(context, AppRoutes.login);
+    print("DEBUG: [Splash] Iniciando validación de SharedPreferences");
+    bool isFirstLaunch = true;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      
+      // DESCOMENTAR LA SIGUIENTE LÍNEA PARA REINICIAR EL ONBOARDING TEMPORALMENTE
+      // await prefs.clear(); 
+
+      isFirstLaunch = prefs.getBool('is_first_launch') ?? true;
+      print("DEBUG: [Splash] SharedPreferences cargado correctamente. isFirstLaunch=$isFirstLaunch");
+    } catch (e) {
+      print("DEBUG: [Splash] Error al cargar SharedPreferences (Posible plugin faltante). Usando valor por defecto true. Error: $e");
+    }
+
+    if (isFirstLaunch) {
+      print("DEBUG: [Splash] Navegando a OnBoarding");
+      Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
+    } else {
+      print("DEBUG: [Splash] Navegando a Login");
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
+    }
   }
 
   @override

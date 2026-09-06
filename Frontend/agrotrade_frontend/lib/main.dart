@@ -1,10 +1,3 @@
-
-import 'package:agrotrade_frontend/screens/repartidor/homeRepartidor.dart';
-import 'package:agrotrade_frontend/screens/productor/inventario/inventarioProductor.dart';
-import 'package:agrotrade_frontend/screens/productor/inventario/registroCosecha.dart';
-import 'package:agrotrade_frontend/screens/shared/onboarding/splash.dart';
-import 'package:flutter/material.dart';
-
 import 'package:flutter/material.dart';
 import 'routes/app_router.dart';
 import 'routes/app_routes.dart';
@@ -31,7 +24,7 @@ class AgroTradeApp extends StatelessWidget {
           iconTheme: IconThemeData(color: AppColors.TextMain),
         ),
       ),
-   
+
       initialRoute: AppRoutes.splash,
       onGenerateRoute: AppRouter.generateRoute,
     );

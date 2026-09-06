@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../models/productor_models.dart';
 import '../../../routes/app_routes.dart';
+import '../../../services/productor_api_service.dart';
 import '../../../services/productor_store.dart';
 import '../../../ui/widgets/productor_widgets.dart';
 import '../productorShell.dart';
@@ -16,6 +17,35 @@ class PedidosRecibidos extends StatefulWidget {
 
 class _PedidosRecibidosState extends State<PedidosRecibidos> {
   EstadoPedido? _filtro;
+  List<PedidoRecibido> _apiPedidos = [];
+  bool _cargando = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPedidos();
+  }
+
+  Future<void> _loadPedidos() async {
+    print('DEBUG: [PedidosRecibidos] ══ Cargando pedidos del proveedor ══');
+    setState(() => _cargando = true);
+    final pedidos = await ProductorApiService.instance.getPedidosProveedor();
+    if (mounted) {
+      setState(() {
+        _apiPedidos = pedidos;
+        _cargando = false;
+      });
+      print('DEBUG: [PedidosRecibidos] Pedidos cargados: ${pedidos.length}');
+    }
+  }
+
+  Future<void> _navegarYRecargar(String route, {Object? arguments}) async {
+    print('DEBUG: [PedidosRecibidos] Navegando a $route');
+    await Navigator.pushNamed(context, route, arguments: arguments);
+    print('DEBUG: [PedidosRecibidos] Regresó de $route → recargando pedidos');
+    _loadPedidos();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!widget.embedded) return const ProductorShell(initialIndex: 2);
@@ -23,12 +53,20 @@ class _PedidosRecibidosState extends State<PedidosRecibidos> {
     return AnimatedBuilder(
       animation: store,
       builder: (context, _) {
-        final pedidos = store.pedidos
+        final listaBase = _apiPedidos.isNotEmpty ? _apiPedidos : store.pedidos;
+        final pedidos = listaBase
             .where((p) => _filtro == null || p.estado == _filtro)
             .toList();
         return ProductorPage(
           title: 'Pedidos recibidos',
           rootIndex: 2,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _loadPedidos,
+              tooltip: 'Actualizar pedidos',
+            ),
+          ],
           children: [
             Wrap(
               spacing: 8,
@@ -48,13 +86,14 @@ class _PedidosRecibidosState extends State<PedidosRecibidos> {
               ],
             ),
             const SizedBox(height: 16),
-            if (pedidos.isEmpty)
+            if (_cargando)
+              const Center(child: CircularProgressIndicator())
+            else if (pedidos.isEmpty)
               const ProductorEmpty('No hay pedidos en este estado.'),
             for (final pedido in pedidos)
               ProductorOrderTile(
                 pedido: pedido,
-                onTap: () => Navigator.pushNamed(
-                  context,
+                onTap: () => _navegarYRecargar(
                   AppRoutes.orderDetail,
                   arguments: pedido.codigo,
                 ),

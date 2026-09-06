@@ -21,7 +21,7 @@ import '../screens/productor/configuracionProductor.dart';
 import '../screens/productor/contrasenaProductor.dart';
 import '../screens/productor/ayudaProductor.dart';
 import '../screens/productor/notificacionesProductor.dart';
-import '../screens/shared/chat/chatMensajes.dart';
+import '../screens/shared/chat_screen.dart';
 import 'app_routes.dart';
 
 class ProductorRouter {
@@ -58,7 +58,7 @@ class ProductorRouter {
         page = const ProductorShell(initialIndex: 3);
         break;
       case AppRoutes.agregarProducto:
-        page = AgregarProducto(producto: producto);
+        page = const AgregarProducto();
         break;
       case AppRoutes.detalleProductoProductor:
         page = producto == null
@@ -131,16 +131,19 @@ class ProductorRouter {
         page = const NotificacionesProductor();
         break;
       case '/productor/chat':
-        final chat = args is Map ? args : const {};
-        final nombre = chat['contactName'] as String? ?? 'Comprador';
-        page = ChatMensajes(
-          contactName: nombre,
-          contactRole: 'Comprador',
-          producerMode: true,
-          initialMessages: store.mensajes(nombre),
-          onMessagesChanged: (mensajes) =>
-              store.guardarMensajes(nombre, mensajes),
-        );
+        if (args is PedidoRecibido) {
+          final idPedido = int.tryParse(args.codigo.replaceAll('#PED-', '')) ?? 0;
+          page = ChatScreen(
+            idPedido: idPedido,
+            idReceptor: args.idCliente ?? 1, // Fallback si no tiene ID
+            nombreReceptor: args.cliente,
+            codigoPedido: args.codigo,
+          );
+        } else {
+          page = const Scaffold(
+            body: Center(child: Text('Error: se esperaba un PedidoRecibido para el chat')),
+          );
+        }
         break;
       default:
         return null;

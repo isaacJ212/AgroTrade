@@ -14,7 +14,7 @@ import '../screens/shared/profile.dart';
 import '../screens/shared/editarPerfil.dart';
 import '../screens/shared/notificaciones.dart';
 import '../screens/shared/centroAyuda.dart';
-import '../screens/shared/chat/chatMensajes.dart';
+import '../screens/shared/chat_screen.dart';
 
 // ── AgroBot ───────────────────────────────────────────────────────────────────
 import '../screens/shared/agrobot/agrobot_welcome.dart';
@@ -23,6 +23,7 @@ import '../screens/shared/agrobot/agrobot_history.dart';
 
 // ── Cliente ────────────────────────────────────────────────────────────────────
 import '../screens/cliente/inicioComprador.dart';
+import '../models/Consumidor/consumidor_models.dart';
 import '../screens/cliente/exploradorProductos.dart';
 import '../screens/cliente/buscarProductos.dart';
 import '../screens/cliente/detalleProductoCliente.dart';
@@ -95,7 +96,8 @@ class AppRouter {
         return _fade(const Login());
 
       case AppRoutes.registro:
-        return _slide(const Registro());
+        final idRol = args is int ? args : null;
+        return _slide(Registro(idRol: idRol));
 
       case AppRoutes.roleSelection:
         return _slide(const Roleselection());
@@ -127,7 +129,10 @@ class AppRouter {
         return _slide(const AgrobotWelcome());
 
       case AppRoutes.agrobotChat:
-        return _slide(const AgrobotChat());
+        final chatMap = args is Map<String, dynamic>
+            ? args
+            : <String, dynamic>{};
+        return _slide(AgrobotChat(chatId: chatMap['chatId'] as String?));
 
       case AppRoutes.agrobotHistory:
         return _slide(const AgrobotHistory());
@@ -137,12 +142,11 @@ class AppRouter {
             ? args
             : <String, dynamic>{};
         return _slide(
-          ChatMensajes(
-            contactName: chatMap['contactName'] as String? ?? 'Usuario',
-            contactRole: chatMap['contactRole'] as String? ?? '',
-            contactAvatar:
-                chatMap['contactAvatar'] as String? ??
-                'https://i.pravatar.cc/150',
+          ChatScreen(
+            idPedido: chatMap['idPedido'] as int? ?? 0,
+            idReceptor: chatMap['idReceptor'] as int? ?? 0,
+            nombreReceptor: chatMap['nombreReceptor'] as String? ?? 'Usuario',
+            codigoPedido: chatMap['codigoPedido'] as String? ?? '#PED-000',
           ),
         );
 
@@ -206,7 +210,13 @@ class AppRouter {
         return _slide(const EntregaScreen());
 
       case AppRoutes.valorarPedido:
-        return _slide(const ValorarPedidoScreen());
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        return _slide(
+          ValorarPedidoScreen(
+            idPedido: args['idPedido'] as int? ?? 0,
+            idProveedor: args['idProveedor'] as int? ?? 1,
+          ),
+        );
 
       case AppRoutes.suscripciones:
         return _slide(const SuscripcionesScreen());
@@ -323,7 +333,7 @@ class AppRouter {
           DetalleEntregaRepartidor(
             pedidoId: map['pedidoId'] as int? ?? 0,
             zonaEntrega: map['zonaEntrega'] as String? ?? '',
-            totalPedido: map['totalPedido'] as double? ?? 0.0,
+            totalPedido: (map['totalPedido'] as num?)?.toDouble() ?? 0.0,
           ),
         );
 

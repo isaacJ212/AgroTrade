@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
-import '../shared/chat/chatMensajes.dart';
 import 'carrito.dart';
-import 'exploradorProductos.dart' show ProductoMercado;
+import '../../models/Consumidor/consumidor_models.dart';
+import '../../services/cart_service.dart';
 import 'perfilProductor.dart';
 
 class DetalleProductoCliente extends StatefulWidget {
@@ -69,15 +69,24 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
               );
             },
           ),
-          IconButton(
-            icon: const Icon(
-              Icons.shopping_cart_outlined,
-              color: AppColors.titleDark,
-            ),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const CarritoScreen()),
-            ),
+          AnimatedBuilder(
+            animation: CartService.instance,
+            builder: (context, _) {
+              return IconButton(
+                icon: Badge(
+                  isLabelVisible: CartService.instance.totalItems > 0,
+                  label: Text('${CartService.instance.totalItems}'),
+                  child: const Icon(
+                    Icons.shopping_cart_outlined,
+                    color: AppColors.titleDark,
+                  ),
+                ),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CarritoScreen()),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -479,14 +488,15 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
           children: [
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: () => Navigator.push(
+                onPressed: () => Navigator.pushNamed(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => ChatMensajes(
-                      contactName: producto.finca,
-                      contactRole: "Productor",
-                    ),
-                  ),
+                  '/chat',
+                  arguments: {
+                    'idPedido': 0, // Consulta general
+                    'idReceptor': 13, // MOCK DEFAULT
+                    'nombreReceptor': producto.finca,
+                    'codigoPedido': 'Consulta',
+                  },
                 ),
                 icon: const Icon(Icons.chat_bubble_outline, size: 18),
                 label: const Text('Enviar mensaje'),
@@ -504,6 +514,15 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
             Expanded(
               child: ElevatedButton.icon(
                 onPressed: () {
+                  CartService.instance.addItem(ItemCarrito(
+                    id: producto.id,
+                    nombre: producto.nombre,
+                    finca: producto.finca,
+                    unidad: producto.unidad,
+                    precioUnitario: producto.precio,
+                    cantidad: _cantidad,
+                    imagenUrl: producto.imagenUrl,
+                  ));
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Producto agregado al carrito 🛒'),

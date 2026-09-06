@@ -145,6 +145,7 @@ class LineaPedido {
 
 class PedidoRecibido {
   final String codigo, cliente, direccion, nota;
+  final int idCliente;
   final DateTime fecha;
   final EstadoPedido estado;
   final List<LineaPedido> productos;
@@ -152,6 +153,7 @@ class PedidoRecibido {
   const PedidoRecibido({
     required this.codigo,
     required this.cliente,
+    required this.idCliente,
     required this.fecha,
     required this.estado,
     required this.productos,
@@ -171,6 +173,7 @@ class PedidoRecibido {
   }) => PedidoRecibido(
     codigo: codigo,
     cliente: cliente,
+    idCliente: idCliente,
     fecha: fecha,
     estado: estado ?? this.estado,
     productos: productos ?? this.productos,
@@ -220,5 +223,34 @@ class DatosProductor {
     required this.telefono,
     required this.ubicacion,
     this.foto,
+  });
+}
+
+class Conversacion {
+  final int idConversacion, idPedido, idCliente, idProductor;
+  final DateTime creadaEn;
+  const Conversacion({
+    required this.idConversacion,
+    required this.idPedido,
+    required this.idCliente,
+    required this.idProductor,
+    required this.creadaEn,
+  });
+}
+
+class MensajeChat {
+  final int idMensaje, idConversacion, idEmisor;
+  final String nombreEmisor, contenido;
+  final DateTime enviadoEn;
+  final bool leido, isOffline;
+  const MensajeChat({
+    required this.idMensaje,
+    required this.idConversacion,
+    required this.idEmisor,
+    required this.nombreEmisor,
+    required this.contenido,
+    required this.enviadoEn,
+    this.leido = false,
+    this.isOffline = false,
   });
 }

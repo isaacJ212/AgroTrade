@@ -1,64 +1,26 @@
 import 'package:flutter/material.dart';
 import '../../../routes/app_routes.dart';
-import '../../../services/api_session.dart';
+import '../../../models/api/agrobot_models.dart';
+import '../../../services/agrobot_api_service.dart';
+import '../../../services/api_client.dart';
 import '../../../ui/app_theme.dart';
 import '../../../ui/components.dart';
 
-/// Modelo de un ítem del historial de AgroBot.
-class _HistorialItem {
-  final String titulo;
-  final String fecha;
-  final String descripcion;
-
-  const _HistorialItem({
-    required this.titulo,
-    required this.fecha,
-    required this.descripcion,
-  });
-}
-
 /// Pantalla de hstorial de AgroBot.
-class AgrobotHistory extends StatelessWidget {
+class AgrobotHistory extends StatefulWidget {
   const AgrobotHistory({super.key});
 
-  static const List<_HistorialItem> _historial = [
-    _HistorialItem(
-      titulo: 'Actualizar...',
-      fecha: 'Hoy · 4:25 p. m.',
-      descripcion: 'Desde Inventario, seleccioná el producto...',
-    ),
-    _HistorialItem(
-      titulo: 'Precio Justo',
-      fecha: '01 de septiembre',
-      descripcion: 'Podés calcular un precio sugerido...',
-    ),
-    _HistorialItem(
-      titulo: 'Estado de un pedido',
-      fecha: '30 de agosto',
-      descripcion: 'Podés consultar el seguimiento desde...',
-    ),
-  ];
+  @override
+  State<AgrobotHistory> createState() => _AgrobotHistoryState();
+}
 
-  void _onNavTap(BuildContext context, int index) {
-    if (index == 2) {
-      // AgroBot -> ir a bienvenida
-      Navigator.pushReplacementNamed(context, AppRoutes.agrobotWelcome);
-      return;
-    }
-    final roles = ApiSession.instance.roles;
-    if (index == 0) {
-      if (roles.contains('Productor/Proveedor')) {
-        Navigator.pushReplacementNamed(context, AppRoutes.inicioProductor);
-      } else if (roles.contains('Repartidor')) {
-        Navigator.pushReplacementNamed(context, AppRoutes.inicioRepartidor);
-      } else {
-        Navigator.pushReplacementNamed(context, AppRoutes.inicioComprador);
-      }
-    } else if (index == 1) {
-      Navigator.pushNamed(context, AppRoutes.explorarProductos);
-    } else if (index == 3) {
-      Navigator.pushNamed(context, AppRoutes.profile);
-    }
+class _AgrobotHistoryState extends State<AgrobotHistory> {
+  late Future<List<AgrobotConversation>> _conversationsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _conversationsFuture = AgrobotApiService.instance.getConversations();
   }
 
   @override
@@ -126,22 +88,37 @@ class AgrobotHistory extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            //Lista de conversaciones
-            if (_historial.isEmpty)
-              _EmptyHistorial()
-            else
-              ...List.generate(_historial.length, (index) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 14),
-                  child: _HistorialCard(
-                    item: _historial[index],
-                    onContinuar: () => Navigator.pushNamed(
-                      context,
-                      AppRoutes.agrobotChat,
-                    ),
-                  ),
+            FutureBuilder<List<AgrobotConversation>>(
+              future: _conversationsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  final message = snapshot.error is ApiException
+                      ? (snapshot.error as ApiException).message
+                      : 'No se pudo cargar el historial.';
+                  return Center(child: Text(message));
+                }
+                final conversations = snapshot.data ?? const [];
+                if (conversations.isEmpty) return _EmptyHistorial();
+                return Column(
+                  children: conversations.map((conversation) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: _HistorialCard(
+                        title: conversation.title,
+                        onContinuar: () => Navigator.pushNamed(
+                          context,
+                          AppRoutes.agrobotChat,
+                          arguments: {'chatId': conversation.chatId},
+                        ),
+                      ),
+                    );
+                  }).toList(),
                 );
-              }),
+              },
+            ),
           ],
         ),
       ),
@@ -152,13 +129,10 @@ class AgrobotHistory extends StatelessWidget {
 
 // Tarjeta de conversación del historial.
 class _HistorialCard extends StatelessWidget {
-  final _HistorialItem item;
+  final String title;
   final VoidCallback onContinuar;
 
-  const _HistorialCard({
-    required this.item,
-    required this.onContinuar,
-  });
+  const _HistorialCard({required this.title, required this.onContinuar});
 
   @override
   Widget build(BuildContext context) {
@@ -185,7 +159,7 @@ class _HistorialCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  item.titulo,
+                  title,
                   style: AppTextStyles.label.copyWith(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -195,24 +169,13 @@ class _HistorialCard extends StatelessWidget {
                 ),
               ),
               Text(
-                item.fecha,
+                'Chat',
                 style: AppTextStyles.SubTitle.copyWith(
                   fontSize: 12,
                   color: const Color(0xFF9CA3AF),
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 12),
-
-          // descripcion
-          Text(
-            item.descripcion,
-            style: AppTextStyles.SubTitle.copyWith(
-              fontSize: 14,
-              color: const Color(0xFF6B7280),
-              height: 1.4,
-            ),
           ),
           const SizedBox(height: 16),
 
@@ -223,7 +186,7 @@ class _HistorialCard extends StatelessWidget {
               onPressed: onContinuar,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFF3F4F6),
-                foregroundColor: const Color(0xFF064E3B), 
+                foregroundColor: const Color(0xFF064E3B),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),

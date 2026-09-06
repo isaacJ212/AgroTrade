@@ -131,6 +131,11 @@ class ProductorPage extends StatelessWidget {
                     activeIcon: Icons.shopping_bag,
                   ),
                   NavElemento(
+                    label: 'Demanda',
+                    icon: Icons.map_outlined,
+                    activeIcon: Icons.map,
+                  ),
+                  NavElemento(
                     label: 'Perfil',
                     icon: Icons.person_outline,
                     activeIcon: Icons.person,
@@ -306,15 +311,18 @@ class ProductorMenuItem extends StatelessWidget {
     this.subtitle,
   });
   @override
-  Widget build(BuildContext context) => ListTile(
-    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-    leading: Icon(icon, color: AppColors.primaryColor),
-    title: Text(label),
-    subtitle: subtitle == null
-        ? null
-        : Text(subtitle!, style: AppTextStyles.SubTitle),
-    trailing: onTap == null ? null : const Icon(Icons.chevron_right),
-    onTap: onTap,
+  Widget build(BuildContext context) => Material(
+    color: Colors.transparent,
+    child: ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      leading: Icon(icon, color: AppColors.primaryColor),
+      title: Text(label),
+      subtitle: subtitle == null
+          ? null
+          : Text(subtitle!, style: AppTextStyles.SubTitle),
+      trailing: onTap == null ? null : const Icon(Icons.chevron_right),
+      onTap: onTap,
+    ),
   );
 }
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
@@ -6,55 +8,14 @@ import 'buscarProductos.dart';
 import 'carrito.dart';
 import 'inicioComprador.dart';
 import 'misPedidos.dart';
-import 'perfilProductor.dart';
+
 import 'detalleProductoCliente.dart';
-
-class ProductoMercado {
-  final int id;
-  final String nombre;
-  final String finca;
-  final double precio;
-  final String unidad;
-  final String distancia;
-  final String categoria;
-  final bool pocoInventario;
-  final String imagenUrl;
-  final String? descripcion;
-  final double? calificacion;
-  final int? valoraciones;
-  final bool cosechadoHoy;
-
-  const ProductoMercado({
-    required this.id,
-    required this.nombre,
-    required this.finca,
-    required this.precio,
-    required this.unidad,
-    required this.distancia,
-    required this.categoria,
-    required this.imagenUrl,
-    this.pocoInventario = false,
-    this.descripcion,
-    this.calificacion,
-    this.valoraciones,
-    this.cosechadoHoy = false,
-  });
-}
+import '../../models/Consumidor/consumidor_models.dart';
+import '../../services/consumer_api_service.dart';
+import '../../services/cart_service.dart';
 
 class ExploradorProductos extends StatefulWidget {
   const ExploradorProductos({super.key});
-
-  static List<ProductoMercado> productosDeFinca(String nombreFinca) {
-    String normalizar(String nombre) => nombre
-        .trim()
-        .toLowerCase()
-        .replaceFirst(RegExp(r'^coop\.\s*'), 'cooperativa ');
-
-    final nombre = normalizar(nombreFinca);
-    return _ExploradorProductosState._productos
-        .where((producto) => normalizar(producto.finca) == nombre)
-        .toList(growable: false);
-  }
 
   @override
   State<ExploradorProductos> createState() => _ExploradorProductosState();
@@ -64,72 +25,86 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
   int _tabSel = 0;
   String _busqueda = '';
   final Set<int> _favoritos = {};
+  
+  List<ProductoMercado> _productos = [];
+  bool _cargando = true;
+  int _page = 1;
+  int _totalPages = 1;
 
-  static const List<String> _tabLabels = [
+  Timer? _debounce;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarCategorias();
+    _cargarProductos();
+  }
+
+  Future<void> _cargarCategorias() async {
+    try {
+      final cats = await ConsumerApiService.instance.getCategoriasActivas();
+      if (cats.isNotEmpty) {
+        final unicas = cats.toSet().toList();
+        unicas.insert(0, 'Todos');
+        if (mounted) {
+          setState(() {
+            _tabLabels = unicas;
+            // Si la categoría seleccionada actual es mayor al nuevo número de pestañas,
+            // la reiniciamos a 0 ("Todos")
+            if (_tabSel >= _tabLabels.length) {
+              _tabSel = 0;
+            }
+          });
+        }
+      }
+    } catch (_) {
+      // Fallback a las categorías por defecto si hay error de red
+    }
+  }
+
+  void _onSearchChanged(String val) {
+    setState(() => _busqueda = val);
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        _page = 1;
+        _cargarProductos();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _cargarProductos() async {
+    setState(() => _cargando = true);
+    final response = await ConsumerApiService.instance.getProductos(
+      page: _page, 
+      limit: 20,
+      search: _busqueda.trim()
+    );
+    if (mounted) {
+      setState(() {
+        _productos = response.items;
+        _totalPages = response.totalPages;
+        _cargando = false;
+      });
+    }
+  }
+
+  List<String> _tabLabels = [
     'Todos',
     'Frutas',
     'Cítricos',
     'Verduras',
   ];
 
-  static const List<ProductoMercado> _productos = [
-    ProductoMercado(
-      id: 1,
-      nombre: 'Tomate',
-      finca: 'Coop. Los Andes',
-      precio: 25.00,
-      unidad: 'lb',
-      distancia: '4.2 km',
-      categoria: 'Verduras',
-      imagenUrl:
-          'https://solofruver.com/wp-content/uploads/2020/06/tomate-chonto-e1662500217171.jpg',
-      descripcion:
-          'Tomate fresco de producción local, disponible para entrega o retiro en finca.',
-      calificacion: 4.8,
-      valoraciones: 32,
-      cosechadoHoy: true,
-    ),
-    ProductoMercado(
-      id: 2,
-      nombre: 'Naranja',
-      finca: 'Coop. Los Andes',
-      precio: 18.00,
-      unidad: 'doc',
-      distancia: '6.1 km',
-      categoria: 'Cítricos',
-      imagenUrl:
-          'https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=800&q=60',
-    ),
-    ProductoMercado(
-      id: 3,
-      nombre: 'Limón',
-      finca: 'Finca La Esperanza',
-      precio: 20.00,
-      unidad: 'lb',
-      distancia: '3.8 km',
-      categoria: 'Cítricos',
-      pocoInventario: true,
-      imagenUrl:
-          'https://www.cincoazul.com/cdn/shop/products/limon_organico_organic_lemon_delivery_domicilio_762f4fcb-9e94-41e2-8bb4-1a23ff3686c8.jpg?v=1756240411',
-    ),
-    ProductoMercado(
-      id: 4,
-      nombre: 'Manzana Roja',
-      finca: 'Finca La Esperanza',
-      precio: 32.00,
-      unidad: 'lb',
-      distancia: '7.5 km',
-      categoria: 'Frutas',
-      imagenUrl:
-          'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=800&q=60',
-    ),
-  ];
-
   List<ProductoMercado> get _filtrados => _productos.where((p) {
-    final porTab = _tabSel == 0 || p.categoria == _tabLabels[_tabSel];
-    final texto = _busqueda.trim().toLowerCase();
-    final porTexto = texto.isEmpty || p.nombre.toLowerCase().contains(texto);
-    return porTab && porTexto;
+    final porTab = _tabSel == 0 || p.categoria.toLowerCase() == _tabLabels[_tabSel].toLowerCase();
+    return porTab;
   }).toList();
 
   void _mostrarSnack(String mensaje) {
@@ -150,8 +125,17 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
     });
   }
 
-  void _agregar(String nombre) {
-    _mostrarSnack('$nombre agregado al carrito 🛒');
+  void _agregar(ProductoMercado producto) {
+    CartService.instance.addItem(ItemCarrito(
+      id: producto.id,
+      nombre: producto.nombre,
+      finca: producto.finca,
+      unidad: producto.unidad,
+      precioUnitario: producto.precio,
+      cantidad: 1,
+      imagenUrl: producto.imagenUrl,
+    ));
+    _mostrarSnack('${producto.nombre} agregado al carrito 🛒');
   }
 
   void _irATab(int index) {
@@ -179,6 +163,41 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
     }
   }
 
+  Widget _paginacionWidget() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+      color: AppColors.White,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          TextButton.icon(
+            onPressed: _page > 1 && !_cargando
+                ? () {
+                    _page--;
+                    _cargarProductos();
+                  }
+                : null,
+            icon: const Icon(Icons.chevron_left),
+            label: const Text('Anterior'),
+          ),
+          Text('Página $_page de ${max(1, _totalPages)}'),
+          TextButton(
+            onPressed: _page < _totalPages && !_cargando
+                ? () {
+                    _page++;
+                    _cargarProductos();
+                  }
+                : null,
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [Text('Siguiente'), Icon(Icons.chevron_right)],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -192,7 +211,12 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
             const SizedBox(height: 8),
             _tabs(),
             const Divider(height: 1, color: AppColors.cardBorder),
-            Expanded(child: _lista()),
+            Expanded(
+              child: _cargando 
+              ? const Center(child: CircularProgressIndicator(color: AppColors.primaryColor))
+              : _lista(),
+            ),
+            _paginacionWidget(),
           ],
         ),
       ),
@@ -251,16 +275,25 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
               ),
             ),
           ),
-          IconButton(
-            icon: const Icon(
-              Icons.shopping_cart_outlined,
-              color: AppColors.titleDark,
-              size: 22,
-            ),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const CarritoScreen()),
-            ),
+          AnimatedBuilder(
+            animation: CartService.instance,
+            builder: (context, _) {
+              return IconButton(
+                icon: Badge(
+                  isLabelVisible: CartService.instance.totalItems > 0,
+                  label: Text('${CartService.instance.totalItems}'),
+                  child: const Icon(
+                    Icons.shopping_cart_outlined,
+                    color: AppColors.titleDark,
+                    size: 22,
+                  ),
+                ),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CarritoScreen()),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -288,7 +321,7 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
-                      onChanged: (v) => setState(() => _busqueda = v),
+                      onChanged: _onSearchChanged,
                       decoration: InputDecoration(
                         hintText: 'Buscar productos',
                         hintStyle: AppTextStyles.SubTitle.copyWith(
@@ -396,7 +429,7 @@ class _ExploradorProductosState extends State<ExploradorProductos> {
         producto: productos[i],
         esFavorito: _favoritos.contains(productos[i].id),
         onFavorito: () => _toggleFavorito(productos[i].id),
-        onAgregar: () => _agregar(productos[i].nombre),
+        onAgregar: () => _agregar(productos[i]),
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(

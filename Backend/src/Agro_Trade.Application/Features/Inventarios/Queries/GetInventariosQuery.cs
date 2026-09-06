@@ -31,22 +31,30 @@ namespace Agro_Trade.Application.Features.Inventarios.Queries
                 return Result<List<InventarioDtos>>.Success(200, new List<InventarioDtos>(), "No hay inventarios disponibles en este momento.", true);
             }
 
+            // Obtener los IDs de productos únicos para hacer lookup
+            var productoIds = inventarios.Select(i => i.IdProducto).Distinct().ToList();
+            var productos = await _unitOfWork.Productos.FindAsync(p => productoIds.Contains(p.IdProducto), cancellationToken);
+            var productosDict = productos?.ToDictionary(p => p.IdProducto) ?? new Dictionary<int, Agro_Trade.Domain.Entities.Producto>();
 
-
-            var data = inventarios.Select(i => new InventarioDtos
-            {
-                IdInventario = i.IdInventario,
-                IdProveedor = i.IdProveedor,
-                IdProducto = i.IdProducto,
-                FotoUrl = i.FotoUrl,
-                VideoUrl = i.VideoUrl,
-                StockActual = i.StockActual,
-                CostoProduccion = i.CostoProduccion,
-                PrecioVenta = i.PrecioVenta,
-                EsOfertaExcedente = i.EsOfertaExcedente,
-                PorcentajeDescuento = i.PorcentajeDescuento,
-                FechaCosecha = i.FechaCosecha,
-                Disponible = i.Disponible
+            var data = inventarios.Select(i => {
+                productosDict.TryGetValue(i.IdProducto, out var prod);
+                return new InventarioDtos
+                {
+                    IdInventario = i.IdInventario,
+                    IdProveedor = i.IdProveedor,
+                    IdProducto = i.IdProducto,
+                    NombreProducto = prod?.Nombre ?? "Producto Desconocido",
+                    UnidadMedida = prod?.UnidadMedida ?? "kg",
+                    FotoUrl = i.FotoUrl,
+                    VideoUrl = i.VideoUrl,
+                    StockActual = i.StockActual,
+                    CostoProduccion = i.CostoProduccion,
+                    PrecioVenta = i.PrecioVenta,
+                    EsOfertaExcedente = i.EsOfertaExcedente,
+                    PorcentajeDescuento = i.PorcentajeDescuento,
+                    FechaCosecha = i.FechaCosecha,
+                    Disponible = i.Disponible
+                };
             }).ToList();
 
             return Result<List<InventarioDtos>>.Success(200, data, "Inventarios obtenidos correctamente.", true);
