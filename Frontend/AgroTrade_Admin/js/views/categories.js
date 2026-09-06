@@ -11,8 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 let currentCategorySearch = '';
+let currentCategoriesPage = 1;
+const CATEGORIES_PAGE_SIZE = 10;
 
-function initCategoryList() {
+async function initCategoryList() {
   const searchInput = document.getElementById('categorySearchInput');
   if (searchInput) {
     searchInput.oninput = (e) => {
@@ -21,19 +23,26 @@ function initCategoryList() {
     };
   }
 
-  renderCategoryList();
+  await renderCategoryList();
 }
 
-function renderCategoryList() {
+window.changeCategoriesPage = async (page) => {
+  currentCategoriesPage = page;
+  await renderCategoryList();
+};
+
+async function renderCategoryList() {
   const container = document.getElementById('categoriesListContainer');
   if (!container) return;
 
-  let list = adminStore.getCategories();
+  const data = await adminStore.getCategories(currentCategoriesPage, CATEGORIES_PAGE_SIZE);
+  let list = data.items;
+  let totalCount = data.totalCount;
 
   if (currentCategorySearch) {
     list = list.filter(c => 
       c.nombre.toLowerCase().includes(currentCategorySearch) ||
-      c.descripcion.toLowerCase().includes(currentCategorySearch)
+      (c.descripcion && c.descripcion.toLowerCase().includes(currentCategorySearch))
     );
   }
 
@@ -46,15 +55,9 @@ function renderCategoryList() {
     return;
   }
 
-  container.innerHTML = list.map(cat => {
-    let iconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 0 1 5 5v1a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5z"></path><path d="M4 14a8 8 0 0 0 16 0"></path></svg>`;
-    if (cat.icono === 'apple' || cat.nombre.toLowerCase().includes('fruta')) {
-      iconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"></path><path d="M10 2c1 .5 2 2 2 5"></path></svg>`;
-    } else if (cat.icono === 'citrus' || cat.nombre.toLowerCase().includes('cítrico')) {
-      iconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 10 10"></path><line x1="12" y1="12" x2="19" y2="5"></line></svg>`;
-    } else if (cat.icono === 'vegetable' || cat.nombre.toLowerCase().includes('verdura')) {
-      iconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m2 22 10-10"></path><path d="m9 9 5 5"></path><path d="M12 3a9 9 0 0 1 9 9c0 3-2 6-5 7"></path></svg>`;
-    }
+  let html = list.map(cat => {
+    
+    const iconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 0 1 5 5v1a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5z"></path><path d="M4 14a8 8 0 0 0 16 0"></path></svg>`;
 
     return `
       <div class="category-item-card">
@@ -64,7 +67,7 @@ function renderCategoryList() {
           </div>
           <div class="category-info-wrap">
             <div class="category-name-text">${cat.nombre}</div>
-            <span class="category-product-count-badge">${cat.conteoProductos} productos</span>
+            <span class="category-product-count-badge">${cat.conteoProductos || 0} productos</span>
           </div>
         </div>
 
@@ -85,17 +88,20 @@ function renderCategoryList() {
       </div>
     `;
   }).join('');
+
+  html += createPagination(totalCount, currentCategoriesPage, CATEGORIES_PAGE_SIZE, 'changeCategoriesPage');
+  container.innerHTML = html;
 }
 
-function deleteCategoryAction(id) {
+window.deleteCategoryAction = async function(id) {
   if (confirm('¿Estás seguro de eliminar esta categoría?')) {
-    adminStore.deleteCategory(id);
+    await adminStore.deleteCategory(id);
     Toast.success('Categoría eliminada');
-    renderCategoryList();
+    await renderCategoryList();
   }
 }
 
-function initCategoryForm() {
+async function initCategoryForm() {
   const params = new URLSearchParams(window.location.search);
   const editId = params.get('id');
   const submitBtn = document.getElementById('btnSubmitCreateCategory');
@@ -109,18 +115,18 @@ function initCategoryForm() {
   let targetCategory = null;
 
   if (editId) {
-    targetCategory = adminStore.getCategoryById(editId);
+    targetCategory = await adminStore.getCategoryById(editId);
     if (targetCategory) {
       isEditing = true;
       if (titleEl) titleEl.textContent = 'Editar Categoría';
       if (nameInput) nameInput.value = targetCategory.nombre;
-      if (descInput) descInput.value = targetCategory.descripcion;
+      if (descInput) descInput.value = targetCategory.descripcion || '';
       if (submitBtn) submitBtn.querySelector('span').textContent = 'Guardar cambios';
     }
   }
 
   if (submitBtn) {
-    submitBtn.onclick = () => {
+    submitBtn.onclick = async () => {
       const name = nameInput ? nameInput.value.trim() : '';
       const desc = descInput ? descInput.value.trim() : '';
 
@@ -130,21 +136,16 @@ function initCategoryForm() {
         return;
       }
 
-      if (!desc) {
-        if (descGroup) descGroup.classList.add('has-error');
-        if (errorMsg) errorMsg.classList.remove('hidden');
-        descInput?.focus();
-        return;
-      }
+      submitBtn.disabled = true;
 
       if (isEditing && targetCategory) {
-        adminStore.updateCategory(targetCategory.id, {
+        await adminStore.updateCategory(targetCategory.id, {
           nombre: name,
           descripcion: desc
         });
         Toast.success(`Categoría "${name}" actualizada exitosamente.`);
       } else {
-        adminStore.addCategory({
+        await adminStore.addCategory({
           nombre: name,
           descripcion: desc,
           icono: 'apple'

@@ -1,5 +1,6 @@
-import 'package:agrotrade_frontend/screens/shared/auth/roleSelection.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:agrotrade_frontend/screens/shared/auth/roleSelection.dart';
 import '../../../ui/app_theme.dart';
 import '../../../ui/components.dart';
 
@@ -37,7 +38,18 @@ class _OnBoardingState extends State<OnBoarding> {
     super.dispose();
   }
 
-  void _irSelect() {
+  Future<void> _irSelect() async {
+    print("DEBUG: [OnBoarding] Guardando estado de is_first_launch = false");
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('is_first_launch', false);
+      print("DEBUG: [OnBoarding] Guardado exitoso en SharedPreferences");
+    } catch (e) {
+      print("DEBUG: [OnBoarding] Error al guardar en SharedPreferences: $e");
+    }
+
+    if (!mounted) return;
+    print("DEBUG: [OnBoarding] Navegando a RoleSelection");
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => const Roleselection()),

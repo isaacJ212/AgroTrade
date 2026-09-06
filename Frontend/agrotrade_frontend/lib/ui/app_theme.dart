@@ -41,7 +41,7 @@ class AppColors {
 
 class AppTextStyles {
   static const TextStyle Title = TextStyle(
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: FontWeight.w700,
     color: AppColors.TextMain,
   );
@@ -57,24 +57,24 @@ class AppTextStyles {
 
   // esto es solo para pesos de pubpec
   static const TextStyle headline = TextStyle(
-    fontSize: 28,
-    fontWeight: FontWeight.w800,
+    fontSize: 18,
+    fontWeight: FontWeight.w700,
     color: AppColors.titleDark,
   );
 
   static const TextStyle sectionTitle = TextStyle(
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: FontWeight.w700,
     color: AppColors.titleDark,
   );
 
   static const TextStyle cardTitle = TextStyle(
-    fontSize: 28,
+    fontSize: 14,
     color: AppColors.bodyText,
   );
 
   static const TextStyle startValue = TextStyle(
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: FontWeight.w800,
   );
 
@@ -84,7 +84,7 @@ class AppTextStyles {
   );
 
   static const TextStyle statValue = TextStyle(
-    fontSize: 32,
+    fontSize: 20,
     fontWeight: FontWeight.w700,
     color: AppColors.primaryColor,
   );
@@ -96,14 +96,14 @@ class AppTextStyles {
   );
 
   static const TextStyle productoTitle = TextStyle(
-    fontSize: 22,
+    fontSize: 16,
     fontWeight: FontWeight.w700,
     color: AppColors.titleDark,
   );
 
   //clases para lo que es el detalle del prducto
   static const TextStyle price = TextStyle(
-    fontSize: 38,
+    fontSize: 32,
     fontWeight: FontWeight.w700,
     color: AppColors.primaryColor,
   );

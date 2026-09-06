@@ -7,6 +7,7 @@ class CreateUserRequestDto {
   final String? telefono;
   final String? direccionBase;
   final String? departamento;
+  final int? idRol;
 
   const CreateUserRequestDto({
     required this.nombreCompleto,
@@ -15,6 +16,7 @@ class CreateUserRequestDto {
     this.telefono,
     this.direccionBase,
     this.departamento,
+    this.idRol,
   });
 
   Map<String, dynamic> toJson() => {
@@ -24,6 +26,7 @@ class CreateUserRequestDto {
         if (telefono != null && telefono!.isNotEmpty) 'telefono': telefono,
         if (direccionBase != null && direccionBase!.isNotEmpty) 'direccionBase': direccionBase,
         if (departamento != null && departamento!.isNotEmpty) 'departamento': departamento,
+        if (idRol != null) 'idRol': idRol,
       };
 }
 
@@ -74,7 +77,9 @@ class UserDto {
   final String? telefono;
   final String? direccionBase;
   final String? departamento;
+  final String estadoCuenta;
   final DateTime? fechaRegistro;
+  final List<String> roles;
 
   const UserDto({
     required this.id,
@@ -84,7 +89,9 @@ class UserDto {
     this.telefono,
     this.direccionBase,
     this.departamento,
+    this.estadoCuenta = '',
     this.fechaRegistro,
+    this.roles = const [],
   });
 
   factory UserDto.fromJson(Map<String, dynamic> json) {
@@ -96,7 +103,9 @@ class UserDto {
       telefono: readString(json, const ['Telefono', 'telefono']),
       direccionBase: readString(json, const ['DireccionBase', 'direccionBase']),
       departamento: readString(json, const ['Departamento', 'departamento']),
+      estadoCuenta: readString(json, const ['EstadoCuenta', 'estadoCuenta']) ?? '',
       fechaRegistro: readDateTime(json, const ['FechaRegistro', 'fechaRegistro']),
+      roles: (json['Roles'] ?? json['roles'] as List?)?.map<String>((e) => e.toString()).toList() ?? <String>[],
     );
   }
 }

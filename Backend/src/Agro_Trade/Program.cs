@@ -20,7 +20,7 @@ namespace Agro_Trade
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            var dataSourceBuilder = new NpgsqlDataSourceBuilder(builder.Configuration.GetConnectionString("MesetaVerdeDatabase"));
+            var dataSourceBuilder = new NpgsqlDataSourceBuilder(builder.Configuration.GetConnectionString("MesetaVerdeDatabase") ?? builder.Configuration.GetConnectionString("DefaultConnection"));
             dataSourceBuilder.EnableDynamicJson(); 
             var dataSource = dataSourceBuilder.Build();
             // Add services to the container.
@@ -49,6 +49,7 @@ namespace Agro_Trade
                     };
                 });
             builder.Services.AddAuthorization();
+            builder.Services.AddSignalR();
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
@@ -116,6 +117,7 @@ namespace Agro_Trade
 
 
             app.MapControllers();
+            app.MapHub<Agro_Trade.Hubs.ChatHub>("/chathub");
 
 
             // Aplicar migraciones de EF Core automáticamente al iniciar el contenedor

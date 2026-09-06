@@ -1,21 +1,13 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import '../../ui/widgets/productor_widgets.dart' show ProductorImage;
 import '../../ui/app_theme.dart';
 import 'carrito.dart';
+import 'exploradorProductos.dart';
 import 'inicioComprador.dart';
-
-class _ProductoProductor {
-  final String nombre;
-  final String unidad;
-  final double precio;
-  final String imagenUrl;
-
-  const _ProductoProductor({
-    required this.nombre,
-    required this.unidad,
-    required this.precio,
-    required this.imagenUrl,
-  });
-}
+import '../../models/Consumidor/consumidor_models.dart';
+import '../../services/consumer_api_service.dart';
+import '../../services/cart_service.dart';
 
 class _Valoracion {
   final String iniciales;
@@ -34,7 +26,18 @@ class _Valoracion {
 }
 
 class PerfilProductorScreen extends StatefulWidget {
-  const PerfilProductorScreen({super.key});
+  final ProductorDestacado productor;
+  final bool soloLectura;
+  final Uint8List? portadaBytes;
+  final Widget? productosContenido;
+
+  const PerfilProductorScreen({
+    super.key,
+    this.productor = fincaLaEsperanza,
+    this.soloLectura = false,
+    this.portadaBytes,
+    this.productosContenido,
+  });
 
   @override
   State<PerfilProductorScreen> createState() => _PerfilProductorScreenState();
@@ -42,44 +45,85 @@ class PerfilProductorScreen extends StatefulWidget {
 
 class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
   final Set<int> _carrito = {};
+  
+  List<ProductoMercado> _productos = [];
+  bool _cargando = true;
 
-  static const String _heroUrl =
-      'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80';
-  static const String _avatarUrl =
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80';
+  List<_Valoracion> _valoracionesLista = [];
 
-  static const List<_ProductoProductor> _productos = [
-    _ProductoProductor(
-      nombre: 'Tomate Manzano',
-      unidad: 'Caja 20kg',
-      precio: 15.00,
-      imagenUrl:
-          'https://images.unsplash.com/photo-1546094096-0df9bdcaaadd?auto=format&fit=crop&w=400&q=70',
-    ),
-    _ProductoProductor(
-      nombre: 'Naranja Valencia',
-      unidad: 'Saco 50kg',
-      precio: 22.50,
-      imagenUrl:
-          'https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=400&q=70',
-    ),
-    _ProductoProductor(
-      nombre: 'Limón Persa',
-      unidad: 'Caja 15kg',
-      precio: 18.00,
-      imagenUrl:
-          'https://images.unsplash.com/photo-1590502591965-156b8b3f0e53?auto=format&fit=crop&w=400&q=70',
-    ),
-    _ProductoProductor(
-      nombre: 'Chiltoma Roja',
-      unidad: 'lb',
-      precio: 9.50,
-      imagenUrl:
-          'https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?auto=format&fit=crop&w=400&q=70',
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _cargarProductos();
+    _cargarValoraciones();
+  }
 
-  static const List<_Valoracion> _valoraciones = [
+  Future<void> _cargarProductos() async {
+    if (widget.productor.id != null) {
+      final res = await ConsumerApiService.instance.getProductos(idProveedor: widget.productor.id);
+      if (mounted) {
+        setState(() {
+          _productos = res.items;
+          _cargando = false;
+        });
+      }
+    } else {
+      final todos = await ConsumerApiService.instance.getProductos();
+      
+      String normalizar(String nombre) => nombre
+          .trim()
+          .toLowerCase()
+          .replaceFirst(RegExp(r'^coop\.\s*'), 'cooperativa ');
+
+      final nombreProductor = normalizar(widget.productor.nombre);
+      
+      if (mounted) {
+        setState(() {
+          _productos = todos.items
+            .where((producto) => normalizar(producto.finca) == nombreProductor)
+            .toList(growable: false);
+          _cargando = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _cargarValoraciones() async {
+    if (widget.productor.id != null) {
+      final valMap = await ConsumerApiService.instance.getValoraciones(widget.productor.id!);
+      if (valMap.isNotEmpty) {
+        if (mounted) {
+          setState(() {
+            _valoracionesLista = valMap.map((v) => _Valoracion(
+              iniciales: (v['nombreCliente'] ?? 'C').toString().substring(0, 1).toUpperCase(),
+              avatarColor: AppColors.primaryColor,
+              nombre: v['nombreCliente'] ?? 'Cliente',
+              rating: v['puntuacion']?.toDouble() ?? 5.0,
+              comentario: v['comentario'] ?? '',
+            )).toList();
+          });
+        }
+        return;
+      }
+    }
+    
+    // Fallback
+    if (mounted) {
+      setState(() {
+        _valoracionesLista = widget.productor.nombre == fincaLaEsperanza.nombre
+            ? _valoracionesEsperanza
+            : const [];
+      });
+    }
+  }
+
+  String get _heroUrl =>
+      widget.productor.portadaUrl ?? widget.productor.avatarUrl;
+  String get _avatarUrl => widget.productor.avatarUrl;
+
+  List<_Valoracion> get _valoraciones => _valoracionesLista;
+
+  static const List<_Valoracion> _valoracionesEsperanza = [
     _Valoracion(
       iniciales: 'ML',
       avatarColor: AppColors.primaryColor,
@@ -98,14 +142,25 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
     ),
   ];
 
-  void _toggleCarrito(int index) {
-    setState(() {
-      if (_carrito.contains(index)) {
-        _carrito.remove(index);
-      } else {
-        _carrito.add(index);
-      }
-    });
+  void _toggleCarrito(ProductoMercado producto) {
+    CartService.instance.addItem(ItemCarrito(
+      id: producto.id,
+      nombre: producto.nombre,
+      finca: producto.finca,
+      unidad: producto.unidad,
+      precioUnitario: producto.precio,
+      cantidad: 1,
+      imagenUrl: producto.imagenUrl,
+    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${producto.nombre} agregado al carrito 🛒'),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: AppColors.primaryColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   void _enviarMensaje() {
@@ -154,44 +209,50 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: _carrito.isNotEmpty
-          ? Container(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(top: BorderSide(color: Color(0xFFE4E7E5), width: 1)),
-              ),
-              child: SafeArea(
-                top: false,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const CarritoScreen()),
+      bottomNavigationBar: !widget.soloLectura
+          ? AnimatedBuilder(
+              animation: CartService.instance,
+              builder: (context, _) {
+                if (CartService.instance.items.isEmpty) return const SizedBox.shrink();
+                return Container(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    border: Border(top: BorderSide(color: Color(0xFFE4E7E5), width: 1)),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryColor,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Ver Carrito (${_carrito.length} seleccionados)',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                  child: SafeArea(
+                    top: false,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const CarritoScreen()),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(100),
                         ),
                       ),
-                    ],
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Ver Carrito (${CartService.instance.totalItems} items)',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             )
           : null,
     );
@@ -223,7 +284,7 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
           },
         ),
       ),
-      actions: [
+      actions: widget.soloLectura ? [] : [
         Container(
           margin: const EdgeInsets.all(8),
           decoration: BoxDecoration(
@@ -272,7 +333,10 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
         background: Stack(
           fit: StackFit.expand,
           children: [
-            Image.network(
+            if (widget.portadaBytes != null)
+              Image.memory(widget.portadaBytes!, fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(color: AppColors.primarySoftBg))
+            else Image.network(
               _heroUrl,
               fit: BoxFit.cover,
               errorBuilder: (_, __, ___) =>
@@ -304,8 +368,8 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 72,
-                height: 72,
+                width: 60,
+                height: 60,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(color: AppColors.primaryColor, width: 2.5),
@@ -318,13 +382,15 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
                   ],
                 ),
                 child: ClipOval(
-                  child: Image.network(
+                  child: widget.portadaBytes != null
+                    ? ProductorImage(bytes: widget.portadaBytes, height: 60, width: 60)
+                    : Image.network(
                     _avatarUrl,
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => Container(
                       color: AppColors.primarySoftBg,
                       child: const Icon(
-                        Icons.person,
+                        Icons.agriculture_outlined,
                         size: 36,
                         color: AppColors.primaryColor,
                       ),
@@ -333,9 +399,9 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
                 ),
               ),
               const Spacer(),
-              ElevatedButton.icon(
+              if (!widget.soloLectura) ElevatedButton.icon(
                 onPressed: _enviarMensaje,
-                icon: const Icon(Icons.chat_bubble_outline, size: 16),
+                icon: const Icon(Icons.chat_bubble_outline, size: 14),
                 label: const Text(
                   'Enviar mensaje',
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
@@ -344,7 +410,7 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
                   backgroundColor: AppColors.primaryColor,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
+                    horizontal: 12,
                     vertical: 10,
                   ),
                   shape: RoundedRectangleBorder(
@@ -356,61 +422,65 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
             ],
           ),
           const SizedBox(height: 14),
-          const Text(
-            'Carlos Martínez',
-            style: TextStyle(
-              fontSize: 22,
+          Text(
+            widget.productor.nombre,
+            style: const TextStyle(
+              fontSize: 20,
               fontWeight: FontWeight.w800,
               color: AppColors.titleDark,
             ),
           ),
           const SizedBox(height: 6),
           Row(
-            children: const [
-              Icon(
+            children: [
+              const Icon(
                 Icons.agriculture_outlined,
                 size: 15,
                 color: AppColors.TextSoft,
               ),
-              SizedBox(width: 5),
+              const SizedBox(width: 5),
               Text(
-                'Finca La Esperanza',
-                style: TextStyle(fontSize: 13, color: AppColors.TextSoft),
+                widget.productor.tipo,
+                style: const TextStyle(fontSize: 13, color: AppColors.TextSoft),
               ),
+              if (widget.productor.verificado) ...[
+                const SizedBox(width: 8),
+                const Icon(Icons.verified, size: 15, color: AppColors.primaryColor),
+              ],
             ],
           ),
           const SizedBox(height: 4),
           Row(
-            children: const [
-              Icon(
+            children: [
+              const Icon(
                 Icons.location_on_outlined,
                 size: 15,
                 color: AppColors.TextSoft,
               ),
-              SizedBox(width: 5),
+              const SizedBox(width: 5),
               Text(
-                'Jinotepe, Carazo',
-                style: TextStyle(fontSize: 13, color: AppColors.TextSoft),
+                widget.productor.ubicacion ?? 'Ubicación no registrada',
+                style: const TextStyle(fontSize: 13, color: AppColors.TextSoft),
               ),
             ],
           ),
           const SizedBox(height: 10),
           Row(
-            children: const [
-              Icon(Icons.star_rounded, size: 18, color: AppColors.amber),
-              SizedBox(width: 4),
+            children: [
+              const Icon(Icons.star_rounded, size: 18, color: AppColors.amber),
+              const SizedBox(width: 4),
               Text(
-                '4.8',
-                style: TextStyle(
+                widget.productor.rating.toStringAsFixed(1),
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: AppColors.titleDark,
                 ),
               ),
-              SizedBox(width: 6),
+              const SizedBox(width: 6),
               Text(
-                '32 valoraciones',
-                style: TextStyle(fontSize: 13, color: AppColors.TextSoft),
+                '${widget.productor.ventas} ventas',
+                style: const TextStyle(fontSize: 13, color: AppColors.TextSoft),
               ),
             ],
           ),
@@ -425,10 +495,12 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Sobre la finca',
-            style: TextStyle(
-              fontSize: 18,
+          Text(
+            widget.productor.tipo == 'Cooperativa'
+                ? 'Sobre la cooperativa'
+                : 'Sobre la finca',
+            style: const TextStyle(
+              fontSize: 16,
               fontWeight: FontWeight.w700,
               color: AppColors.titleDark,
             ),
@@ -441,14 +513,9 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AppColors.cardBorder),
             ),
-            child: const Text(
-              'Dedicados a la producción agrícola sostenible '
-              'desde hace más de 20 años. En Finca La Esperanza, '
-              'cultivamos nuestras tierras respetando los ciclos '
-              'naturales y utilizando prácticas amigables con el '
-              'medio ambiente para ofrecer los productos más '
-              'frescos de la región.',
-              style: TextStyle(
+            child: Text(
+              widget.productor.descripcion ?? 'Sin descripción disponible.',
+              style: const TextStyle(
                 fontSize: 14,
                 color: AppColors.TextSoft,
                 height: 1.6,
@@ -461,6 +528,8 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
   }
 
   Widget _buildProductosDisponibles() {
+    if (widget.productosContenido != null) return widget.productosContenido!;
+    final productos = _productos;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
       child: Column(
@@ -471,7 +540,7 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
               Text(
                 'Productos disponibles',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: AppColors.titleDark,
                 ),
@@ -479,10 +548,17 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
             ],
           ),
           const SizedBox(height: 14),
-          GridView.builder(
+          if (_cargando)
+            const Center(child: CircularProgressIndicator(color: AppColors.primaryColor))
+          else if (productos.isEmpty)
+            const Text(
+              'No hay productos registrados para esta finca.',
+              style: TextStyle(fontSize: 13, color: AppColors.TextSoft),
+            )
+          else GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: _productos.length,
+            itemCount: productos.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 12,
@@ -491,9 +567,9 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
             ),
             itemBuilder: (context, index) {
               return _ProductoCard(
-                producto: _productos[index],
-                inCarrito: _carrito.contains(index),
-                onToggle: () => _toggleCarrito(index),
+                producto: productos[index],
+                inCarrito: false, // Could check CartService if wanted
+                onToggle: () => _toggleCarrito(productos[index]),
               );
             },
           ),
@@ -513,19 +589,19 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
               const Text(
                 'Valoraciones',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: AppColors.titleDark,
                 ),
               ),
               const Spacer(),
               Row(
-                children: const [
-                  Icon(Icons.star_rounded, size: 18, color: AppColors.amber),
-                  SizedBox(width: 4),
+                children: [
+                  const Icon(Icons.star_rounded, size: 18, color: AppColors.amber),
+                  const SizedBox(width: 4),
                   Text(
-                    '4.8',
-                    style: TextStyle(
+                    widget.productor.rating.toStringAsFixed(1),
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: AppColors.titleDark,
@@ -536,7 +612,13 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
             ],
           ),
           const SizedBox(height: 14),
-          ..._valoraciones.map((v) => _ValoracionTile(valoracion: v)),
+          if (_valoraciones.isEmpty)
+            const Text(
+              'No hay reseñas disponibles para mostrar.',
+              style: TextStyle(fontSize: 13, color: AppColors.TextSoft),
+            )
+          else
+            ..._valoraciones.map((v) => _ValoracionTile(valoracion: v)),
         ],
       ),
     );
@@ -544,7 +626,7 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
 }
 
 class _ProductoCard extends StatelessWidget {
-  final _ProductoProductor producto;
+  final ProductoMercado producto;
   final bool inCarrito;
   final VoidCallback onToggle;
 

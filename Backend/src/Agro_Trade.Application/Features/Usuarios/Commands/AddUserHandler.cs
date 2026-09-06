@@ -1,4 +1,4 @@
-﻿    using MediatR;
+    using MediatR;
     using Agro_Trade.Domain.Entities;
     using Agro_Trade.Application.Common;
     using Agro_Trade.Application.Common.DTOs.UsersDtos;
@@ -43,7 +43,7 @@ namespace Agro_Trade.Application.Features.Usuarios.Commands
                 var userRol = new UsuarioRol
                 {
                     IdUsuario = user.IdUsuario,
-                    IdRol = 2 //id de rol cliente
+                    IdRol = dto.IdRol ?? 1 // 1 = Cliente/Comprador por defecto
                 };
 
                 await rol.AddAsync(userRol, ct);

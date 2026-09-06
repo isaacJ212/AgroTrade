@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
-import 'screens/shared/onboarding/splash.dart';
+import 'routes/app_router.dart';
+import 'routes/app_routes.dart';
+
 import 'ui/app_theme.dart';
 
 void main() => runApp(const AgroTradeApp());
 
 class AgroTradeApp extends StatelessWidget {
   const AgroTradeApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,7 +24,9 @@ class AgroTradeApp extends StatelessWidget {
           iconTheme: IconThemeData(color: AppColors.TextMain),
         ),
       ),
-      home: const Splash(),
+
+      initialRoute: AppRoutes.splash,
+      onGenerateRoute: AppRouter.generateRoute,
     );
   }
 }

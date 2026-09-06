@@ -1,15 +1,17 @@
-document.addEventListener('DOMContentLoaded', () => {
-  
+document.addEventListener('DOMContentLoaded', async () => {
   authService.guardRoute();
 
-  renderStats();
-  renderPendingList();
+  await initDashboard();
   renderRecentActivities();
 });
 
-function renderStats() {
-  const stats = adminStore.getStats();
-  const pendingList = adminStore.getPendingVerifications();
+async function initDashboard() {
+  await renderDashboardStats();
+  await renderPendingReviews();
+}
+
+async function renderDashboardStats() {
+  const stats = await adminStore.getStats();
 
   const usersEl = document.getElementById('dashStatUsers');
   const producersEl = document.getElementById('dashStatProducers');
@@ -18,28 +20,31 @@ function renderStats() {
 
   if (usersEl) usersEl.textContent = stats.usuariosRegistrados;
   if (producersEl) producersEl.textContent = stats.productores;
-  if (pendingEl) pendingEl.textContent = pendingList.length;
+  if (pendingEl) pendingEl.textContent = stats.verificacionesPendientes;
   if (categoriesEl) categoriesEl.textContent = stats.categorias;
 }
 
-function renderPendingList() {
-  const container = document.getElementById('dashPendingReviewsList');
+async function renderPendingReviews() {
+  const container = document.getElementById('dashPendingReviewsContainer');
   if (!container) return;
 
-  const pending = adminStore.getPendingVerifications();
+  const pending = await adminStore.getPendingVerifications();
 
   if (pending.length === 0) {
     container.innerHTML = `
-      <div style="text-align:center; padding: 24px; background:#fff; border-radius:var(--radius-lg); border:1px dashed var(--border-light); color:var(--text-secondary);">
-        <div style="font-weight:700; color:var(--text-main);">¡Todo al día!</div>
-        <div style="font-size:0.8rem; margin-top:4px;">No hay verificaciones pendientes de revisión.</div>
+      <div style="text-align:center; padding:30px 16px; color:var(--text-secondary); background:var(--bg-card); border-radius:var(--radius-lg);">
+        <strong style="display:block; color:var(--text-main); margin-bottom:4px;">¡Todo al día!</strong>
+        No hay verificaciones pendientes de revisión.
       </div>
     `;
     return;
   }
 
-  container.innerHTML = pending.map(item => {
-    const user = adminStore.getUserById(item.idUsuario) || {};
+  const allUsersRes = await adminStore.getUsers(1, 1000);
+  const allUsers = allUsersRes.items || [];
+
+  container.innerHTML = pending.slice(0, 3).map(item => {
+    const user = allUsers.find(u => u.id === Number(item.idUsuario)) || {};
     const isProductor = item.tipoRol === 'productor';
     const roleIcon = isProductor
       ? `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="18" r="3"></circle><path d="M3 18h12v-6H8l-2 3H3"></path><path d="M14 9V4h-4"></path></svg>`

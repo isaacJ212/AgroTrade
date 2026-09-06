@@ -1,37 +1,89 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import 'inicioComprador.dart';
+import '../../services/consumer_api_service.dart';
 
-class SeguimientoPedidoScreen extends StatelessWidget {
-  const SeguimientoPedidoScreen({super.key});
+class SeguimientoPedidoScreen extends StatefulWidget {
+  final String? idPedido;
+  const SeguimientoPedidoScreen({super.key, this.idPedido});
 
-  static const List<_PasoEnvio> _pasos = [
-    _PasoEnvio(
-      label: 'Confirmado',
-      descripcion: 'El vendedor ha aceptado el pedido.',
-      estado: _EstadoPaso.completado,
-    ),
-    _PasoEnvio(
-      label: 'En preparación',
-      descripcion: 'Tus productos están siendo cosechados y empacados.',
-      estado: _EstadoPaso.activo,
-    ),
-    _PasoEnvio(
-      label: 'Listo para entregar',
-      descripcion: null,
-      estado: _EstadoPaso.pendiente,
-    ),
-    _PasoEnvio(
-      label: 'En camino',
-      descripcion: null,
-      estado: _EstadoPaso.pendiente,
-    ),
-    _PasoEnvio(
-      label: 'Entregado',
-      descripcion: null,
-      estado: _EstadoPaso.pendiente,
-    ),
+  @override
+  State<SeguimientoPedidoScreen> createState() => _SeguimientoPedidoScreenState();
+}
+
+class _SeguimientoPedidoScreenState extends State<SeguimientoPedidoScreen> {
+  bool _isLoading = true;
+  Map<String, dynamic> _pedidoData = {};
+
+  static const List<_PasoEnvio> _pasosBase = [
+    _PasoEnvio(label: 'Confirmado', descripcion: 'El vendedor ha aceptado el pedido.', estado: _EstadoPaso.pendiente),
+    _PasoEnvio(label: 'En preparación', descripcion: 'Tus productos están siendo cosechados y empacados.', estado: _EstadoPaso.pendiente),
+    _PasoEnvio(label: 'Listo para entregar', descripcion: null, estado: _EstadoPaso.pendiente),
+    _PasoEnvio(label: 'En camino', descripcion: null, estado: _EstadoPaso.pendiente),
+    _PasoEnvio(label: 'Entregado', descripcion: null, estado: _EstadoPaso.pendiente),
   ];
+
+  List<_PasoEnvio> _pasosActualizados = List.from(_pasosBase);
+  String _estadoActual = 'PENDIENTE';
+  String _idPedidoVisible = 'AT-0000';
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarPedido();
+  }
+
+  Future<void> _cargarPedido() async {
+    try {
+      String id = widget.idPedido ?? '';
+      if (id.isEmpty) {
+        final misPedidos = await ConsumerApiService.instance.getMisPedidos();
+        if (misPedidos.isNotEmpty) {
+          id = misPedidos.first.id;
+        }
+      }
+
+      if (id.isNotEmpty) {
+        _idPedidoVisible = id;
+        final data = await ConsumerApiService.instance.getPedidoDetalle(id);
+        if (data.isNotEmpty) {
+          _pedidoData = data;
+          _estadoActual = data['estadoEnvio'] ?? 'PENDIENTE';
+          _actualizarPasos(_estadoActual);
+        }
+      }
+    } catch (e) {
+      print('Error cargando seguimiento: $e');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _actualizarPasos(String estadoEnvio) {
+    int currentIndex = 0;
+    switch (estadoEnvio.toUpperCase()) {
+      case 'PENDIENTE': currentIndex = 1; break;
+      case 'EN_CAMINO': currentIndex = 3; break;
+      case 'ENTREGADO': currentIndex = 4; break;
+      default: currentIndex = 1;
+    }
+
+    _pasosActualizados = _pasosBase.asMap().entries.map((entry) {
+      final index = entry.key;
+      final paso = entry.value;
+      
+      _EstadoPaso nuevoEstado;
+      if (index < currentIndex) {
+        nuevoEstado = _EstadoPaso.completado;
+      } else if (index == currentIndex) {
+        nuevoEstado = _EstadoPaso.activo;
+      } else {
+        nuevoEstado = _EstadoPaso.pendiente;
+      }
+
+      return _PasoEnvio(label: paso.label, descripcion: paso.descripcion, estado: nuevoEstado);
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +115,9 @@ class SeguimientoPedidoScreen extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
+      body: _isLoading 
+        ? const Center(child: CircularProgressIndicator(color: AppColors.primaryColor))
+        : SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -123,9 +177,9 @@ class SeguimientoPedidoScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Pedido #AT-2051',
-                  style: TextStyle(
+                Text(
+                  'Pedido #$_idPedidoVisible',
+                  style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
                     color: AppColors.titleDark,
@@ -133,13 +187,13 @@ class SeguimientoPedidoScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 RichText(
-                  text: const TextSpan(
+                  text: TextSpan(
                     text: 'Estado actual: ',
-                    style: TextStyle(fontSize: 14, color: AppColors.TextSoft),
+                    style: const TextStyle(fontSize: 14, color: AppColors.TextSoft),
                     children: [
                       TextSpan(
-                        text: 'En\npreparación',
-                        style: TextStyle(
+                        text: '\n$_estadoActual',
+                        style: const TextStyle(
                           fontWeight: FontWeight.w700,
                           color: AppColors.primaryColor,
                         ),
@@ -179,33 +233,43 @@ class SeguimientoPedidoScreen extends StatelessWidget {
 
   Widget _buildTimeline() {
     return Column(
-      children: List.generate(_pasos.length, (i) {
-        final paso = _pasos[i];
-        final isLast = i == _pasos.length - 1;
+      children: List.generate(_pasosActualizados.length, (i) {
+        final paso = _pasosActualizados[i];
+        final isLast = i == _pasosActualizados.length - 1;
         return _PasoTile(paso: paso, isLast: isLast);
       }),
     );
   }
 
   Widget _buildProductores() {
+    if (_pedidoData.isEmpty || _pedidoData['detalles'] == null) {
+      return Column(
+        children: const [
+          _ProductorTile(
+            nombre: 'Productor Local',
+            estado: 'Preparando tu pedido',
+            estadoColor: AppColors.primaryColor,
+            icon: Icons.agriculture_outlined,
+            estadoIcon: Icons.check_circle_rounded,
+          ),
+        ],
+      );
+    }
+
+    final detalles = _pedidoData['detalles'] as List<dynamic>;
     return Column(
-      children: const [
-        _ProductorTile(
-          nombre: 'Finca La Esperanza',
-          estado: 'Preparando tu pedido',
-          estadoColor: AppColors.primaryColor,
-          icon: Icons.agriculture_outlined,
-          estadoIcon: Icons.check_circle_rounded,
-        ),
-        SizedBox(height: 8),
-        _ProductorTile(
-          nombre: 'Cooperativa Los Andes',
-          estado: 'Pedido confirmado',
-          estadoColor: AppColors.TextSoft,
-          icon: Icons.storefront_outlined,
-          estadoIcon: Icons.inventory_2_outlined,
-        ),
-      ],
+      children: detalles.map((d) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: _ProductorTile(
+            nombre: d['producto'] ?? 'Producto',
+            estado: 'x${d['cantidad']} - C\$${d['totalLinea']}',
+            estadoColor: AppColors.TextSoft,
+            icon: Icons.inventory_2_outlined,
+            estadoIcon: Icons.shopping_basket_outlined,
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -287,7 +351,7 @@ class SeguimientoPedidoScreen extends StatelessWidget {
           width: double.infinity,
           height: 44,
           child: OutlinedButton.icon(
-            onPressed: () {},
+            onPressed: () => Navigator.pushNamed(context, '/comprador/pedido/ruta-mapa'),
             icon: const Icon(Icons.map_outlined, size: 18),
             label: const Text(
               'Ver ruta',
@@ -313,7 +377,16 @@ class SeguimientoPedidoScreen extends StatelessWidget {
           width: double.infinity,
           height: 48,
           child: ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () => Navigator.pushNamed(
+              context, 
+              '/chat',
+              arguments: {
+                'idPedido': int.tryParse(_idPedidoVisible.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0,
+                'idReceptor': 13, // Productor por defecto / mock
+                'nombreReceptor': 'Productor',
+                'codigoPedido': '#$_idPedidoVisible',
+              },
+            ),
             icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
             label: const Text(
               'Enviar mensaje',
@@ -334,7 +407,7 @@ class SeguimientoPedidoScreen extends StatelessWidget {
           width: double.infinity,
           height: 48,
           child: OutlinedButton.icon(
-            onPressed: () {},
+            onPressed: () => Navigator.pushNamed(context, '/comprador/pedido/reportar'),
             icon: const Icon(Icons.warning_amber_rounded, size: 18),
             label: const Text(
               'Reportar un problema',

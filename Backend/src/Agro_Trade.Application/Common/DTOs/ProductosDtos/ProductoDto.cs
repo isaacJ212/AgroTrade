@@ -13,7 +13,8 @@ namespace Agro_Trade.Application.Common.DTOs.ProductosDtos
         public string? Nombre { get; set; }
         public string? Descripcion { get; set; }
         public string? UnidadMedida { get; set; }
-
-        
+        public string? CategoriaNombre { get; set; }
+        public decimal Precio { get; set; }
+        public string? FotoUrl { get; set; }
     }
 }

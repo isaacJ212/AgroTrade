@@ -33,10 +33,19 @@ namespace Agro_Trade.Infrastructure.Persistence
         public DbSet<Mensaje> Mensajes { get; set; } = null!;
         public DbSet<SolicitudRepartidor> SolicitudRepartidor { get; set; } = null!;
         public DbSet<Repartidor> Repartidor { get; set; } = null!;  
+        public DbSet<Actividad> Actividades { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AgroTradeDbContext).Assembly);
+            
+            // Seed Data 
+            modelBuilder.Entity<Actividad>().HasData(
+                new Actividad { Id = 1, Title = "El productor 'Finca Los Pinos' se ha registrado en la plataforma", IconType = "user", IconClass = "icon-green-bg", CreatedAt = DateTime.UtcNow.AddMinutes(-5) },
+                new Actividad { Id = 2, Title = "Verificación aprobada para 'Transportes El Rápido'", IconType = "check-circle", IconClass = "icon-blue-bg", CreatedAt = DateTime.UtcNow.AddHours(-1) },
+                new Actividad { Id = 3, Title = "Se ha reportado un problema con el pedido #1045", IconType = "alert-circle", IconClass = "icon-orange-bg", CreatedAt = DateTime.UtcNow.AddHours(-2) },
+                new Actividad { Id = 4, Title = "Nueva categoría 'Frutas Tropicales' creada", IconType = "layers", IconClass = "icon-purple-bg", CreatedAt = DateTime.UtcNow.AddDays(-1) }
+            );
         }
     }
 }

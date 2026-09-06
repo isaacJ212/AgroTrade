@@ -1,581 +1,203 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import '../../../models/productor_models.dart';
+import '../../../services/productor_store.dart';
+import '../../../routes/app_routes.dart';
 import '../../../ui/app_theme.dart';
-import '../../../ui/components.dart';
-import '../../shared/profile.dart';
+import '../../../ui/widgets/productor_widgets.dart';
 
 class Sales extends StatefulWidget {
-  const Sales({super.key});
-
+  final bool reporte;
+  const Sales({super.key, this.reporte = false});
   @override
   State<Sales> createState() => _SalesState();
 }
 
 class _SalesState extends State<Sales> {
-  int _periodoSeleccionado = 1;
-
-  final List<String> _periodos = ['Esta semana', 'Este mes', 'Últimos 3 meses'];
-
+  int _dias = 30;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
-        title: const Text(
-          'Ventas',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: List.generate(_periodos.length, (index) {
-                  final bool seleccionado = _periodoSeleccionado == index;
-
-                  return Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        right: index < _periodos.length - 1 ? 8 : 0,
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          setState(() {
-                            _periodoSeleccionado = index;
-                          });
-                        },
-                        borderRadius: BorderRadius.circular(24),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 180),
-                          height: 42,
-                          decoration: BoxDecoration(
-                            color: seleccionado
-                                ? AppColors.primaryColor
-                                : Colors.white,
-                            borderRadius: BorderRadius.circular(24),
-                            border: Border.all(
-                              color: seleccionado
-                                  ? AppColors.primaryColor
-                                  : const Color(0xFFD7DEDA),
-                            ),
-                          ),
-                          alignment: Alignment.center,
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: Text(
-                            _periodos[index],
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: seleccionado
-                                  ? Colors.white
-                                  : const Color(0xFF5D6762),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-              ),
-
-              const SizedBox(height: 20),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [Color(0xFFF7F9F8), Color(0xFFE3F0E9)],
-                  ),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFFE0E6E3)),
-                ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.account_balance_wallet_outlined,
-                          size: 20,
-                          color: Color(0xFF58635E),
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          'Ingresos Totales',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF58635E),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(height: 8),
-
-                    Text(
-                      'C\$ 12,450.00',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.primaryColor,
-                      ),
-                    ),
-
-                    SizedBox(height: 10),
-
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.trending_up,
-                          size: 18,
-                          color: AppColors.primaryColor,
-                        ),
-                        SizedBox(width: 5),
-                        Text(
-                          '+14.5% vs mes anterior',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.primaryColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 12),
-              const Row(
-                children: [
-                  Expanded(
-                    child: _SummaryCard(
-                      title: 'Pedidos',
-                      value: '24',
-                      description: 'Completados',
-                    ),
-                  ),
-
-                  SizedBox(width: 12),
-
-                  Expanded(
-                    child: _SummaryCard(
-                      title: 'Productos',
-                      value: '186',
-                      description: 'Unidades vendidas',
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 12),
-
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 15,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF4F6F5),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFFE1E6E3)),
-                ),
-                child: const Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: Color(0xFFE1F2E7),
-                      child: Icon(
-                        Icons.receipt_long_outlined,
-                        size: 22,
-                        color: AppColors.primaryColor,
-                      ),
-                    ),
-
-                    SizedBox(width: 12),
-
-                    Expanded(
-                      child: Text(
-                        'Ticket Promedio',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF5E6963),
-                        ),
-                      ),
-                    ),
-
-                    Text(
-                      'C\$ 518.75',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.TextMain,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 18),
-
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(16, 18, 16, 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFFDEE4E1)),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        const Expanded(
-                          child: Text(
-                            'Rendimiento Diario',
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.TextMain,
-                            ),
-                          ),
-                        ),
-
-                        TextButton(
-                          onPressed: () {},
-                          style: TextButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                          child: const Text(
-                            'Ver reporte completo',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primaryColor,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    const SizedBox(height: 180, child: _DailyBarChart()),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              const Text(
-                'Más vendidos',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.TextMain,
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFFDEE4E1)),
-                ),
-                child: const Column(
-                  children: [
-                    _BestSellerItem(
-                      position: '1',
-                      product: 'Tomate',
-                      sales: '64 libras vendidas',
-                      first: true,
-                    ),
-
-                    Divider(height: 1, color: Color(0xFFE5E9E7)),
-
-                    _BestSellerItem(
-                      position: '2',
-                      product: 'Naranja',
-                      sales: '38 docenas vendidas',
-                    ),
-
-                    Divider(height: 1, color: Color(0xFFE5E9E7)),
-
-                    _BestSellerItem(
-                      position: '3',
-                      product: 'Limón',
-                      sales: '31 libras vendidas',
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: AgroBottomNavBar(
-        currentIndex: 2,
-        onTap: (index) {
-          if (index == 2) {
-            return;
+    final store = ProductorStore.instance;
+    return AnimatedBuilder(
+      animation: store,
+      builder: (context, _) {
+        final now = DateTime.now();
+        final inicio = DateTime(
+          now.year,
+          now.month,
+          now.day,
+        ).subtract(Duration(days: _dias - 1));
+        final pedidos = store.pedidos
+            .where(
+              (p) =>
+                  p.estado == EstadoPedido.listo &&
+                  !p.fecha.isBefore(inicio) &&
+                  !p.fecha.isAfter(now),
+            )
+            .toList();
+        final total = pedidos.fold<double>(0, (sum, p) => sum + p.subtotal);
+        final promedio = pedidos.isEmpty ? 0.0 : total / pedidos.length;
+        final vendidos = <String, double>{};
+        for (final p in pedidos) {
+          for (final item in p.productos) {
+            final clave = '${item.nombre} (${item.unidad})';
+            vendidos[clave] = (vendidos[clave] ?? 0) + item.cantidad;
           }
-
-          if (index == 3) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const Profile()),
-            );
-          }
-        },
-      ),
-    );
-  }
-}
-
-class _SummaryCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final String description;
-
-  const _SummaryCard({
-    required this.title,
-    required this.value,
-    required this.description,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 105,
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF4F6F5),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE1E6E3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF68736D),
+        }
+        final ranking = vendidos.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+        final buckets = List<double>.filled(6, 0);
+        for (final p in pedidos) {
+          final index = math.min(
+            5,
+            math.max(
+              0,
+              (p.fecha.difference(inicio).inDays * 6 / _dias).floor(),
             ),
-          ),
-
-          const Spacer(),
-
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: AppColors.TextMain,
-            ),
-          ),
-
-          const SizedBox(height: 2),
-
-          Text(
-            description,
-            style: const TextStyle(fontSize: 10, color: Color(0xFF929A96)),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DailyBarChart extends StatelessWidget {
-  const _DailyBarChart();
-
-  @override
-  Widget build(BuildContext context) {
-    final List<double> values = [0.34, 0.48, 0.30, 0.64, 0.82, 0.54, 0.96];
-
-    final List<String> days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        const double labelHeight = 26;
-
-        final double chartHeight = constraints.maxHeight - labelHeight;
-
-        return Column(
-          children: [
-            SizedBox(
-              height: chartHeight,
-              child: Stack(
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: List.generate(4, (index) {
-                      return Container(
-                        height: 1,
-                        color: const Color(0xFFEEF1EF),
-                      );
-                    }),
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: List.generate(values.length, (index) {
-                      return Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 5),
-                          child: Align(
-                            alignment: Alignment.bottomCenter,
-                            child: FractionallySizedBox(
-                              heightFactor: values[index],
-                              child: Container(
-                                width: double.infinity,
-                                decoration: const BoxDecoration(
-                                  color: AppColors.primaryColor,
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(3),
-                                    topRight: Radius.circular(3),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            Row(
-              children: List.generate(days.length, (index) {
-                final bool sunday = index == 6;
-
-                return Expanded(
-                  child: Text(
-                    days[index],
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 9,
-                      fontWeight: sunday ? FontWeight.w700 : FontWeight.w400,
-                      color: sunday
-                          ? AppColors.primaryColor
-                          : const Color(0xFF929B96),
-                    ),
-                  ),
-                );
-              }),
+          );
+          buckets[index] += p.subtotal;
+        }
+        final maximo = buckets.fold<double>(0, math.max);
+        return ProductorPage(
+          title: widget.reporte ? 'Reporte de ventas' : 'Mis ventas',
+          actions: [
+            IconButton(
+              tooltip: 'Copiar reporte',
+              icon: const Icon(Icons.copy_outlined),
+              onPressed: () async {
+                final lines = [
+                  'Reporte de ventas · últimos $_dias días',
+                  'Pedidos listos: ${pedidos.length}',
+                  'Subtotal de productos: ${dinero(total)}',
+                  for (final p in pedidos)
+                    '${p.codigo} · ${p.cliente} · ${dinero(p.subtotal)}',
+                ];
+                await Clipboard.setData(ClipboardData(text: lines.join('\n')));
+                if (context.mounted)
+                  mensajeProductor(context, 'Reporte copiado.');
+              },
             ),
           ],
-        );
-      },
-    );
-  }
-}
-
-class _BestSellerItem extends StatelessWidget {
-  final String position;
-  final String product;
-  final String sales;
-  final bool first;
-
-  const _BestSellerItem({
-    required this.position,
-    required this.product,
-    required this.sales,
-    this.first = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-      child: Row(
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: first ? const Color(0xFFEAF5EE) : const Color(0xFFF0F2F1),
-              borderRadius: BorderRadius.circular(9),
+          children: [
+            Wrap(
+              spacing: 8,
+              children: [
+                for (final dias in [7, 30, 90])
+                  ChoiceChip(
+                    label: Text('$dias días'),
+                    selected: _dias == dias,
+                    onSelected: (_) => setState(() => _dias = dias),
+                  ),
+              ],
             ),
-            child: Text(
-              position,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: first ? AppColors.primaryColor : const Color(0xFF858F8A),
-              ),
+            const SizedBox(height: 16),
+            ProductorStat(
+              label: 'Productos de pedidos listos',
+              value: dinero(total),
+              icon: Icons.payments_outlined,
             ),
-          ),
-
-          const SizedBox(width: 13),
-
-          Expanded(
-            child: Column(
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  product,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.TextMain,
+                Expanded(
+                  child: ProductorStat(
+                    label: 'Pedidos',
+                    value: '${pedidos.length}',
+                    icon: Icons.receipt_long_outlined,
                   ),
                 ),
-
-                const SizedBox(height: 3),
-
-                Text(
-                  sales,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: Color(0xFF858F8A),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ProductorStat(
+                    label: 'Promedio por pedido',
+                    value: dinero(promedio),
+                    icon: Icons.bar_chart,
                   ),
                 ),
               ],
             ),
-          ),
-
-          TextButton(
-            onPressed: () {},
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            const Text(
+              'Los importes corresponden a productos de pedidos listos; no incluyen la entrega ni confirman el cobro.',
+              style: AppTextStyles.SubTitle,
             ),
-            child: const Text(
-              'Ver detalle',
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-                color: AppColors.primaryColor,
+            const SizedBox(height: 16),
+            const ProductorSection('Ventas del período'),
+            ProductorCard(
+              child: SizedBox(
+                height: 150,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    for (var i = 0; i < buckets.length; i++)
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 6),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Container(
+                                height: maximo <= 0
+                                    ? 3
+                                    : 3 + buckets[i] / maximo * 100,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryColor,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                '${1 + (i * _dias / 6).floor()}',
+                                style: AppTextStyles.SubTitle,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
-      ),
+            const Text(
+              'Días transcurridos desde el inicio del período.',
+              style: AppTextStyles.SubTitle,
+            ),
+            const ProductorSection('Productos más vendidos'),
+            if (ranking.isEmpty)
+              const ProductorEmpty('No hay pedidos listos en este período.'),
+            for (final item in ranking.take(5))
+              ProductorCard(
+                child: Row(
+                  children: [
+                    Expanded(child: Text(item.key)),
+                    const SizedBox(width: 12),
+                    Text(numero(item.value), style: AppTextStyles.label),
+                  ],
+                ),
+              ),
+            if (widget.reporte) ...[
+              const ProductorSection('Detalle de pedidos'),
+              for (final p in pedidos)
+                ProductorOrderTile(
+                  pedido: p,
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    AppRoutes.orderDetail,
+                    arguments: p.codigo,
+                  ),
+                ),
+            ] else
+              ProductorButton(
+                label: 'Ver reporte completo',
+                outlined: true,
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const Sales(reporte: true)),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }

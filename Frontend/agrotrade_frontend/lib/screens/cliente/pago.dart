@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
-import 'entrega.dart';
 import 'resumenConfirmacion.dart';
+import '../../services/cart_service.dart';
 
 enum _MetodoPago { tarjeta, transferencia, billetera }
 
@@ -18,22 +18,87 @@ class _PagoScreenState extends State<PagoScreen> {
   _MetodoPago _metodo = _MetodoPago.tarjeta;
   bool _guardarMetodo = true;
 
-  final _numeroCtrl = TextEditingController(text: '•••• •••• •••• 4242');
-  final _titularCtrl = TextEditingController(text: 'María López');
-  final _vencCtrl = TextEditingController(text: '12/28');
-  final _cvvCtrl = TextEditingController(text: '•••');
+  final _numeroCtrl = TextEditingController();
+  final _titularCtrl = TextEditingController();
+  final _vencCtrl = TextEditingController();
+  final _cvvCtrl = TextEditingController();
 
-  static const double _subtotal = 106.00;
+  String _tipoTarjeta = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _numeroCtrl.addListener(_detectarTarjeta);
+  }
+
+  void _detectarTarjeta() {
+    String num = _numeroCtrl.text.replaceAll(' ', '');
+    String tipo = '';
+    if (num.startsWith('4')) {
+      tipo = 'VISA';
+    } else if (num.startsWith('5')) {
+      tipo = 'MASTERCARD';
+    } else if (num.startsWith('3')) {
+      tipo = 'AMEX';
+    }
+    if (_tipoTarjeta != tipo) {
+      setState(() => _tipoTarjeta = tipo);
+    }
+  }
+
+  double get _subtotal => CartService.instance.subtotalProductos;
   static const double _entrega = 40.00;
-  static double get _total => _subtotal + _entrega;
+  double get _total => _subtotal + _entrega;
 
   @override
   void dispose() {
+    _numeroCtrl.removeListener(_detectarTarjeta);
     _numeroCtrl.dispose();
     _titularCtrl.dispose();
     _vencCtrl.dispose();
     _cvvCtrl.dispose();
     super.dispose();
+  }
+
+  bool _isLuhnValid(String number) {
+    if (number.isEmpty || int.tryParse(number) == null) return false;
+    int sum = 0;
+    bool isAlternate = false;
+    for (int i = number.length - 1; i >= 0; i--) {
+      int digit = int.parse(number[i]);
+      if (isAlternate) {
+        digit *= 2;
+        if (digit > 9) digit -= 9;
+      }
+      sum += digit;
+      isAlternate = !isAlternate;
+    }
+    return sum % 10 == 0;
+  }
+
+  void _validarYContinuar() {
+    if (_metodo == _MetodoPago.tarjeta) {
+      String num = _numeroCtrl.text.replaceAll(' ', '').replaceAll('-', '');
+      if (num.isEmpty || _titularCtrl.text.isEmpty || _vencCtrl.text.isEmpty || _cvvCtrl.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Por favor, completa todos los datos de la tarjeta.'),
+          backgroundColor: Colors.red,
+        ));
+        return;
+      }
+      if (!_isLuhnValid(num)) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('El número de tarjeta no es válido (Fallo en Algoritmo de Luhn).'),
+          backgroundColor: Colors.red,
+        ));
+        return;
+      }
+    }
+    
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const ResumenConfirmacionScreen()),
+    );
   }
 
   @override
@@ -92,11 +157,6 @@ class _PagoScreenState extends State<PagoScreen> {
         onPressed: () {
           if (Navigator.canPop(context)) {
             Navigator.pop(context);
-          } else {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const EntregaScreen()),
-            );
           }
         },
       ),
@@ -237,15 +297,33 @@ class _PagoScreenState extends State<PagoScreen> {
         TextField(
           controller: _numeroCtrl,
           keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          maxLength: 19,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')),
+            _CardNumberFormatter(),
+          ],
           decoration: appInputDecoration(
             hint: '•••• •••• •••• ••••',
-            suffixIcon: const Icon(
-              Icons.credit_card_outlined,
-              color: AppColors.TextSoft,
-              size: 20,
+            suffixIcon: Padding(
+              padding: const EdgeInsets.only(right: 12.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (_tipoTarjeta.isNotEmpty)
+                    Text(
+                      _tipoTarjeta,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.primaryColor,
+                      ),
+                    )
+                  else
+                    const Icon(Icons.credit_card_outlined, color: AppColors.TextSoft, size: 20),
+                ],
+              ),
             ),
-          ),
+          ).copyWith(counterText: ''),
         ),
         const SizedBox(height: 14),
 
@@ -270,7 +348,12 @@ class _PagoScreenState extends State<PagoScreen> {
                   TextField(
                     controller: _vencCtrl,
                     keyboardType: TextInputType.number,
-                    decoration: appInputDecoration(hint: 'MM/AA'),
+                    maxLength: 5,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9/]')),
+                      _DateFormatter(),
+                    ],
+                    decoration: appInputDecoration(hint: 'MM/AA').copyWith(counterText: ''),
                   ),
                 ],
               ),
@@ -498,14 +581,7 @@ class _PagoScreenState extends State<PagoScreen> {
               width: double.infinity,
               height: 52,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const ResumenConfirmacionScreen(),
-                    ),
-                  );
-                },
+                onPressed: _validarYContinuar,
                 icon: const SizedBox.shrink(),
                 label: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -696,6 +772,46 @@ class _FilaResumen extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _CardNumberFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    String newText = newValue.text.replaceAll(' ', '');
+    if (newText.isEmpty) return newValue;
+    StringBuffer buffer = StringBuffer();
+    for (int i = 0; i < newText.length; i++) {
+      buffer.write(newText[i]);
+      if ((i + 1) % 4 == 0 && (i + 1) != newText.length) {
+        buffer.write(' ');
+      }
+    }
+    String formatted = buffer.toString();
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+}
+
+class _DateFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    String newText = newValue.text.replaceAll('/', '');
+    if (newText.isEmpty) return newValue;
+    StringBuffer buffer = StringBuffer();
+    for (int i = 0; i < newText.length; i++) {
+      buffer.write(newText[i]);
+      if (i == 1 && newText.length > 2) {
+        buffer.write('/');
+      }
+    }
+    String formatted = buffer.toString();
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
     );
   }
 }

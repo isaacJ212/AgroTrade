@@ -11,6 +11,8 @@
     "admin": "npm run start"
   },
   "dependencies": {
-    "express": "^5.2.1"
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "morgan": "^1.12.0"
   }
 }

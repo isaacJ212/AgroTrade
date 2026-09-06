@@ -1,24 +1,19 @@
-import 'package:flutter/material.dart';
-import '../../../models/api/user_models.dart';
-import '../../../services/api_client.dart';
-import '../../../services/users_api_service.dart';
-import '../../../ui/app_theme.dart';
-import '../../../ui/components.dart';
-import '../onboarding/onBoarding.dart';
 
-import 'package:flutter/foundation.dart';
-import '../../../models/api/user_models.dart';
-import '../../../services/api_client.dart';
-import '../../../services/users_api_service.dart';
-import 'Login.dart';
-import '../onboarding/onBoarding.dart';
 import 'package:flutter/material.dart';
+import '../../../services/api_client.dart';
+import '../../../models/api/user_models.dart';
+import '../../../services/users_api_service.dart';
+import '../../../services/auth_api_service.dart';
 import '../../../ui/app_theme.dart';
 import '../../../ui/components.dart';
+import '../../../routes/app_routes.dart';
+
+
 
 
 class Registro extends StatefulWidget {
-  const Registro({super.key});
+  final int? idRol;
+  const Registro({super.key, this.idRol});
 
   @override
   State<StatefulWidget> createState() => _RegistroState();
@@ -41,6 +36,25 @@ class _RegistroState extends State<Registro> {
 
   bool _terminosAcepta = false;
   bool _isLoading = false;
+  int? _idRol;
+
+  @override
+  void initState() {
+    super.initState();
+    _idRol = widget.idRol;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_idRol == null) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is int) {
+        _idRol = args;
+        print("DEBUG: [Registro] idRol recuperado en didChangeDependencies: $_idRol");
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -125,7 +139,6 @@ class _RegistroState extends State<Registro> {
         emailError == null &&
         passwordError == null &&
         numberError == null &&
-        numberError == null &&
         cityError == null &&
         _terminosAcepta;
   }
@@ -156,6 +169,7 @@ class _RegistroState extends State<Registro> {
     setState(() => _isLoading = true);
 
     try {
+      print("DEBUG: [Registro] Iniciando creación de cuenta con idRol: $_idRol");
       await UsersApiService.instance.createUser(
         CreateUserRequestDto(
           nombreCompleto: _nombreController.text.trim(),
@@ -163,18 +177,46 @@ class _RegistroState extends State<Registro> {
           password: _passwordController.text,
           telefono: _numberController.text.trim(),
           departamento: _departamentController.text.trim(),
+          idRol: _idRol,
         ),
       );
+      print("DEBUG: [Registro] Cuenta creada correctamente en la API");
 
       if (!mounted) return;
-      _mostrarSnackBar("¡Cuenta creada con éxito!", error: false);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const OnBoarding()),
+      _mostrarSnackBar("¡Cuenta creada! Iniciando sesión...", error: false);
+      
+      // Auto-Login
+      print("DEBUG: [Registro] Realizando Auto-Login...");
+      final loginResponse = await AuthApiService.instance.login(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
       );
+      print("DEBUG: [Registro] Login exitoso. Roles obtenidos: ${loginResponse.roles}");
+
+      if (!mounted) return;
+      
+      // Redirect based on role
+      if (loginResponse.roles.contains('Cliente') || loginResponse.roles.contains('Comprador')) {
+        print("DEBUG: [Registro] Redirigiendo a Inicio Comprador");
+        Navigator.pushReplacementNamed(context, AppRoutes.inicioComprador);
+      } else if (loginResponse.roles.contains('Productor') || loginResponse.roles.contains('Proveedor')) {
+        print("DEBUG: [Registro] Redirigiendo a Inicio Productor");
+        Navigator.pushReplacementNamed(context, AppRoutes.inicioProductor);
+      } else if (loginResponse.roles.contains('Repartidor')) {
+        print("DEBUG: [Registro] Redirigiendo a Inicio Repartidor");
+        Navigator.pushReplacementNamed(context, AppRoutes.inicioRepartidor);
+      } else {
+        print("DEBUG: [Registro] Rol no detectado, redirigiendo a Login manual");
+        Navigator.pushReplacementNamed(context, AppRoutes.login);
+      }
     } on ApiException catch (e) {
+      print("DEBUG: [Registro] ApiException capturada: ${e.message}");
       if (!mounted) return;
       _mostrarSnackBar(e.message);
+    } catch (e) {
+      print("DEBUG: [Registro] Error inesperado capturado: $e");
+      if (!mounted) return;
+      _mostrarSnackBar("Error inesperado: $e");
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -302,7 +344,10 @@ class _RegistroState extends State<Registro> {
                       style: AppTextStyles.SubTitle,
                     ),
                     GestureDetector(
-                      onTap: () => Navigator.pop(context),
+                      onTap: () {
+                        print("DEBUG: [Registro] Navegando a Login");
+                        Navigator.pushReplacementNamed(context, AppRoutes.login);
+                      },
                       child: Text(
                         " Inicia Sesion",
                         style: AppTextStyles.SubTitle.copyWith(

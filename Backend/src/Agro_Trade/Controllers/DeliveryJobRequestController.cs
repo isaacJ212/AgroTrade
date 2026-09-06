@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Agro_Trade.Application.Common.DTOs.DatosSolicitudRoles;
 using Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands;
 using Agro_Trade.Application.Features.ColasRoles.Repartidores.Queries;
@@ -21,7 +21,7 @@ namespace Agro_Trade.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> GetUnseenRequest(CancellationToken ct, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 8)
         {
             var request = await _mediator.Send(new GetUnSeenRequestQuery(pageIndex, pageSize), ct);
@@ -55,7 +55,7 @@ namespace Agro_Trade.Controllers
         }
 
         [HttpPatch("review")]
-        [Authorize(Roles = "admin")] 
+        [Authorize(Roles = "Administrador")] 
         public async Task<IActionResult> ReviewDeliveryRequest([FromBody] ReviewRequestDto dto, CancellationToken ct)
         {
            
@@ -66,7 +66,7 @@ namespace Agro_Trade.Controllers
         }
 
         [HttpPatch("review/{id}")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> ReviewDeliveryRequestById([FromRoute] int id, [FromBody] ReviewRequestDto dto, CancellationToken ct)
         {
             if (id <= 0)

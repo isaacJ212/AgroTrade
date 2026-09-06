@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:agrotrade_frontend/models/api/auth_models.dart';
-import 'package:agrotrade_frontend/screens/cliente/inicioComprador.dart';
-import 'package:agrotrade_frontend/screens/productor/inicioProductor.dart';
-import 'package:agrotrade_frontend/screens/repartidor/homeRepartidor.dart';
-import 'package:agrotrade_frontend/screens/shared/auth/registro.dart';
-import 'package:agrotrade_frontend/screens/shared/auth/resetPassword.dart';
-import 'package:agrotrade_frontend/screens/shared/auth/roleSelection.dart';
-import 'package:agrotrade_frontend/services/api_client.dart';
-import 'package:agrotrade_frontend/services/auth_api_service.dart';
-import 'package:agrotrade_frontend/ui/app_theme.dart';
-import 'package:agrotrade_frontend/ui/components.dart';
+
+import '../../../services/api_client.dart';
+import '../../../services/auth_api_service.dart';
+import '../../../ui/app_theme.dart';
+import '../../../ui/components.dart';
+import '../../../models/api/auth_models.dart';
+import '../../../routes/app_routes.dart';
+import 'registro.dart';
+import 'resetPassword.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -102,26 +100,16 @@ class _LoginState extends State<Login> {
   }
 
   void _redirectNavigation(LoginResponseDto user) {
-    if (user.roles.contains("Cliente")) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const InicioComprador()),
-      );
-    } else if (user.roles.contains("Productor/Proveedor")) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const InicioProductor()),
-      );
-    } else if (user.roles.contains("Repartidor")) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const InicioRepartidor()),
-      );
+    if (user.roles.contains('Cliente')) {
+      Navigator.pushReplacementNamed(context, AppRoutes.inicioComprador);
+    } else if (user.roles.contains('Productor/Proveedor') ||
+        user.roles.contains('Productor') ||
+        user.roles.contains('Proveedor')) {
+      Navigator.pushReplacementNamed(context, AppRoutes.inicioProductor);
+    } else if (user.roles.contains('Repartidor')) {
+      Navigator.pushReplacementNamed(context, AppRoutes.inicioRepartidor);
     } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const Roleselection()),
-      );
+      Navigator.pushReplacementNamed(context, AppRoutes.roleSelection);
     }
   }
 
@@ -171,6 +159,36 @@ class _LoginState extends State<Login> {
                   ),
                   const SizedBox(height: 24),
 
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      _DemoChip(
+                        label: "Comprador",
+                        onTap: () => _autofillDemo(
+                          "cliente@agrotrade.com",
+                          "cliente123",
+                        ),
+                      ),
+                      _DemoChip(
+                        label: "Productor",
+                        onTap: () => _autofillDemo(
+                          "productor@agrotrade.com",
+                          "productor123",
+                        ),
+                      ),
+                      _DemoChip(
+                        label: "Repartidor",
+                        onTap: () => _autofillDemo(
+                          "repartidor@agrotrade.com",
+                          "repartidor123",
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
                   const SizedBox(height: 20),
                   AppTextField(
                     hint: "ejemplo@email.com",
@@ -190,14 +208,14 @@ class _LoginState extends State<Login> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-
                       Flexible(
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Checkbox(
                               value: _remember,
-                              onChanged: (v) => setState(() => _remember = v ?? false),
+                              onChanged: (v) =>
+                                  setState(() => _remember = v ?? false),
                             ),
                             const Text(
                               "Recordarme",
@@ -205,20 +223,6 @@ class _LoginState extends State<Login> {
                             ),
                           ],
                         ),
-
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: _remember,
-                            onChanged: (v) =>
-                                setState(() => _remember = v ?? false),
-                          ),
-                          const Text(
-                            "Recordarme",
-                            style: AppTextStyles.SubTitle,
-                          ),
-                        ],
-
                       ),
                       GestureDetector(
                         onTap: () => Navigator.push(
@@ -247,10 +251,43 @@ class _LoginState extends State<Login> {
                   const SizedBox(height: 16),
                   const OrDivider(),
                   const SizedBox(height: 16),
-                  const SecondaryButton(
-                    label: "Continuar Con Google",
-                    icon: Icons.g_mobiledata,
-                    onPressed: null,
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: OutlinedButton(
+                      onPressed: null,
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        disabledBackgroundColor: Colors.white,
+                        side: const BorderSide(
+                          color: Color(0xFF747775),
+                          width: 1,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.network(
+                            'https://developers.google.com/identity/images/g-logo.png',
+                            width: 22,
+                            height: 22,
+                            fit: BoxFit.contain,
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Continuar con Google',
+                            style: TextStyle(
+                              color: Color(0xFF1F1F1F),
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 20),
                   Row(
@@ -261,9 +298,9 @@ class _LoginState extends State<Login> {
                         style: AppTextStyles.SubTitle,
                       ),
                       GestureDetector(
-                        onTap: () => Navigator.push(
+                        onTap: () => Navigator.pushNamed(
                           context,
-                          MaterialPageRoute(builder: (_) => const Registro()),
+                          AppRoutes.roleSelection,
                         ),
                         child: Text(
                           "Regístrate",

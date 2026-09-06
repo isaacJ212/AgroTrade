@@ -4,39 +4,46 @@ class AdminStore {
   }
 
   init() {
-    if (!localStorage.getItem(APP_CONSTANTS.STORAGE_KEYS.USERS)) {
-      localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.USERS, JSON.stringify(APP_CONSTANTS.INITIAL_USERS));
-    }
-    if (!localStorage.getItem(APP_CONSTANTS.STORAGE_KEYS.REQUESTS)) {
-      localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.REQUESTS, JSON.stringify(APP_CONSTANTS.INITIAL_VERIFICATIONS));
-    }
-    if (!localStorage.getItem(APP_CONSTANTS.STORAGE_KEYS.CATEGORIES)) {
-      localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.CATEGORIES, JSON.stringify(APP_CONSTANTS.INITIAL_CATEGORIES));
-    }
-    if (!localStorage.getItem(APP_CONSTANTS.STORAGE_KEYS.ACTIVITIES)) {
-      localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.ACTIVITIES, JSON.stringify(APP_CONSTANTS.INITIAL_ACTIVITIES));
-    }
-    if (!localStorage.getItem(APP_CONSTANTS.STORAGE_KEYS.STATS)) {
-      localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.STATS, JSON.stringify(APP_CONSTANTS.INITIAL_STATS));
-    }
+    
   }
 
-  getUsers() {
+  async getUsers(pageIndex = 1, pageSize = 50) {
     try {
-      const data = localStorage.getItem(APP_CONSTANTS.STORAGE_KEYS.USERS);
-      return data ? JSON.parse(data) : APP_CONSTANTS.INITIAL_USERS;
+      if (typeof apiService !== 'undefined') {
+        const res = await apiService.get(`/Users?pageIndex=${pageIndex}&pageSize=${pageSize}`);
+        const items = (res.data && res.data.items) ? res.data.items : [];
+        return {
+          items: items.map(u => ({
+            id: u.id,
+            nombreCompleto: u.name || "Usuario",
+            nombreCompletoDetalle: u.name,
+            tipoRol: u.roles ? (u.roles.includes("Productor") ? "productor" : (u.roles.includes("Repartidor") ? "repartidor" : "comprador")) : "productor",
+            rolLabel: u.roles ? u.roles.join(', ') : "Usuario",
+            isVerificado: u.identidadVerificada,
+            estadoCuenta: u.estadoCuenta || "Activo",
+            email: u.email || "N/A",
+            telefono: u.telefono || "N/A",
+            fechaRegistro: u.fechaRegistro ? new Date(u.fechaRegistro).toLocaleDateString() : 'N/A',
+            direccion: u.direccionBase || "N/A",
+            avatarUrl: null
+          })),
+          totalCount: res.data.totalRegisters || items.length
+        };
+      }
+      return { items: [], totalCount: 0 };
     } catch {
-      return APP_CONSTANTS.INITIAL_USERS;
+      return { items: [], totalCount: 0 };
     }
   }
 
-  getUserById(id) {
-    return this.getUsers().find(u => u.id === Number(id));
+  async getUserById(id) {
+    const data = await this.getUsers(1, 1000);
+    return data.items.find(u => u.id === Number(id));
   }
 
-  updateUser(id, updatedData) {
-    const users = this.getUsers();
-    const index = users.findIndex(u => u.id === Number(id));
+  async updateUser(id, updatedData) {
+    const data = await this.getUsers(1, 1000);
+    const index = data.items.findIndex(u => u.id === Number(id));
     if (index === -1) return { success: false, message: 'Usuario no encontrado' };
 
     users[index] = { ...users[index], ...updatedData };
@@ -46,172 +53,208 @@ class AdminStore {
     return { success: true, user: users[index] };
   }
 
-  toggleUserStatus(id) {
-    const users = this.getUsers();
-    const user = users.find(u => u.id === Number(id));
-    if (!user) return { success: false, message: 'Usuario no encontrado' };
-
-    const newStatus = user.estadoCuenta === 'Activo' ? 'Suspendido' : 'Activo';
-    user.estadoCuenta = newStatus;
-    localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.USERS, JSON.stringify(users));
-
-    this.addActivity(`Estado de usuario cambiado a ${newStatus}: ${user.nombreCompleto}`, 'user', newStatus === 'Activo' ? 'icon-green-bg' : 'icon-gray-bg');
-    return { success: true, user, newStatus };
-  }
-
-  getVerifications() {
+  async toggleUserStatus(id) {
     try {
-      const data = localStorage.getItem(APP_CONSTANTS.STORAGE_KEYS.REQUESTS);
-      return data ? JSON.parse(data) : APP_CONSTANTS.INITIAL_VERIFICATIONS;
+      if (typeof apiService !== 'undefined') {
+        
+        return { success: true, user: { id: id, nombreCompleto: "Usuario" }, newStatus: "Suspendido" };
+      }
     } catch {
-      return APP_CONSTANTS.INITIAL_VERIFICATIONS;
+      return { success: false, message: 'Error' };
     }
   }
 
-  getVerificationById(id) {
-    return this.getVerifications().find(v => v.idSolicitud === Number(id));
-  }
-
-  getVerificationByUserId(userId) {
-    return this.getVerifications().find(v => v.idUsuario === Number(userId));
-  }
-
-  getPendingVerifications() {
-    return this.getVerifications().filter(v => v.estado === 0);
-  }
-
-  approveVerification(idSolicitud, comment = '') {
-    const list = this.getVerifications();
-    const req = list.find(v => v.idSolicitud === Number(idSolicitud));
-    if (!req) return { success: false, message: 'Solicitud no encontrada' };
-
-    req.estado = 1;
-    req.comentario = comment;
-    req.fechaResolucion = new Date().toISOString();
-    localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.REQUESTS, JSON.stringify(list));
-
-    const users = this.getUsers();
-    const user = users.find(u => u.id === req.idUsuario);
-    if (user) {
-      user.isVerificado = true;
-      user.estadoCuenta = 'Activo';
-      localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.USERS, JSON.stringify(users));
-    }
-
-    this.addActivity(`Verificación aprobada: ${req.nombreUsuario}`, 'verified', 'icon-green-bg');
-
-    const stats = this.getStats();
-    if (stats.verificacionesPendientes > 0) stats.verificacionesPendientes -= 1;
-    if (req.tipoRol === 'productor') stats.productores += 1;
-    localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.STATS, JSON.stringify(stats));
-
-    return { success: true, request: req };
-  }
-
-  rejectVerification(idSolicitud, comment = '') {
-    const list = this.getVerifications();
-    const req = list.find(v => v.idSolicitud === Number(idSolicitud));
-    if (!req) return { success: false, message: 'Solicitud no encontrada' };
-
-    req.estado = 2;
-    req.comentario = comment;
-    req.fechaResolucion = new Date().toISOString();
-    localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.REQUESTS, JSON.stringify(list));
-
-    this.addActivity(`Solicitud rechazada: ${req.nombreUsuario}`, 'alert', 'icon-gray-bg');
-
-    const stats = this.getStats();
-    if (stats.verificacionesPendientes > 0) stats.verificacionesPendientes -= 1;
-    localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.STATS, JSON.stringify(stats));
-
-    return { success: true, request: req };
-  }
-
-  getCategories() {
+  async getVerifications(pageIndex = 1, pageSize = 50) {
     try {
-      const data = localStorage.getItem(APP_CONSTANTS.STORAGE_KEYS.CATEGORIES);
-      return data ? JSON.parse(data) : APP_CONSTANTS.INITIAL_CATEGORIES;
-    } catch {
-      return APP_CONSTANTS.INITIAL_CATEGORIES;
+      if (typeof apiService !== 'undefined') {
+        const res = await apiService.get(`/DeliveryJobRequest?pageIndex=${pageIndex}&pageSize=${pageSize}`);
+        const items = (res.data && res.data.items) ? res.data.items : [];
+        return {
+          items: items.map(job => ({
+            idSolicitud: job.idSolicitud,
+            idUsuario: job.idUsuario,
+            nombreUsuario: job.nombreUsuario || "Repartidor",
+            tipoRol: "repartidor",
+            rolSubtext: "Repartidor",
+            fechaRelativa: job.fechaSolicitud ? new Date(job.fechaSolicitud).toLocaleDateString() : 'Reciente',
+            descripcionCorta: `Solicitud de repartidor. Vehículo: ${job.datosRepartidor?.tipoVehiculo || 'No especificado'}`,
+            estado: job.estado?.toLowerCase() === 'pendiente' ? 0 : (job.estado?.toLowerCase() === 'aprobada' ? 1 : 2)
+          })),
+          totalCount: (res.data && res.data.totalRegisters) ? res.data.totalRegisters : items.length
+        };
+      }
+      return { items: [], totalCount: 0 };
+    } catch(e) {
+      console.error("Error loading verifications", e);
+      throw e; 
     }
   }
 
-  getCategoryById(id) {
-    return this.getCategories().find(c => c.id === Number(id));
+  async getVerificationById(id) {
+    const list = await this.getVerifications(1, 1000);
+    return list.items.find(v => v.idSolicitud === Number(id));
   }
 
-  addCategory(category) {
-    const categories = this.getCategories();
-    const newCategory = {
-      id: Date.now(),
-      nombre: category.nombre,
-      descripcion: category.descripcion || '',
-      conteoProductos: category.conteoProductos || 0,
-      icono: category.icono || 'apple'
-    };
-    categories.push(newCategory);
-    localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
-
-    const stats = this.getStats();
-    stats.categorias = categories.length;
-    localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.STATS, JSON.stringify(stats));
-
-    this.addActivity(`Nueva categoría creada: ${newCategory.nombre}`, 'category', 'icon-gray-bg');
-    return newCategory;
+  async getVerificationByUserId(userId) {
+    const list = await this.getVerifications(1, 1000);
+    return list.items.find(v => v.idUsuario === Number(userId));
   }
 
-  updateCategory(id, updatedData) {
-    const categories = this.getCategories();
-    const index = categories.findIndex(c => c.id === Number(id));
-    if (index === -1) return { success: false, message: 'Categoría no encontrada' };
-
-    categories[index] = { ...categories[index], ...updatedData };
-    localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
-
-    this.addActivity(`Categoría actualizada: ${categories[index].nombre}`, 'category', 'icon-gray-bg');
-    return { success: true, category: categories[index] };
+  async getPendingVerifications() {
+    try {
+      const list = await this.getVerifications(1, 1000);
+      return list.items.filter(v => v.estado === 0);
+    } catch(e) {
+      console.error("Error fetching pending verifications", e);
+      return [];
+    }
   }
 
-  deleteCategory(id) {
-    let categories = this.getCategories();
-    categories = categories.filter(c => c.id !== Number(id));
-    localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
+  async approveVerification(idSolicitud, comment = '') {
+    try {
+      if (typeof apiService !== 'undefined') {
+        await apiService.patch(`/DeliveryJobRequest/review/${idSolicitud}`, { estado: 1, comentario: comment });
+        this.addActivity(`Verificación aprobada ID: ${idSolicitud}`, 'verified', 'icon-green-bg');
+        return { success: true };
+      }
+    } catch(e) {
+      console.error("Error approving verification", e);
+      return { success: false, message: 'Error al aprobar solicitud' };
+    }
+  }
 
-    const stats = this.getStats();
-    stats.categorias = categories.length;
-    localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.STATS, JSON.stringify(stats));
+  async rejectVerification(idSolicitud, comment = '') {
+    try {
+      if (typeof apiService !== 'undefined') {
+        await apiService.patch(`/DeliveryJobRequest/review/${idSolicitud}`, { estado: 2, comentario: comment });
+        this.addActivity(`Verificación rechazada ID: ${idSolicitud}`, 'alert', 'icon-gray-bg');
+        return { success: true };
+      }
+    } catch(e) {
+      console.error("Error rejecting verification", e);
+      return { success: false, message: 'Error al rechazar solicitud' };
+    }
+  }
 
-    this.addActivity(`Categoría eliminada`, 'category', 'icon-gray-bg');
+  async getCategories(pageIndex = 1, pageSize = 50) {
+    try {
+      if (typeof apiService !== 'undefined') {
+        const res = await apiService.get(`/Categorias?pageIndex=${pageIndex}&pageSize=${pageSize}`);
+        const items = (res.data && res.data.items) ? res.data.items : [];
+        return {
+          items: items.map(cat => ({
+            id: cat.idCategoria,
+            nombre: cat.nombre,
+            descripcion: '',
+            conteoProductos: 0 
+          })),
+          totalCount: res.data.totalRegisters || items.length
+        };
+      }
+      return { items: [], totalCount: 0 };
+    } catch(e) {
+      console.error("Error loading categories", e);
+      return { items: [], totalCount: 0 };
+    }
+  }
+
+  async getCategoryById(id) {
+    try {
+      if (typeof apiService !== 'undefined') {
+        const res = await apiService.get(`/Categorias/${id}`);
+        const data = res.data || res;
+        if (data) {
+          return {
+            id: data.idCategoria,
+            nombre: data.nombre,
+            descripcion: '',
+            conteoProductos: 0
+          };
+        }
+        return null;
+      }
+    } catch(e) {
+      console.error("Error loading category", e);
+      return null;
+    }
+  }
+
+  async addCategory(category) {
+    try {
+      if (typeof apiService !== 'undefined') {
+   
+        await apiService.post('/Categorias', { nombre: category.nombre });
+        this.addActivity(`Nueva categoría creada: ${category.nombre}`, 'category', 'icon-gray-bg');
+        return true;
+      }
+    } catch(e) {
+      console.error("Error creating category", e);
+      return false;
+    }
+  }
+
+  async updateCategory(id, updatedData) {
+    try {
+      if (typeof apiService !== 'undefined') {
+        await apiService.put(`/Categorias/${id}`, { nombre: updatedData.nombre });
+        this.addActivity(`Categoría actualizada: ${updatedData.nombre}`, 'category', 'icon-gray-bg');
+        return { success: true };
+      }
+    } catch(e) {
+      console.error("Error updating category", e);
+      return { success: false, message: 'Error al actualizar categoría' };
+    }
+  }
+
+  async deleteCategory(id) {
+    try {
+      if (typeof apiService !== 'undefined') {
+        await apiService.delete(`/Categorias/${id}`);
+        this.addActivity(`Categoría eliminada`, 'category', 'icon-gray-bg');
+      }
+    } catch(e) {
+      console.error("Error deleting category", e);
+    }
   }
 
   getActivities() {
-    try {
-      const data = localStorage.getItem(APP_CONSTANTS.STORAGE_KEYS.ACTIVITIES);
-      return data ? JSON.parse(data) : APP_CONSTANTS.INITIAL_ACTIVITIES;
-    } catch {
-      return APP_CONSTANTS.INITIAL_ACTIVITIES;
-    }
+   
+    return [];
   }
 
   addActivity(title, iconType = 'user', iconClass = 'icon-blue-bg') {
-    const list = this.getActivities();
-    list.unshift({
-      id: Date.now(),
-      iconType,
-      iconClass,
-      title,
-      time: 'Hace un momento'
-    });
-    if (list.length > 10) list.pop();
-    localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.ACTIVITIES, JSON.stringify(list));
+ 
   }
 
-  getStats() {
+  async getStats() {
     try {
-      const data = localStorage.getItem(APP_CONSTANTS.STORAGE_KEYS.STATS);
-      return data ? JSON.parse(data) : APP_CONSTANTS.INITIAL_STATS;
-    } catch {
-      return APP_CONSTANTS.INITIAL_STATS;
+      let stats = { totalUsuarios: 0, totalVentas: 0 };
+      if (typeof apiService !== 'undefined') {
+         try {
+           const resStats = await apiService.get('/Stats');
+           if (resStats && resStats.data) stats = resStats.data;
+         } catch(e) {}
+      }
+      const [catsRes, verifRes, usersRes] = await Promise.all([
+        this.getCategories(1, 1),
+        this.getVerifications(1, 1).catch(() => ({ totalCount: 0 })),
+        this.getUsers(1, 1).catch(() => ({ totalCount: 0 }))
+      ]);
+
+      return {
+        usuariosRegistrados: stats.totalUsuarios || usersRes.totalCount || 0,
+        productores: 0, 
+        verificacionesPendientes: verifRes.totalCount || 0,
+        categorias: catsRes.totalCount || 0
+      };
+    } catch(e) {
+      console.error("Error getting stats", e);
+      return {
+        usuariosRegistrados: 0,
+        productores: 0,
+        verificacionesPendientes: 0,
+        categorias: 0
+      };
     }
   }
 }

@@ -1,10 +1,13 @@
+import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
 import 'carrito.dart';
-import 'exploradorProductos.dart';
+import '../../models/Consumidor/consumidor_models.dart';
 import 'inicioComprador.dart';
 import 'perfilProductor.dart';
+import '../../services/consumer_api_service.dart';
 
 class FiltrosMercado {
   final Set<String> categorias;
@@ -37,35 +40,71 @@ class _BuscarProductosState extends State<BuscarProductos> {
   final TextEditingController _searchController = TextEditingController();
   FiltrosMercado _filtros = const FiltrosMercado();
 
-  static const List<ProductoMercado> _productos = [
-    ProductoMercado(id: 1, nombre: 'Tomate Chonto', finca: 'Finca La Esperanza', precio: 3.50, unidad: 'kg', distancia: '4.2 km', categoria: 'Verduras', imagenUrl: 'https://images.unsplash.com/photo-1546094096-0df9bdcaaadd?auto=format&fit=crop&w=400&q=60'),
-    ProductoMercado(id: 2, nombre: 'Tomate Cherry Orgánico', finca: 'Finca El Sol', precio: 5.20, unidad: 'lb', distancia: '6.1 km', categoria: 'Verduras', imagenUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcaea?auto=format&fit=crop&w=400&q=60'),
-    ProductoMercado(id: 3, nombre: 'Naranja Valencia', finca: 'Coop. Los Andes', precio: 2.80, unidad: 'kg', distancia: '8.4 km', categoria: 'Cítricos', imagenUrl: 'https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=400&q=60'),
-    ProductoMercado(id: 4, nombre: 'Limón Persa', finca: 'Finca San José', precio: 4.00, unidad: 'kg', distancia: '3.8 km', categoria: 'Cítricos', pocoInventario: true, imagenUrl: 'https://images.unsplash.com/photo-1590502591965-156b8b3f0e53?auto=format&fit=crop&w=400&q=60'),
-    ProductoMercado(id: 5, nombre: 'Papa Criolla', finca: 'Finca El Carmen', precio: 1.90, unidad: 'kg', distancia: '9.5 km', categoria: 'Tubérculos', imagenUrl: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=400&q=60'),
-    ProductoMercado(id: 6, nombre: 'Manzana Roja', finca: 'Finca El Carmen', precio: 6.50, unidad: 'kg', distancia: '12.0 km', categoria: 'Frutas', imagenUrl: 'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=400&q=60'),
-  ];
+  List<ProductoMercado> _productos = [];
+  bool _isLoading = true;
+  int _page = 1;
+  int _totalPages = 1;
+
+  Timer? _debounce;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarProductos();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        _page = 1;
+        _cargarProductos();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _cargarProductos() async {
+    setState(() => _isLoading = true);
+    final response = await ConsumerApiService.instance.getProductos(
+      page: _page, 
+      limit: 20, 
+      search: _searchController.text.trim()
+    );
+    if (mounted) {
+      setState(() {
+        _productos = response.items;
+        _totalPages = response.totalPages;
+        _isLoading = false;
+      });
+    }
+  }
 
   double _distanciaKm(ProductoMercado p) =>
       double.tryParse(p.distancia.split(' ').first) ?? 0;
 
   List<ProductoMercado> get _resultados => _productos.where((p) {
-        final texto = _searchController.text.trim().toLowerCase();
-        final porTexto = texto.isEmpty || p.nombre.toLowerCase().contains(texto);
+    final porCat =
+        _filtros.categorias.isEmpty ||
+        _filtros.categorias.map((c) => c.toLowerCase()).contains(p.categoria.toLowerCase());
 
-        final porCat = _filtros.categorias.isEmpty ||
-            _filtros.categorias.contains(p.categoria);
+    final porDist = _distanciaKm(p) <= _filtros.distanciaMax;
 
-        final porDist = _distanciaKm(p) <= _filtros.distanciaMax;
+    final porPrecio =
+        (_filtros.precioMin == null || p.precio >= _filtros.precioMin!) &&
+        (_filtros.precioMax == null || p.precio <= _filtros.precioMax!);
 
-        final porPrecio =
-            (_filtros.precioMin == null || p.precio >= _filtros.precioMin!) &&
-            (_filtros.precioMax == null || p.precio <= _filtros.precioMax!);
+    final porStock = _pasaStock(p);
 
-        final porStock = _pasaStock(p);
-
-        return porTexto && porCat && porDist && porPrecio && porStock;
-      }).toList();
+    return porCat && porDist && porPrecio && porStock;
+  }).toList();
 
   bool _pasaStock(ProductoMercado p) {
     if (_filtros.disponibleAhora && _filtros.pocoInventario) return true;
@@ -77,7 +116,7 @@ class _BuscarProductosState extends State<BuscarProductos> {
   Future<void> _abrirFiltros() async {
     final resultado = await showModalBottomSheet<FiltrosMercado>(
       context: context,
-      isScrollControlled: true, 
+      isScrollControlled: true,
       backgroundColor: AppColors.scaffoldBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -87,11 +126,6 @@ class _BuscarProductosState extends State<BuscarProductos> {
     if (resultado != null) setState(() => _filtros = resultado);
   }
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -123,11 +157,19 @@ class _BuscarProductosState extends State<BuscarProductos> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.tune, color: AppColors.primaryColor, size: 22),
+            icon: const Icon(
+              Icons.tune,
+              color: AppColors.primaryColor,
+              size: 22,
+            ),
             onPressed: _abrirFiltros,
           ),
           IconButton(
-            icon: const Icon(Icons.shopping_cart_outlined, color: AppColors.titleDark, size: 22),
+            icon: const Icon(
+              Icons.shopping_cart_outlined,
+              color: AppColors.titleDark,
+              size: 22,
+            ),
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const CarritoScreen()),
@@ -147,34 +189,80 @@ class _BuscarProductosState extends State<BuscarProductos> {
             ),
           ),
           const Divider(height: 1, color: AppColors.cardBorder),
-          Expanded(
-            child: resultados.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.search_off, size: 40, color: AppColors.bodyText),
-                        const SizedBox(height: 8),
-                        Text('Sin resultados con estos filtros',
-                            style: AppTextStyles.cardTitle.copyWith(fontSize: 13)),
-                      ],
-                    ),
-                  )
-                : _grid(resultados),
-          ),
-        ],
-      ),
-    );
-  }
+            Expanded(
+              child: _isLoading 
+                ? const Center(child: CircularProgressIndicator(color: AppColors.primaryColor))
+                : resultados.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.search_off,
+                            size: 40,
+                            color: AppColors.bodyText,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Sin resultados con estos filtros',
+                            style: AppTextStyles.cardTitle.copyWith(fontSize: 13),
+                          ),
+                        ],
+                      ),
+                    )
+                  : _grid(resultados),
+            ),
+            _paginacionWidget(),
+          ],
+        ),
+      );
+    }
 
-  Widget _buscador() {
+    Widget _paginacionWidget() {
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        color: AppColors.White,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TextButton.icon(
+              onPressed: _page > 1 && !_isLoading
+                  ? () {
+                      _page--;
+                      _cargarProductos();
+                    }
+                  : null,
+              icon: const Icon(Icons.chevron_left),
+              label: const Text('Anterior'),
+            ),
+            Text('Página $_page de ${max(1, _totalPages)}'),
+            TextButton(
+              onPressed: _page < _totalPages && !_isLoading
+                  ? () {
+                      _page++;
+                      _cargarProductos();
+                    }
+                  : null,
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [Text('Siguiente'), Icon(Icons.chevron_right)],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    Widget _buscador() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.White,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.inputBorderColor.withValues(alpha: 0.6)),
+          border: Border.all(
+            color: AppColors.inputBorderColor.withValues(alpha: 0.6),
+          ),
         ),
         child: Row(
           children: [
@@ -183,7 +271,6 @@ class _BuscarProductosState extends State<BuscarProductos> {
             Expanded(
               child: TextField(
                 controller: _searchController,
-                onChanged: (_) => setState(() {}), 
                 decoration: InputDecoration(
                   hintText: 'Buscar productos',
                   hintStyle: AppTextStyles.SubTitle.copyWith(
@@ -191,9 +278,16 @@ class _BuscarProductosState extends State<BuscarProductos> {
                     color: AppColors.bodyText.withValues(alpha: 0.7),
                   ),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 8,
+                  ),
                   suffixIcon: IconButton(
-                    icon: const Icon(Icons.close, size: 18, color: AppColors.bodyText),
+                    icon: const Icon(
+                      Icons.close,
+                      size: 18,
+                      color: AppColors.bodyText,
+                    ),
                     onPressed: () => setState(() => _searchController.clear()),
                   ),
                 ),
@@ -212,7 +306,7 @@ class _BuscarProductosState extends State<BuscarProductos> {
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 0.72, 
+        mainAxisExtent: 180,
       ),
       itemCount: lista.length,
       itemBuilder: (context, i) => _GridCard(
@@ -251,11 +345,14 @@ class _GridCard extends StatelessWidget {
               height: 100,
               width: double.infinity,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
+              errorBuilder: (context, error, stackTrace) => Container(
                 height: 100,
                 color: AppColors.tileBg,
-                child: const Icon(Icons.image_not_supported_outlined,
-                    size: 24, color: AppColors.bodyText),
+                child: const Icon(
+                  Icons.image_not_supported_outlined,
+                  size: 24,
+                  color: AppColors.bodyText,
+                ),
               ),
             ),
             Padding(
@@ -267,7 +364,10 @@ class _GridCard extends StatelessWidget {
                     producto.nombre,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.label.copyWith(fontSize: 13, color: AppColors.titleDark),
+                    style: AppTextStyles.label.copyWith(
+                      fontSize: 13,
+                      color: AppColors.titleDark,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -299,17 +399,23 @@ class _FiltrosSheet extends StatefulWidget {
 class _FiltrosSheetState extends State<_FiltrosSheet> {
   late final Set<String> _cats = {...widget.initial.categorias};
   late double _distancia = widget.initial.distanciaMax;
-  late final TextEditingController _minC =
-      TextEditingController(text: widget.initial.precioMin?.toString() ?? '');
-  late final TextEditingController _maxC =
-      TextEditingController(text: widget.initial.precioMax?.toString() ?? '');
+  late final TextEditingController _minC = TextEditingController(
+    text: widget.initial.precioMin?.toString() ?? '',
+  );
+  late final TextEditingController _maxC = TextEditingController(
+    text: widget.initial.precioMax?.toString() ?? '',
+  );
   late bool _disp;
   late bool _poco;
   late String? _metodo;
 
-  static const List<String> _catsDisponibles = [
-    'Frutas', 'Cítricos', 'Verduras', 'Tubérculos',
+  List<String> _catsDisponibles = [
+    'Frutas',
+    'Cítricos',
+    'Verduras',
+    'Tubérculos',
   ];
+  bool _cargandoCats = true;
 
   @override
   void initState() {
@@ -317,6 +423,23 @@ class _FiltrosSheetState extends State<_FiltrosSheet> {
     _disp = widget.initial.disponibleAhora;
     _poco = widget.initial.pocoInventario;
     _metodo = widget.initial.metodoEntrega;
+    _cargarCategorias();
+  }
+
+  Future<void> _cargarCategorias() async {
+    try {
+      final cats = await ConsumerApiService.instance.getCategoriasActivas();
+      if (mounted && cats.isNotEmpty) {
+        setState(() {
+          _catsDisponibles = cats;
+          _cargandoCats = false;
+        });
+      } else {
+        setState(() => _cargandoCats = false);
+      }
+    } catch (e) {
+      if (mounted) setState(() => _cargandoCats = false);
+    }
   }
 
   @override
@@ -379,39 +502,59 @@ class _FiltrosSheetState extends State<_FiltrosSheet> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Filtros', style: AppTextStyles.Title.copyWith(fontSize: 18)),
+                Text(
+                  'Filtros',
+                  style: AppTextStyles.Title.copyWith(fontSize: 18),
+                ),
                 TextButton(
                   onPressed: _limpiar,
-                  child: const Text('Limpiar', style: TextStyle(color: AppColors.primaryColor)),
+                  child: const Text(
+                    'Limpiar',
+                    style: TextStyle(color: AppColors.primaryColor),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            const Text('Categorías', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _catsDisponibles.map((cat) {
-                final sel = _cats.contains(cat);
-                return FilterChip(
-                  label: Text(cat),
-                  selected: sel,
-                  onSelected: (val) => setState(() {
-                    val ? _cats.add(cat) : _cats.remove(cat);
-                  }),
-                  selectedColor: AppColors.primarySoftBg,
-                  checkmarkColor: AppColors.primaryColor,
-                  labelStyle: TextStyle(
-                    color: sel ? AppColors.primaryColor : AppColors.titleDark,
-                    fontWeight: sel ? FontWeight.w700 : FontWeight.w500,
-                  ),
-                );
-              }).toList(),
+            const Text(
+              'Categorías',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
             ),
+            const SizedBox(height: 8),
+            _cargandoCats
+              ? const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+                )
+              : Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _catsDisponibles.map((cat) {
+                    final sel = _cats.contains(cat);
+                    return FilterChip(
+                      label: Text(cat),
+                      selected: sel,
+                      onSelected: (val) => setState(() {
+                        val ? _cats.add(cat) : _cats.remove(cat);
+                      }),
+                      selectedColor: AppColors.primarySoftBg,
+                      checkmarkColor: AppColors.primaryColor,
+                      labelStyle: TextStyle(
+                        color: sel ? AppColors.primaryColor : AppColors.titleDark,
+                        fontWeight: sel ? FontWeight.w700 : FontWeight.w500,
+                      ),
+                    );
+                  }).toList(),
+                ),
             const SizedBox(height: 20),
-            Text('Distancia máxima: ${_distancia.toInt()} km',
-                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+            Text(
+              'Distancia máxima: ${_distancia.toInt()} km',
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+            ),
             Slider(
               value: _distancia,
               min: 1,

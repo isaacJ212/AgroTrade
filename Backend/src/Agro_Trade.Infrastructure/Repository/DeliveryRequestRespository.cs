@@ -1,4 +1,4 @@
-﻿using BCrypt.Net;
+using BCrypt.Net;
 using EFCore.NamingConventions.Internal;
 using Agro_Trade.Domain.Entities;
 using Agro_Trade.Application.Common.Interface;
@@ -42,7 +42,7 @@ namespace Agro_Trade.Infrastructure.Repository
                 using var scope = _scopeFactory.CreateScope();
                 var context = scope.ServiceProvider.GetRequiredService<AgroTradeDbContext>();
 
-                var lista = await context.SolicitudRepartidor.AsNoTracking().Include(x => x.Usuario).Where(x => x.Estado == "pendiente").ToListAsync(ct);
+                var lista = await context.SolicitudRepartidor.AsNoTracking().Include(x => x.Usuario).Where(x => x.Estado == "pendiente" || x.Estado == "Pendiente").ToListAsync(ct);
                 _colaDeSolicitudes.Clear();
                 Enqueue(lista);
                 //Hcaemos La Carga de scope
@@ -121,7 +121,7 @@ namespace Agro_Trade.Infrastructure.Repository
             
             using var scope = _scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AgroTradeDbContext>();
-            var solicitud = await context.SolicitudRepartidor.AsNoTracking().AnyAsync(x => x.IdUsuario == userId && x.Estado == "pendiente", ct);
+            var solicitud = await context.SolicitudRepartidor.AsNoTracking().AnyAsync(x => x.IdUsuario == userId && (x.Estado == "pendiente" || x.Estado == "Pendiente"), ct);
             return solicitud;
         }
 

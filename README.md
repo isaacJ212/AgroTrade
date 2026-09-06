@@ -90,6 +90,7 @@ Los pequeños productores agrícolas en Nicaragua enfrentan tres problemas crít
 | Google.Apis.Auth | — | Autenticación OAuth con Google |
 | Swashbuckle.AspNetCore | 6.x | Documentación Swagger / OpenAPI |
 | FluentValidation | — | Validación de comandos y queries |
+| Microsoft.AspNetCore.SignalR | 8.x | WebSockets para chat en tiempo real |
 
 ### Requisitos de infraestructura en producción
 
@@ -137,7 +138,7 @@ Orquesta los casos de uso mediante el patrón CQRS. Cada funcionalidad tiene su 
 Implementaciones concretas: EF Core + PostgreSQL (con naming convention snake_case), repositorio genérico, Unit of Work, generación de tokens JWT, envío de emails SMTP, almacenamiento en Supabase Storage, y repositorio en memoria para códigos de verificación.
 
 **API** (`Agro_Trade`)
-Capa de entrada. Controladores REST, middleware de manejo de excepciones (`ExceptionHandlingMiddleware`), configuración de JWT Bearer, CORS, Swagger con soporte Bearer, y auto-aplicación de migraciones de EF Core al arrancar.
+Capa de entrada. Controladores REST, middleware de manejo de excepciones (`ExceptionHandlingMiddleware`), configuración de JWT Bearer, CORS, Swagger con soporte Bearer, auto-aplicación de migraciones de EF Core al arrancar, y **SignalR Hubs** para comunicación en tiempo real bidireccional (WebSockets).
 
 ### Patrón CQRS con MediatR
 
@@ -187,7 +188,7 @@ El sistema se divide en los siguientes módulos, cada uno con sus propios Comman
 | Entregas | `DeliveryJobRequestController` | Cola y asignación de repartidores |
 | Valoraciones | `ValoracionesController` | Calificaciones de pedidos |
 | Impacto Social | `ImpactosSocialesController` | Registro de productos salvados y beneficio extra |
-| Conversaciones | `ConversacionesController` | Chat interno por pedido |
+| Conversaciones | `ConversacionesController` y `ChatHub` | Chat interno por pedido (REST + SignalR/WebSockets) |
 | Suscripciones | `SuscripcionesController` | Planes y pagos de suscripción |
 
 ### Flujo principal: ciclo de vida de un pedido
@@ -622,9 +623,9 @@ Variables en `Backend/src/Agro_Trade/appsettings.json`:
 docker compose up --build
 ```
 
-La API arrancará en `http://localhost:5000`. Las migraciones de EF Core se aplican automáticamente al iniciar el contenedor.
+La API arrancará en `http://localhost:5000`. Las migraciones de EF Core se aplican automáticamente al iniciar el contenedor. Podrás ver los logs en tu consola para confirmar que la conexión a PostgreSQL fue exitosa.
 
-### 4. Levantar en desarrollo local (sin Docker)
+### 4. Levantar en desarrollo local (Manual sin Docker)
 
 **Backend:**
 
@@ -641,22 +642,29 @@ dotnet ef database update --project ../Agro_Trade.Infrastructure
 dotnet run
 ```
 
-La API estará disponible en `https://localhost:5001`.  
+La API estará disponible en `https://localhost:5001` (o `http://localhost:5000`).  
 Swagger UI: `https://localhost:5001/swagger`
 
-**Frontend Flutter:**
-La API estará disponible en `https://localhost:5001`.  
-Swagger UI: `https://localhost:5001/swagger`
+**Frontend Flutter (App Móvil):**
 
-**Frontend Flutter:**
+1. Asegúrate de tener un emulador en ejecución o un dispositivo físico conectado.
+2. Accede a la carpeta del frontend y obtén las dependencias:
 
 ```bash
-cd Frontend
+cd Frontend/agrotrade_frontend
 flutter pub get
+```
+
+3. (Opcional pero recomendado) Configura la URL base de tu backend local.
+Busca el archivo donde se define la URL de la API (por ejemplo `lib/services/api_client.dart` o `lib/utils/constants.dart`) y asegúrate de que apunte a `http://10.0.2.2:5000` (si usas emulador Android) o `http://localhost:5000` (iOS/Web).
+
+4. Ejecuta la aplicación:
+
+```bash
 flutter run
 ```
 
-> Configura la URL base del backend en el archivo de entorno de Flutter antes de ejecutar.
+> **Tip para WebSockets/Chat:** Para que el chat en tiempo real funcione en el emulador de Android, asegúrate de utilizar `10.0.2.2` en lugar de `localhost` en la configuración de la conexión de SignalR.
 
 ---
 

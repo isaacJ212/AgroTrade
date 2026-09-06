@@ -1,31 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
+import '../../services/cart_service.dart';
 import 'entrega.dart';
 import 'exploradorProductos.dart';
 import 'inicioComprador.dart';
-
-class _ItemCarrito {
-  final int id;
-  final String nombre;
-  final String finca;
-  final String unidad;
-  final double precioUnitario;
-  int cantidad;
-  final String imagenUrl;
-
-  _ItemCarrito({
-    required this.id,
-    required this.nombre,
-    required this.finca,
-    required this.unidad,
-    required this.precioUnitario,
-    required this.cantidad,
-    required this.imagenUrl,
-  });
-
-  double get subtotal => precioUnitario * cantidad;
-}
 
 class CarritoScreen extends StatefulWidget {
   const CarritoScreen({super.key});
@@ -35,72 +14,6 @@ class CarritoScreen extends StatefulWidget {
 }
 
 class _CarritoScreenState extends State<CarritoScreen> {
-  late List<_ItemCarrito> _items;
-
-  @override
-  void initState() {
-    super.initState();
-    _items = [
-      _ItemCarrito(
-        id: 1,
-        nombre: 'Tomate',
-        finca: 'Finca La Esperanza',
-        unidad: 'lb',
-        precioUnitario: 25.00,
-        cantidad: 2,
-        imagenUrl:
-            'https://images.unsplash.com/photo-1546094096-0df9bdcaaadd?auto=format&fit=crop&w=200&q=60',
-      ),
-      _ItemCarrito(
-        id: 2,
-        nombre: 'Limón',
-        finca: 'Finca La Esperanza',
-        unidad: 'lb',
-        precioUnitario: 20.00,
-        cantidad: 1,
-        imagenUrl:
-            'https://images.unsplash.com/photo-1590502591965-156b8b3f0e53?auto=format&fit=crop&w=200&q=60',
-      ),
-      _ItemCarrito(
-        id: 3,
-        nombre: 'Naranja',
-        finca: 'Cooperativa Los Andes',
-        unidad: 'doc',
-        precioUnitario: 18.00,
-        cantidad: 2,
-        imagenUrl:
-            'https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=200&q=60',
-      ),
-    ];
-  }
-
-  Map<String, List<_ItemCarrito>> get _agrupadoPorFinca {
-    final Map<String, List<_ItemCarrito>> map = {};
-    for (final item in _items) {
-      map.putIfAbsent(item.finca, () => []).add(item);
-    }
-    return map;
-  }
-
-  double get _subtotalProductos =>
-      _items.fold(0.0, (sum, item) => sum + item.subtotal);
-
-  void _cambiarCantidad(int id, int delta) {
-    setState(() {
-      final item = _items.firstWhere((i) => i.id == id);
-      final nuevaCantidad = item.cantidad + delta;
-      if (nuevaCantidad <= 0) {
-        _items.removeWhere((i) => i.id == id);
-      } else {
-        item.cantidad = nuevaCantidad;
-      }
-    });
-  }
-
-  void _eliminarItem(int id) {
-    setState(() => _items.removeWhere((i) => i.id == id));
-  }
-
   void _continuarEntrega() {
     Navigator.push(
       context,
@@ -110,34 +23,39 @@ class _CarritoScreenState extends State<CarritoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_items.isEmpty) {
-      return _buildCarritoVacio(context);
-    }
+    return AnimatedBuilder(
+      animation: CartService.instance,
+      builder: (context, _) {
+        if (CartService.instance.items.isEmpty) {
+          return _buildCarritoVacio(context);
+        }
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: _buildAppBar(),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildBannerInfo(),
-                  const SizedBox(height: 20),
-                  ..._buildGruposProductor(),
-                  const SizedBox(height: 8),
-                  _buildResumen(),
-                  const SizedBox(height: 24),
-                ],
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: _buildAppBar(),
+          body: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildBannerInfo(),
+                      const SizedBox(height: 20),
+                      ..._buildGruposProductor(),
+                      const SizedBox(height: 8),
+                      _buildResumen(),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                ),
               ),
-            ),
+              _buildFooter(),
+            ],
           ),
-          _buildFooter(),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -203,7 +121,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
   }
 
   List<Widget> _buildGruposProductor() {
-    final grupos = _agrupadoPorFinca;
+    final grupos = CartService.instance.agrupadoPorFinca;
     return grupos.entries.map((entry) {
       final finca = entry.key;
       final items = entry.value;
@@ -264,9 +182,9 @@ class _CarritoScreenState extends State<CarritoScreen> {
             ...items.map(
               (item) => _ItemTile(
                 item: item,
-                onIncrement: () => _cambiarCantidad(item.id, 1),
-                onDecrement: () => _cambiarCantidad(item.id, -1),
-                onDelete: () => _eliminarItem(item.id),
+                onIncrement: () => CartService.instance.updateCantidad(item.id, 1),
+                onDecrement: () => CartService.instance.updateCantidad(item.id, -1),
+                onDelete: () => CartService.instance.removeItem(item.id),
               ),
             ),
 
@@ -314,7 +232,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
         children: [
           _ResumenRow(
             label: 'Subtotal productos',
-            valor: 'C\$${_subtotalProductos.toStringAsFixed(2)}',
+            valor: 'C\$${CartService.instance.subtotalProductos.toStringAsFixed(2)}',
           ),
           const SizedBox(height: 10),
           const _ResumenRow(
@@ -339,7 +257,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
               ),
               const Spacer(),
               Text(
-                'C\$${_subtotalProductos.toStringAsFixed(2)}',
+                'C\$${CartService.instance.subtotalProductos.toStringAsFixed(2)}',
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
@@ -465,7 +383,9 @@ class _CarritoScreenState extends State<CarritoScreen> {
                   } else {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (_) => const ExploradorProductos()),
+                      MaterialPageRoute(
+                        builder: (_) => const ExploradorProductos(),
+                      ),
                     );
                   }
                 },
@@ -479,7 +399,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
 }
 
 class _ItemTile extends StatelessWidget {
-  final _ItemCarrito item;
+  final ItemCarrito item;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
   final VoidCallback onDelete;

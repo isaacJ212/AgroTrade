@@ -6,7 +6,8 @@ import '../../../ui/components.dart';
 import '../../../ui/widgets/app_text_field.dart';
 import '../../../ui/widgets/buttons.dart';
 import '../../../ui/widgets/app_dropdown.dart';
-import 'registroCosecha.dart'; 
+import '../../../models/productor_models.dart';
+import 'registroCosecha.dart';
 
 class AgregarProducto extends StatefulWidget {
   const AgregarProducto({super.key});
@@ -21,12 +22,10 @@ class _AgregarProductoState extends State<AgregarProducto> {
   final _descripcionController = TextEditingController();
   final _precioController = TextEditingController();
 
-
   String? _categoriaSeleccionada;
   String? _unidadSeleccionada;
   final List<XFile> _imagenes = [];
   final ImagePicker _picker = ImagePicker();
-
 
   final List<String> _categorias = ['Frutas', 'Verduras', 'Granos', 'Lácteos'];
   final List<String> _unidades = ['kg', 'Tonelada', 'Caja', 'Docena'];
@@ -39,7 +38,6 @@ class _AgregarProductoState extends State<AgregarProducto> {
     super.dispose();
   }
 
-
   Future<void> _agregarFoto() async {
     if (_imagenes.length >= 5) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -47,7 +45,6 @@ class _AgregarProductoState extends State<AgregarProducto> {
       );
       return;
     }
-
 
     showModalBottomSheet(
       context: context,
@@ -73,7 +70,10 @@ class _AgregarProductoState extends State<AgregarProducto> {
   Future<void> _seleccionarImagen(ImageSource source) async {
     Navigator.pop(context);
     try {
-      final XFile? foto = await _picker.pickImage(source: source, imageQuality: 80);
+      final XFile? foto = await _picker.pickImage(
+        source: source,
+        imageQuality: 80,
+      );
       if (foto != null) {
         setState(() => _imagenes.add(foto));
       }
@@ -86,7 +86,6 @@ class _AgregarProductoState extends State<AgregarProducto> {
     setState(() => _imagenes.removeAt(index));
   }
 
-
   void _continuar() {
     if (_nombreController.text.trim().isEmpty) {
       return _mostrarSnack('El nombre es obligatorio');
@@ -98,20 +97,35 @@ class _AgregarProductoState extends State<AgregarProducto> {
       return _mostrarSnack('Selecciona una unidad de medida');
     }
 
+    final tempProducto = Producto(
+      id: 0, // 0 significa nuevo producto
+      nombre: _nombreController.text.trim(),
+      categoria: _categoriaSeleccionada!,
+      unidad: _unidadSeleccionada!,
+      descripcion: _descripcionController.text.trim(),
+      precio: double.tryParse(_precioController.text.trim()) ?? 0.0,
+      cantidad: 0,
+      estado: EstadoProducto.disponible,
+      imagenUrl: _imagenes.isNotEmpty ? _imagenes.first.path : '',
+    );
 
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const RegistroCosecha()),
+      MaterialPageRoute(
+        builder: (_) => RegistroCosecha(producto: tempProducto),
+      ),
     );
   }
 
   void _mostrarSnack(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(msg),
-      backgroundColor: AppColors.errorColor,
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        backgroundColor: AppColors.errorColor,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
   }
 
   @override
@@ -127,11 +141,18 @@ class _AgregarProductoState extends State<AgregarProducto> {
         ),
         title: const Text(
           'Agregar Producto',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.titleDark),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: AppColors.titleDark,
+          ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: AppColors.titleDark),
+            icon: const Icon(
+              Icons.notifications_outlined,
+              color: AppColors.titleDark,
+            ),
             onPressed: () {},
           ),
         ],
@@ -158,12 +179,21 @@ class _AgregarProductoState extends State<AgregarProducto> {
                 children: [
                   Text(
                     'Complete los detalles de su producto agrícola para publicarlo en el mercado.',
-                    style: AppTextStyles.SubTitle.copyWith(fontSize: 13, height: 1.4),
+                    style: AppTextStyles.SubTitle.copyWith(
+                      fontSize: 13,
+                      height: 1.4,
+                    ),
                   ),
                   const SizedBox(height: 20),
 
                   // Nombre
-                  Text('Nombre del Producto *', style: AppTextStyles.label.copyWith(fontSize: 14, color: AppColors.titleDark)),
+                  Text(
+                    'Nombre del Producto *',
+                    style: AppTextStyles.label.copyWith(
+                      fontSize: 14,
+                      color: AppColors.titleDark,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   AppTextField(
                     label: '', // Label vacío porque usamos el Text de arriba
@@ -179,16 +209,24 @@ class _AgregarProductoState extends State<AgregarProducto> {
                     items: _categorias,
                     itemLabel: (item) => item,
                     hint: 'Seleccione una categoría',
-                    onChanged: (val) => setState(() => _categoriaSeleccionada = val),
+                    onChanged: (val) =>
+                        setState(() => _categoriaSeleccionada = val),
                   ),
                   const SizedBox(height: 16),
 
                   //  Descripción
-                  Text('Descripción', style: AppTextStyles.label.copyWith(fontSize: 14, color: AppColors.titleDark)),
+                  Text(
+                    'Descripción',
+                    style: AppTextStyles.label.copyWith(
+                      fontSize: 14,
+                      color: AppColors.titleDark,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   AppTextField(
                     label: '',
-                    hint: 'Describa la calidad, origen y detalles importantes...',
+                    hint:
+                        'Describa la calidad, origen y detalles importantes...',
                     controller: _descripcionController,
                     keyboard: TextInputType.multiline,
                   ),
@@ -201,12 +239,19 @@ class _AgregarProductoState extends State<AgregarProducto> {
                     items: _unidades,
                     itemLabel: (item) => item,
                     hint: 'Seleccione unidad',
-                    onChanged: (val) => setState(() => _unidadSeleccionada = val),
+                    onChanged: (val) =>
+                        setState(() => _unidadSeleccionada = val),
                   ),
                   const SizedBox(height: 16),
 
                   //  Precio E
-                  Text('Precio Estimado por Unidad (Opcional)', style: AppTextStyles.label.copyWith(fontSize: 14, color: AppColors.titleDark)),
+                  Text(
+                    'Precio Estimado por Unidad (Opcional)',
+                    style: AppTextStyles.label.copyWith(
+                      fontSize: 14,
+                      color: AppColors.titleDark,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   AppTextField(
                     label: '',
@@ -218,7 +263,13 @@ class _AgregarProductoState extends State<AgregarProducto> {
                   const SizedBox(height: 24),
 
                   //  Fotos
-                  Text('Fotos del Producto', style: AppTextStyles.label.copyWith(fontSize: 14, color: AppColors.titleDark)),
+                  Text(
+                    'Fotos del Producto',
+                    style: AppTextStyles.label.copyWith(
+                      fontSize: 14,
+                      color: AppColors.titleDark,
+                    ),
+                  ),
                   const SizedBox(height: 4),
                   Text(
                     'Agregue hasta 5 fotos claras de su producto para atraer más compradores.',
@@ -229,7 +280,8 @@ class _AgregarProductoState extends State<AgregarProducto> {
                     height: 100,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
-                      itemCount: _imagenes.length + 1, // +1 para el botón de agregar
+                      itemCount:
+                          _imagenes.length + 1, // +1 para el botón de agregar
                       separatorBuilder: (_, __) => const SizedBox(width: 12),
                       itemBuilder: (context, index) {
                         // Botón Agregar Foto
@@ -241,21 +293,35 @@ class _AgregarProductoState extends State<AgregarProducto> {
                               decoration: BoxDecoration(
                                 color: AppColors.tileBg,
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: AppColors.inputBorderColor.withOpacity(0.5), style: BorderStyle.solid), // Borde punteado simulado
+                                border: Border.all(
+                                  color: AppColors.inputBorderColor.withOpacity(
+                                    0.5,
+                                  ),
+                                  style: BorderStyle.solid,
+                                ), // Borde punteado simulado
                               ),
                               child: const Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.add_a_photo_outlined, color: AppColors.bodyText, size: 24),
+                                  Icon(
+                                    Icons.add_a_photo_outlined,
+                                    color: AppColors.bodyText,
+                                    size: 24,
+                                  ),
                                   SizedBox(height: 4),
-                                  Text('Agregar', style: TextStyle(fontSize: 11, color: AppColors.bodyText)),
+                                  Text(
+                                    'Agregar',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: AppColors.bodyText,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
                           );
                         }
 
-  
                         final imagen = _imagenes[index];
                         return Stack(
                           children: [
@@ -276,7 +342,11 @@ class _AgregarProductoState extends State<AgregarProducto> {
                                 child: const CircleAvatar(
                                   radius: 10,
                                   backgroundColor: AppColors.errorColor,
-                                  child: Icon(Icons.close, size: 12, color: Colors.white),
+                                  child: Icon(
+                                    Icons.close,
+                                    size: 12,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
@@ -288,7 +358,6 @@ class _AgregarProductoState extends State<AgregarProducto> {
                   const SizedBox(height: 24),
                   const Divider(height: 1, color: AppColors.cardBorder),
                   const SizedBox(height: 24),
-
 
                   PrimaryButton(
                     label: 'Continuar',
@@ -304,15 +373,31 @@ class _AgregarProductoState extends State<AgregarProducto> {
       ),
       bottomNavigationBar: ProductorBottomNav(
         items: const [
-          NavElemento(label: 'Inicio', icon: Icons.home_outlined, activeIcon: Icons.home),
-          NavElemento(label: 'Mercado', icon: Icons.storefront_outlined, activeIcon: Icons.storefront),
-          NavElemento(label: 'Mis Pedidos', icon: Icons.shopping_bag_outlined, activeIcon: Icons.shopping_bag),
-          NavElemento(label: 'Perfil', icon: Icons.person_outline, activeIcon: Icons.person),
+          NavElemento(
+            label: 'Inicio',
+            icon: Icons.home_outlined,
+            activeIcon: Icons.home,
+          ),
+          NavElemento(
+            label: 'Mercado',
+            icon: Icons.storefront_outlined,
+            activeIcon: Icons.storefront,
+          ),
+          NavElemento(
+            label: 'Mis Pedidos',
+            icon: Icons.shopping_bag_outlined,
+            activeIcon: Icons.shopping_bag,
+          ),
+          NavElemento(
+            label: 'Perfil',
+            icon: Icons.person_outline,
+            activeIcon: Icons.person,
+          ),
         ],
-        currentIndex: 1, 
+        currentIndex: 1,
         onTap: (index) {
           if (index == 1) return;
-          Navigator.pop(context); 
+          Navigator.pop(context);
         },
       ),
     );

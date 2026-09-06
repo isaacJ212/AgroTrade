@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import '../app_theme.dart';
-import '../components.dart'; 
-
+import '../components.dart';
 
 class AppDropdown<T> extends StatelessWidget {
   final String label;
   final T? value;
   final List<T> items;
-  final String Function(T) itemLabel; // Cómo mostrar cada item
+  final String Function(T) itemLabel;
   final ValueChanged<T?> onChanged;
   final String? hint;
 
@@ -26,7 +25,13 @@ class AppDropdown<T> extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTextStyles.label.copyWith(fontSize: 14, color: AppColors.titleDark)),
+        Text(
+          label,
+          style: AppTextStyles.label.copyWith(
+            fontSize: 14,
+            color: AppColors.titleDark,
+          ),
+        ),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -39,12 +44,24 @@ class AppDropdown<T> extends StatelessWidget {
             child: DropdownButton<T>(
               value: value,
               isExpanded: true,
-              hint: Text(hint ?? 'Seleccione...', style: AppTextStyles.SubTitle),
-              icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.bodyText),
+              hint: Text(
+                hint ?? 'Seleccione...',
+                style: AppTextStyles.SubTitle,
+              ),
+              icon: const Icon(
+                Icons.keyboard_arrow_down,
+                color: AppColors.bodyText,
+              ),
               items: items.map((T item) {
                 return DropdownMenuItem<T>(
                   value: item,
-                  child: Text(itemLabel(item), style: AppTextStyles.Title.copyWith(fontSize: 14, fontWeight: FontWeight.w400)),
+                  child: Text(
+                    itemLabel(item),
+                    style: AppTextStyles.Title.copyWith(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
                 );
               }).toList(),
               onChanged: onChanged,

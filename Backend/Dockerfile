@@ -37,4 +37,5 @@ EXPOSE 8081
 
 COPY --from=publish /app/publish .
 
+
 ENTRYPOINT ["dotnet", "Agro_Trade.dll"]

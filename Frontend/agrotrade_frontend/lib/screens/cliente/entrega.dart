@@ -45,25 +45,11 @@ class _EntregaScreenState extends State<EntregaScreen> {
   }
 
   void _agregarDireccion() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Agregar nueva dirección (próximamente)'),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.primaryColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-    );
+    Navigator.pushNamed(context, '/comprador/direccion/formulario');
   }
 
   void _editarDireccion(int index) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Editar "${_direcciones[index].alias}" (próximamente)'),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.primaryColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-    );
+    Navigator.pushNamed(context, '/comprador/direccion/formulario');
   }
 
   void _continuarAlPago() {

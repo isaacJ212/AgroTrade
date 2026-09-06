@@ -1,14 +1,16 @@
+import 'package:agrotrade_frontend/screens/repartidor/perfilRepartidor.dart';
 import 'package:flutter/material.dart';
-
-import '../../models/api/delivery_models.dart';
-import '../../services/api_session.dart';
-import '../../services/delivery_api_service.dart';
+import '../../routes/app_routes.dart';
 import '../../ui/app_theme.dart';
+import '../../ui/components.dart';
 import '../../ui/widgets/repartidor_bottom_nav.dart';
-import '../shared/auth/Login.dart';
 import 'detalleEntregaRepartidor.dart';
 import 'entregasRepartidor.dart';
 import 'rutaEntregaRepartidor.dart';
+import 'repartidor_demo.dart';
+import '../../services/delivery_api_service.dart';
+import '../../services/api_session.dart';
+import 'package:agrotrade_frontend/models/api/delivery_models.dart';
 
 class InicioRepartidor extends StatefulWidget {
   const InicioRepartidor({super.key});
@@ -19,9 +21,9 @@ class InicioRepartidor extends StatefulWidget {
 
 class _InicioRepartidorState extends State<InicioRepartidor> {
   static const String _avatarUrl =
-      'https://www.figma.com/api/mcp/asset/a7ad773e-82f6-4b84-9fda-ee3cdd35cdf3.png';
+      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=160&q=80';
   static const String _mapUrl =
-      'https://www.figma.com/api/mcp/asset/521e7eae-16fc-42ac-b1c7-2bae136d9be6.png';
+      'https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=1200&q=80';
 
   late final Future<List<PendingDeliveryNotificationDto>> _pendingFuture;
 
@@ -30,6 +32,10 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
     super.initState();
     _pendingFuture = DeliveryApiService.instance
         .getPendingDeliveries()
+        .then((deliveries) {
+          RepartidorDemo.instance.registrarPendientesApi(deliveries);
+          return deliveries;
+        })
         .catchError((_) => <PendingDeliveryNotificationDto>[]);
   }
 
@@ -67,6 +73,9 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
 
         return Scaffold(
           backgroundColor: AppColors.scaffoldBg,
+          floatingActionButton: SupportFab(
+            onPressed: () => Navigator.pushNamed(context, AppRoutes.agrobotWelcome),
+          ),
           body: SafeArea(
             bottom: false,
             child: Column(
@@ -150,21 +159,6 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
                             ),
                         ],
                       ),
-                      IconButton(
-                        tooltip: 'Cerrar sesión',
-                        onPressed: () {
-                          ApiSession.instance.clear();
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(builder: (_) => const Login()),
-                            (_) => false,
-                          );
-                        },
-                        icon: const Icon(
-                          Icons.logout_rounded,
-                          color: AppColors.bodyText,
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -244,7 +238,9 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
                 _navigate(context, const RutaEntregaRepartidor());
                 return;
               }
-              _showSnack(context, 'Perfil disponible pronto');
+              if (index == 3) {
+                _navigate(context, const PerfilRepartidor());
+              }
             },
           ),
         );
@@ -422,7 +418,19 @@ class _NextDeliveryCard extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(mapUrl, fit: BoxFit.cover),
+                  Image.network(
+                    mapUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      color: AppColors.primarySoftBg,
+                      alignment: Alignment.center,
+                      child: const Icon(
+                        Icons.agriculture_outlined,
+                        color: AppColors.primaryColor,
+                        size: 48,
+                      ),
+                    ),
+                  ),
                   Container(
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(

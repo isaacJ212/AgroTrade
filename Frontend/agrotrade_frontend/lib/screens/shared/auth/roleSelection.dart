@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:agrotrade_frontend/models/rol.dart';
-import 'package:agrotrade_frontend/screens/cliente/inicioComprador.dart';
-import 'package:agrotrade_frontend/screens/productor/inicioProductor.dart';
-import 'package:agrotrade_frontend/screens/repartidor/homeRepartidor.dart';
+import 'package:agrotrade_frontend/routes/app_routes.dart';
 import '../../../ui/app_theme.dart';
 import '../../../ui/components.dart';
 
@@ -40,31 +38,13 @@ class _RoleSelection extends State<Roleselection> {
   void _continuar() {
     FocusScope.of(context).unfocus();
     if (_rolSeleccionado == null) return;
-    final rolSeleccionado = _roles.firstWhere((r) => r.RolId == _rolSeleccionado);
-
-    if (rolSeleccionado.RolId == 1) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const InicioComprador()),
-      );
-      return;
-    }
-
-    if (rolSeleccionado.RolId == 2) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const InicioProductor()),
-      );
-      return;
-    }
-
-    if (rolSeleccionado.RolId == 3) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const InicioRepartidor()),
-      );
-      return;
-    }
+    
+    print("DEBUG: [RoleSelection] Rol seleccionado: $_rolSeleccionado, navegando a Registro");
+    Navigator.pushReplacementNamed(
+      context, 
+      AppRoutes.registro, 
+      arguments: _rolSeleccionado
+    );
   }
 
   @override

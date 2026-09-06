@@ -15,7 +15,9 @@ namespace Agro_Trade.Application.Common.DTOs.UsersDtos
         public string? Telefono { get; set; }
         public string? DireccionBase { get; set; }
         public string? Departamento { get; set; }
+        public string EstadoCuenta { get; set; }
         public DateTime? FechaRegistro { get; set; }
+        public List<string> Roles { get; set; } = new List<string>();
 
     }
 }

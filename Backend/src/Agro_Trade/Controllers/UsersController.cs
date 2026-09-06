@@ -27,6 +27,17 @@ namespace Agro_Trade.Controllers
             _contextAccessor = con;
         }
         /// <summary>
+        /// Obtiene todos los usuarios.
+        /// </summary>
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> GetAll([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 50, CancellationToken ct = default)
+        {
+            var result = await mediator.Send(new GetUsersQuery { PageIndex = pageIndex, PageSize = pageSize }, ct);
+            return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, new { ErrorMesagge = result.Message });
+        }
+
+        /// <summary>
         /// Obtiene los datos de un usuario mediante su ID único.
         /// </summary>
         /// <param name="id">ID numérico del usuario.</param>
@@ -125,6 +136,19 @@ namespace Agro_Trade.Controllers
             if (!isAdmin && tokenUserId != id)
                 return StatusCode(403, new { mensaje = "Acceso denegado: No puedes eliminar un perfil ajeno." });   
             var result = await mediator.Send(new DeleteUserCommand(id));
+            return result.IsSuccess ? NoContent() : StatusCode(result.StatusCode, new { ErrorMesagge = result.Message });
+        }
+
+        /// <summary>
+        /// Alterna el estado de la cuenta de un usuario. (Requiere permisos de administrador).
+        /// </summary>
+        /// <param name="id">ID numérico del usuario.</param>
+        /// <param name="ct">Token de cancelación.</param>
+        [Authorize(Roles = "Administrador")]
+        [HttpPatch("{id}/toggle-status")]
+        public async Task<IActionResult> ToggleUserStatus(int id, CancellationToken ct)
+        {
+            var result = await mediator.Send(new ToggleUserStatusCommand(id), ct);
             return result.IsSuccess ? NoContent() : StatusCode(result.StatusCode, new { ErrorMesagge = result.Message });
         }
 

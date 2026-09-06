@@ -5,6 +5,7 @@ import '../shared/profile.dart';
 import 'inicioComprador.dart';
 import 'seguimientoPedido.dart';
 import 'valorarPedido.dart';
+import '../../services/consumer_api_service.dart';
 
 enum _EstadoPedido { confirmado, enCamino, entregado }
 
@@ -40,34 +41,9 @@ class MisPedidosScreen extends StatefulWidget {
 class _MisPedidosScreenState extends State<MisPedidosScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
-  static const List<_Pedido> _pedidos = [
-    _Pedido(
-      numero: 'AT-2051',
-      total: 146.00,
-      estado: _EstadoPedido.confirmado,
-      fecha: 'Hoy',
-      productores: '2 productores',
-      imagenesUrl: [
-        'https://images.unsplash.com/photo-1546094096-0df9bdcaaadd?auto=format&fit=crop&w=100&q=60',
-        'https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=100&q=60',
-      ],
-    ),
-    _Pedido(
-      numero: 'AT-2045',
-      total: 320.00,
-      estado: _EstadoPedido.enCamino,
-      fecha: 'Hoy',
-      finca: 'Finca La Esperanza',
-      destino: 'Mercado Central, Puesto 42',
-    ),
-    _Pedido(
-      numero: 'AT-2038',
-      total: 225.00,
-      estado: _EstadoPedido.entregado,
-      fecha: 'Ayer',
-    ),
-  ];
+  
+  List<_Pedido> _pedidos = [];
+  bool _cargando = true;
 
   List<_Pedido> get _todos => _pedidos;
   List<_Pedido> get _enCurso => _pedidos
@@ -84,6 +60,41 @@ class _MisPedidosScreenState extends State<MisPedidosScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this, initialIndex: 1);
+    _cargarPedidos();
+  }
+  
+  Future<void> _cargarPedidos() async {
+    final pedApi = await ConsumerApiService.instance.getMisPedidos();
+    
+    // Map API models to UI models
+    final pedUI = pedApi.map((p) {
+      _EstadoPedido estado;
+      switch (p.estado.toLowerCase()) {
+        case 'entregado':
+          estado = _EstadoPedido.entregado;
+          break;
+        case 'encamino':
+        case 'en camino':
+          estado = _EstadoPedido.enCamino;
+          break;
+        default:
+          estado = _EstadoPedido.confirmado;
+      }
+      return _Pedido(
+        numero: p.id,
+        total: p.total,
+        estado: estado,
+        fecha: p.fecha,
+        productores: '${p.itemsCount} productos',
+      );
+    }).toList();
+    
+    if (mounted) {
+      setState(() {
+        _pedidos = pedUI;
+        _cargando = false;
+      });
+    }
   }
 
   @override
@@ -117,6 +128,9 @@ class _MisPedidosScreenState extends State<MisPedidosScreen>
             child: AnimatedBuilder(
               animation: _tabController,
               builder: (_, __) {
+                if (_cargando) {
+                  return const Center(child: CircularProgressIndicator(color: AppColors.primaryColor));
+                }
                 final lista = _pedidosFiltrados;
                 if (lista.isEmpty) {
                   return _buildVacio();
@@ -457,7 +471,6 @@ class _CardEnCamino extends StatelessWidget {
             ],
           ),
 
-    
           if (pedido.finca != null) ...[
             const SizedBox(height: 8),
             Row(
@@ -577,10 +590,16 @@ class _CardEntregado extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: OutlinedButton(
               onPressed: () {
+                final idStr = pedido.numero.replaceAll(RegExp(r'[^0-9]'), '');
+                final int idPedido = int.tryParse(idStr) ?? 0;
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const ValorarPedidoScreen(),
+                    builder: (_) => ValorarPedidoScreen(
+                      idPedido: idPedido,
+                      idProveedor: 1, // Proveedor fallback para el demo
+                    ),
                   ),
                 );
               },
