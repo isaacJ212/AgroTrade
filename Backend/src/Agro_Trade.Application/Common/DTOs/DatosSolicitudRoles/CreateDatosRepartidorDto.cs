@@ -27,19 +27,19 @@ namespace Agro_Trade.Application.Common.DTOs.DatosSolicitudRoles
 
 
         [Required(ErrorMessage = "La foto de la cédula es obligatoria.")] 
-        public IFormFile UrlFotoCedula { get; set; } = null!;
+        public IFormFile FotoCedula { get; set; } = null!;
 
 
         [Required(ErrorMessage = "La foto de perfil es obligatoria.")]
-        public IFormFile UrlFotoPerfil { get; set; } = null!;
+        public IFormFile FotoPerfil { get; set; } = null!;
 
 
         [Required(ErrorMessage = "La foto del Record Policial es obligatoria.")]
-        public IFormFile UrlRecordPolicial { get; set; } = null!;
+        public IFormFile RecordPolicial { get; set; } = null!;
 
 
         [Required(ErrorMessage = "La foto de la licencia es obligatoria.")]
-        public IFormFile UrlLicencia { get; set; } = null!;
+        public IFormFile FotoLicencia { get; set; } = null!;
 
 
         [Required(ErrorMessage = "El nombre del banco es obligatorio.")]
