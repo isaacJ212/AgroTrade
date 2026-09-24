@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Agro_Trade.Domain.Entities;
 using Agro_Trade.Application.Common;
 using Agro_Trade.Application.Common.DTOs.DatosSolicitudRoles;
@@ -24,7 +24,7 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
 
             if (solicitud == null) return Result<SolicitudRepartidorDto>.Failure(404, "Solicitud no encontrada");
 
-            if (solicitud.Estado != "pendiente") return Result<SolicitudRepartidorDto>.Failure(400, "La solicitud ya ha sido revisada");
+            if (!solicitud.Estado.Equals("pendiente", StringComparison.OrdinalIgnoreCase)) return Result<SolicitudRepartidorDto>.Failure(400, "La solicitud ya ha sido revisada");
 
             
             await context.BeginTransactionAsync(cancellationToken);
@@ -45,13 +45,12 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
                     var repartidor = new Repartidor
                     {
                         IdUsuario = solicitud.IdUsuario,
-                        // Inicializar otros campos del perfil de repartidor según sea necesario
                         PlacaVehiculo = solicitud.DatosRepartidor.PlacaVehiculo,
                         Vehiculo = solicitud.DatosRepartidor.TipoVehiculo,
                         CuentaBancaria = solicitud.DatosRepartidor.NumeroCuenta,
                         ZonaOperaciones = solicitud.DatosRepartidor.ZonaOperaciones,
                         UrlFotoPerfil = solicitud.DatosRepartidor.UrlFotoPerfil,
-
+                        Departamento = solicitud.DatosRepartidor.Departamento,
                     };
 
                     await repartidores.AddAsync(repartidor, cancellationToken);
