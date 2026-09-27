@@ -25,7 +25,7 @@ class AgroTradeApp extends StatelessWidget {
         ),
       ),
 
-      initialRoute: AppRoutes.splash,
+      initialRoute: AppRoutes.completarInformacionGoogle,
       onGenerateRoute: AppRouter.generateRoute,
     );
   }

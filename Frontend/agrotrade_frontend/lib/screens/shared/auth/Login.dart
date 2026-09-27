@@ -6,8 +6,8 @@ import '../../../ui/app_theme.dart';
 import '../../../ui/components.dart';
 import '../../../models/api/auth_models.dart';
 import '../../../routes/app_routes.dart';
-import 'registro.dart';
 import 'resetPassword.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -32,6 +32,11 @@ class _LoginState extends State<Login> {
     _passwordController.dispose();
     super.dispose();
   }
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    serverClientId:
+        '68671877007-u61dd67hhnr2ou6lmut467r1tmftcu42.apps.googleusercontent.com',
+  );
 
   bool _validar() {
     setState(() {
@@ -60,6 +65,49 @@ class _LoginState extends State<Login> {
     }
 
     return esValido;
+  }
+
+  Future<void> handleGoogleSignIn() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) return;
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final String? idToken = googleAuth.idToken;
+      print("TOKEN DE GOOGLE: $idToken ");
+
+      if (idToken == null) {
+        print("Error: No se pudo generar el idToken de Google.");
+        return null;
+      }
+
+      final user = await AuthApiService.instance.googleSignIn(idToken);
+      if (!mounted) return;
+      if (user.requiereCompletarInformacion) {
+        Navigator.pushReplacementNamed(
+          context,
+          AppRoutes.completarInformacionGoogle,
+        );
+      } else {
+        _redirectNavigation(user);
+      }
+    } on ApiException catch (e) {
+      print(e);
+      print(e.message);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message),
+          backgroundColor: AppColors.errorColor,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   Future<void> _iniciarSesion() async {
@@ -255,7 +303,7 @@ class _LoginState extends State<Login> {
                     width: double.infinity,
                     height: 50,
                     child: OutlinedButton(
-                      onPressed: null,
+                      onPressed: () => {handleGoogleSignIn()},
                       style: OutlinedButton.styleFrom(
                         backgroundColor: Colors.white,
                         disabledBackgroundColor: Colors.white,

@@ -54,7 +54,8 @@ namespace Agro_Trade.Application.Features.Auth
                     Email = payload.Email,
                     OAuthProvider = "Google",
                     OAuthProviderId = payload.Subject,
-                    IdentidadVerificada = false
+                    IdentidadVerificada = false,
+                    FechaRegistro = DateTime.Now,
                 };
                 await _unitOfWork.Users.AddAsync(user, cancellationToken);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -64,6 +65,7 @@ namespace Agro_Trade.Application.Features.Auth
 
                
             }
+            bool faltanDatos = string.IsNullOrEmpty(user.Departamento)||string.IsNullOrEmpty(user.DireccionBase) || string.IsNullOrEmpty(user.Telefono);
             var jwtToken = await _tokenServices.GenerateTokenAsync(user);
              var roles = await _roles.FindAsync(r=> r.IdUsuario == user.IdUsuario,cancellationToken, "Rol");
             var stringList = roles
@@ -71,7 +73,7 @@ namespace Agro_Trade.Application.Features.Auth
                             .Select(r => r.Rol.NombreRol)
                             .ToList();
 
-            return Result<LoginResponse>.Success(200, new LoginResponse { UserName = user.NombreCompleto, Token = jwtToken, Roles= stringList }, "Usuario Registrado Con Google Exitosamente", true);
+            return Result<LoginResponse>.Success(200, new LoginResponse { UserName = user.NombreCompleto, Token = jwtToken, Roles= stringList, RequiereCompletarInformacion = faltanDatos}, "Usuario Registrado Con Google Exitosamente", true);
         }
     }
 }

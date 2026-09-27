@@ -162,6 +162,32 @@ class AuthApiService {
     return result.data!;
   }
 
+  Future<void> completeGoogleInfo(GoogleCatchDataDto dto) async {
+    final response = await ApiClient.instance.put(
+      AuthRoutes.completeInfo,
+      body: dto.toJson(),
+      authorized: true,
+    );
+
+    if (response.jsonBody == null) {
+      if (response.statusCode >= 200 && response.statusCode < 300) return;
+      throw ApiException(
+        response.statusCode,
+        'No se pudo guardar la información adicional.',
+      );
+    }
+
+    final result = _decodeResult<dynamic>(response.jsonBody, (json) => json);
+    if (!result.isSuccess) {
+      throw ApiException(
+        response.statusCode,
+        result.message.isNotEmpty
+            ? result.message
+            : 'No se pudo guardar la información adicional.',
+      );
+    }
+  }
+
   Future<void> verifyCode({required int userId, required String code}) async {
     final response = await ApiClient.instance.post(
       AuthRoutes.verifyCode,

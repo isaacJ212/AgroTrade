@@ -10,11 +10,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Agro_Trade.Infrastructure.Persistence.Migrations
+namespace Agro_Trade.Infrastructure.Migrations
 {
     [DbContext(typeof(AgroTradeDbContext))]
-    [Migration("20260720231559_AddCheckoutSplitPayouts")]
-    partial class AddCheckoutSplitPayouts
+    [Migration("20260926043706_Inicial_AgroTrade")]
+    partial class Inicial_AgroTrade
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,6 +25,73 @@ namespace Agro_Trade.Infrastructure.Persistence.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Agro_Trade.Domain.Entities.Actividad", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("IconClass")
+                        .HasColumnType("text")
+                        .HasColumnName("icon_class");
+
+                    b.Property<string>("IconType")
+                        .HasColumnType("text")
+                        .HasColumnName("icon_type");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.HasKey("Id")
+                        .HasName("pk_actividades");
+
+                    b.ToTable("actividades", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2026, 9, 26, 4, 32, 5, 828, DateTimeKind.Utc).AddTicks(9944),
+                            IconClass = "icon-green-bg",
+                            IconType = "user",
+                            Title = "El productor 'Finca Los Pinos' se ha registrado en la plataforma"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2026, 9, 26, 3, 37, 5, 828, DateTimeKind.Utc).AddTicks(9950),
+                            IconClass = "icon-blue-bg",
+                            IconType = "check-circle",
+                            Title = "Verificación aprobada para 'Transportes El Rápido'"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2026, 9, 26, 2, 37, 5, 828, DateTimeKind.Utc).AddTicks(9954),
+                            IconClass = "icon-orange-bg",
+                            IconType = "alert-circle",
+                            Title = "Se ha reportado un problema con el pedido #1045"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedAt = new DateTime(2026, 9, 25, 4, 37, 5, 828, DateTimeKind.Utc).AddTicks(9955),
+                            IconClass = "icon-purple-bg",
+                            IconType = "layers",
+                            Title = "Nueva categoría 'Frutas Tropicales' creada"
+                        });
+                });
 
             modelBuilder.Entity("Agro_Trade.Domain.Entities.Categoria", b =>
                 {
@@ -290,6 +357,7 @@ namespace Agro_Trade.Infrastructure.Persistence.Migrations
                         .HasName("pk_logistica_entregas");
 
                     b.HasIndex("IdPedido")
+                        .IsUnique()
                         .HasDatabaseName("ix_logistica_entregas_id_pedido");
 
                     b.HasIndex("IdUsuarioRepartidor")
@@ -342,6 +410,52 @@ namespace Agro_Trade.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_mensajes_id_emisor");
 
                     b.ToTable("mensajes", (string)null);
+                });
+
+            modelBuilder.Entity("Agro_Trade.Domain.Entities.NotificacionEntrega", b =>
+                {
+                    b.Property<int>("IdNotificacion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id_notificacion");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdNotificacion"));
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("estado");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_creacion");
+
+                    b.Property<int>("IdPedido")
+                        .HasColumnType("integer")
+                        .HasColumnName("id_pedido");
+
+                    b.Property<int>("IdUsuarioRepartidor")
+                        .HasColumnType("integer")
+                        .HasColumnName("id_usuario_repartidor");
+
+                    b.Property<string>("ZonaEntrega")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("zona_entrega");
+
+                    b.HasKey("IdNotificacion")
+                        .HasName("pk_notificaciones_entrega");
+
+                    b.HasIndex("IdUsuarioRepartidor")
+                        .HasDatabaseName("ix_notificaciones_entrega_id_usuario_repartidor");
+
+                    b.HasIndex("IdPedido", "IdUsuarioRepartidor")
+                        .IsUnique()
+                        .HasDatabaseName("ix_notificaciones_entrega_id_pedido_id_usuario_repartidor");
+
+                    b.ToTable("notificaciones_entrega", (string)null);
                 });
 
             modelBuilder.Entity("Agro_Trade.Domain.Entities.Pedido", b =>
@@ -571,6 +685,11 @@ namespace Agro_Trade.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("cuenta_bancaria");
 
+                    b.Property<string>("Departamento")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("departamento");
+
                     b.Property<string>("Estado")
                         .IsRequired()
                         .HasColumnType("text")
@@ -754,6 +873,10 @@ namespace Agro_Trade.Infrastructure.Persistence.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdUsuario"));
 
+                    b.Property<string>("Departamento")
+                        .HasColumnType("text")
+                        .HasColumnName("departamento");
+
                     b.Property<string>("DireccionBase")
                         .HasColumnType("text")
                         .HasColumnName("direccion_base");
@@ -763,6 +886,11 @@ namespace Agro_Trade.Infrastructure.Persistence.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("email");
+
+                    b.Property<string>("EstadoCuenta")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("estado_cuenta");
 
                     b.Property<DateTime?>("FechaRegistro")
                         .HasColumnType("timestamp with time zone")
@@ -1020,6 +1148,27 @@ namespace Agro_Trade.Infrastructure.Persistence.Migrations
                     b.Navigation("Conversacion");
 
                     b.Navigation("Emisor");
+                });
+
+            modelBuilder.Entity("Agro_Trade.Domain.Entities.NotificacionEntrega", b =>
+                {
+                    b.HasOne("Agro_Trade.Domain.Entities.Pedido", "Pedido")
+                        .WithMany()
+                        .HasForeignKey("IdPedido")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_notificaciones_entrega_pedidos_id_pedido");
+
+                    b.HasOne("Agro_Trade.Domain.Entities.Usuario", "UsuarioRepartidor")
+                        .WithMany()
+                        .HasForeignKey("IdUsuarioRepartidor")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_notificaciones_entrega_usuarios_id_usuario_repartidor");
+
+                    b.Navigation("Pedido");
+
+                    b.Navigation("UsuarioRepartidor");
                 });
 
             modelBuilder.Entity("Agro_Trade.Domain.Entities.Pedido", b =>

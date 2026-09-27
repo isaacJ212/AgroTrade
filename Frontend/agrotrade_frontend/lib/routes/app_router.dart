@@ -8,6 +8,7 @@ import '../screens/shared/auth/registro.dart';
 import '../screens/shared/auth/roleSelection.dart';
 import '../screens/shared/auth/resetPassword.dart';
 import '../screens/shared/auth/verificarCodigo.dart';
+import '../screens/shared/auth/completarInformacionGoogle.dart';
 
 // ── Shared ────────────────────────────────────────────────────────────────────
 import '../screens/shared/profile.dart';
@@ -110,6 +111,9 @@ class AppRouter {
         return _slide(
           VerificarCodigo(correo: vcMap['correo'] as String? ?? ''),
         );
+
+      case AppRoutes.completarInformacionGoogle:
+        return _slide(const CompletarInformacionGoogle());
 
       // ── Shared ────────────────────────────────────────────────────────────
       case AppRoutes.profile:

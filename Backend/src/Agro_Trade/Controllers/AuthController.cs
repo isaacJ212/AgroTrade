@@ -66,6 +66,21 @@ namespace Agro_Trade.Controllers
 
             return StatusCode(result.StatusCode, new { ErrorMessage = result.Message });
         }
+
+        [HttpPut("complete-info")]
+        [Authorize]
+        public async Task<IActionResult> CompleteInfo([FromBody] GoogleCatchDataDto dto, CancellationToken ct)
+        {
+            var claim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value;
+            int.TryParse(claim, out int id);
+
+            var result = await _mediator.Send(new GoogleDataCatchCommand(id, dto), ct);
+            if (!result.IsSuccess) return StatusCode(result.StatusCode, result);
+            
+            return Ok(result);
+
+
+        }
     }
 }
 
