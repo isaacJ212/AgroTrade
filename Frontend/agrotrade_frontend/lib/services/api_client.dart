@@ -12,7 +12,7 @@ class ApiClient {
   final http.Client _client = http.Client();
 
   String get baseUrl {
-    const envBaseUrl = "https://agrotrade-develpment.onrender.com";
+    const envBaseUrl = "http://localhost:5080";
     return envBaseUrl.endsWith('/')
         ? envBaseUrl.substring(0, envBaseUrl.length - 1)
         : envBaseUrl;
