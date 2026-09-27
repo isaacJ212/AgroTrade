@@ -36,7 +36,7 @@ public class GoogleSignInCaptureDataHandler(IUnitofWork context) : IRequestHandl
 
     }
     
-    // Métodos de soporte aparte
+    // HELPER DE VALIDACION
     private string? NormalizarDepartamento(string? departamentoInput)
     {
         if (string.IsNullOrWhiteSpace(departamentoInput)) return null;
