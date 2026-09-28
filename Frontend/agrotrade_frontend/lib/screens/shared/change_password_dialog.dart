@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../models/api/user_models.dart';
 import '../../services/api_session.dart';
 import '../../services/users_api_service.dart';
 import '../../ui/app_theme.dart';
@@ -26,6 +25,20 @@ Future<void> showChangePasswordDialog(BuildContext context) async {
         _PasswordOtpNoticeDialog(email: ApiSession.instance.userEmail),
   );
   if (sent != true || !context.mounted) return;
+
+  try {
+    await UsersApiService.instance.sendPasswordCode(userId: userId);
+  } catch (error) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.toString().replaceFirst('Exception: ', '')),
+        ),
+      );
+    }
+    return;
+  }
+  if (!context.mounted) return;
 
   final verified = await Navigator.of(context).push<bool>(
     MaterialPageRoute<bool>(
@@ -71,8 +84,10 @@ class _PasswordOtpNoticeDialog extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'El código de 6 dígitos se genera y envía automáticamente por el '
-          'backend. Ingresa el código recibido para continuar; vence en 5 minutos:',
+          'Por motivos de seguridad, necesitamos confirmar que eres el dueño '
+          'de la cuenta. Ingresa el código de 6 dígitos recibido en tu Gmail '
+          'para continuar. El código vence en 10 minutos y, después de '
+          'verificarlo, tendrás 5 minutos para cambiar tu contraseña:',
         ),
         const SizedBox(height: 8),
         Text(
@@ -105,7 +120,6 @@ class _ChangePasswordDialog extends StatefulWidget {
 
 class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
   final _formKey = GlobalKey<FormState>();
-  final _currentPassword = TextEditingController();
   final _newPassword = TextEditingController();
   final _confirmation = TextEditingController();
   bool _saving = false;
@@ -113,7 +127,6 @@ class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
 
   @override
   void dispose() {
-    _currentPassword.dispose();
     _newPassword.dispose();
     _confirmation.dispose();
     super.dispose();
@@ -127,12 +140,9 @@ class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
       _serverError = null;
     });
     try {
-      await UsersApiService.instance.updatePassword(
+      await UsersApiService.instance.resetPasswordAfterOtp(
         userId: widget.userId,
-        dto: UpdatePasswordRequestDto(
-          currentPassword: _currentPassword.text,
-          newPassword: _newPassword.text,
-        ),
+        newPassword: _newPassword.text,
       );
       if (mounted) Navigator.of(context).pop(true);
     } catch (error) {
@@ -156,25 +166,14 @@ class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Confirma tu contraseña actual y escribe una nueva.'),
+            const Text('Escribe una nueva contraseña para tu cuenta.'),
             const SizedBox(height: 18),
-            _passwordField(
-              controller: _currentPassword,
-              label: 'Contraseña actual',
-              validator: (value) => value == null || value.isEmpty
-                  ? 'Ingresa tu contraseña actual.'
-                  : null,
-            ),
-            const SizedBox(height: 12),
             _passwordField(
               controller: _newPassword,
               label: 'Nueva contraseña',
               validator: (value) {
                 if (value == null || value.length < 8) {
                   return 'Usa al menos 8 caracteres.';
-                }
-                if (value == _currentPassword.text) {
-                  return 'Debe ser distinta a la contraseña actual.';
                 }
                 return null;
               },

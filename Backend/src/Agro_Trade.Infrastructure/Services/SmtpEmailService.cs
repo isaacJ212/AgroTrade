@@ -17,7 +17,7 @@ namespace Agro_Trade.Infrastructure.Services
             _configuration = configuration;
         }
 
-        public async Task SendVerificationCodeAsync(string toEmail, string code, CancellationToken ct = default)
+        public async Task SendVerificationCodeAsync(string toEmail, string code, string subject, string title, string description, CancellationToken ct = default)
         {
             
             var smtpLogin = _configuration["GmailSmtp:SmtpLogin"];
@@ -34,11 +34,11 @@ namespace Agro_Trade.Infrastructure.Services
 
             var emailContent = $@"
                 <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 12px;'>
-                    <h2 style='color: #0f172a; margin-bottom: 8px;'>Código de verificación</h2>
+                    <h2 style='color: #0f172a; margin-bottom: 8px;'>{WebUtility.HtmlEncode(title)}</h2>
                     <p style='color: #475569; font-size: 16px;'>Hola,</p>
-                    <p style='color: #475569; font-size: 16px;'>Tu código de verificación para Agro Trade es:</p>
+                    <p style='color: #475569; font-size: 16px;'>{WebUtility.HtmlEncode(description)}</p>
                     <div style='background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; text-align: center; margin: 20px 0;'>
-                        <strong style='font-size: 28px; letter-spacing: 4px;'>{code}</strong>
+                        <strong style='font-size: 28px; letter-spacing: 4px;'>{WebUtility.HtmlEncode(code)}</strong>
                     </div>
                     <p style='color: #475569; font-size: 16px;'>Ingresa este código en el formulario para continuar.</p>
                     <p style='color: #94a3b8; font-size: 14px; margin-top: 24px;'>Este código expira en 10 minutos.</p>
@@ -52,7 +52,7 @@ namespace Agro_Trade.Infrastructure.Services
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(fromName, emailSender));
             message.To.Add(new MailboxAddress("", toEmail));
-            message.Subject = "Código de Verificación 2FA - AgroTrade";
+            message.Subject = subject;
             
             var bodyBuilder = new BodyBuilder { HtmlBody = emailContent };
             message.Body = bodyBuilder.ToMessageBody();

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -36,7 +37,11 @@ namespace Agro_Trade.Infrastructure.Services
          {
              claims.Add(new Claim(ClaimTypes.Role, role));
            }
-         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+         var configuredKey = _configuration["Jwt:Key"] ?? _configuration["Jwt:SigninKey"];
+         if (string.IsNullOrWhiteSpace(configuredKey))
+             throw new InvalidOperationException("Falta configurar Jwt:Key o Jwt:SigninKey.");
+
+         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuredKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
@@ -51,5 +56,13 @@ namespace Agro_Trade.Infrastructure.Services
 
 
         }
+
+        // FUENTE PARA APRENDER REFRESH TOKEN STOCKITAPI POR DANNY LOPEZ
+        public string ComputeHash(string raw)
+        {
+            var hashed = SHA256.HashData(Encoding.UTF8.GetBytes(raw));
+            return Convert.ToBase64String(hashed);
+        }
+
     }
 }

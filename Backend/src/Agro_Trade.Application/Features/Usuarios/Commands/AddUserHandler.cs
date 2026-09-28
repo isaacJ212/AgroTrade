@@ -7,6 +7,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.InteropServices;
+    using System.Security.Cryptography;
     using System.Text;
     using System.Threading.Tasks;
 
@@ -59,7 +60,13 @@ namespace Agro_Trade.Application.Features.Usuarios.Commands
                 {
                    var verificationCode = GenerateVerificationCode();
                    await verificationCodeRepository.SaveCodeAsync(user.IdUsuario, verificationCode, TimeSpan.FromMinutes(10), ct);
-                   await emailService.SendVerificationCodeAsync(user.Email, verificationCode, ct);
+                   await emailService.SendVerificationCodeAsync(
+                       user.Email,
+                       verificationCode,
+                       "Código de Verificación 2FA - AgroTrade",
+                       "Código de verificación",
+                       "Tu código de verificación para Agro Trade es:",
+                       ct);
 
                     var mapped = new UserDto {
                         Id = user.IdUsuario,
@@ -82,8 +89,7 @@ namespace Agro_Trade.Application.Features.Usuarios.Commands
 
             private static string GenerateVerificationCode()
             {
-                var random = new Random();
-                return random.Next(100000, 999999).ToString();
+                return RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
             }
 
         } }
