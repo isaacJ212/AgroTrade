@@ -43,10 +43,10 @@ class LoginRequestDto {
 
 class GoogleSignInRequestDto {
   final String idToken;
+  final int? idRol;
+  const GoogleSignInRequestDto({required this.idToken, this.idRol});
 
-  const GoogleSignInRequestDto({required this.idToken});
-
-  Map<String, dynamic> toJson() => {'idToken': idToken};
+  Map<String, dynamic> toJson() => {'idToken': idToken, 'idRol': idRol};
 }
 
 class GoogleCatchDataDto {

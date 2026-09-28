@@ -31,7 +31,7 @@ namespace Agro_Trade.Application.Features.Auth
             {
                 return Result<LoginResponse>.Failure(400, "El código es incorrecto o ha expirado.");
             }
-
+            
             user.IdentidadVerificada = true;
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -39,7 +39,8 @@ namespace Agro_Trade.Application.Features.Auth
             var response = new LoginResponse
             {
                 Token = token,
-                UserName = user.NombreCompleto
+                UserName = user.NombreCompleto,
+                RequiereCompletarInformacion = false
             };
 
             return Result<LoginResponse>.Success(200, response, "Identidad verificada correctamente.", true);

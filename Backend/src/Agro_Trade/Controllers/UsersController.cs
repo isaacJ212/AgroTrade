@@ -62,6 +62,8 @@ namespace Agro_Trade.Controllers
             var result = await mediator.Send(new GetUserByEmailQuery(email), ct);
             return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, new { ErrorMesagge = result.Message });
         }
+        
+      
 
         /// <summary>
         /// Registra un nuevo usuario en la base de datos.
@@ -111,7 +113,7 @@ namespace Agro_Trade.Controllers
             int.TryParse(tokenUserIdStr, out int tokenUserId);
 
             // 2. revisar si tiene el rol "Admin" 
-            bool esAdmin = User.IsInRole("Admin");
+            bool esAdmin = User.IsInRole("Administrador");
 
             // 3. El filtro de seguridad: Si NO es admin Y el ID del token NO coincide con el de la ruta se deniega el acceso
             if (!esAdmin && tokenUserId != id)

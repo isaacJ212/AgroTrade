@@ -81,8 +81,8 @@ class _LoginState extends State<Login> {
         print("Error: No se pudo generar el idToken de Google.");
         return null;
       }
-
-      final user = await AuthApiService.instance.googleSignIn(idToken);
+      //Mandamos null por que no hay seleccion de rol aqui
+      final user = await AuthApiService.instance.googleSignIn(idToken, null);
       if (!mounted) return;
       if (user.requiereCompletarInformacion) {
         Navigator.pushReplacementNamed(

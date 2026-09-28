@@ -18,7 +18,12 @@ namespace Agro_Trade.Application.Features.Usuarios.Commands
         {
             public async Task<Result<UserDto>> Handle(AddUserCommand request, CancellationToken ct)
             {
+              
                 var dto = request.dto;
+                //VALIDEMOS QUE NO SE PUEDE CREAR USUARIOS ADMINISTRADORES SIN AYUDA DEL SOPORTE TECNICO
+                if( dto.IdRol == 4)
+                    return Result<UserDto>.Failure( 403,"NO PUEDES CREAR UNA CUENTA CON ESTE ROL");
+                
             //Validamos
             var exist = await context.Users.UserExistsAsync(dto.Email, ct);
                 if (exist)
@@ -33,7 +38,8 @@ namespace Agro_Trade.Application.Features.Usuarios.Commands
                     IdentidadVerificada = false,
                     FechaRegistro = DateTime.UtcNow,
                     Telefono = dto.Telefono,
-                    DireccionBase = dto.DireccionBase
+                    DireccionBase = dto.DireccionBase,
+                    Departamento = dto.Departamento
 
                 };
                 var user = await context.Users.AddAsync(newUser, ct);
@@ -51,9 +57,9 @@ namespace Agro_Trade.Application.Features.Usuarios.Commands
                 await context.SaveChangesAsync(ct);
                 if (user != null)
                 {
-                   // var verificationCode = GenerateVerificationCode();
-                    //await verificationCodeRepository.SaveCodeAsync(user.IdUsuario, verificationCode, TimeSpan.FromMinutes(10), ct);
-                     //await emailService.SendVerificationCodeAsync(user.Email, verificationCode, ct);
+                   var verificationCode = GenerateVerificationCode();
+                   await verificationCodeRepository.SaveCodeAsync(user.IdUsuario, verificationCode, TimeSpan.FromMinutes(10), ct);
+                   await emailService.SendVerificationCodeAsync(user.Email, verificationCode, ct);
 
                     var mapped = new UserDto {
                         Id = user.IdUsuario,

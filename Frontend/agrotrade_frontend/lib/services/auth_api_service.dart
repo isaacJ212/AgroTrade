@@ -29,6 +29,7 @@ class AuthApiService {
         ApiSession.instance.setAuth(
           token: demoUser.token,
           userName: demoUser.userName,
+          userEmail: cleanEmail,
           roles: demoUser.roles,
         );
         return demoUser;
@@ -44,6 +45,7 @@ class AuthApiService {
         ApiSession.instance.setAuth(
           token: demoUser.token,
           userName: demoUser.userName,
+          userEmail: cleanEmail,
           roles: demoUser.roles,
         );
         return demoUser;
@@ -59,6 +61,7 @@ class AuthApiService {
         ApiSession.instance.setAuth(
           token: demoUser.token,
           userName: demoUser.userName,
+          userEmail: cleanEmail,
           roles: demoUser.roles,
         );
         return demoUser;
@@ -73,6 +76,7 @@ class AuthApiService {
         ApiSession.instance.setAuth(
           token: demoUser.token,
           userName: demoUser.userName,
+          userEmail: cleanEmail,
           roles: demoUser.roles,
         );
         return demoUser;
@@ -109,6 +113,7 @@ class AuthApiService {
         ApiSession.instance.setAuth(
           token: result.data!.token,
           userName: result.data!.userName,
+          userEmail: cleanEmail,
           roles: result.data!.roles,
         );
         print('Login exitoso.');
@@ -134,10 +139,10 @@ class AuthApiService {
     }
   }
 
-  Future<LoginResponseDto> googleSignIn(String idToken) async {
+  Future<LoginResponseDto> googleSignIn(String idToken, int? idRol) async {
     final response = await ApiClient.instance.post(
       AuthRoutes.googleSignIn,
-      body: GoogleSignInRequestDto(idToken: idToken).toJson(),
+      body: GoogleSignInRequestDto(idToken: idToken, idRol: idRol).toJson(),
     );
 
     final result = _decodeResult<LoginResponseDto>(
@@ -188,14 +193,20 @@ class AuthApiService {
     }
   }
 
-  Future<void> verifyCode({required int userId, required String code}) async {
+  Future<LoginResponseDto> verifyCode({
+    required int userId,
+    required String code,
+  }) async {
     final response = await ApiClient.instance.post(
       AuthRoutes.verifyCode,
       body: {'userId': userId, 'code': code},
     );
 
-    final result = _decodeResult<dynamic>(response.jsonBody, (json) => json);
-    if (!result.isSuccess) {
+    final result = _decodeResult<LoginResponseDto>(
+      response.jsonBody,
+      (json) => LoginResponseDto.fromJson(ensureJsonMap(json)),
+    );
+    if (!result.isSuccess || result.data == null) {
       throw ApiException(
         response.statusCode,
         result.message.isNotEmpty
@@ -203,6 +214,15 @@ class AuthApiService {
             : 'No se pudo verificar el código.',
       );
     }
+
+    ApiSession.instance.setAuth(
+      token: result.data!.token,
+      userName: result.data!.userName,
+      userEmail: ApiSession.instance.userEmail,
+      userIdOverride: userId.toString(),
+      roles: result.data!.roles,
+    );
+    return result.data!;
   }
 
   BackendResult<T> _decodeResult<T>(

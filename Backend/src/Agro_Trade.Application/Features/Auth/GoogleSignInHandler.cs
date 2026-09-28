@@ -59,8 +59,8 @@ namespace Agro_Trade.Application.Features.Auth
                 };
                 await _unitOfWork.Users.AddAsync(user, cancellationToken);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
-                //Rol Predeterminado que es el de cliente
-                await _roles.AddAsync(new UsuarioRol { IdUsuario = user.IdUsuario, IdRol = 1 }, cancellationToken);
+                //Si no pasa el rol se asigna el de cliente 
+                await _roles.AddAsync(new UsuarioRol { IdUsuario = user.IdUsuario, IdRol = request.dto.idRol?? 1 }, cancellationToken);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                

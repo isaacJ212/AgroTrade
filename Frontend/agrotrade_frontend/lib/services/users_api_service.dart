@@ -23,20 +23,33 @@ class UsersApiService {
     );
 
     if (!result.isSuccess || result.data == null) {
-      throw ApiException(response.statusCode, result.message.isNotEmpty ? result.message : 'No se pudo crear el usuario.');
+      throw ApiException(
+        response.statusCode,
+        result.message.isNotEmpty
+            ? result.message
+            : 'No se pudo crear el usuario.',
+      );
     }
 
     return result.data!;
   }
 
   Future<UserDto> getUserByEmail(String email) async {
-    final response = await ApiClient.instance.get(UserRoutes.byEmail(email), authorized: true);
+    final response = await ApiClient.instance.get(
+      UserRoutes.byEmail(email),
+      authorized: true,
+    );
     final result = _decodeResult<UserDto>(
       response.jsonBody,
       (json) => UserDto.fromJson(ensureJsonMap(json)),
     );
     if (!result.isSuccess || result.data == null) {
-      throw ApiException(response.statusCode, result.message.isNotEmpty ? result.message : 'No se pudo obtener el usuario.');
+      throw ApiException(
+        response.statusCode,
+        result.message.isNotEmpty
+            ? result.message
+            : 'No se pudo obtener el usuario.',
+      );
     }
     return result.data!;
   }
@@ -55,15 +68,49 @@ class UsersApiService {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return;
       }
-      throw ApiException(response.statusCode, 'No se pudo actualizar la contraseña.');
+      throw ApiException(
+        response.statusCode,
+        'No se pudo actualizar la contraseña.',
+      );
     }
 
-    final result = _decodeResult<dynamic>(
-      response.jsonBody,
-      (json) => json,
-    );
+    final result = _decodeResult<dynamic>(response.jsonBody, (json) => json);
     if (!result.isSuccess) {
-      throw ApiException(response.statusCode, result.message.isNotEmpty ? result.message : 'No se pudo actualizar la contraseña.');
+      throw ApiException(
+        response.statusCode,
+        result.message.isNotEmpty
+            ? result.message
+            : 'No se pudo actualizar la contraseña.',
+      );
+    }
+  }
+
+  Future<void> verifyPasswordCode({
+    required int userId,
+    required String code,
+  }) async {
+    final response = await ApiClient.instance.post(
+      UserRoutes.verifyPasswordCode,
+      body: {'userId': userId, 'code': code},
+      authorized: true,
+    );
+
+    if (response.jsonBody == null) {
+      if (response.statusCode >= 200 && response.statusCode < 300) return;
+      throw ApiException(
+        response.statusCode,
+        'No se pudo verificar el código para cambiar la contraseña.',
+      );
+    }
+
+    final result = _decodeResult<dynamic>(response.jsonBody, (json) => json);
+    if (!result.isSuccess) {
+      throw ApiException(
+        response.statusCode,
+        result.message.isNotEmpty
+            ? result.message
+            : 'El código es incorrecto o ha expirado.',
+      );
     }
   }
 
@@ -81,15 +128,20 @@ class UsersApiService {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return;
       }
-      throw ApiException(response.statusCode, 'No se pudo actualizar el usuario.');
+      throw ApiException(
+        response.statusCode,
+        'No se pudo actualizar el usuario.',
+      );
     }
 
-    final result = _decodeResult<dynamic>(
-      response.jsonBody,
-      (json) => json,
-    );
+    final result = _decodeResult<dynamic>(response.jsonBody, (json) => json);
     if (!result.isSuccess) {
-      throw ApiException(response.statusCode, result.message.isNotEmpty ? result.message : 'No se pudo actualizar el usuario.');
+      throw ApiException(
+        response.statusCode,
+        result.message.isNotEmpty
+            ? result.message
+            : 'No se pudo actualizar el usuario.',
+      );
     }
   }
 

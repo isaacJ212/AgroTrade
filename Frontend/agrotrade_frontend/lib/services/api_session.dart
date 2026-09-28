@@ -7,6 +7,7 @@ class ApiSession {
 
   String? token;
   String? userName;
+  String? userEmail;
   String? userId;
   List<String> roles = [];
 
@@ -15,12 +16,50 @@ class ApiSession {
   void setAuth({
     required String token,
     String? userName,
+    String? userEmail,
+    String? userIdOverride,
     List<String> roles = const [],
   }) {
     this.token = token;
     this.userName = userName;
-    this.roles = roles;
-    this.userId = _extractUserId(token);
+    this.userEmail = userEmail;
+    this.roles = roles.isNotEmpty ? roles : _extractRoles(token);
+    userId = userIdOverride ?? _extractUserId(token);
+  }
+
+  void setPendingVerification({required int userId, required String email}) {
+    token = null;
+    userName = null;
+    roles = [];
+    this.userId = userId.toString();
+    userEmail = email;
+  }
+
+  List<String> _extractRoles(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return const [];
+      String payload = parts[1].replaceAll('-', '+').replaceAll('_', '/');
+      switch (payload.length % 4) {
+        case 2:
+          payload += '==';
+          break;
+        case 3:
+          payload += '=';
+          break;
+      }
+      final claims = jsonDecode(utf8.decode(base64Url.decode(payload)));
+      final rawRoles =
+          claims['role'] ??
+          claims['roles'] ??
+          claims['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+      if (rawRoles is List)
+        return rawRoles.map((role) => role.toString()).toList();
+      if (rawRoles is String && rawRoles.isNotEmpty) return [rawRoles];
+      return const [];
+    } catch (_) {
+      return const [];
+    }
   }
 
   String? _extractUserId(String token) {
@@ -33,12 +72,17 @@ class ApiSession {
       String payload = parts[1];
       payload = payload.replaceAll('-', '+').replaceAll('_', '/');
       switch (payload.length % 4) {
-        case 2: payload += '=='; break;
-        case 3: payload += '='; break;
+        case 2:
+          payload += '==';
+          break;
+        case 3:
+          payload += '=';
+          break;
       }
       final decoded = utf8.decode(base64Url.decode(payload));
       final json = jsonDecode(decoded);
-      return json['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']?.toString();
+      return json['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']
+          ?.toString();
     } catch (e) {
       return null;
     }
@@ -47,8 +91,8 @@ class ApiSession {
   void clear() {
     token = null;
     userName = null;
+    userEmail = null;
     userId = null;
     roles = [];
   }
 }
-

@@ -109,7 +109,10 @@ class AppRouter {
       case AppRoutes.verificarCodigo:
         final vcMap = args is Map<String, dynamic> ? args : <String, dynamic>{};
         return _slide(
-          VerificarCodigo(correo: vcMap['correo'] as String? ?? ''),
+          VerificarCodigo(
+            correo: vcMap['correo'] as String? ?? '',
+            userId: vcMap['userId'] as int?,
+          ),
         );
 
       case AppRoutes.completarInformacionGoogle:

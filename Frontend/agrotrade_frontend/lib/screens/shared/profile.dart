@@ -7,6 +7,7 @@ import '../cliente/misPedidos.dart';
 import '../cliente/exploradorProductos.dart';
 import 'auth/Login.dart';
 import 'editarPerfil.dart';
+import 'change_password_dialog.dart';
 import 'centroAyuda.dart';
 
 class Profile extends StatelessWidget {
@@ -185,6 +186,18 @@ class Profile extends StatelessWidget {
                       context,
                       MaterialPageRoute(builder: (_) => const EditarPerfil()),
                     ),
+                  ),
+
+                  const Divider(
+                    height: 1,
+                    indent: 48,
+                    color: AppColors.cardBorder,
+                  ),
+
+                  ProfileMenuItem(
+                    icon: Icons.lock_outline,
+                    title: 'Cambiar contraseña',
+                    onTap: () => showChangePasswordDialog(context),
                   ),
 
                   const Divider(

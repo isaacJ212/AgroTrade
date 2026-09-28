@@ -7,6 +7,7 @@ import '../shared/auth/Login.dart';
 import 'centroAyudaRepartidor.dart';
 import 'configuracionRepartidor.dart';
 import 'datosPersonalesRepartidor.dart';
+import '../shared/change_password_dialog.dart';
 import 'miVehiculoRepartidor.dart';
 import 'repartidor_demo.dart';
 import 'repartidor_navigation.dart';
@@ -193,6 +194,16 @@ class PerfilRepartidor extends StatelessWidget {
                     title: 'Mi vehículo',
                     onTap: () =>
                         _abrirPantalla(context, const MiVehiculoRepartidor()),
+                  ),
+                  const Divider(
+                    height: 1,
+                    indent: 48,
+                    color: AppColors.cardBorder,
+                  ),
+                  ProfileMenuItem(
+                    icon: Icons.lock_outline,
+                    title: 'Cambiar contraseña',
+                    onTap: () => showChangePasswordDialog(context),
                   ),
                   const Divider(
                     height: 1,
