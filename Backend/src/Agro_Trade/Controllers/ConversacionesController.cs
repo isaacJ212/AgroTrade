@@ -9,7 +9,7 @@ using Agro_Trade.Application.Common.DTOs.ConversacionesDtos;
 using Agro_Trade.Application.Features.Conversaciones.Commands;
 using Microsoft.AspNetCore.Authorization;
 using Agro_Trade.Application.Features.Conversaciones.Queries;
-
+using Microsoft.AspNetCore.SignalR;
 
 namespace Agro_Trade.Controllers
 {

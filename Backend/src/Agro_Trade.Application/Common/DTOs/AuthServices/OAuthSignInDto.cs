@@ -9,7 +9,9 @@ namespace Agro_Trade.Application.Common.DTOs.AuthServices
 {
     public class OAuthSignInDto
     {
-        [Required(ErrorMessage = "El token de Autenticación es obligatorio.")]
+        [Required(ErrorMessage = "El token de Autenticaciï¿½n es obligatorio.")]
         public string IdToken { get; set; }
+
+        public int? idRol { get; set; }
     }
 }

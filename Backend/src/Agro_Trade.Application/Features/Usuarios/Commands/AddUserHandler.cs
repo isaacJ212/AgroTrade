@@ -7,6 +7,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.InteropServices;
+    using System.Security.Cryptography;
     using System.Text;
     using System.Threading.Tasks;
 
@@ -18,7 +19,12 @@ namespace Agro_Trade.Application.Features.Usuarios.Commands
         {
             public async Task<Result<UserDto>> Handle(AddUserCommand request, CancellationToken ct)
             {
+              
                 var dto = request.dto;
+                //VALIDEMOS QUE NO SE PUEDE CREAR USUARIOS ADMINISTRADORES SIN AYUDA DEL SOPORTE TECNICO
+                if( dto.IdRol == 4)
+                    return Result<UserDto>.Failure( 403,"NO PUEDES CREAR UNA CUENTA CON ESTE ROL");
+                
             //Validamos
             var exist = await context.Users.UserExistsAsync(dto.Email, ct);
                 if (exist)
@@ -33,7 +39,8 @@ namespace Agro_Trade.Application.Features.Usuarios.Commands
                     IdentidadVerificada = false,
                     FechaRegistro = DateTime.UtcNow,
                     Telefono = dto.Telefono,
-                    DireccionBase = dto.DireccionBase
+                    DireccionBase = dto.DireccionBase,
+                    Departamento = dto.Departamento
 
                 };
                 var user = await context.Users.AddAsync(newUser, ct);
@@ -51,9 +58,15 @@ namespace Agro_Trade.Application.Features.Usuarios.Commands
                 await context.SaveChangesAsync(ct);
                 if (user != null)
                 {
-                   // var verificationCode = GenerateVerificationCode();
-                    //await verificationCodeRepository.SaveCodeAsync(user.IdUsuario, verificationCode, TimeSpan.FromMinutes(10), ct);
-                     //await emailService.SendVerificationCodeAsync(user.Email, verificationCode, ct);
+                   var verificationCode = GenerateVerificationCode();
+                   await verificationCodeRepository.SaveCodeAsync(user.IdUsuario, verificationCode, TimeSpan.FromMinutes(10), ct);
+                   await emailService.SendVerificationCodeAsync(
+                       user.Email,
+                       verificationCode,
+                       "Código de Verificación 2FA - AgroTrade",
+                       "Código de verificación",
+                       "Tu código de verificación para Agro Trade es:",
+                       ct);
 
                     var mapped = new UserDto {
                         Id = user.IdUsuario,
@@ -76,8 +89,7 @@ namespace Agro_Trade.Application.Features.Usuarios.Commands
 
             private static string GenerateVerificationCode()
             {
-                var random = new Random();
-                return random.Next(100000, 999999).ToString();
+                return RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
             }
 
         } }

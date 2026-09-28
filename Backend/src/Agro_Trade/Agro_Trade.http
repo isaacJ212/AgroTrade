@@ -1,6 +1,6 @@
 @Agro_Trade_HostAddress = http://localhost:5080
 
-GET {{Agro_Trade_HostAddress}}/weatherforecast/
+POST {{Agro_Trade_HostAddress}}/api/Auth/google-signin
 Accept: application/json
 
 ###
