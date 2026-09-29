@@ -75,6 +75,15 @@ namespace Agro_Trade.Controllers
             return Ok(result);
         }
 
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request, CancellationToken ct)
+        {
+            var result = await _mediator.Send(new RefreshTokenCommand(request), ct);
+            return result.IsSuccess
+                ? Ok(result)
+                : StatusCode(result.StatusCode, new { ErrorMessage = result.Message });
+        }
+
         [HttpPut("complete-info")]
         [Authorize]
         public async Task<IActionResult> CompleteInfo([FromBody] GoogleCatchDataDto dto, CancellationToken ct)
