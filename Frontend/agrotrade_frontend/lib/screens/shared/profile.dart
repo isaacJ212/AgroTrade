@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/api_session.dart';
+import '../../services/auth_api_service.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
 import '../cliente/inicioComprador.dart';
@@ -243,8 +244,9 @@ class Profile extends StatelessWidget {
             TertiaryButton(
               label: 'Cerrar Sesión',
               icon: Icons.logout,
-              onPressed: () {
-                ApiSession.instance.clear();
+              onPressed: () async {
+                await AuthApiService.instance.logout();
+                if (!context.mounted) return;
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (_) => const Login()),

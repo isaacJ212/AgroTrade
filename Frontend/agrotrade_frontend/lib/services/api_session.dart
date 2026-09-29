@@ -1,11 +1,17 @@
 import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiSession {
   ApiSession._();
 
   static final ApiSession instance = ApiSession._();
+  static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  static const String _refreshTokenKey = 'agrotrade.refresh_token';
+  static const String _userNameKey = 'agrotrade.user_name';
+  static const String _userEmailKey = 'agrotrade.user_email';
 
   String? token;
+  String? refreshToken;
   String? userName;
   String? userEmail;
   String? userId;
@@ -13,18 +19,52 @@ class ApiSession {
 
   bool get isAuthenticated => token != null && token!.isNotEmpty;
 
-  void setAuth({
+  Future<void> setAuth({
     required String token,
+    String? refreshToken,
     String? userName,
     String? userEmail,
     String? userIdOverride,
     List<String> roles = const [],
-  }) {
+  }) async {
     this.token = token;
     this.userName = userName;
     this.userEmail = userEmail;
     this.roles = roles.isNotEmpty ? roles : _extractRoles(token);
     userId = userIdOverride ?? _extractUserId(token);
+    this.refreshToken = refreshToken;
+    if (refreshToken == null || refreshToken.isEmpty) {
+      await _secureStorage.delete(key: _refreshTokenKey);
+    } else {
+      await _secureStorage.write(key: _refreshTokenKey, value: refreshToken);
+    }
+    await _storeOptional(_userNameKey, userName);
+    await _storeOptional(_userEmailKey, userEmail);
+  }
+
+  Future<void> updateTokens({
+    required String accessToken,
+    required String refreshToken,
+  }) async {
+    token = accessToken;
+    this.refreshToken = refreshToken;
+    roles = _extractRoles(accessToken);
+    userId = _extractUserId(accessToken);
+    await _secureStorage.write(key: _refreshTokenKey, value: refreshToken);
+  }
+
+  Future<void> restoreStoredSession() async {
+    refreshToken ??= await _secureStorage.read(key: _refreshTokenKey);
+    userName ??= await _secureStorage.read(key: _userNameKey);
+    userEmail ??= await _secureStorage.read(key: _userEmailKey);
+  }
+
+  Future<void> _storeOptional(String key, String? value) async {
+    if (value == null || value.isEmpty) {
+      await _secureStorage.delete(key: key);
+    } else {
+      await _secureStorage.write(key: key, value: value);
+    }
   }
 
   void setPendingVerification({required int userId, required String email}) {
@@ -88,11 +128,15 @@ class ApiSession {
     }
   }
 
-  void clear() {
+  Future<void> clear() async {
     token = null;
+    refreshToken = null;
     userName = null;
     userEmail = null;
     userId = null;
     roles = [];
+    await _secureStorage.delete(key: _refreshTokenKey);
+    await _secureStorage.delete(key: _userNameKey);
+    await _secureStorage.delete(key: _userEmailKey);
   }
 }

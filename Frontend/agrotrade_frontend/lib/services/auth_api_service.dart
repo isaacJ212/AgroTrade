@@ -26,7 +26,7 @@ class AuthApiService {
           token: 'demo_token_cliente_agrotrade',
           roles: ['Cliente'],
         );
-        ApiSession.instance.setAuth(
+        await ApiSession.instance.setAuth(
           token: demoUser.token,
           userName: demoUser.userName,
           userEmail: cleanEmail,
@@ -42,7 +42,7 @@ class AuthApiService {
           token: 'demo_token_productor_agrotrade',
           roles: ['Productor/Proveedor'],
         );
-        ApiSession.instance.setAuth(
+        await ApiSession.instance.setAuth(
           token: demoUser.token,
           userName: demoUser.userName,
           userEmail: cleanEmail,
@@ -58,7 +58,7 @@ class AuthApiService {
           token: 'demo_token_repartidor_agrotrade',
           roles: ['Repartidor'],
         );
-        ApiSession.instance.setAuth(
+        await ApiSession.instance.setAuth(
           token: demoUser.token,
           userName: demoUser.userName,
           userEmail: cleanEmail,
@@ -73,7 +73,7 @@ class AuthApiService {
           token: 'demo_token_admin_agrotrade',
           roles: ['Administrador'],
         );
-        ApiSession.instance.setAuth(
+        await ApiSession.instance.setAuth(
           token: demoUser.token,
           userName: demoUser.userName,
           userEmail: cleanEmail,
@@ -85,41 +85,32 @@ class AuthApiService {
 
     // 2. Si no es un usuario demo, intentar autenticación con el Backend
     try {
-      print('--- INICIANDO LOGIN CON BACKEND ---');
       final payload = LoginRequestDto(
         email: email,
         password: password,
       ).toJson();
-      print('Payload: $payload');
-
       final response = await ApiClient.instance.post(
         AuthRoutes.login,
         body: payload,
       );
-
-      print('Status Code: ${response.statusCode}');
-      print('Raw Body: ${response.rawBody}');
 
       final result = _decodeResult<LoginResponseDto>(
         response.jsonBody,
         (json) => LoginResponseDto.fromJson(ensureJsonMap(json)),
       );
 
-      print('IsSuccess: ${result.isSuccess}, Data: ${result.data != null}');
-
       if (response.statusCode == 200 &&
           result.isSuccess &&
           result.data != null) {
-        ApiSession.instance.setAuth(
+        await ApiSession.instance.setAuth(
           token: result.data!.token,
+          refreshToken: result.data!.refreshToken,
           userName: result.data!.userName,
           userEmail: cleanEmail,
           roles: result.data!.roles,
         );
-        print('Login exitoso.');
         return result.data!;
       } else {
-        print('Error en la respuesta del backend: ${result.message}');
         throw ApiException(
           response.statusCode,
           result.message.isNotEmpty
@@ -128,7 +119,6 @@ class AuthApiService {
         );
       }
     } catch (e) {
-      print('Excepción capturada en login: $e');
       if (e is ApiException) {
         rethrow;
       }
@@ -159,8 +149,9 @@ class AuthApiService {
       );
     }
 
-    ApiSession.instance.setAuth(
+    await ApiSession.instance.setAuth(
       token: result.data!.token,
+      refreshToken: result.data!.refreshToken,
       userName: result.data!.userName,
       roles: result.data!.roles,
     );
@@ -215,14 +206,38 @@ class AuthApiService {
       );
     }
 
-    ApiSession.instance.setAuth(
+    await ApiSession.instance.setAuth(
       token: result.data!.token,
+      refreshToken: result.data!.refreshToken,
       userName: result.data!.userName,
       userEmail: ApiSession.instance.userEmail,
       userIdOverride: userId.toString(),
       roles: result.data!.roles,
     );
     return result.data!;
+  }
+
+  Future<bool> restoreSession() async {
+    await ApiSession.instance.restoreStoredSession();
+    if (ApiSession.instance.refreshToken == null) return false;
+    return ApiClient.instance.refreshSession();
+  }
+
+  Future<void> logout() async {
+    final session = ApiSession.instance;
+    final refreshToken = session.refreshToken;
+    try {
+      if (refreshToken != null && refreshToken.isNotEmpty) {
+        await ApiClient.instance.post(
+          AuthRoutes.logout,
+          body: {'refreshToken': refreshToken},
+        );
+      }
+    } catch (_) {
+      // Limpiar sesión local aunque no haya conexión con el backend.
+    } finally {
+      await session.clear();
+    }
   }
 
   BackendResult<T> _decodeResult<T>(

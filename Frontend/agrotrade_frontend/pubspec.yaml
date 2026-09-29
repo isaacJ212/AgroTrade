@@ -41,6 +41,7 @@ dependencies:
   firebase_core: ^4.15.0
   firebase_auth: ^6.7.0     # ➡️ Cambia el ^5.0.0 por esta versión
   google_sign_in: ^6.2.1    
+  flutter_secure_storage: ^11.2.0
 
 dev_dependencies:
   flutter_test:
