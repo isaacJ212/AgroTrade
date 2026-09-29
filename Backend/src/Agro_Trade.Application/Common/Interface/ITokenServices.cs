@@ -12,5 +12,6 @@ namespace Agro_Trade.Application.Common.Interface
     {
         Task<string> GenerateTokenAsync(Usuario usuario, Guid refreshTokenId);
         RefreshTokenResult  GenerateRefreshToken();
+        string ComputeHash(string raw);
     }
 }

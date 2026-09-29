@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Agro_Trade.Application.Common.DTOs.TokensDtos;
 using Agro_Trade.Domain.Entities;
 
 namespace Agro_Trade.Application.Features.Auth
@@ -17,12 +18,16 @@ namespace Agro_Trade.Application.Features.Auth
         private readonly IUnitofWork _unitOfWork;
         private readonly ITokenServices _token;
         private readonly IRepository<UsuarioRol> _rolRepo;
+        private readonly IRepository<RefreshToken> _refreshTokens;
+        private readonly IAppContext _appContext;
 
-        public LoginHandler(IUnitofWork unitOfWork, IRepository<UsuarioRol> IRolRepo, ITokenServices token)
+        public LoginHandler(IUnitofWork unitOfWork, IRepository<UsuarioRol> IRolRepo, ITokenServices token, IRepository<RefreshToken> RefreshTokens, IAppContext appContext)
         {
             _unitOfWork = unitOfWork;
             _token = token;
-            _rolRepo = IRolRepo;            
+            _rolRepo = IRolRepo;    
+            _appContext = appContext;
+            _refreshTokens = RefreshTokens;
         }
 
         public async Task<Result<LoginResponse>> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -36,7 +41,22 @@ namespace Agro_Trade.Application.Features.Auth
             {
                 return Result<LoginResponse>.Failure(401, "Contrase�a o Usuario incorrectos.");
             }
-            var token = await _token.GenerateTokenAsync(user);
+            var token = _token.GenerateRefreshToken();
+
+            RefreshToken refreshToken = new()
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.IdUsuario,
+                ExpiresAt = token.ExpiresAtUtc,
+                CreatedAt = DateTime.UtcNow,
+                Hash = token.HashedToken,
+                CreatedByIp = _appContext.IpAdress,
+            };
+            var jwtToken = await _token.GenerateTokenAsync(user, refreshToken.Id);
+            await _refreshTokens.AddAsync(refreshToken, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            
+            
             var roles = await _rolRepo.FindAsync(r=> r.IdUsuario == user.IdUsuario,cancellationToken, "Rol");
             var stringList = roles
                     
@@ -47,7 +67,7 @@ namespace Agro_Trade.Application.Features.Auth
 
             var response = new LoginResponse
             {
-                Token = token,
+                TokenResponse = new TokensResponse(jwtToken, token.RawToken, refreshToken.ExpiresAt),
                 UserName = user.NombreCompleto,
                 Roles = stringList
 

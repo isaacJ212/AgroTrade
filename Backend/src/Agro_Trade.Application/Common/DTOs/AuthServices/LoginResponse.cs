@@ -10,7 +10,7 @@ namespace Agro_Trade.Application.Common.DTOs.AuthServices
     public class LoginResponse
     {
         public string UserName { get; set; }
-        public TokenResponse TokenResponse { get; set; }
+        public TokensResponse TokenResponse { get; set; }
         public List<String> Roles {get;set;} = new();
         public bool RequiereCompletarInformacion { get; set; } = true;
 

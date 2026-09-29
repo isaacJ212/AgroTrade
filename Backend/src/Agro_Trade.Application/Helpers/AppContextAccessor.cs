@@ -9,7 +9,7 @@ public class AppContextAccessor : IAppContext
 
     public AppContextAccessor(IHttpContextAccessor httpContextAccesor)
     {
-        
+        _httpContextAccesor = httpContextAccesor;
     }
     //INMPLEMENTACION DE ACCESSOR PARA EL CONTEXTO HTTP DE LAS REQUEST ESTA CLASE LA USARE UNICAMENTE
     //PARA OBTENER EL IP ADDRESS PERO SE PUEDE METER MAS COSAS COMO EL USER AGENT ETC

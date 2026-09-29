@@ -79,13 +79,13 @@ namespace Agro_Trade.Application.Features.Auth
                 Id = Guid.NewGuid(),
                 UserId = user.IdUsuario,
                 ExpiresAt = token.ExpiresAtUtc,
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
                 Hash = token.HashedToken,
                 CreatedByIp = _appContext.IpAdress,
             };
             var jwtToken = await _tokenServices.GenerateTokenAsync(user, refreshToken.Id);
-            //PERSISTIMOOS EL TOKEN
             await _refreshTokens.AddAsync(refreshToken, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
             
             bool faltanDatos = string.IsNullOrEmpty(user.Departamento)||string.IsNullOrEmpty(user.DireccionBase) || string.IsNullOrEmpty(user.Telefono);
             
@@ -95,7 +95,7 @@ namespace Agro_Trade.Application.Features.Auth
                             .Select(r => r.Rol.NombreRol)
                             .ToList();
 
-            return Result<LoginResponse>.Success(200, new LoginResponse { UserName = user.NombreCompleto, TokenResponse = new TokensResponse(jwtToken, token.HashedToken, token.ExpiresAtUtc), Roles= stringList, RequiereCompletarInformacion = faltanDatos}, "Usuario Registrado Con Google Exitosamente", true);
+            return Result<LoginResponse>.Success(200, new LoginResponse { UserName = user.NombreCompleto, TokenResponse = new TokensResponse(jwtToken, token.RawToken, token.ExpiresAtUtc), Roles= stringList, RequiereCompletarInformacion = faltanDatos}, "Usuario Registrado Con Google Exitosamente", true);
         }
     }
 }

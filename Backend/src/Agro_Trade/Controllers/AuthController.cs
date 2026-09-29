@@ -1,6 +1,7 @@
 using MediatR;
 using Agro_Trade.Application.Common.DTOs.AuthServices;
 using Agro_Trade.Application.Features.Auth;
+using Agro_Trade.Application.Common.DTOs.TokensDtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -65,6 +66,13 @@ namespace Agro_Trade.Controllers
             }
 
             return StatusCode(result.StatusCode, new { ErrorMessage = result.Message });
+        }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout([FromBody] RefreshTokenRequest request, CancellationToken ct)
+        {
+            var result = await _mediator.Send(new RevokeRefreshTokenCommand(request), ct);
+            return Ok(result);
         }
 
         [HttpPut("complete-info")]

@@ -37,7 +37,6 @@ namespace Agro_Trade.Infrastructure.Services
              new Claim(ClaimTypes.Name, usuario.NombreCompleto),
              new Claim(RefreshTokenIdClaimType, refreshTokenId.ToString()),
              new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-             
          };
          var roles = await _unitOfWork.Users.GetRolesByUserIdAsync(usuario.IdUsuario, CancellationToken.None);
          foreach (var role in roles)
