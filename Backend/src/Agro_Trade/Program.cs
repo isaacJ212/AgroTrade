@@ -96,7 +96,7 @@ namespace Agro_Trade
             });
 
 
-
+            builder.Services.AddHttpContextAccessor();
 
             var app = builder.Build();
 

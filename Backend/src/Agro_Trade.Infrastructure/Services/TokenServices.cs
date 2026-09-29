@@ -11,26 +11,33 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Agro_Trade.Application.Common.DTOs.TokensDtos;
+using Agro_Trade.Application.Features.ImpactoSocial.Queries;
 
 namespace Agro_Trade.Infrastructure.Services
 {
     public class TokenServices : ITokenServices
     {
+        private readonly string RefreshTokenIdClaimType = "refresh_token_id";
         private readonly IUnitofWork _unitOfWork;
         private readonly IConfiguration _configuration;
+
+        
         public TokenServices(IUnitofWork unitOfWork, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
         }
-        public async Task<string> GenerateTokenAsync(Usuario usuario)
+        public async Task<string> GenerateTokenAsync(Usuario usuario, Guid  refreshTokenId)
         {
             var claims = new List<Claim>
          {
              new Claim(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),
              new Claim(ClaimTypes.Email, usuario.Email),
              new Claim(ClaimTypes.Name, usuario.NombreCompleto),
+             new Claim(RefreshTokenIdClaimType, refreshTokenId.ToString()),
              new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+             
          };
          var roles = await _unitOfWork.Users.GetRolesByUserIdAsync(usuario.IdUsuario, CancellationToken.None);
          foreach (var role in roles)
@@ -48,7 +55,7 @@ namespace Agro_Trade.Infrastructure.Services
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddDays(1),
+                expires: DateTime.UtcNow.AddHours(1),
                 signingCredentials: creds
             );
 
@@ -62,6 +69,21 @@ namespace Agro_Trade.Infrastructure.Services
         {
             var hashed = SHA256.HashData(Encoding.UTF8.GetBytes(raw));
             return Convert.ToBase64String(hashed);
+        }
+
+        public RefreshTokenResult GenerateRefreshToken()
+        {
+            //hasheamos el token
+            var bytes = RandomNumberGenerator.GetBytes(64);
+            var rawToken = Convert.ToBase64String(bytes);
+            var hash = ComputeHash(rawToken);
+            
+            //obtenemos la expiracion
+            if (!int.TryParse(_configuration["Jwt:RefreshTokenDays"], out int days)) days = 30;
+            DateTimeOffset expiresAt = DateTime.UtcNow.AddDays(days);
+
+            return new RefreshTokenResult(rawToken, hash, expiresAt.UtcDateTime);
+
         }
 
     }

@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Agro_Trade.Application.Common.DTOs.TokensDtos;
+using Google.Apis.Auth.OAuth2.Responses;
 
 namespace Agro_Trade.Application.Features.Auth
 {
@@ -20,12 +22,16 @@ namespace Agro_Trade.Application.Features.Auth
         private readonly ITokenServices _tokenServices;
         private readonly IConfiguration _configuration;
         private readonly IRepository<UsuarioRol> _roles;
-        public GoogleSignInHandler(IUnitofWork unitOfWork, ITokenServices tokenServices, IConfiguration configuration, IRepository<UsuarioRol> roles)
+        private readonly IRepository<RefreshToken> _refreshTokens;
+        private readonly IAppContext _appContext;
+        public GoogleSignInHandler(IUnitofWork unitOfWork, ITokenServices tokenServices, IConfiguration configuration, IRepository<UsuarioRol> roles,IRepository<RefreshToken> refreshTokens, IAppContext appContext)
         {
             _unitOfWork = unitOfWork;
             _tokenServices = tokenServices;
             _configuration = configuration;
             _roles = roles;
+            _appContext = appContext;
+            _refreshTokens = refreshTokens;
         }
 
         public async Task<Result<LoginResponse>> Handle(GoogleSignInCommand request, CancellationToken cancellationToken)
@@ -65,15 +71,31 @@ namespace Agro_Trade.Application.Features.Auth
 
                
             }
+            //CAMBIOS PARA LA GENERACION DE RefreshToken
+            var token = _tokenServices.GenerateRefreshToken();
+
+            RefreshToken refreshToken = new()
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.IdUsuario,
+                ExpiresAt = token.ExpiresAtUtc,
+                CreatedAt = DateTime.Now,
+                Hash = token.HashedToken,
+                CreatedByIp = _appContext.IpAdress,
+            };
+            var jwtToken = await _tokenServices.GenerateTokenAsync(user, refreshToken.Id);
+            //PERSISTIMOOS EL TOKEN
+            await _refreshTokens.AddAsync(refreshToken, cancellationToken);
+            
             bool faltanDatos = string.IsNullOrEmpty(user.Departamento)||string.IsNullOrEmpty(user.DireccionBase) || string.IsNullOrEmpty(user.Telefono);
-            var jwtToken = await _tokenServices.GenerateTokenAsync(user);
+            
              var roles = await _roles.FindAsync(r=> r.IdUsuario == user.IdUsuario,cancellationToken, "Rol");
             var stringList = roles
                             .Where(r => r.Rol != null)
                             .Select(r => r.Rol.NombreRol)
                             .ToList();
 
-            return Result<LoginResponse>.Success(200, new LoginResponse { UserName = user.NombreCompleto, Token = jwtToken, Roles= stringList, RequiereCompletarInformacion = faltanDatos}, "Usuario Registrado Con Google Exitosamente", true);
+            return Result<LoginResponse>.Success(200, new LoginResponse { UserName = user.NombreCompleto, TokenResponse = new TokensResponse(jwtToken, token.HashedToken, token.ExpiresAtUtc), Roles= stringList, RequiereCompletarInformacion = faltanDatos}, "Usuario Registrado Con Google Exitosamente", true);
         }
     }
 }

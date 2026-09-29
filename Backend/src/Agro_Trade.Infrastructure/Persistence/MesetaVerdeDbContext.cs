@@ -34,6 +34,7 @@ namespace Agro_Trade.Infrastructure.Persistence
         public DbSet<SolicitudRepartidor> SolicitudRepartidor { get; set; } = null!;
         public DbSet<Repartidor> Repartidor { get; set; } = null!;  
         public DbSet<Actividad> Actividades { get; set; } = null!;
+        public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

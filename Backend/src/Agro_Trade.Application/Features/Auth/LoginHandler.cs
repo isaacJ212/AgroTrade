@@ -39,9 +39,10 @@ namespace Agro_Trade.Application.Features.Auth
             var token = await _token.GenerateTokenAsync(user);
             var roles = await _rolRepo.FindAsync(r=> r.IdUsuario == user.IdUsuario,cancellationToken, "Rol");
             var stringList = roles
-    .Where(r => r.Rol != null)
-    .Select(r => r.Rol.NombreRol)
-    .ToList();
+                    
+            .Where(r => r.Rol != null)
+            .Select(r => r.Rol.NombreRol)
+            .ToList();
             
 
             var response = new LoginResponse
