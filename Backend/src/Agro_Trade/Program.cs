@@ -1,3 +1,4 @@
+using System.Threading.RateLimiting;
 using EFCore.NamingConventions;
 using Agro_Trade.Application.DependencyInjection;
 using Agro_Trade.Infrastructure.DependencyInjection;
@@ -18,6 +19,64 @@ namespace Agro_Trade
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddRateLimiter(opt =>
+            {
+                opt.OnRejected = async (context, ct) =>
+                {
+                    context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                    context.HttpContext.Response.ContentType = "application/json";
+                    
+                    await context.HttpContext.Response.WriteAsJsonAsync(
+                        new {error = "Demasiadas peticiones intenta mas tarde"}
+                        );
+                };
+
+                opt.AddPolicy("LoginPolicy", context => RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "anon",
+                    factory: _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 5,
+                        Window = TimeSpan.FromMinutes(1),
+                        QueueLimit = 0
+
+                    }
+
+                ));
+
+                opt.AddPolicy("AgroBotPolicy", context =>
+                    RateLimitPartition.GetTokenBucketLimiter(
+                        partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "anon",
+                        factory: _ => new TokenBucketRateLimiterOptions
+                        {
+                            TokenLimit = 20,
+                            ReplenishmentPeriod = TimeSpan.FromSeconds(10),
+                            TokensPerPeriod = 5,
+                            QueueLimit = 0
+                        }
+                    ));
+                
+                opt.AddPolicy("GlobalWindowPolicy", context =>
+                    RateLimitPartition.GetSlidingWindowLimiter(
+                        partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "anon",
+                        factory: _ => new SlidingWindowRateLimiterOptions
+                        {
+                            PermitLimit = 120,                
+                            Window = TimeSpan.FromMinutes(1),  
+                            SegmentsPerWindow = 4,            
+                            QueueLimit = 2
+                        }));
+
+
+
+
+
+            });
+            
+            
+            
+            
+            
             var jwtSigningKey = builder.Configuration["Jwt:Key"]
                 ?? builder.Configuration["Jwt:SigninKey"];
             if (string.IsNullOrWhiteSpace(jwtSigningKey))
@@ -116,6 +175,8 @@ namespace Agro_Trade
             app.UseAuthorization();
             app.UseMiddleware<ExceptionHandlingMiddleware>();
             app.UseAuthorization();
+
+            app.UseRateLimiter();
 
 
             app.MapControllers();

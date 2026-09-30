@@ -5,6 +5,7 @@ using Agro_Trade.Application.Common.DTOs.TokensDtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Agro_Trade.Controllers
 {
@@ -24,6 +25,7 @@ namespace Agro_Trade.Controllers
         /// Inicio de sesión tradicional mediante Correo y Contraseña.
         /// </summary>
         [HttpPost("login")]
+        [EnableRateLimiting("LoginPolicy")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto, CancellationToken ct)
         {
             // Enviamos el comando tradicional (asumiendo que devuelve un LoginResponse o un string)
@@ -40,6 +42,7 @@ namespace Agro_Trade.Controllers
         /// <summary>
         /// Inicio de sesión y registro automático mediante Google Sign-In.
         /// </summary>
+        [EnableRateLimiting("AgroBotPolicy")]
         [HttpPost("google-signin")]
         public async Task<IActionResult> GoogleSignIn([FromBody] OAuthSignInDto dto, CancellationToken ct)
         {
@@ -54,7 +57,7 @@ namespace Agro_Trade.Controllers
             return StatusCode(result.StatusCode, new { ErrorMessage = result.Message });
         }
 
-
+        [EnableRateLimiting("LoginPolicy")]
         [HttpPost("verify-code")]
         public async Task<IActionResult> VerifyCode([FromBody] VerifyCodeDto dto, CancellationToken ct)
         {
