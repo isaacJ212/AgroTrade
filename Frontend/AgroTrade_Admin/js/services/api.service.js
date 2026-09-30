@@ -1,6 +1,6 @@
 class ApiService {
   constructor() {
-    this.baseUrl = typeof APP_CONSTANTS !== 'undefined' ? APP_CONSTANTS.API_BASE_URL : 'http://localhost:5080/api';
+    this.baseUrl = typeof APP_CONSTANTS !== 'undefined' ? APP_CONSTANTS.API_BASE_URL : 'https://agrotrade-1.onrender.com/api';
   }
 
   getHeaders() {
