@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Agro_Trade.Infrastructure.Persistence.Configurations
 {
-    public class RegistroTransferenciaMockConfiguration : IEntityTypeConfiguration<RegistroTransferenciaMock>
+    public class RegistroTransferenciaMockConfiguration : IEntityTypeConfiguration<RegistroTransferencia>
     {
-        public void Configure(EntityTypeBuilder<RegistroTransferenciaMock> builder)
+        public void Configure(EntityTypeBuilder<RegistroTransferencia> builder)
         {
             builder.ToTable("registros_transferencia_mock");
             builder.HasKey(t => t.IdTransferencia);

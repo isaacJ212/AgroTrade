@@ -28,7 +28,7 @@ namespace Agro_Trade.Controllers
         [EnableRateLimiting("LoginPolicy")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto, CancellationToken ct)
         {
-            // Enviamos el comando tradicional (asumiendo que devuelve un LoginResponse o un string)
+            // Enviamos el comando tradicional
             var result = await _mediator.Send(new LoginCommand(dto), ct);
 
             if (result.IsSuccess)

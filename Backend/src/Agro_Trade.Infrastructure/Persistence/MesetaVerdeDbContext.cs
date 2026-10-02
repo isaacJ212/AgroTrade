@@ -22,7 +22,7 @@ namespace Agro_Trade.Infrastructure.Persistence
         public DbSet<InventarioProveedor> InventarioProveedor { get; set; } = null!;
         public DbSet<SuscripcionApp> SuscripcionesApp { get; set; } = null!;
         public DbSet<Pedido> Pedidos { get; set; } = null!;
-        public DbSet<RegistroTransferenciaMock> RegistrosTransferenciaMock { get; set; } = null!;
+        public DbSet<RegistroTransferencia> RegistrosTransferencia { get; set; } = null!;
         public DbSet<DetallePedido> DetallesPedido { get; set; } = null!;
         public DbSet<LogisticaEntrega> LogisticaEntregas { get; set; } = null!;
         public DbSet<NotificacionEntrega> NotificacionesEntrega { get; set; } = null!;
@@ -35,6 +35,12 @@ namespace Agro_Trade.Infrastructure.Persistence
         public DbSet<Repartidor> Repartidor { get; set; } = null!;  
         public DbSet<Actividad> Actividades { get; set; } = null!;
         public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
+        
+        //Tablas Agregadas despues de refactorizacion
+        public DbSet<TipoPlan> TipoPlan { get; set; } = null!;
+        public DbSet<UnidadDeMedida> UnidadDeMedida { get; set; } = null!;
+
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

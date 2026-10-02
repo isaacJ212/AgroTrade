@@ -92,7 +92,7 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
             if (!allowedExtensions.Contains(extension))
                 return null;
 
-            //subimos a supabase
+            //subimos a supabase   Backend   git:(refactor/ModeloBd)  
 
             string bucketName = "imagenes_meseta_verde";
             string uniqueName = $"{Guid.NewGuid()}{extension}";
