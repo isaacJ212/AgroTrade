@@ -42,12 +42,10 @@ namespace Agro_Trade.Application.Common.DTOs.DatosSolicitudRoles
         public IFormFile FotoLicencia { get; set; } = null!;
 
 
-        [Required(ErrorMessage = "El nombre del banco es obligatorio.")]
-        public string BancoNombre { get; set; } = string.Empty;
 
 
         [Required(ErrorMessage = "El número de cuenta es obligatorio.")]
-        public string NumeroCuenta { get; set; } = string.Empty;
+        public int IdCuentaBancaria { get; set; }
 
         [Required(ErrorMessage = "La marca del vehículo es obligatoria.")]
         public string MarcaVehiculo { get; set; } = string.Empty;

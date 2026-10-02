@@ -17,7 +17,7 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
     public record CreateDeliveryReqCommand(int IdUsuario, CreateDatosRepartidorDto DatosRepartidor) : IRequest<Result<SolicitudRepartidorDto>>;
 
 
-    public class CreateDeliveryReqHandler(IStorageService _storageService,IUnitofWork context, IRepository<SolicitudRepartidor> repo) : IRequestHandler<CreateDeliveryReqCommand, Result<SolicitudRepartidorDto>>
+    public class CreateDeliveryReqHandler(IStorageService _storageService,IUnitofWork context, IRepository<SolicitudRepartidor> repo, IRepository<CuentaBancaria> _bancaria) : IRequestHandler<CreateDeliveryReqCommand, Result<SolicitudRepartidorDto>>
     {
         public async Task<Result<SolicitudRepartidorDto>> Handle(CreateDeliveryReqCommand request, CancellationToken cancellationToken)
         {
@@ -26,6 +26,10 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
             {
                 return Result<SolicitudRepartidorDto>.Failure(404, "Usuario no encontrado");
             }
+            var cuentaBancaria = await _bancaria.FirstOrDefaultAsync(c=> c.IdCuenta == request.DatosRepartidor.IdCuentaBancaria 
+                                                                         && c.IdUsuario == request.IdUsuario, cancellationToken);
+            if(cuentaBancaria is null) return Result<SolicitudRepartidorDto>.Failure(400, "Cuenta Bancaria no Existe");
+            
             var rolesExistentes = await context.Users.GetRolesByUserIdAsync(usuario.IdUsuario, cancellationToken);
             if (rolesExistentes.Any(p=> p.Contains("repartidor")))
             {
@@ -71,8 +75,7 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
                 UrlLicencia = fileUrls.GetValueOrDefault(nameof(dto.FotoLicencia), string.Empty),
                 MarcaVehiculo = dto.MarcaVehiculo,
                 ZonaOperaciones = dto.ZonaOperaciones,
-                BancoNombre = dto.BancoNombre,
-                NumeroCuenta = dto.NumeroCuenta,
+                IdCuentaBancaria = dto.IdCuentaBancaria,
                 Departamento = dto.Departamento
             };
         }
@@ -136,18 +139,8 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
         }
 
 
-        public SolicitudRepartidorDto ToDto(SolicitudRepartidor solicitud)
-        {
-            return new SolicitudRepartidorDto
-            {
-                IdSolicitud = solicitud.IdSolicitud,
-                IdUsuario = solicitud.IdUsuario,
-                NombreUsuario = solicitud.Usuario?.NombreCompleto ?? string.Empty,
-                DatosRepartidor = solicitud.DatosRepartidor,
-                Estado = solicitud.Estado,
-                FechaSolicitud = solicitud.FechaSolicitud,
-                Departamento = solicitud.DatosRepartidor.Departamento
-            };
-        }
+        
+
+        
     }
 }

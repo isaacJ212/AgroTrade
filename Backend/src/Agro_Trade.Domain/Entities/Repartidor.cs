@@ -21,9 +21,11 @@ namespace Agro_Trade.Domain.Entities
         public string Estado { get; set; } = "DISPONIBLE"; // "EN ENTREGA", "DISPONIBLE", "NO DISPONIBLE"
         public string Vehiculo { get; set; } = string.Empty;
         public decimal PromedioCalificacion { get; set; }
-        public string CuentaBancaria { get; set; } = string.Empty;
+        
+        public int IdCuentaBancaria { get; set; }
+        public CuentaBancaria CuentaBancaria { get; set; }
         public string UrlFotoPerfil { get; set; } = string.Empty;
-        public string ZonaOperaciones { get; set; } = string.Empty;
+        public string Municipio { get; set; } = string.Empty;
         public string Departamento { get; set;} = string.Empty;
 
 

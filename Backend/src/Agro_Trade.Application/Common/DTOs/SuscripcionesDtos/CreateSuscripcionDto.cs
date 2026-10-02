@@ -12,7 +12,7 @@ namespace Agro_Trade.Application.Common.DTOs.SuscripcionesDtos
         public int IdUsuario { get; set; }
 
         [Required(ErrorMessage = "El tipo de plan es obligatorio.")]
-        public string TipoPlan { get; set; } = string.Empty;
+        public int TipoPlan { get; set; }
 
         [Required(ErrorMessage = "La tarifa es obligatoria.")]
         public decimal TarifaPago { get; set; }
