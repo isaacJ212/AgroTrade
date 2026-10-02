@@ -34,7 +34,7 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Queries
             {
                 IdSolicitud = s.IdSolicitud,
                 IdUsuario = s.IdUsuario,
-                NombreUsuario = s.Usuario.NombreCompleto,
+                NombreUsuario = $"{s.Usuario.Nombre} {s.Usuario.PrimerApellido} {s.Usuario.SegundoApellido}".Trim(),
                 DatosRepartidor = new DatosRepartidorDto
                 {
                     TipoVehiculo = s.DatosRepartidor.TipoVehiculo,

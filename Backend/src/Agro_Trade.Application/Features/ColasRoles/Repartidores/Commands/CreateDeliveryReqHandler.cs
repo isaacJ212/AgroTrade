@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Agro_Trade.Domain.Entities;
 using Agro_Trade.Domain.Events;
 using Agro_Trade.Application.Common;
@@ -142,7 +142,7 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
             {
                 IdSolicitud = solicitud.IdSolicitud,
                 IdUsuario = solicitud.IdUsuario,
-                NombreUsuario = solicitud.Usuario?.NombreCompleto ?? string.Empty,
+                NombreUsuario = solicitud.Usuario != null ? $"{solicitud.Usuario.Nombre} {solicitud.Usuario.PrimerApellido}".Trim() : string.Empty,
                 DatosRepartidor = solicitud.DatosRepartidor,
                 Estado = solicitud.Estado,
                 FechaSolicitud = solicitud.FechaSolicitud,

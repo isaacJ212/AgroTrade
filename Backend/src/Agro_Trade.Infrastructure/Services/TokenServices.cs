@@ -34,7 +34,7 @@ namespace Agro_Trade.Infrastructure.Services
          {
              new Claim(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),
              new Claim(ClaimTypes.Email, usuario.Email),
-             new Claim(ClaimTypes.Name, usuario.NombreCompleto),
+             new Claim(ClaimTypes.Name, $"{usuario.Nombre} {usuario.PrimerApellido} {usuario.SegundoApellido}".Trim()),
              new Claim(RefreshTokenIdClaimType, refreshTokenId.ToString()),
              new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
          };

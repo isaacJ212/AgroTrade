@@ -60,7 +60,7 @@ namespace Agro_Trade.Application.Features.Auth
             var response = new LoginResponse
             {
                 TokenResponse = new TokensResponse(token, tokenResult.RawToken, tokenResult.ExpiresAtUtc ),
-                UserName = user.NombreCompleto,
+                UserName = $"{user.Nombre} {user.PrimerApellido} {user.SegundoApellido}".Trim(),
                 RequiereCompletarInformacion = false
             };
 

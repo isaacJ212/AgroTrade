@@ -12,7 +12,9 @@ namespace Agro_Trade.Domain.Entities
         [Key]
         public int IdUsuario { get; set; }
 
-        public string NombreCompleto { get; set; } 
+        public string Nombre {get; set;}
+        public string PrimerApellido{get;set;}
+        public string SegundoApellido {get;set;}
         public string Email { get; set; } 
         public string? PasswordHash { get; set; } 
         public bool IdentidadVerificada { get; set; }
@@ -21,8 +23,9 @@ namespace Agro_Trade.Domain.Entities
         public string? OAuthProvider { get; set; }
         public string? OAuthProviderId { get; set; }
         public string? Telefono { get; set; }
-        public string? DireccionBase { get; set; }
         public string? Departamento { get; set; }
+        public string? Municipio { get; set; }
+        public string? DireccionExacta { get; set; } // esta es para tipo de las chancha repato x cuadras 
         public DateTime? FechaRegistro { get; set; }
 
         

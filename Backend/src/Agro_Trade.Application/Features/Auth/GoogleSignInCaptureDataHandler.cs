@@ -28,7 +28,8 @@ public class GoogleSignInCaptureDataHandler(IUnitofWork context) : IRequestHandl
         
         validUser.Departamento = departamento;
         validUser.Telefono = dto.Telefono;
-        validUser.DireccionBase = dto.DireccionBase;
+        validUser.Municipio = dto.Municipio;
+        validUser.DireccionExacta = dto.DireccionExacta;
 
         await context.SaveChangesAsync(ct);
 
