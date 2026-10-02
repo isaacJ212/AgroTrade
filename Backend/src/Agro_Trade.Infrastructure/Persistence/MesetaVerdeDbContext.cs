@@ -53,6 +53,10 @@ namespace Agro_Trade.Infrastructure.Persistence
                 new Actividad { Id = 3, Title = "Se ha reportado un problema con el pedido #1045", IconType = "alert-circle", IconClass = "icon-orange-bg", CreatedAt = DateTime.UtcNow.AddHours(-2) },
                 new Actividad { Id = 4, Title = "Nueva categoría 'Frutas Tropicales' creada", IconType = "layers", IconClass = "icon-purple-bg", CreatedAt = DateTime.UtcNow.AddDays(-1) }
             );
+            modelBuilder.Entity<TipoPlan>().HasData(
+                new TipoPlan { Id = 1, NombrePlan = "Básico", Precio = 0m, Coste = 0m, Descripcion = "Plan gratuito con funciones básicas", Beneficios = "Acceso estándar, Soporte por email", IsActive = true },
+                new TipoPlan { Id = 2, NombrePlan = "Premium", Precio = 29.99m, Coste = 5.00m, Descripcion = "Plan avanzado para productores", Beneficios = "Prioridad en búsqueda, Soporte 24/7, Estadísticas avanzadas", IsActive = true }
+            );
         }
     }
 }
