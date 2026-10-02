@@ -26,6 +26,7 @@ namespace Agro_Trade.Application.Common.Interface
     
         IRepository<ImpactoSocial> ImpactosSociales { get; }
         IRepository<SuscripcionApp> Suscripciones{get;}
+        IRepository<TipoPlan> TipoPlanes { get; }
         IRepository<Valoracion> Valoraciones{get;}
         IRepository<Pedido> Pedidos { get; }
         IRepository<DetallePedido> DetallesPedido { get; }
