@@ -58,6 +58,29 @@ namespace Agro_Trade.Application.Features.Usuarios.Commands
                 await rol.AddAsync(userRol, ct);
 
                 await context.SaveChangesAsync(ct);
+                
+                Console.WriteLine($"[DEBUG] Usuario creado. IdUsuario: {user.IdUsuario}, Rol Asignado: {userRol.IdRol}");
+
+                // Si es Productor (2) o Proveedor (3), creamos su registro de Proveedor
+                if (userRol.IdRol == 2 || userRol.IdRol == 3)
+                {
+                    Console.WriteLine($"[DEBUG] Intentando insertar Proveedor para IdUsuario: {user.IdUsuario}");
+                    try 
+                    {
+                        var newProveedor = new Proveedor
+                        {
+                            IdUsuario = user.IdUsuario,
+                            NombreProveedor = $"{(user.Nombre + " " + user.PrimerApellido).Trim()}"
+                        };
+                        await context.Proveedores.AddAsync(newProveedor, ct);
+                        await context.SaveChangesAsync(ct);
+                        Console.WriteLine($"[DEBUG] INSERCIÓN DE PROVEEDOR EXITOSA en BD. IdUsuario: {user.IdUsuario}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[DEBUG] ERROR AL INSERTAR PROVEEDOR: {ex.Message} - {ex.InnerException?.Message}");
+                    }
+                }
                 if (user != null)
                 {
                    var verificationCode = GenerateVerificationCode();
