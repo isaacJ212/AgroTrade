@@ -57,6 +57,7 @@ class _ChatScreenState extends State<ChatScreen> {
       
       signalR.onMensajeRecibido((args) {
         if (args != null && args.isNotEmpty) {
+          print("DEBUG: [ChatScreen] Mensaje recibido vía SignalR: $args");
           final data = args[0] as Map<String, dynamic>;
           final nuevoMsg = MensajeChat(
             idMensaje: data['idMensaje'] ?? 0,
@@ -127,7 +128,14 @@ class _ChatScreenState extends State<ChatScreen> {
     ChatStore.instance.guardarMensajeOffline(_conversacion!.idConversacion, tmpMsg);
     _scrollToBottom();
 
-    await ChatApiService.instance.enviarMensajeHTTP(_conversacion!.idConversacion, contenido);
+    print("DEBUG: [ChatScreen] Enviando mensaje: '$contenido' a la conversación ${_conversacion!.idConversacion}");
+    final success = await ChatApiService.instance.enviarMensajeHTTP(_conversacion!.idConversacion, contenido);
+    
+    if (success) {
+      print("DEBUG: [ChatScreen] Mensaje enviado correctamente al servidor.");
+    } else {
+      print("DEBUG: [ChatScreen] ERROR al enviar el mensaje al servidor.");
+    }
   }
 
   @override

@@ -20,18 +20,26 @@ class Registro extends StatefulWidget {
 
 class _RegistroState extends State<Registro> {
   final TextEditingController _nombreController = TextEditingController();
+  final TextEditingController _primerApellidoController = TextEditingController();
+  final TextEditingController _segundoApellidoController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmController = TextEditingController();
   final TextEditingController _numberController = TextEditingController();
   final TextEditingController _departamentController = TextEditingController();
+  final TextEditingController _municipioController = TextEditingController();
+  final TextEditingController _direccionExactaController = TextEditingController();
 
   String? _nombreError;
+  String? _primerApellidoError;
+  String? _segundoApellidoError;
   String? _emailError;
   String? _passwordError;
   String? _confirmError;
   String? _numberError;
-  String? _cityError;
+  String? _departamentoError;
+  String? _municipioError;
+  String? _direccionExactaError;
 
   bool _terminosAcepta = false;
   bool _isLoading = false;
@@ -65,36 +73,59 @@ class _RegistroState extends State<Registro> {
   @override
   void dispose() {
     _nombreController.dispose();
+    _primerApellidoController.dispose();
+    _segundoApellidoController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmController.dispose();
     _numberController.dispose();
     _departamentController.dispose();
+    _municipioController.dispose();
+    _direccionExactaController.dispose();
     super.dispose();
   }
 
   bool _validar() {
     String? nombreError;
+    String? primerApellidoError;
+    String? segundoApellidoError;
     String? emailError;
     String? passwordError;
     String? confirmError;
     String? numberError;
-    String? cityError;
+    String? departamentoError;
+    String? municipioError;
+    String? direccionExactaError;
 
     //Lectura
 
     final nombre = _nombreController.text.trim();
+    final primerApellido = _primerApellidoController.text.trim();
+    final segundoApellido = _segundoApellidoController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
     final confirm = _confirmController.text.trim();
-    final city = _departamentController.text.trim();
+    final departamento = _departamentController.text.trim();
+    final municipio = _municipioController.text.trim();
+    final direccionExacta = _direccionExactaController.text.trim();
     final telefono = _numberController.text.trim();
 
-    // --- NOMBRE: backend exige al menos 15 caracteres ---
     if (nombre.isEmpty) {
       nombreError = "El nombre es obligatorio";
-    } else if (nombre.length < 15) {
-      nombreError = "Mínimo 15 caracteres";
+    } else if (nombre.length < 2) {
+      nombreError = "Mínimo 2 caracteres";
+    }
+
+    if (primerApellido.isEmpty) {
+      primerApellidoError = "El primer apellido es obligatorio";
+    } else if (primerApellido.length < 2) {
+      primerApellidoError = "Mínimo 2 caracteres";
+    }
+
+    if (segundoApellido.isEmpty) {
+      segundoApellidoError = "El segundo apellido es obligatorio";
+    } else if (segundoApellido.length < 2) {
+      segundoApellidoError = "Mínimo 2 caracteres";
     }
 
     // --- EMAIL: formato básico ---
@@ -118,8 +149,14 @@ class _RegistroState extends State<Registro> {
     } else if (password != confirm) {
       confirmError = "Las contraseñas no coinciden";
     }
-    if (city.isEmpty) {
-      cityError = "El departamento es obligatorio";
+    if (departamento.isEmpty) {
+      departamentoError = "El departamento es obligatorio";
+    }
+    if (municipio.isEmpty) {
+      municipioError = "El municipio es obligatorio";
+    }
+    if (direccionExacta.isEmpty) {
+      direccionExactaError = "La dirección exacta es obligatoria";
     }
 
     // --- TELÉFONO: backend valida 8 dígitos y debe comenzar con 5, 7 u 8 ---
@@ -133,19 +170,27 @@ class _RegistroState extends State<Registro> {
     // Un solo setState al final → redibuja todos los errores de una vez
     setState(() {
       _nombreError = nombreError;
+      _primerApellidoError = primerApellidoError;
+      _segundoApellidoError = segundoApellidoError;
       _emailError = emailError;
       _passwordError = passwordError;
       _confirmError = confirmError;
       _numberError = numberError;
-      _cityError = cityError;
+      _departamentoError = departamentoError;
+      _municipioError = municipioError;
+      _direccionExactaError = direccionExactaError;
     });
 
     // Válido si TODOS los errores son null Y aceptó los términos
     return nombreError == null &&
+        primerApellidoError == null &&
+        segundoApellidoError == null &&
         emailError == null &&
         passwordError == null &&
         numberError == null &&
-        cityError == null &&
+        departamentoError == null &&
+        municipioError == null &&
+        direccionExactaError == null &&
         _terminosAcepta;
   }
 
@@ -180,11 +225,15 @@ class _RegistroState extends State<Registro> {
       );
       final usuarioCreado = await UsersApiService.instance.createUser(
         CreateUserRequestDto(
-          nombreCompleto: _nombreController.text.trim(),
+          nombre: _nombreController.text.trim(),
+          primerApellido: _primerApellidoController.text.trim(),
+          segundoApellido: _segundoApellidoController.text.trim(),
           email: _emailController.text.trim(),
           password: _passwordController.text,
           telefono: _numberController.text.trim(),
           departamento: _departamentController.text.trim(),
+          municipio: _municipioController.text.trim(),
+          direccionExacta: _direccionExactaController.text.trim(),
           idRol: _idRol,
         ),
       );
@@ -333,10 +382,24 @@ class _RegistroState extends State<Registro> {
                 ),
                 const SizedBox(height: 28),
                 AppTextField(
-                  hint: "Ej: Juan Perez Lopez",
-                  label: "Nombre Completo",
+                  hint: "Ej: Juan",
+                  label: "Nombre",
                   controller: _nombreController,
                   errorText: _nombreError,
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
+                  hint: "Ej: Perez",
+                  label: "Primer Apellido",
+                  controller: _primerApellidoController,
+                  errorText: _primerApellidoError,
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
+                  hint: "Ej: Lopez",
+                  label: "Segundo Apellido",
+                  controller: _segundoApellidoController,
+                  errorText: _segundoApellidoError,
                 ),
                 const SizedBox(height: 16),
                 AppTextField(
@@ -372,8 +435,22 @@ class _RegistroState extends State<Registro> {
                 AppTextField(
                   hint: "Managua",
                   label: 'Departamento',
-                  errorText: _cityError,
+                  errorText: _departamentoError,
                   controller: _departamentController,
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
+                  hint: "Managua",
+                  label: 'Municipio',
+                  errorText: _municipioError,
+                  controller: _municipioController,
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
+                  hint: "Del parque 1c al lago",
+                  label: 'Dirección Exacta',
+                  errorText: _direccionExactaError,
+                  controller: _direccionExactaController,
                 ),
                 const SizedBox(height: 16),
 

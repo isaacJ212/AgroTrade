@@ -18,7 +18,7 @@ class ApiClient {
   Future<bool>? _refreshOperation;
 
   String get baseUrl {
-    const envBaseUrl = "http://10.0.2.2:5080";
+    const envBaseUrl = "http://localhost:5080";
     return envBaseUrl.endsWith('/')
         ? envBaseUrl.substring(0, envBaseUrl.length - 1)
         : envBaseUrl;
