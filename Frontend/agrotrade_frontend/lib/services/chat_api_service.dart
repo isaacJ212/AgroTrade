@@ -35,13 +35,22 @@ class ChatApiService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = response.jsonBody?['data'];
         if (data != null) {
-           return Conversacion(
-             idConversacion: data['idConversacion'] ?? 0,
-             idPedido: data['idPedido'] ?? idPedido,
-             idCliente: data['idCliente'] ?? myId,
-             idProductor: data['idProductor'] ?? idReceptor,
-             creadaEn: DateTime.now(),
-           );
+           int idConv = 0;
+           if (data is int) {
+             idConv = data;
+           } else if (data is Map) {
+             idConv = data['idConversacion'] ?? 0;
+           }
+
+           if (idConv != 0) {
+             return Conversacion(
+               idConversacion: idConv,
+               idPedido: idPedido,
+               idCliente: myId,
+               idProductor: idReceptor,
+               creadaEn: DateTime.now(),
+             );
+           }
         }
       }
     } catch (e) {

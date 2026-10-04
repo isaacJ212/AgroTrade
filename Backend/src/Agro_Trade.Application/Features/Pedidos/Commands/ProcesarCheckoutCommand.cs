@@ -58,6 +58,8 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
                 if (inventario.StockActual < item.Quantity)
                     return Result<CheckoutResponseDto>.Failure(409, $"Stock insuficiente para {producto.Nombre}.");
 
+                inventario.StockActual -= item.Quantity;
+
                 var descuento = Math.Clamp((decimal)(inventario.PorcentajeDescuento ?? 0), 0m, 100m);
                 var precioUnitario = inventario.PrecioVenta * (1m - descuento / 100m);
                 var subtotalLinea = precioUnitario * item.Quantity;
