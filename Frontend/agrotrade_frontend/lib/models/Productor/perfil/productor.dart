@@ -7,7 +7,7 @@ class Productor {
   final String? biografia;
   final double calificacionPromedio;
   final String? banco;
-  final String? cuentaBancaria;
+  final int? idCuentaBancaria;
 
   const Productor({
     required this.idProveedor,
@@ -18,7 +18,7 @@ class Productor {
     this.biografia,
     this.calificacionPromedio = 0.0,
     this.banco,
-    this.cuentaBancaria,
+    this.idCuentaBancaria,
   });
 
   factory Productor.fromJson(Map<String, dynamic> json) {
@@ -29,9 +29,10 @@ class Productor {
       nombreFinca: json['nombreFinca'] as String?,
       ubicacionGps: json['ubicacionGps'] as String?,
       biografia: json['biografia'] as String?,
-      calificacionPromedio: (json['calificacionPromedio'] as num?)?.toDouble() ?? 0.0,
+      calificacionPromedio:
+          (json['calificacionPromedio'] as num?)?.toDouble() ?? 0.0,
       banco: json['banco'] as String?,
-      cuentaBancaria: json['cuentaBancaria'] as String?,
+      idCuentaBancaria: json['idCuentaBancaria'] as int?,
     );
   }
 
@@ -45,7 +46,7 @@ class Productor {
       'biografia': biografia,
       'calificacionPromedio': calificacionPromedio,
       'banco': banco,
-      'cuentaBancaria': cuentaBancaria,
+      'idCuentaBancaria': idCuentaBancaria,
     };
   }
 }

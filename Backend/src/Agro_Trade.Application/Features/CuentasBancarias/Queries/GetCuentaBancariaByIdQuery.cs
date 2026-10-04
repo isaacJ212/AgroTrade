@@ -31,6 +31,7 @@ public class GetCuentaBancariaByIdHandler(IRepository<CuentaBancaria> repository
         var data = new CuentaBancariaDto
         {
             IdCuentaBancaria = cuenta.IdCuenta,
+            IdBanco = cuenta.IdBanco,
             NumeroCuentaBancaria = cuenta.NumeroCuenta,
             NombreBanco = cuenta.Banco.NombreBanco,
             Titular = cuenta.Titular

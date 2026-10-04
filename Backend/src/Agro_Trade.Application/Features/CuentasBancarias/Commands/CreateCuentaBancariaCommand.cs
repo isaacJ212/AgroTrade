@@ -43,6 +43,7 @@ public class CreateCuentaBancariaHandler(IUnitofWork _context, IRepository<Cuent
         var response = new CuentaBancariaDto
         {
             IdCuentaBancaria = dtoCargado.IdCuenta,
+            IdBanco = dtoCargado.IdBanco,
             NumeroCuentaBancaria = dtoCargado.NumeroCuenta,
             NombreBanco = dtoCargado.Banco.NombreBanco,
             Titular = dtoCargado.Titular,

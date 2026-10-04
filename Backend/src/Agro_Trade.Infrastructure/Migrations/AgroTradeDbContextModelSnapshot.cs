@@ -647,12 +647,6 @@ namespace Agro_Trade.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdProveedor"));
 
-                    b.Property<string>("Banco")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("banco");
-
                     b.Property<string>("Biografia")
                         .HasColumnType("text")
                         .HasColumnName("biografia");
@@ -661,11 +655,9 @@ namespace Agro_Trade.Infrastructure.Migrations
                         .HasColumnType("real")
                         .HasColumnName("calificacion_promedio");
 
-                    b.Property<string>("CuentaBancaria")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("cuenta_bancaria");
+                    b.Property<int?>("IdCuentaBancaria")
+                        .HasColumnType("integer")
+                        .HasColumnName("id_cuenta_bancaria");
 
                     b.Property<int>("IdUsuario")
                         .HasColumnType("integer")
@@ -691,6 +683,9 @@ namespace Agro_Trade.Infrastructure.Migrations
 
                     b.HasIndex("IdUsuario")
                         .HasDatabaseName("ix_proveedores_id_usuario");
+
+                    b.HasIndex("IdCuentaBancaria")
+                        .HasDatabaseName("ix_proveedores_id_cuenta_bancaria");
 
                     b.ToTable("proveedores", (string)null);
                 });
@@ -1412,12 +1407,20 @@ namespace Agro_Trade.Infrastructure.Migrations
 
             modelBuilder.Entity("Agro_Trade.Domain.Entities.Proveedor", b =>
                 {
+                    b.HasOne("Agro_Trade.Domain.Entities.CuentaBancaria", "CuentaBancaria")
+                        .WithMany()
+                        .HasForeignKey("IdCuentaBancaria")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_proveedores_cuenta_bancaria_id_cuenta_bancaria");
+
                     b.HasOne("Agro_Trade.Domain.Entities.Usuario", "Usuario")
                         .WithMany()
                         .HasForeignKey("IdUsuario")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_proveedores_usuarios_id_usuario");
+
+                    b.Navigation("CuentaBancaria");
 
                     b.Navigation("Usuario");
                 });

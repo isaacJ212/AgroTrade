@@ -6,6 +6,7 @@ import '../../routes/productor_navigation.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/widgets/productor_widgets.dart';
 import 'productorShell.dart';
+import '../shared/bank_accounts_screen.dart';
 
 class PerfilFinca extends StatelessWidget {
   final bool embedded;
@@ -119,6 +120,17 @@ class PerfilFinca extends StatelessWidget {
                     icon: Icons.agriculture_outlined,
                     onTap: () =>
                         Navigator.pushNamed(context, AppRoutes.editarFinca),
+                  ),
+                  const Divider(height: 1),
+                  ProductorMenuItem(
+                    label: 'Cuentas bancarias',
+                    icon: Icons.account_balance_outlined,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const BankAccountsScreen(),
+                      ),
+                    ),
                   ),
                   const Divider(height: 1),
                   ProductorMenuItem(

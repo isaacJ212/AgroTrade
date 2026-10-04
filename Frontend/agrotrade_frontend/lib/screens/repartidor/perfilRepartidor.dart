@@ -13,6 +13,7 @@ import 'miVehiculoRepartidor.dart';
 import 'repartidor_demo.dart';
 import 'repartidor_navigation.dart';
 import '../../ui/widgets/repartidor_widgets.dart';
+import '../shared/bank_accounts_screen.dart';
 
 class PerfilRepartidor extends StatelessWidget {
   const PerfilRepartidor({super.key});
@@ -196,6 +197,17 @@ class PerfilRepartidor extends StatelessWidget {
                     title: 'Mi vehículo',
                     onTap: () =>
                         _abrirPantalla(context, const MiVehiculoRepartidor()),
+                  ),
+                  const Divider(
+                    height: 1,
+                    indent: 48,
+                    color: AppColors.cardBorder,
+                  ),
+                  ProfileMenuItem(
+                    icon: Icons.account_balance_outlined,
+                    title: 'Cuentas bancarias',
+                    onTap: () =>
+                        _abrirPantalla(context, const BankAccountsScreen()),
                   ),
                   const Divider(
                     height: 1,

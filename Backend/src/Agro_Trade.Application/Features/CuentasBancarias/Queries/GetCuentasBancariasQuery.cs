@@ -22,6 +22,7 @@ public class GetCuentasBancariasHandler(IRepository<CuentaBancaria> repository)
         var data = cuentas.Select(c => new CuentaBancariaDto
         {
             IdCuentaBancaria = c.IdCuenta,
+            IdBanco = c.IdBanco,
             NumeroCuentaBancaria = c.NumeroCuenta,
             NombreBanco = c.Banco.NombreBanco,
             Titular = c.Titular

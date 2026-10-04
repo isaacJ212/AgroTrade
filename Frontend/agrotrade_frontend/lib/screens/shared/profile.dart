@@ -10,6 +10,7 @@ import 'auth/Login.dart';
 import 'editarPerfil.dart';
 import 'change_password_dialog.dart';
 import 'centroAyuda.dart';
+import 'bank_accounts_screen.dart';
 
 class Profile extends StatelessWidget {
   const Profile({super.key});
@@ -186,6 +187,23 @@ class Profile extends StatelessWidget {
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const EditarPerfil()),
+                    ),
+                  ),
+
+                  const Divider(
+                    height: 1,
+                    indent: 48,
+                    color: AppColors.cardBorder,
+                  ),
+
+                  ProfileMenuItem(
+                    icon: Icons.account_balance_outlined,
+                    title: 'Cuentas bancarias',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const BankAccountsScreen(),
+                      ),
                     ),
                   ),
 
