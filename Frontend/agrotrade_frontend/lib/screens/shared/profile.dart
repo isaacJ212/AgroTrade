@@ -11,8 +11,44 @@ import 'editarPerfil.dart';
 import 'change_password_dialog.dart';
 import 'centroAyuda.dart';
 
-class Profile extends StatelessWidget {
+import '../../services/users_api_service.dart';
+import '../../models/api/user_models.dart';
+
+class Profile extends StatefulWidget {
   const Profile({super.key});
+
+  @override
+  State<Profile> createState() => _ProfileState();
+}
+
+class _ProfileState extends State<Profile> {
+  UserDto? _user;
+  bool _cargando = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarUsuario();
+  }
+
+  Future<void> _cargarUsuario() async {
+    final email = ApiSession.instance.userEmail;
+    if (email != null && email.isNotEmpty) {
+      try {
+        final user = await UsersApiService.instance.getUserByEmail(email);
+        if (mounted) {
+          setState(() {
+            _user = user;
+            _cargando = false;
+          });
+        }
+      } catch (e) {
+        if (mounted) setState(() => _cargando = false);
+      }
+    } else {
+      if (mounted) setState(() => _cargando = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +85,9 @@ class Profile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: AppColors.cardBorder),
               ),
-              child: Column(
+              child: _cargando 
+                  ? const Center(child: CircularProgressIndicator())
+                  : Column(
                 children: [
                   Stack(
                     clipBehavior: Clip.none,
@@ -73,35 +111,33 @@ class Profile extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Positioned(
-                        right: -2,
-                        bottom: 2,
-                        child: Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryColor,
-                            shape: BoxShape.circle,
-                            border: Border.all(
+                      if (_user?.identidadVerificada == true)
+                        Positioned(
+                          right: -2,
+                          bottom: 2,
+                          child: Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryColor,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppColors.White,
+                                width: 2,
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.verified_user_outlined,
+                              size: 14,
                               color: AppColors.White,
-                              width: 2,
                             ),
                           ),
-                          child: const Icon(
-                            Icons.verified_user_outlined,
-                            size: 14,
-                            color: AppColors.White,
-                          ),
                         ),
-                      ),
                     ],
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    ApiSession.instance.userName != null &&
-                            ApiSession.instance.userName!.isNotEmpty
-                        ? ApiSession.instance.userName!
-                        : 'Usuario AgroTrade',
+                    _user?.name ?? ApiSession.instance.userName ?? 'Usuario AgroTrade',
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
@@ -109,41 +145,43 @@ class Profile extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primarySoftBg,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.verified_outlined,
-                          size: 14,
-                          color: AppColors.primaryColor,
-                        ),
-                        SizedBox(width: 5),
-                        Text(
-                          'Cuenta Verificada',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
+                  if (_user?.identidadVerificada == true) ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primarySoftBg,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.verified_outlined,
+                            size: 14,
                             color: AppColors.primaryColor,
                           ),
-                        ),
-                      ],
+                          SizedBox(width: 5),
+                          Text(
+                            'Cuenta Verificada',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.primaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                  ],
 
                   const SizedBox(height: 12),
-                  const Text(
-                    'Jinotepe, Carazo',
-                    style: TextStyle(
+                  Text(
+                    _user?.email ?? ApiSession.instance.userEmail ?? 'Sin correo electrónico',
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: AppColors.TextSoft,

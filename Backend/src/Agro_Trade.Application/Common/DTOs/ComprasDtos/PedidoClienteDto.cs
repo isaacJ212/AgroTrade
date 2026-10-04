@@ -21,5 +21,6 @@ namespace Agro_Trade.Application.Common.DTOs.ComprasDtos
         public string? Producto { get; set; }
         public float Cantidad { get; set; }
         public decimal TotalLinea { get; set; }
+        public int IdProveedor { get; set; }
     }
 }

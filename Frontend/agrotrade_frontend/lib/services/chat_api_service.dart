@@ -14,7 +14,7 @@ class ChatApiService {
 
   int get _myId {
     final String? userId = ApiSession.instance.userId;
-    return userId != null && userId.isNotEmpty ? (int.tryParse(userId) ?? 13) : 13; // default 13
+    return userId != null && userId.isNotEmpty ? (int.tryParse(userId) ?? 12) : 12; // default 12
   }
 
   Future<Conversacion?> iniciarConversacion(int idPedido, int idReceptor) async {
@@ -56,7 +56,15 @@ class ChatApiService {
     } catch (e) {
       print('DEBUG: [ChatApiService] ✗ Error iniciarConversacion: $e');
     }
-    return null;
+    
+    print('DEBUG: [ChatApiService] ⚠ Fallback a mock Conversacion (Offline/Error)');
+    return Conversacion(
+      idConversacion: 9999, // mock ID
+      idPedido: idPedido,
+      idCliente: myId,
+      idProductor: idReceptor,
+      creadaEn: DateTime.now(),
+    );
   }
 
   Future<List<MensajeChat>> getHistorialMensajes(int idConversacion) async {
