@@ -51,7 +51,7 @@ class AuthService {
            return { success: false, message: 'Respuesta inválida del servidor.' };
         }
 
-        const token = data.data.token;
+        const token = data.data.tokenResponse ? data.data.tokenResponse.accessToken : data.data.token;
         const roles = data.data.roles || [];
         
         const isAdmin = roles.some(r => r.toLowerCase() === 'administrador' || r.toLowerCase() === 'admin');
