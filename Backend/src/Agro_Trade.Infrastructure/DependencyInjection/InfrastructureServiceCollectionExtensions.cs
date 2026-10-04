@@ -33,7 +33,12 @@ namespace Agro_Trade.Infrastructure.DependencyInjection
            // Configuración de Supabase
             var supabaseUrl = configuration["Supabase:Url"];
             var supabaseKey = configuration["Supabase:ServiceRoleKey"]; // Usamos ServiceRole para escritura interna
-    
+            if (string.IsNullOrEmpty(supabaseKey) || string.IsNullOrEmpty(supabaseUrl))
+            {
+                throw new ArgumentNullException("La llave o la url de supabase viene vacia");
+            }
+            
+            
             services.AddSingleton(provider => new Supabase.Client(supabaseUrl, supabaseKey));
             services.AddSingleton<IDeliveryRequestRepository, DeliveryRequestRespository>();
             //registramos servicio de supabase

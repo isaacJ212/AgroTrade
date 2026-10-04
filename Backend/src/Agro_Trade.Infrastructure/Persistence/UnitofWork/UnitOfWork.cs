@@ -28,10 +28,14 @@ namespace Agro_Trade.Infrastructure.Persistence.UnitofWork
         private readonly IRepository<Conversacion> _conversacionRepository;//
         private readonly IRepository<ConversacionParticipante> _ConversacionParticipanteRepository;
         private readonly IRepository<Mensaje> _mensajeRepository;
+        private readonly IRepository<Banco> _banco;
+        private readonly IRepository<CuentaBancaria> _cuentaBancaria;
 
         private readonly AgroTradeDbContext _context;
         private IDbContextTransaction? _transaction;
-        public UnitOfWork(AgroTradeDbContext context, IServiceProvider serviceProvider, IRepository<Categoria> categoriaRepository, IRepository<Producto> productoRepository, IRepository<Proveedor> proveedorRepository, IRepository<Usuario> usuarioRepository, IRepository<InventarioProveedor> inventarioProveedorRepository, IRepository<ImpactoSocial> impactoSocialRepository, IRepository<Valoracion> valoracionRepository, IRepository<Pedido> pedidoRepository, IRepository<DetallePedido> detallePedidoRepository, IRepository<Conversacion> conversacionRepository, IRepository<ConversacionParticipante> ConversacionParticpanteRepository, IRepository<Mensaje> mensajeRepository,IRepository<SuscripcionApp> suscripcionAppRepository)
+        public UnitOfWork(AgroTradeDbContext context, IServiceProvider serviceProvider, IRepository<Categoria> categoriaRepository, IRepository<Producto> productoRepository, IRepository<Proveedor> proveedorRepository, IRepository<Usuario> usuarioRepository, IRepository<InventarioProveedor> inventarioProveedorRepository, IRepository<ImpactoSocial> impactoSocialRepository, IRepository<Valoracion> valoracionRepository, IRepository<Pedido> pedidoRepository
+            , IRepository<DetallePedido> detallePedidoRepository, IRepository<Conversacion> conversacionRepository, IRepository<ConversacionParticipante> ConversacionParticpanteRepository
+            , IRepository<Mensaje> mensajeRepository,IRepository<SuscripcionApp> suscripcionAppRepository, IRepository<Banco> banco, IRepository<CuentaBancaria> cuentaBancaria)
         {
             _context = context;
             _serviceProvider = serviceProvider;
@@ -48,6 +52,8 @@ namespace Agro_Trade.Infrastructure.Persistence.UnitofWork
             _conversacionRepository = conversacionRepository;
             _ConversacionParticipanteRepository = ConversacionParticpanteRepository;
             _mensajeRepository = mensajeRepository;
+            _banco = banco;
+            _cuentaBancaria = cuentaBancaria;
 
         }
         //PROPIEDADES DE NAVEGACION DE CONTEXTO
@@ -66,8 +72,11 @@ namespace Agro_Trade.Infrastructure.Persistence.UnitofWork
         public IRepository<Conversacion> Conversaciones => _conversacionRepository;
         public IRepository<ConversacionParticipante> ConversacionParticipantes => _ConversacionParticipanteRepository;
         public IRepository<Mensaje> Mensajes => _mensajeRepository;
+        public IRepository<Banco> Bancos => _banco;
 
-        
+        public IRepository<CuentaBancaria> CuentasBancaria => _cuentaBancaria;
+
+
         //CONFIGURACIONES DE PERSISTENCIA
         public async Task BeginTransactionAsync(CancellationToken ct)
         {

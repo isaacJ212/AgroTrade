@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Agro_Trade.Application.Features.ColasRoles.Repartidores.Helper;
 
 namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
 {
@@ -18,7 +19,8 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
         IUnitofWork context,
         IRepository<UsuarioRol> roles,
         IRepository<SolicitudRepartidor> contextoSoli,
-        IRepository<Repartidor> repartidores) : IRequestHandler<ReviewRequestCommand, Result<SolicitudRepartidorDto>>
+        IRepository<Repartidor> repartidores,
+        IRepository<CuentaBancaria> _banc) : IRequestHandler<ReviewRequestCommand, Result<SolicitudRepartidorDto>>
     {
         public async Task<Result<SolicitudRepartidorDto>> Handle(ReviewRequestCommand request,
             CancellationToken cancellationToken)
@@ -41,12 +43,7 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
                 if (dto.Estado == 1)
                 {
                     solicitud.Estado = "Aprobada";
-                    // COMO ES APROBADA, SE DEBE CREAR EL ROL DE REPARTIDOR PARA EL USUARIO ASI COMO SU PERFIL DE REPARTIDOR
-                    await roles.AddAsync(new UsuarioRol
-                    {
-                        IdUsuario = solicitud.IdUsuario,
-                        IdRol = 3 // ID del rol de repartidor
-                    }, cancellationToken);
+                   
 
                     var repartidor = new Repartidor
                     {
@@ -57,7 +54,8 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
                         IdCuentaBancaria = solicitud.DatosRepartidor.IdCuentaBancaria,
                         Municipio = solicitud.DatosRepartidor.ZonaOperaciones,
                         UrlFotoPerfil = solicitud.DatosRepartidor.UrlFotoPerfil,
-                        Departamento = solicitud.DatosRepartidor.Departamento
+                        Departamento = solicitud.DatosRepartidor.Departamento,
+                        IsActive = true
 
                     };
 
@@ -80,7 +78,8 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
                 await context.CommitAsync(cancellationToken);
 
                 context.SolicitudRepartidor.ConfirmarRevision();
-                var solicitudDto = ToDt`o(solicitud);
+                var Cuenta = await _banc.FirstOrDefaultAsync(c=>c.IdCuenta == solicitud.DatosRepartidor.IdCuentaBancaria, includes:b=>b.Banco, cancellationToken:cancellationToken);
+                var solicitudDto = SolicitudHelper.ToDto(solicitud, Cuenta);
 
                 if (solicitudDto.Estado == "Rechazada")
                     return Result<SolicitudRepartidorDto>.Success(200, solicitudDto,

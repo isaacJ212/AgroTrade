@@ -18,7 +18,7 @@ public class CuentaBancaria
     public Banco Banco { get; set; }
     
     required public string NumeroCuenta {get; set; } = string.Empty;
-    public TimeSpan CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
     public string Titular { get; set; } = string.Empty;
     public bool isActive { get; set; }
     

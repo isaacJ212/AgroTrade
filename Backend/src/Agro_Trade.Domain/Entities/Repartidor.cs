@@ -23,10 +23,12 @@ namespace Agro_Trade.Domain.Entities
         public decimal PromedioCalificacion { get; set; }
         
         public int IdCuentaBancaria { get; set; }
+        [ForeignKey(nameof(IdCuentaBancaria))]
         public CuentaBancaria CuentaBancaria { get; set; }
         public string UrlFotoPerfil { get; set; } = string.Empty;
         public string Municipio { get; set; } = string.Empty;
         public string Departamento { get; set;} = string.Empty;
+        public bool IsActive { get; set; } = false;
 
 
 

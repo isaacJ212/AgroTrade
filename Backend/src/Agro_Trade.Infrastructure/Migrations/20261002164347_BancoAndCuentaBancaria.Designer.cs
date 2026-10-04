@@ -4,6 +4,7 @@ using Agro_Trade.Domain.Events;
 using Agro_Trade.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Agro_Trade.Infrastructure.Migrations
 {
     [DbContext(typeof(AgroTradeDbContext))]
-    partial class AgroTradeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261002164347_BancoAndCuentaBancaria")]
+    partial class BancoAndCuentaBancaria
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,7 +62,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 10, 3, 1, 21, 18, 149, DateTimeKind.Utc).AddTicks(8877),
+                            CreatedAt = new DateTime(2026, 10, 2, 16, 38, 46, 671, DateTimeKind.Utc).AddTicks(6657),
                             IconClass = "icon-green-bg",
                             IconType = "user",
                             Title = "El productor 'Finca Los Pinos' se ha registrado en la plataforma"
@@ -67,7 +70,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2026, 10, 3, 0, 26, 18, 149, DateTimeKind.Utc).AddTicks(8885),
+                            CreatedAt = new DateTime(2026, 10, 2, 15, 43, 46, 671, DateTimeKind.Utc).AddTicks(6666),
                             IconClass = "icon-blue-bg",
                             IconType = "check-circle",
                             Title = "Verificación aprobada para 'Transportes El Rápido'"
@@ -75,7 +78,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2026, 10, 2, 23, 26, 18, 149, DateTimeKind.Utc).AddTicks(8892),
+                            CreatedAt = new DateTime(2026, 10, 2, 14, 43, 46, 671, DateTimeKind.Utc).AddTicks(6671),
                             IconClass = "icon-orange-bg",
                             IconType = "alert-circle",
                             Title = "Se ha reportado un problema con el pedido #1045"
@@ -83,7 +86,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                         new
                         {
                             Id = 4,
-                            CreatedAt = new DateTime(2026, 10, 2, 1, 26, 18, 149, DateTimeKind.Utc).AddTicks(8894),
+                            CreatedAt = new DateTime(2026, 10, 1, 16, 43, 46, 671, DateTimeKind.Utc).AddTicks(6673),
                             IconClass = "icon-purple-bg",
                             IconType = "layers",
                             Title = "Nueva categoría 'Frutas Tropicales' creada"
@@ -808,10 +811,6 @@ namespace Agro_Trade.Infrastructure.Migrations
                     b.Property<int>("IdUsuario")
                         .HasColumnType("integer")
                         .HasColumnName("id_usuario");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
 
                     b.Property<string>("Municipio")
                         .IsRequired()

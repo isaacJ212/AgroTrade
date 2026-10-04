@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Agro_Trade.Application.Features.ColasRoles.Repartidores.Helper;
 using Microsoft.AspNetCore.Http;
 
 namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
@@ -55,7 +56,13 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
             //Traemos la entidad con carga de navegacion
 
             var newRequest = await context.SolicitudRepartidor.GetByIdAsync(solicitud.IdSolicitud, cancellationToken);
-            var resultDto = ToDto(newRequest);
+            CuentaBancaria? cuenta = null;
+            int idCuenta = newRequest.DatosRepartidor.IdCuentaBancaria;
+            cuenta = await _bancaria.FirstOrDefaultAsync(p => p.IdBanco == idCuenta, includes: p => p.Banco,
+                cancellationToken: cancellationToken);
+            
+            
+            var resultDto = SolicitudHelper.ToDto(newRequest, cuenta);
 
             return Result<SolicitudRepartidorDto>.Success(201, resultDto, "Exito Al Crear Solicitud", true);
         }
@@ -87,7 +94,9 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
 
             //obtenemos el nombre del archivo y el arreglo de bytes para subirlos
             var nombre = foto.FileName;
-            using var file = foto.OpenReadStream();
+            using var memoryStream = new MemoryStream();
+            await foto.CopyToAsync(memoryStream, ct);
+            memoryStream.Position = 0;
 
             //validamos el formato de archivo
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
@@ -100,7 +109,7 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
             string bucketName = "imagenes_meseta_verde";
             string uniqueName = $"{Guid.NewGuid()}{extension}";
 
-            string fotoUrl = await _storageService.UploadFileAsync(file, bucketName, uniqueName, ct);
+            string fotoUrl = await _storageService.UploadFileAsync(memoryStream, bucketName, uniqueName, ct);
 
             //retornamos
 
@@ -111,31 +120,21 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
             CancellationToken ct)
         {
             var uploadTask = new Dictionary<string, Task<string>>();
-
-            if (dto.FotoCedula is not null)
-                uploadTask.Add(nameof(dto.FotoCedula), _uploadFotoToSupabase(dto.FotoCedula, ct));
-
-            if (dto.FotoPerfil is not null)
-                uploadTask.Add(nameof(dto.FotoPerfil), _uploadFotoToSupabase(dto.FotoPerfil, ct));
-
-            if (dto.RecordPolicial is not null)
-                uploadTask.Add((nameof(dto.RecordPolicial)), _uploadFotoToSupabase(dto.RecordPolicial, ct));
-
-            if (dto.FotoLicencia is not null)
-                uploadTask.Add(nameof(dto.FotoLicencia), _uploadFotoToSupabase(dto.FotoLicencia, ct));
-
-            await Task.WhenAll(uploadTask.Values);
-
             Dictionary<string, string> results = new();
 
-            foreach (var task in uploadTask)
-            {
-                var fotoUrl = await task.Value;
-                results.Add(task.Key, fotoUrl);
-            }
+            if (dto.FotoCedula is not null)
+                results.Add(nameof(dto.FotoCedula), await _uploadFotoToSupabase(dto.FotoCedula, ct));
+
+            if (dto.FotoPerfil is not null)
+                results.Add(nameof(dto.FotoPerfil), await _uploadFotoToSupabase(dto.FotoPerfil, ct));
+
+            if (dto.RecordPolicial is not null)
+                results.Add(nameof(dto.RecordPolicial), await _uploadFotoToSupabase(dto.RecordPolicial, ct));
+
+            if (dto.FotoLicencia is not null)
+                results.Add(nameof(dto.FotoLicencia), await _uploadFotoToSupabase(dto.FotoLicencia, ct));
 
             return results;
-
         }
 
 

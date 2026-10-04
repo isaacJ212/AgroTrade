@@ -49,12 +49,6 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
                 {
                     solicitud.Estado = "Aprobada";
                     // COMO ES APROBADA, SE DEBE CREAR EL ROL DE REPARTIDOR PARA EL USUARIO ASI COMO SU PERFIL DE REPARTIDOR
-                    await roles.AddAsync(new UsuarioRol
-                    {
-                        IdUsuario = solicitud.IdUsuario,
-                        IdRol = 3 // ID del rol de repartidor
-                    }, cancellationToken);
-
                     var repartidor = new Repartidor
                     {
                         IdUsuario = solicitud.IdUsuario,
@@ -64,6 +58,7 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
                         IdCuentaBancaria = solicitud.DatosRepartidor.IdCuentaBancaria,
                         Municipio = solicitud.DatosRepartidor.ZonaOperaciones,
                         UrlFotoPerfil = solicitud.DatosRepartidor.UrlFotoPerfil,
+                        IsActive = true
 
                     };
 
