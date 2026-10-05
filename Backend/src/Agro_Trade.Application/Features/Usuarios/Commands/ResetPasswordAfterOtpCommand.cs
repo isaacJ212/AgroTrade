@@ -2,6 +2,7 @@ using Agro_Trade.Application.Common.Interface;
 using Agro_Trade.Application.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
+using Org.BouncyCastle.Crypto.Generators;
 
 namespace Agro_Trade.Application.Features.Usuarios.Commands;
 
