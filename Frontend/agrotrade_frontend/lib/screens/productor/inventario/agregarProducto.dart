@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../services/productor_api_service.dart';
 import '../../../ui/app_theme.dart';
 import '../../../ui/components.dart';
 import '../../../ui/widgets/app_text_field.dart';
@@ -27,8 +28,39 @@ class _AgregarProductoState extends State<AgregarProducto> {
   final List<XFile> _imagenes = [];
   final ImagePicker _picker = ImagePicker();
 
-  final List<String> _categorias = ['Frutas', 'Verduras', 'Granos', 'Lácteos'];
+  List<String> _categorias = const [];
   final List<String> _unidades = ['kg', 'Tonelada', 'Caja', 'Docena'];
+  bool _cargandoCategorias = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarCategorias();
+  }
+
+  Future<void> _cargarCategorias() async {
+    try {
+      final categorias = await ProductorApiService.instance.getCategoriasDisponibles();
+      if (!mounted) return;
+
+      final nombres = ProductorApiService.normalizarCategorias(categorias);
+
+      setState(() {
+        _categorias = nombres;
+        _categoriaSeleccionada = nombres.contains(_categoriaSeleccionada)
+            ? _categoriaSeleccionada
+            : null;
+        _cargandoCategorias = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _categorias = const [];
+        _categoriaSeleccionada = null;
+        _cargandoCategorias = false;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -208,7 +240,7 @@ class _AgregarProductoState extends State<AgregarProducto> {
                     value: _categoriaSeleccionada,
                     items: _categorias,
                     itemLabel: (item) => item,
-                    hint: 'Seleccione una categoría',
+                    hint: _cargandoCategorias ? 'Cargando categorías...' : 'Seleccione una categoría',
                     onChanged: (val) =>
                         setState(() => _categoriaSeleccionada = val),
                   ),

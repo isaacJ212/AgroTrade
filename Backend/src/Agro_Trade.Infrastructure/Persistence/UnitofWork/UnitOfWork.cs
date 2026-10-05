@@ -60,6 +60,7 @@ namespace Agro_Trade.Infrastructure.Persistence.UnitofWork
         public IRepository<InventarioProveedor> InventarioProveedor => _inventarioProveedorRepository;
         public IRepository<ImpactoSocial> ImpactosSociales => _impactoSocialRepository;
         public IRepository<SuscripcionApp> Suscripciones => _suscripcionAppRepository;
+        public IRepository<TipoPlan> TipoPlanes => _serviceProvider.GetRequiredService<IRepository<TipoPlan>>();
         public IRepository<Valoracion> Valoraciones => _valoracionRepository;
         public IRepository<Pedido> Pedidos => _pedidoRepository;
         public IRepository<DetallePedido> DetallesPedido => _detallePedidoRepository;

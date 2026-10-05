@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/api_session.dart';
+import '../../services/auth_api_service.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/widgets/buttons.dart';
 import '../../ui/widgets/profile_menu_item.dart';
@@ -7,6 +8,7 @@ import '../shared/auth/Login.dart';
 import 'centroAyudaRepartidor.dart';
 import 'configuracionRepartidor.dart';
 import 'datosPersonalesRepartidor.dart';
+import '../shared/change_password_dialog.dart';
 import 'miVehiculoRepartidor.dart';
 import 'repartidor_demo.dart';
 import 'repartidor_navigation.dart';
@@ -15,8 +17,9 @@ import '../../ui/widgets/repartidor_widgets.dart';
 class PerfilRepartidor extends StatelessWidget {
   const PerfilRepartidor({super.key});
 
-  void _cerrarSesion(BuildContext context) {
-    ApiSession.instance.clear();
+  Future<void> _cerrarSesion(BuildContext context) async {
+    await AuthApiService.instance.logout();
+    if (!context.mounted) return;
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute<void>(builder: (_) => const Login()),
@@ -193,6 +196,16 @@ class PerfilRepartidor extends StatelessWidget {
                     title: 'Mi vehículo',
                     onTap: () =>
                         _abrirPantalla(context, const MiVehiculoRepartidor()),
+                  ),
+                  const Divider(
+                    height: 1,
+                    indent: 48,
+                    color: AppColors.cardBorder,
+                  ),
+                  ProfileMenuItem(
+                    icon: Icons.lock_outline,
+                    title: 'Cambiar contraseña',
+                    onTap: () => showChangePasswordDialog(context),
                   ),
                   const Divider(
                     height: 1,

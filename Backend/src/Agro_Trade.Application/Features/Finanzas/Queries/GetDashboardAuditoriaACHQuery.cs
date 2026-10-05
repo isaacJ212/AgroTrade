@@ -8,7 +8,7 @@ namespace Agro_Trade.Application.Features.Finanzas.Queries
 {
     public record GetDashboardAuditoriaACHQuery : IRequest<Result<List<RegistroTransferenciaAuditoriaDto>>>;
 
-    public class GetDashboardAuditoriaACHHandler(IRepository<RegistroTransferenciaMock> transferenciaRepository) : IRequestHandler<GetDashboardAuditoriaACHQuery, Result<List<RegistroTransferenciaAuditoriaDto>>>
+    public class GetDashboardAuditoriaACHHandler(IRepository<RegistroTransferencia> transferenciaRepository) : IRequestHandler<GetDashboardAuditoriaACHQuery, Result<List<RegistroTransferenciaAuditoriaDto>>>
     {
         public async Task<Result<List<RegistroTransferenciaAuditoriaDto>>> Handle(GetDashboardAuditoriaACHQuery request, CancellationToken cancellationToken)
         {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:agrotrade_frontend/ui/app_theme.dart';
 import 'package:agrotrade_frontend/ui/components.dart';
 import '../../services/api_session.dart';
+import '../../services/users_api_service.dart';
 
 class EditarPerfil extends StatefulWidget {
   const EditarPerfil({super.key});
@@ -16,16 +17,46 @@ class _EditarPerfilState extends State<EditarPerfil> {
   late TextEditingController _phoneController;
   late TextEditingController _locationController;
 
+  bool _cargando = true;
+
   @override
   void initState() {
     super.initState();
-    // Mock data pre-filled
+    // Default values
     _nameController = TextEditingController(
-      text: ApiSession.instance.userName ?? 'María González',
+      text: ApiSession.instance.userName ?? '',
     );
-    _emailController = TextEditingController(text: 'maria@agrotrade.com');
-    _phoneController = TextEditingController(text: '+505 8888 8888');
-    _locationController = TextEditingController(text: 'Jinotepe, Carazo');
+    _emailController = TextEditingController(text: ApiSession.instance.userEmail ?? '');
+    _phoneController = TextEditingController(text: '');
+    _locationController = TextEditingController(text: '');
+    
+    _cargarPerfil();
+  }
+
+  Future<void> _cargarPerfil() async {
+    final email = ApiSession.instance.userEmail;
+    if (email != null && email.isNotEmpty) {
+      try {
+        final user = await UsersApiService.instance.getUserByEmail(email);
+        if (mounted) {
+          setState(() {
+            _nameController.text = user.name;
+            _emailController.text = user.email;
+            _phoneController.text = user.telefono ?? '';
+            String loc = user.direccionBase ?? '';
+            if (user.departamento != null && user.departamento!.isNotEmpty) {
+              loc += (loc.isNotEmpty ? ', ' : '') + user.departamento!;
+            }
+            _locationController.text = loc;
+            _cargando = false;
+          });
+        }
+      } catch (e) {
+        if (mounted) setState(() => _cargando = false);
+      }
+    } else {
+      if (mounted) setState(() => _cargando = false);
+    }
   }
 
   @override

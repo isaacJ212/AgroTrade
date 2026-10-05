@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "68671877007",
+    "project_id": "agro-trade-16592",
+    "storage_bucket": "agro-trade-16592.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:68671877007:android:4bf3947f364d868df325fa",
+        "android_client_info": {
+          "package_name": "com.example.agrotrade_frontend"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "68671877007-lura82didbknfbkbuvtj90sniu4fa3ma.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.agrotrade_frontend",
+            "certificate_hash": "9ccda13407f33f9d6d97e9fa46261f2bfe70fea2"
+          }
+        },
+        {
+          "client_id": "68671877007-u61dd67hhnr2ou6lmut467r1tmftcu42.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBa0MBuSW08iCr4UB3YhGZmscbwZTisvTc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "68671877007-u61dd67hhnr2ou6lmut467r1tmftcu42.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

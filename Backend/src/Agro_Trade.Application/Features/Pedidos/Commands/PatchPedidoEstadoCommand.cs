@@ -7,7 +7,7 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
 {
     public sealed record PatchPedidoEstadoCommand(int IdPedido, string NuevoEstado) : IRequest<Result<bool>>;
 
-    public class PatchPedidoEstadoHandler(IRepository<Pedido> pedidoRepo)
+    public class PatchPedidoEstadoHandler(IUnitofWork unitOfWork)
         : IRequestHandler<PatchPedidoEstadoCommand, Result<bool>>
     {
         private static readonly HashSet<string> _estadosValidos = new(StringComparer.OrdinalIgnoreCase)
@@ -24,12 +24,13 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
                 return Result<bool>.Failure(400,
                     $"Estado '{request.NuevoEstado}' no permitido. Use: {string.Join(", ", _estadosValidos)}");
 
-            var pedido = await pedidoRepo.FirstOrDefaultAsync(p => p.IdPedido == request.IdPedido, ct);
+            var pedido = await unitOfWork.Pedidos.FirstOrDefaultAsync(p => p.IdPedido == request.IdPedido, ct);
             if (pedido == null)
                 return Result<bool>.Failure(404, $"Pedido {request.IdPedido} no encontrado.");
 
             pedido.EstadoEnvio = request.NuevoEstado;
-            await pedidoRepo.UpdateAsync(pedido, ct);
+            await unitOfWork.Pedidos.UpdateAsync(pedido, ct);
+            await unitOfWork.SaveChangesAsync(ct);
 
             return Result<bool>.Success(200, true,
                 $"Pedido {request.IdPedido} actualizado a '{request.NuevoEstado}'.", true);

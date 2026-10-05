@@ -3,6 +3,8 @@ import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
 import 'carrito.dart';
 import 'pago.dart';
+import '../../services/users_api_service.dart';
+import '../../services/api_session.dart';
 
 class _Direccion {
   final String alias;
@@ -26,7 +28,7 @@ class EntregaScreen extends StatefulWidget {
 class _EntregaScreenState extends State<EntregaScreen> {
   bool _entregaDomicilio = true;
 
-  final List<_Direccion> _direcciones = const [
+  List<_Direccion> _direcciones = const [
     _Direccion(
       alias: 'Casa',
       ciudad: 'Jinotepe, Carazo',
@@ -35,8 +37,44 @@ class _EntregaScreenState extends State<EntregaScreen> {
   ];
 
   int _selDireccion = 0;
+  bool _cargando = true;
 
   final TextEditingController _indicacionesCtrl = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarDireccionUsuario();
+  }
+
+  Future<void> _cargarDireccionUsuario() async {
+    final email = ApiSession.instance.userEmail;
+    if (email != null && email.isNotEmpty) {
+      try {
+        final user = await UsersApiService.instance.getUserByEmail(email);
+        if (mounted) {
+          setState(() {
+            if (user.direccionBase != null && user.direccionBase!.isNotEmpty) {
+              String ciudad = user.departamento ?? 'Dirección Principal';
+              
+              _direcciones = [
+                _Direccion(
+                  alias: 'Mi Dirección',
+                  ciudad: ciudad,
+                  detalle: user.direccionBase!,
+                )
+              ];
+            }
+            _cargando = false;
+          });
+        }
+      } catch (e) {
+        if (mounted) setState(() => _cargando = false);
+      }
+    } else {
+      if (mounted) setState(() => _cargando = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -104,7 +142,10 @@ class _EntregaScreenState extends State<EntregaScreen> {
                
                   if (_entregaDomicilio) ...[
                     const SizedBox(height: 28),
-                    _buildDireccionSection(),
+                    if (_cargando)
+                      const Center(child: CircularProgressIndicator())
+                    else
+                      _buildDireccionSection(),
                   ],
 
                   const SizedBox(height: 28),

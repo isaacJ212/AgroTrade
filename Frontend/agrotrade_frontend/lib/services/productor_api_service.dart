@@ -16,7 +16,25 @@ class ProductorApiService {
 
   final Duration _timeout = const Duration(seconds: 15);
 
-  int get _idProveedor {
+  int? _idProveedorCache;
+
+  Future<int> get idProveedorAsync async {
+    if (_idProveedorCache != null) return _idProveedorCache!;
+    
+    try {
+      final response = await ApiClient.instance.get('/api/Proveedores/mine', authorized: true).timeout(_timeout);
+      if (response.statusCode == 200 && response.jsonBody != null) {
+        final data = response.jsonBody!['data'];
+        if (data is int) {
+          _idProveedorCache = data;
+          return data;
+        }
+      }
+    } catch (e) {
+      print('DEBUG: [ProductorApiService] Error obteniendo idProveedor: $e');
+    }
+    
+    // Fallback: intentar parsear userId si la API falla
     final String? userId = ApiSession.instance.userId;
     return userId != null && userId.isNotEmpty ? (int.tryParse(userId) ?? 13) : 13;
   }
@@ -27,7 +45,8 @@ class ProductorApiService {
   // ─────────────────────────────────────────────
   Future<List<Producto>> getInventario() async {
     print('DEBUG: [ProductorApiService] ══ GET /api/Inventarios ══');
-    print('DEBUG: [ProductorApiService] idProveedor activo: $_idProveedor');
+    final myId = await idProveedorAsync;
+    print('DEBUG: [ProductorApiService] idProveedor activo: $myId');
     try {
       final response = await ApiClient.instance
           .get('/api/Inventarios', authorized: true)
@@ -47,7 +66,6 @@ class ProductorApiService {
         print('DEBUG: [ProductorApiService] Total registros en API: ${jsonList.length}');
 
         // Filtrar por idProveedor del JWT (el backend devuelve todos los disponibles)
-        final myId = _idProveedor;
         final myItems = jsonList.where((item) => item['idProveedor'] == myId).toList();
         print('DEBUG: [ProductorApiService] Registros del proveedor $myId: ${myItems.length}');
 
@@ -191,6 +209,87 @@ class ProductorApiService {
     }
   }
 
+  static List<String> normalizarCategorias(List<dynamic> categoriasApi) {
+    final nombres = <String>[];
+
+    for (final item in categoriasApi) {
+      if (item is! Map) continue;
+
+      final nombre = (item['nombre'] ?? '').toString().trim();
+      if (nombre.isEmpty) continue;
+      if (!nombres.contains(nombre)) {
+        nombres.add(nombre);
+      }
+    }
+
+    return nombres;
+  }
+
+  Future<List<Map<String, dynamic>>> getCategoriasDisponibles() async {
+    try {
+      final response = await ApiClient.instance
+          .get('/api/Categorias?pageIndex=1&pageSize=50', authorized: true)
+          .timeout(_timeout);
+
+      if (response.statusCode == 200) {
+        final data = response.jsonBody?['data'];
+        final items = data is Map ? (data['items'] as List? ?? const []) : (data is List ? data : const []);
+
+        return items
+            .map((json) => {
+                  'idCategoria': (json['idCategoria'] as num?)?.toInt() ?? 0,
+                  'nombre': (json['nombre'] ?? '').toString(),
+                })
+            .where((item) => (item['nombre'] as String).isNotEmpty)
+            .toList();
+      }
+
+      print('DEBUG: [ProductorApiService] ⚠ No se pudieron cargar categorías desde API');
+      return const [];
+    } on SocketException catch (_) {
+      print('DEBUG: [ProductorApiService] ✗ Sin conexión al cargar categorías');
+      return const [];
+    } catch (e) {
+      print('DEBUG: [ProductorApiService] ✗ Error getCategoriasDisponibles: $e');
+      return const [];
+    }
+  }
+
+  static int resolverCategoriaId(List<Map<String, Object?>> categorias, String categoriaNombre) {
+    for (final categoria in categorias) {
+      final nombre = (categoria['nombre'] ?? '').toString().trim();
+      if (nombre.toLowerCase() == categoriaNombre.toLowerCase()) {
+        final valor = categoria['idCategoria'];
+        if (valor is int) return valor;
+        if (valor is num) return valor.toInt();
+        break;
+      }
+    }
+
+    final mapaFallback = {
+      'Frutas': 1,
+      'Verduras': 2,
+      'Granos': 3,
+      'Tubérculos': 4,
+      'Lácteos': 5,
+    };
+    return mapaFallback[categoriaNombre] ?? 1;
+  }
+
+  Future<int> obtenerCategoriaId(String categoriaNombre) async {
+    final categorias = await getCategoriasDisponibles();
+    if (categorias.isEmpty) {
+      final mapaFallback = {'Frutas': 1, 'Verduras': 2, 'Granos': 3, 'Tubérculos': 4, 'Lácteos': 5};
+      return mapaFallback[categoriaNombre] ?? 1;
+    }
+
+    final categoriaMapeada = categorias
+        .map((item) => Map<String, Object?>.from(item))
+        .toList(growable: false);
+
+    return resolverCategoriaId(categoriaMapeada, categoriaNombre);
+  }
+
   // ─────────────────────────────────────────────
   //  POST /api/Productos + POST /api/Inventarios
   //  agregarProducto.dart → crea producto nuevo
@@ -199,22 +298,9 @@ class ProductorApiService {
     print('DEBUG: [ProductorApiService] ══ INICIANDO POST DUAL ══');
     print('DEBUG: [ProductorApiService] Producto: "${p.nombre}" | stock=${p.cantidad} | precio=${p.precio} | unidad=${p.unidad}');
 
-    final idProveedorStr = ApiSession.instance.userId;
-    if (idProveedorStr == null) {
-      print('DEBUG: [ProductorApiService] ✗ Sin userId en sesión');
-      return false;
-    }
-    final idProveedor = int.tryParse(idProveedorStr);
-    if (idProveedor == null) {
-      print('DEBUG: [ProductorApiService] ✗ userId no es int válido: $idProveedorStr');
-      return false;
-    }
+    final idProveedor = await idProveedorAsync;
 
-    // Mapear categoría a ID
-    int categoriaId = 1;
-    if (p.categoria == 'Verduras') categoriaId = 2;
-    if (p.categoria == 'Granos') categoriaId = 3;
-    if (p.categoria == 'Tubérculos') categoriaId = 4;
+    final categoriaId = await obtenerCategoriaId(p.categoria);
 
     final productoPayload = {
       'idCategoria': categoriaId,
@@ -346,7 +432,7 @@ class ProductorApiService {
   //  pedidosRecibidos.dart / sales.dart → lista pedidos del productor
   // ─────────────────────────────────────────────
   Future<List<PedidoRecibido>> getPedidosProveedor() async {
-    final myId = _idProveedor;
+    final myId = await idProveedorAsync;
     print('DEBUG: [ProductorApiService] ══ GET /api/Pedidos/proveedor/$myId ══');
     try {
       final response = await ApiClient.instance

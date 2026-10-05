@@ -94,7 +94,7 @@ class ConsumerApiService {
     const PedidoConsumidor(
       id: 'PED-001',
       fecha: '2023-10-25',
-      estado: 'Entregado',
+      estado: 'Procesando',
       total: 125.50,
       itemsCount: 3,
     ),

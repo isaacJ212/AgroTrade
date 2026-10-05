@@ -1,9 +1,8 @@
+using System.Threading.RateLimiting;
 using EFCore.NamingConventions;
-using Agro_Trade.Application.Common.Interface;
 using Agro_Trade.Application.DependencyInjection;
 using Agro_Trade.Infrastructure.DependencyInjection;
 using Agro_Trade.Infrastructure.Persistence;
-using Agro_Trade.Infrastructure.Repository;
 using Agro_Trade.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -20,7 +19,70 @@ namespace Agro_Trade
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            var dataSourceBuilder = new NpgsqlDataSourceBuilder(builder.Configuration.GetConnectionString("MesetaVerdeDatabase") ?? builder.Configuration.GetConnectionString("DefaultConnection"));
+
+            builder.Services.AddRateLimiter(opt =>
+            {
+                opt.OnRejected = async (context, ct) =>
+                {
+                    context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                    context.HttpContext.Response.ContentType = "application/json";
+                    
+                    await context.HttpContext.Response.WriteAsJsonAsync(
+                        new {error = "Demasiadas peticiones intenta mas tarde"}
+                        );
+                };
+
+                opt.AddPolicy("LoginPolicy", context => RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "anon",
+                    factory: _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 5,
+                        Window = TimeSpan.FromMinutes(1),
+                        QueueLimit = 0
+
+                    }
+
+                ));
+
+                opt.AddPolicy("AgroBotPolicy", context =>
+                    RateLimitPartition.GetTokenBucketLimiter(
+                        partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "anon",
+                        factory: _ => new TokenBucketRateLimiterOptions
+                        {
+                            TokenLimit = 20,
+                            ReplenishmentPeriod = TimeSpan.FromSeconds(10),
+                            TokensPerPeriod = 5,
+                            QueueLimit = 0
+                        }
+                    ));
+                
+                opt.AddPolicy("GlobalWindowPolicy", context =>
+                    RateLimitPartition.GetSlidingWindowLimiter(
+                        partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "anon",
+                        factory: _ => new SlidingWindowRateLimiterOptions
+                        {
+                            PermitLimit = 120,                
+                            Window = TimeSpan.FromMinutes(1),  
+                            SegmentsPerWindow = 4,            
+                            QueueLimit = 2
+                        }));
+
+
+
+
+
+            });
+            
+            
+            
+            
+            
+            var jwtSigningKey = builder.Configuration["Jwt:Key"]
+                ?? builder.Configuration["Jwt:SigninKey"];
+            if (string.IsNullOrWhiteSpace(jwtSigningKey))
+                throw new InvalidOperationException("Falta configurar Jwt:Key o Jwt:SigninKey.");
+
+            var dataSourceBuilder = new NpgsqlDataSourceBuilder(builder.Configuration.GetConnectionString("MesetaVerdeDatabase") ?? builder.Configuration.GetConnectionString("AgroTradeDatabase"));
             dataSourceBuilder.EnableDynamicJson(); 
             var dataSource = dataSourceBuilder.Build();
             // Add services to the container.
@@ -28,7 +90,6 @@ namespace Agro_Trade
             builder.Services.AddDbContext<AgroTradeDbContext>(options =>
                 options.UseNpgsql(dataSource)
                        .UseSnakeCaseNamingConvention());
-            builder.Services.AddScoped<IUserRepository, UserRepository>();
             // Inyección de Dependencias
             builder.Services.AddApplicationServices();
             builder.Services.AddInfrastructureServices(builder.Configuration);
@@ -45,7 +106,7 @@ namespace Agro_Trade
                         ValidIssuer = builder.Configuration["Jwt:Issuer"],
                         ValidAudience = builder.Configuration["Jwt:Audience"],
                         IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
-                            System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+                            System.Text.Encoding.UTF8.GetBytes(jwtSigningKey))
                     };
                 });
             builder.Services.AddAuthorization();
@@ -94,7 +155,7 @@ namespace Agro_Trade
             });
 
 
-
+            builder.Services.AddHttpContextAccessor();
 
             var app = builder.Build();
 
@@ -114,6 +175,8 @@ namespace Agro_Trade
             app.UseAuthorization();
             app.UseMiddleware<ExceptionHandlingMiddleware>();
             app.UseAuthorization();
+
+            app.UseRateLimiter();
 
 
             app.MapControllers();

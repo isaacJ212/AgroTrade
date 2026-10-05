@@ -42,7 +42,7 @@ namespace Agro_Trade.Application.Features.Suscripciones.Queries
                 {
                     IdSuscripcionApp = s.IdSuscripcionApp,
                     IdUsuario = s.IdUsuario,
-                    TipoPlan = s.TipoPlan,
+                    TipoPlan = s.TipoPlan?.NombrePlan ?? "Desconocido",
                     TarifaPago = s.TarifaPago,
                     Estado = s.Estado,
                     FechaInicio = s.FechaInicio,

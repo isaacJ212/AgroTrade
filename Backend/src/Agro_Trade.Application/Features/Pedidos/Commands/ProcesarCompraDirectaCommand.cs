@@ -16,7 +16,7 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
         IRepository<NotificacionEntrega> notificacionRepository,
         IRepository<Repartidor> repartidorRepository,
         IRepository<DetallePedido> detallePedidoRepository,
-        IRepository<RegistroTransferenciaMock> transferenciaRepository,
+        IRepository<RegistroTransferencia> transferenciaRepository,
         IUnitofWork unitOfWork) : IRequestHandler<ProcesarCompraDirectaCommand, Result<CheckoutResponseDto>>
     {
         public async Task<Result<CheckoutResponseDto>> Handle(ProcesarCompraDirectaCommand request, CancellationToken cancellationToken)
@@ -127,7 +127,7 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
                         {
                             IdPedido = pedido.IdPedido,
                             IdUsuarioRepartidor = rep.IdUsuario,
-                            ZonaEntrega = cliente.DireccionBase ?? $"En {cliente.Departamento}"
+                            ZonaEntrega = $"{cliente.Departamento}, {cliente.Municipio}, {cliente.DireccionExacta}".Trim(new char[] { ',' , ' ' }) ?? $"En {cliente.Departamento}"
                         }, cancellationToken);
                         repartidoresNotificados++;
                     }
@@ -137,7 +137,7 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
                 var dtosTransferencias = new List<TransferenciaCheckoutDto>();
                 foreach (var kvp in transferenciasAGenerar)
                 {
-                    var transferencia = new RegistroTransferenciaMock
+                    var transferencia = new RegistroTransferencia
                     {
                         IdTransferencia = Guid.NewGuid().ToString("N"),
                         IdPedido = pedido.IdPedido,

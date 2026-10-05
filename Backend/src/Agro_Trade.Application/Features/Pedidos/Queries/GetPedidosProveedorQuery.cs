@@ -57,7 +57,7 @@ namespace Agro_Trade.Application.Features.Pedidos.Queries
                         EstadoEnvio = pedido.EstadoEnvio,
                         EstadoPago = pedido.EstadoPago,
                         MetodoPago = pedido.MetodoPago,
-                        NombreCliente = pedido.UsuarioCliente?.NombreCompleto ?? $"Cliente #{pedido.IdUsuarioCliente}",
+                        NombreCliente = pedido.UsuarioCliente != null ? $"{pedido.UsuarioCliente.Nombre} {pedido.UsuarioCliente.PrimerApellido}".Trim() : $"Cliente #{pedido.IdUsuarioCliente}",
                         IdUsuarioCliente = pedido.IdUsuarioCliente,
                         Detalles = g.Select(d => new DetallePedidoDto
                         {
