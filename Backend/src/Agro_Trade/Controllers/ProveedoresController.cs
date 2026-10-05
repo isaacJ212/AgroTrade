@@ -44,65 +44,6 @@ namespace Agro_Trade.Controllers
             return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, result);
         }
 
-        [HttpGet("mine")]
-        [Authorize]
-        public async Task<ActionResult<Result<int>>> GetMiProveedor()
-        {
-            Console.WriteLine("[DEBUG] Llamada al endpoint GET /api/Proveedores/mine");
-            int userId;
-            try
-            {
-                if (!int.TryParse(User.GetUserId(), out userId))
-                {
-                    Console.WriteLine("[DEBUG] GET /api/Proveedores/mine -> JWT invalido (no se pudo extraer userId).");
-                    return Unauthorized(Result<int>.Failure(401, "JWT invalido."));
-                }
-            }
-            catch (Exception)
-            {
-                Console.WriteLine("[DEBUG] GET /api/Proveedores/mine -> Exception al parsear userId.");
-                return Unauthorized(Result<int>.Failure(401, "JWT invalido."));
-            }
-
-            Console.WriteLine($"[DEBUG] GET /api/Proveedores/mine -> Buscando Proveedor para IdUsuario: {userId}");
-            var proveedores = await _unitOfWork.Proveedores.GetAllAsync(CancellationToken.None);
-            var miProveedor = proveedores.FirstOrDefault(p => p.IdUsuario == userId);
-
-            if (miProveedor == null)
-            {
-                Console.WriteLine($"[DEBUG] GET /api/Proveedores/mine -> No se encontró Proveedor para IdUsuario: {userId}. Se procederá a crearlo.");
-                var user = await _unitOfWork.Usuarios.GetByIdAsync(userId, CancellationToken.None);
-                if (user == null) 
-                {
-                    Console.WriteLine($"[DEBUG] GET /api/Proveedores/mine -> Usuario {userId} no encontrado en la DB.");
-                    return NotFound(Result<int>.Failure(404, "Usuario no encontrado"));
-                }
-                
-                try 
-                {
-                    miProveedor = new Agro_Trade.Domain.Entities.Proveedor
-                    {
-                        IdUsuario = userId,
-                        NombreProveedor = $"{(user.Nombre + " " + user.PrimerApellido).Trim()}"
-                    };
-                    await _unitOfWork.Proveedores.AddAsync(miProveedor, CancellationToken.None);
-                    await _unitOfWork.SaveChangesAsync(CancellationToken.None);
-                    Console.WriteLine($"[DEBUG] GET /api/Proveedores/mine -> PROVEEDOR CREADO EXITOSAMENTE. Nuevo IdProveedor: {miProveedor.IdProveedor}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[DEBUG] GET /api/Proveedores/mine -> ERROR AL CREAR PROVEEDOR: {ex.Message}");
-                    if (ex.InnerException != null) Console.WriteLine($"[DEBUG] InnerException: {ex.InnerException.Message}");
-                }
-            }
-            else
-            {
-                Console.WriteLine($"[DEBUG] GET /api/Proveedores/mine -> Proveedor existente encontrado. IdProveedor: {miProveedor.IdProveedor}");
-            }
-
-            return Ok(Result<int>.Success(200, miProveedor?.IdProveedor ?? 0, "Proveedor recuperado exitosamente.", true));
-        }
-
         [HttpPost]
         public async Task<ActionResult<Result<int>>> Create([FromBody] CreateProveedorCommand command)
         {

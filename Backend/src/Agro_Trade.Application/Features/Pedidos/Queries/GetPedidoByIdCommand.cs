@@ -1,4 +1,4 @@
-using Google.Apis.Util;
+﻿using Google.Apis.Util;
 using MediatR;
 using Agro_Trade.Domain.Entities;
 using Agro_Trade.Application.Common;
@@ -35,8 +35,7 @@ namespace Agro_Trade.Application.Features.Pedidos.Queries
                     PedidoId = p.IdPedido,
                     Cantidad = p.Cantidad,
                     Producto = p.Inventario.Producto.Nombre,
-                    TotalLinea = p.Subtotal,
-                    IdProveedor = p.Inventario.IdProveedor
+                    TotalLinea = p.Subtotal
 
                 }).ToList()
             };

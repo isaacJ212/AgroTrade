@@ -94,7 +94,7 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
             {
                 IdSolicitud = solicitud.IdSolicitud,
                 IdUsuario = solicitud.IdUsuario,
-                NombreUsuario = solicitud.Usuario != null ? $"{solicitud.Usuario.Nombre} {solicitud.Usuario.PrimerApellido}".Trim() : string.Empty,
+                NombreUsuario = solicitud.Usuario?.NombreCompleto ?? string.Empty,
                 DatosRepartidor = solicitud.DatosRepartidor,
                 Estado = solicitud.Estado,
                 FechaSolicitud = solicitud.FechaSolicitud

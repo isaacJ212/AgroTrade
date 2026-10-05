@@ -41,11 +41,11 @@ namespace Agro_Trade.Application.Features.Usuarios.Queries
             var usuarios = usuariosEnt.Select(u => new UserDto
                 {
                     Id = u.IdUsuario,
-                    Name = $"{u.Nombre} {u.PrimerApellido} {u.SegundoApellido}".Trim(),
+                    Name = u.NombreCompleto,
                     Email = u.Email,
                     IdentidadVerificada = u.IdentidadVerificada,
                     Telefono = u.Telefono,
-                    DireccionBase = $"{u.Departamento}, {u.Municipio}, {u.DireccionExacta}".Trim(new char[] { ',' , ' ' }),
+                    DireccionBase = u.DireccionBase,
                     Departamento = u.Departamento,
                     EstadoCuenta = u.EstadoCuenta,
                     FechaRegistro = u.FechaRegistro,

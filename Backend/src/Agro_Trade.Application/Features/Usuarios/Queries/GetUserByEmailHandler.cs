@@ -22,11 +22,11 @@ namespace Agro_Trade.Application.Features.Usuarios.Queries
             var dto = new UserDto
             {
                 Id = user.IdUsuario,
-                Name = $"{user.Nombre} {user.PrimerApellido} {user.SegundoApellido}".Trim(),
+                Name = user.NombreCompleto,
                 Email = user.Email,
                 IdentidadVerificada = user.IdentidadVerificada,
                 Telefono = user.Telefono,
-                DireccionBase = $"{user.Departamento}, {user.Municipio}, {user.DireccionExacta}".Trim(new char[] { ',' , ' ' }),
+                DireccionBase = user.DireccionBase,
                 FechaRegistro = user.FechaRegistro,
                 Departamento = user.Departamento
             };

@@ -130,10 +130,11 @@ class ProductorStore extends ChangeNotifier {
       final cantidades = <int, double>{};
       for (final linea in p.productos) {
         final item = producto(linea.productoId);
-        if (item != null && (!item.publicado ||
+        if (item == null ||
+            !item.publicado ||
             item.unidad != linea.unidad ||
             !linea.cantidad.isFinite ||
-            linea.cantidad <= 0)) {
+            linea.cantidad <= 0) {
           throw StateError(
             'Revisa la disponibilidad de los productos del pedido.',
           );
@@ -142,8 +143,7 @@ class ProductorStore extends ChangeNotifier {
             (cantidades[linea.productoId] ?? 0) + linea.cantidad;
       }
       for (final cantidad in cantidades.entries) {
-        final item = producto(cantidad.key);
-        if (item != null && item.cantidad < cantidad.value) {
+        if (producto(cantidad.key)!.cantidad < cantidad.value) {
           throw StateError(
             'No hay inventario suficiente para confirmar este pedido.',
           );
@@ -152,21 +152,19 @@ class ProductorStore extends ChangeNotifier {
       // Solo se descuenta al confirmar; volver a preparar no vuelve a descontar.
       for (final cantidad in cantidades.entries) {
         final index = _productos.indexWhere((item) => item.id == cantidad.key);
-        if (index >= 0) {
-          final item = _productos[index];
-          _productos[index] = item.copyWith(
-            cantidad: item.cantidad - cantidad.value,
+        final item = _productos[index];
+        _productos[index] = item.copyWith(
+          cantidad: item.cantidad - cantidad.value,
+        );
+        final o = _ofertas[item.id];
+        if (o != null && o.cantidad > _productos[index].cantidad) {
+          _ofertas[item.id] = OfertaProductor(
+            productoId: o.productoId,
+            cantidad: o.cantidad,
+            descuento: o.descuento,
+            fin: o.fin,
+            activa: false,
           );
-          final o = _ofertas[item.id];
-          if (o != null && o.cantidad > _productos[index].cantidad) {
-            _ofertas[item.id] = OfertaProductor(
-              productoId: o.productoId,
-              cantidad: o.cantidad,
-              descuento: o.descuento,
-              fin: o.fin,
-              activa: false,
-            );
-          }
         }
       }
     }

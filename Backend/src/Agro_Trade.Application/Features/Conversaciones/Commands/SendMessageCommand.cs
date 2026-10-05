@@ -10,10 +10,10 @@ using Agro_Trade.Application.Common.Interface;
 
 namespace Agro_Trade.Application.Features.Conversaciones.Commands
 {
-    public record SendMessageCommand(SendMessageDto Dto) : IRequest<Result<MensajeDto>>;
+    public record SendMessageCommand(SendMessageDto Dto) : IRequest<Result<int>>;
 
 
-    public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Result<MensajeDto>>
+    public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Result<int>>
     {
         private readonly IUnitofWork _unitOfWork;
 
@@ -22,11 +22,11 @@ namespace Agro_Trade.Application.Features.Conversaciones.Commands
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result<MensajeDto>> Handle(SendMessageCommand request, CancellationToken ct)
+        public async Task<Result<int>> Handle(SendMessageCommand request, CancellationToken ct)
         {
             var conversacion = await _unitOfWork.Conversaciones.GetByIdAsync(request.Dto.IdConversacion, ct);
             if (conversacion == null)
-                return Result<MensajeDto>.Failure(404, "La conversación no existe.");
+                return Result<int>.Failure(404, "La conversación no existe.");
 
             var nuevoMensaje = new Mensaje
             {
@@ -40,22 +40,7 @@ namespace Agro_Trade.Application.Features.Conversaciones.Commands
             await _unitOfWork.Mensajes.AddAsync(nuevoMensaje, ct);
             await _unitOfWork.SaveChangesAsync(ct);
 
-            // Fetch user to get name
-            var emisor = await _unitOfWork.Usuarios.GetByIdAsync(request.Dto.IdUsuarioEmisor, ct);
-            var nombreEmisor = emisor != null ? $"{emisor.Nombre} {emisor.PrimerApellido}".Trim() : $"Usuario #{request.Dto.IdUsuarioEmisor}";
-
-            var msgDto = new MensajeDto
-            {
-                IdMensaje = nuevoMensaje.IdMensaje,
-                IdConversacion = nuevoMensaje.IdConversacion,
-                IdUsuarioEmisor = nuevoMensaje.IdUsuarioEmisor,
-                NombreEmisor = nombreEmisor,
-                Contenido = nuevoMensaje.Contenido,
-                EnviadoEn = nuevoMensaje.EnviadoEn,
-                Leido = nuevoMensaje.Leido
-            };
-
-            return Result<MensajeDto>.Success(201, msgDto, "Mensaje enviado exitosamente.", true);
+            return Result<int>.Success(201, nuevoMensaje.IdMensaje, "Mensaje enviado exitosamente.", true);
         }
     }
 }

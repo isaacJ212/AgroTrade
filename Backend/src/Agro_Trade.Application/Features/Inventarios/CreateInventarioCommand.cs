@@ -39,7 +39,7 @@ namespace Agro_Trade.Application.Features.Inventarios
             if (!allowedExtensions.Contains(extension))
                 return Result<int>.Failure(400, "Formato de imagen no válido.");
 
-            // Validar que proveedor y1 producto existan
+            // Validar que proveedor y producto existan
             if (!await _unitOfWork.Proveedores.AnyAsync(p => p.IdProveedor == dto.IdProveedor, ct))
                 return Result<int>.Failure(404, "Proveedor no encontrado.");
 

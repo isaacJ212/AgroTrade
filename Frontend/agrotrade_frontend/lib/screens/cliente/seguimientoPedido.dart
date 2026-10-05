@@ -62,12 +62,10 @@ class _SeguimientoPedidoScreenState extends State<SeguimientoPedidoScreen> {
   void _actualizarPasos(String estadoEnvio) {
     int currentIndex = 0;
     switch (estadoEnvio.toUpperCase()) {
-      case 'PENDIENTE': currentIndex = 0; break;
-      case 'PREPARANDO': currentIndex = 1; break;
-      case 'LISTO': currentIndex = 2; break;
+      case 'PENDIENTE': currentIndex = 1; break;
       case 'EN_CAMINO': currentIndex = 3; break;
       case 'ENTREGADO': currentIndex = 4; break;
-      default: currentIndex = 0;
+      default: currentIndex = 1;
     }
 
     _pasosActualizados = _pasosBase.asMap().entries.map((entry) {
@@ -379,22 +377,16 @@ class _SeguimientoPedidoScreenState extends State<SeguimientoPedidoScreen> {
           width: double.infinity,
           height: 48,
           child: ElevatedButton.icon(
-            onPressed: () {
-              int idReceptor = 13;
-              if (_pedidoData['detalles'] != null && _pedidoData['detalles'].isNotEmpty) {
-                idReceptor = _pedidoData['detalles'][0]['idProveedor'] ?? 13;
-              }
-              Navigator.pushNamed(
-                context, 
-                '/chat',
-                arguments: {
-                  'idPedido': int.tryParse(_idPedidoVisible.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0,
-                  'idReceptor': idReceptor,
-                  'nombreReceptor': 'Productor',
-                  'codigoPedido': '#$_idPedidoVisible',
-                },
-              );
-            },
+            onPressed: () => Navigator.pushNamed(
+              context, 
+              '/chat',
+              arguments: {
+                'idPedido': int.tryParse(_idPedidoVisible.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0,
+                'idReceptor': 13, // Productor por defecto / mock
+                'nombreReceptor': 'Productor',
+                'codigoPedido': '#$_idPedidoVisible',
+              },
+            ),
             icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
             label: const Text(
               'Enviar mensaje',

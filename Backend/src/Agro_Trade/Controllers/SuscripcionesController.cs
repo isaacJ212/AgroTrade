@@ -7,7 +7,6 @@ using Agro_Trade.Application.Common;
 using Agro_Trade.Application.Common.DTOs.SuscripcionesDtos;
 using Agro_Trade.Application.Features.Suscripciones.Commands;
 using Agro_Trade.Application.Features.Suscripciones.Queries;
-using Agro_Trade.Application.Features.TipoPlanes.Commands;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -57,63 +56,7 @@ namespace Agro_Trade.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>
-        /// Obtiene todas las suscripciones (Admin). Puede filtrar por rol.
-        /// </summary>
-        [HttpGet("all")]
-        public async Task<IActionResult> GetAll([FromQuery] int? roleId, CancellationToken ct = default)
-        {
-            var result = await _mediator.Send(new GetAllSuscripcionesQuery(roleId), ct);
-            return StatusCode(result.StatusCode, result);
-        }
-
-        /// <summary>
-        /// Obtiene métricas generales de las suscripciones (Admin).
-        /// </summary>
-        [HttpGet("metrics")]
-        public async Task<IActionResult> GetMetrics(CancellationToken ct = default)
-        {
-            var result = await _mediator.Send(new GetSuscripcionesMetricsQuery(), ct);
-            return StatusCode(result.StatusCode, result);
-        }
-
-        /// <summary>
-        /// Obtiene el historial de transacciones de suscripciones (Admin).
-        /// </summary>
-        [HttpGet("transacciones")]
-        public async Task<IActionResult> GetTransacciones(CancellationToken ct = default)
-        {
-            var result = await _mediator.Send(new GetTransaccionesSuscripcionQuery(), ct);
-            return StatusCode(result.StatusCode, result);
-        }
-
-        /// <summary>
-        /// Obtiene los tipos de planes de suscripción activos.
-        /// </summary>
-        [HttpGet("planes")]
-        public async Task<IActionResult> GetPlanes(CancellationToken ct = default)
-        {
-            var result = await _mediator.Send(new GetTiposPlanesQuery(), ct);
-            return StatusCode(result.StatusCode, result);
-        }
-        /// <summary>
-        /// Actualiza un plan de suscripción (Admin).
-        /// </summary>
-        [HttpPut("planes/{idPlan}")]
-        public async Task<IActionResult> UpdatePlan([FromRoute] int idPlan, [FromBody] UpdateTipoPlanDto dto, CancellationToken ct = default)
-        {
-            dto.IdPlan = idPlan;
-            var result = await _mediator.Send(new UpdateTipoPlanCommand(dto), ct);
-            return StatusCode(result.StatusCode, result);
-        }
-        /// <summary>
-        /// Crea un nuevo plan de suscripción (Admin).
-        /// </summary>
-        [HttpPost("planes")]
-        public async Task<IActionResult> CreatePlan([FromBody] CreateTipoPlanDto dto, CancellationToken ct = default)
-        {
-            var result = await _mediator.Send(new CreateTipoPlanCommand(dto), ct);
-            return StatusCode(result.StatusCode, result);
-        }
+        
+        
     }
 }

@@ -11,7 +11,8 @@ namespace Agro_Trade.Application.Common.DTOs.SuscripcionesDtos
         [Required(ErrorMessage = "El ID del usuario es obligatorio.")]
         public int IdUsuario { get; set; }
 
-        public int IdPlan { get; set; }
+        [Required(ErrorMessage = "El tipo de plan es obligatorio.")]
+        public string TipoPlan { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "La tarifa es obligatoria.")]
         public decimal TarifaPago { get; set; }

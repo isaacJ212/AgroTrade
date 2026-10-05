@@ -41,7 +41,7 @@ namespace Agro_Trade.Application.Features.Suscripciones.Commands
             var nuevaSuscripcion = new SuscripcionApp
             {
                 IdUsuario = request.Dto.IdUsuario,
-                IdPlan = request.Dto.IdPlan,
+                TipoPlan = request.Dto.TipoPlan,
                 TarifaPago = request.Dto.TarifaPago,
                 Estado = "Activa",
                 FechaInicio = DateTime.UtcNow,

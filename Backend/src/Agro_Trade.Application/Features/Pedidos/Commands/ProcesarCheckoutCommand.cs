@@ -13,7 +13,7 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
         IRepository<Producto> productoRepository,
         IRepository<InventarioProveedor> inventarioRepository,
         IRepository<Pedido> pedidoRepository,
-        IRepository<RegistroTransferencia> transferenciaRepository,
+        IRepository<RegistroTransferenciaMock> transferenciaRepository,
         IRepository<Usuario> usuarioRepository,
         IRepository<Repartidor> repartidorRepository,
         IRepository<NotificacionEntrega> notificacionEntregaRepository,
@@ -54,11 +54,9 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
                 if (inventario is null)
                     return Result<CheckoutResponseDto>.Failure(409, $"El producto {producto.Nombre} no esta disponible.");
 
-                // Validaciï¿½n preventiva de Stock
+                // Validación preventiva de Stock
                 if (inventario.StockActual < item.Quantity)
                     return Result<CheckoutResponseDto>.Failure(409, $"Stock insuficiente para {producto.Nombre}.");
-
-                inventario.StockActual -= item.Quantity;
 
                 var descuento = Math.Clamp((decimal)(inventario.PorcentajeDescuento ?? 0), 0m, 100m);
                 var precioUnitario = inventario.PrecioVenta * (1m - descuento / 100m);
@@ -66,7 +64,7 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
 
                 lineas.Add(new CheckoutLine(producto, inventario, item.Quantity, subtotalLinea));
 
-                // Agregamos el detalle al pedido (asumiendo que tu entidad Pedido tiene una colecciï¿½n de Detalles)
+                // Agregamos el detalle al pedido (asumiendo que tu entidad Pedido tiene una colección de Detalles)
                 detallesPedido.Add(new DetallePedido
                 {
                     IdInventario = inventario.IdInventario,
@@ -77,7 +75,7 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
             }
 
             var subtotal = lineas.Sum(linea => linea.Subtotal);
-            // Nota: Si vas a SUMAR la comisiï¿½n del repartidor al cliente, deberï¿½a ser + ComisionRepartidorFija
+            // Nota: Si vas a SUMAR la comisión del repartidor al cliente, debería ser + ComisionRepartidorFija
             var total = subtotal + ComisionRepartidorFija;
 
             var pedido = new Pedido
@@ -98,15 +96,15 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
                 await unitOfWork.SaveChangesAsync(cancellationToken);
                 await unitOfWork.CommitAsync(cancellationToken);
 
-                // Devolvemos los datos para que el frontend arme el botï¿½n de PayPal con el Total exacto y el PedidoId
+                // Devolvemos los datos para que el frontend arme el botón de PayPal con el Total exacto y el PedidoId
                 return Result<CheckoutResponseDto>.Success(201, new CheckoutResponseDto
                 {
                     PedidoId = pedido.IdPedido,
                     Total = total,
                     TotalProductores = subtotal, // Los productores cobran sobre el subtotal de productos
                     MetodoPago = pedido.MetodoPago,
-                    RepartidoresNotificados = 0, // Se notificarï¿½n real y formalmente en el paso 2
-                    Transferencias = new List<TransferenciaCheckoutDto>() // Se calculan en la confirmaciï¿½n
+                    RepartidoresNotificados = 0, // Se notificarán real y formalmente en el paso 2
+                    Transferencias = new List<TransferenciaCheckoutDto>() // Se calculan en la confirmación
                 }, "Checkout pre-procesado correctamente. En espera de pago.", true);
             }
             catch
