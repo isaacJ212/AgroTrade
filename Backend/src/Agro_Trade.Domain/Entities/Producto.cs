@@ -26,6 +26,8 @@ namespace Agro_Trade.Domain.Entities
         [MaxLength(50)]
         public string UnidadMedida { get; set; } = null!;
 
+        public bool Activo { get; set; } = true;
+
        
         public Categoria Categoria { get; set; } = null!;
         public Proveedor Proveedor { get; set; } = null!;
