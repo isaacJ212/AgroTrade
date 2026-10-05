@@ -12,7 +12,10 @@ namespace Agro_Trade.Infrastructure.Persistence.Configurations
             builder.ToTable("suscripciones_app");
             builder.HasKey(s => s.IdSuscripcionApp);
 
-           
+            builder.HasOne(s => s.TipoPlan)
+               .WithMany()
+               .HasForeignKey(s => s.IdPlan)
+               .IsRequired();
             builder.Property(s => s.CreadaEn).HasDefaultValueSql("now()");
             builder.Property(s => s.RenovacionAutomatica).HasDefaultValue(true);
             

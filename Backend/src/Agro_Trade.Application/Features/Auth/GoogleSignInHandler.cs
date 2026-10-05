@@ -56,7 +56,7 @@ namespace Agro_Trade.Application.Features.Auth
             {
                 user = new Agro_Trade.Domain.Entities.Usuario
                 {
-                    NombreCompleto = payload.Name,
+                    Nombre = payload.GivenName ?? payload.Name, PrimerApellido = payload.FamilyName ?? "", SegundoApellido = "",
                     Email = payload.Email,
                     OAuthProvider = "Google",
                     OAuthProviderId = payload.Subject,
@@ -87,7 +87,7 @@ namespace Agro_Trade.Application.Features.Auth
             await _refreshTokens.AddAsync(refreshToken, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             
-            bool faltanDatos = string.IsNullOrEmpty(user.Departamento)||string.IsNullOrEmpty(user.DireccionBase) || string.IsNullOrEmpty(user.Telefono);
+            bool faltanDatos = string.IsNullOrEmpty(user.Departamento)||string.IsNullOrEmpty($"{user.Departamento}, {user.Municipio}, {user.DireccionExacta}".Trim(new char[] { ',' , ' ' })) || string.IsNullOrEmpty(user.Telefono);
             
              var roles = await _roles.FindAsync(r=> r.IdUsuario == user.IdUsuario,cancellationToken, "Rol");
             var stringList = roles
@@ -95,7 +95,7 @@ namespace Agro_Trade.Application.Features.Auth
                             .Select(r => r.Rol.NombreRol)
                             .ToList();
 
-            return Result<LoginResponse>.Success(200, new LoginResponse { UserName = user.NombreCompleto, TokenResponse = new TokensResponse(jwtToken, token.RawToken, token.ExpiresAtUtc), Roles= stringList, RequiereCompletarInformacion = faltanDatos}, "Usuario Registrado Con Google Exitosamente", true);
+            return Result<LoginResponse>.Success(200, new LoginResponse { UserName = $"{user.Nombre} {user.PrimerApellido} {user.SegundoApellido}".Trim(), TokenResponse = new TokensResponse(jwtToken, token.RawToken, token.ExpiresAtUtc), Roles= stringList, RequiereCompletarInformacion = faltanDatos}, "Usuario Registrado Con Google Exitosamente", true);
         }
     }
 }

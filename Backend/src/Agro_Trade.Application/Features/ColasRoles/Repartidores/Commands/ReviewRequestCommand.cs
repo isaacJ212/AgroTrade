@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Agro_Trade.Domain.Entities;
 using Agro_Trade.Application.Common;
 using Agro_Trade.Application.Common.DTOs.DatosSolicitudRoles;
@@ -97,9 +97,9 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
         }
 
 
-
+        
     
-}
+    }
 }
 
 

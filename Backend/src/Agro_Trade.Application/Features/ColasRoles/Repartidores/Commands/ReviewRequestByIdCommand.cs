@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Agro_Trade.Domain.Entities;
 using Agro_Trade.Application.Common;
 using Agro_Trade.Application.Common.DTOs.DatosSolicitudRoles;
@@ -96,6 +96,22 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
 
 
 
+<<<<<<< HEAD
        
+=======
+        public SolicitudRepartidorDto ToDto(SolicitudRepartidor solicitud)
+        {
+            return new SolicitudRepartidorDto
+            {
+                IdSolicitud = solicitud.IdSolicitud,
+                IdUsuario = solicitud.IdUsuario,
+                NombreUsuario = solicitud.Usuario != null ? $"{solicitud.Usuario.Nombre} {solicitud.Usuario.PrimerApellido}".Trim() : string.Empty,
+                DatosRepartidor = solicitud.DatosRepartidor,
+                Estado = solicitud.Estado,
+                FechaSolicitud = solicitud.FechaSolicitud,
+                Departamento = solicitud.DatosRepartidor?.Departamento ?? string.Empty,
+            };
+        }
+>>>>>>> f9cee1e4a6d9d324d3d908dc89f2268a03844f10
     }
 }

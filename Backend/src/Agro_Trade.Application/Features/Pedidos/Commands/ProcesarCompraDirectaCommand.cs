@@ -144,7 +144,7 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
                         {
                             IdPedido = pedido.IdPedido,
                             IdUsuarioRepartidor = rep.IdUsuario,
-                            ZonaEntrega = cliente.DireccionBase ?? $"En {cliente.Departamento}"
+                            ZonaEntrega = $"{cliente.Departamento}, {cliente.Municipio}, {cliente.DireccionExacta}".Trim(new char[] { ',' , ' ' }) ?? $"En {cliente.Departamento}"
                         }, cancellationToken);
                         repartidoresNotificados++;
                     }
