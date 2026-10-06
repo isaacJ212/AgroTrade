@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Agro_Trade.Domain.Entities
 {
-    public class RegistroTransferenciaMock
+    public class RegistroTransferencia
     {
         [Key]
         [MaxLength(64)]

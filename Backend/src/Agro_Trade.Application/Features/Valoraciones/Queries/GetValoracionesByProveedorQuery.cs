@@ -29,7 +29,7 @@ namespace Agro_Trade.Application.Features.Valoraciones.Queries
                     IdValoracion = v.IdValoracion,
                     IdPedido = v.IdPedido,
                     IdUsuarioCliente = v.IdUsuarioCliente,
-                    NombreCliente = v.UsuarioCliente.NombreCompleto,
+                    NombreCliente = $"{v.UsuarioCliente.Nombre} {v.UsuarioCliente.PrimerApellido} {v.UsuarioCliente.SegundoApellido}".Trim(),
                     IdProveedor = v.IdProveedor,
                     NombreProveedor = v.Proveedor.NombreProveedor,
                     TipoValoracion = v.TipoValoracion,

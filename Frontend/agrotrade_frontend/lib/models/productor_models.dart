@@ -37,7 +37,6 @@ class Producto {
   final String? cosecha, ubicacion, descripcion;
   final DateTime? fechaCosecha;
   final bool publicado;
-  final bool activo;
   final List<Costo> costos;
   final List<Uint8List> fotos;
   const Producto({
@@ -59,7 +58,6 @@ class Producto {
     this.publicado = true,
     this.costos = const [],
     this.fotos = const [],
-    this.activo = true,
   });
   String get cantidadTexto => '${numero(cantidad)} $unidad';
   String get precioTexto => '${dinero(precio)} / $unidad';
@@ -76,7 +74,6 @@ class Producto {
     DateTime? fechaCosecha,
     bool? publicado,
     List<Uint8List>? fotos,
-    bool? activo,
   }) {
     final stock = cantidad ?? this.cantidad;
     return Producto(
@@ -102,7 +99,6 @@ class Producto {
       costos: costos,
       etiqueta: etiqueta,
       sufijoPrecio: sufijoPrecio,
-      activo: activo ?? this.activo,
     );
   }
 }

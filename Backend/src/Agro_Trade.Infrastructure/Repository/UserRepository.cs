@@ -40,7 +40,9 @@ namespace Agro_Trade.Infrastructure.Repository
         }
         public async Task<Usuario?> GetByEmailAsync(string email, CancellationToken ct)
         {
-            return await _context.Usuarios.AsNoTracking().FirstOrDefaultAsync(u => u.Email == email, ct);
+            var normalizedEmail = email.Trim().ToLower();
+            return await _context.Usuarios.AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Email.ToLower() == normalizedEmail, ct);
         }
 
         public async Task<Usuario?> GetByOAuthProviderAsync(string provider, string providerId, CancellationToken ct)

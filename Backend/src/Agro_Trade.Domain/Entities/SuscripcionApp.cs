@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Agro_Trade.Domain.Entities
 {
@@ -15,7 +16,9 @@ namespace Agro_Trade.Domain.Entities
         public Usuario Usuario { get; set; } = null!;
         
         [Required]
-        public string TipoPlan { get; set; } = null!;
+        public int IdPlan { get; set; }
+        [ForeignKey("IdPlan")]
+        public TipoPlan TipoPlan { get; set; }
         public decimal TarifaPago { get; set; }
         public string? Estado { get; set; }
         public DateTime FechaInicio { get; set; }

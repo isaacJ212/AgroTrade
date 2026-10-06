@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Agro_Trade.Application.Common.DTOs.DatosSolicitudRoles
 {
@@ -26,19 +27,19 @@ namespace Agro_Trade.Application.Common.DTOs.DatosSolicitudRoles
 
 
         [Required(ErrorMessage = "La foto de la cédula es obligatoria.")] 
-        public string UrlFotoCedula { get; set; } = string.Empty;
+        public IFormFile FotoCedula { get; set; } = null!;
 
 
         [Required(ErrorMessage = "La foto de perfil es obligatoria.")]
-        public string UrlFotoPerfil { get; set; } = string.Empty;
+        public IFormFile FotoPerfil { get; set; } = null!;
 
 
         [Required(ErrorMessage = "La foto del Record Policial es obligatoria.")]
-        public string UrlRecordPolicial { get; set; } = string.Empty;
+        public IFormFile RecordPolicial { get; set; } = null!;
 
 
         [Required(ErrorMessage = "La foto de la licencia es obligatoria.")]
-        public string UrlLicencia { get; set; } = string.Empty;
+        public IFormFile FotoLicencia { get; set; } = null!;
 
 
 
