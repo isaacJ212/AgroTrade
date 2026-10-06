@@ -35,7 +35,6 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Queries
             CuentaBancaria? cuenta = null;
             if (cuentaId > 0)
             {
-<<<<<<< HEAD
                 cuenta = await _cuentas.FirstOrDefaultAsync(c=>c.IdCuenta == cuentaId,
                     includes: b=> b.Banco, cancellationToken:cancellationToken);
             }
@@ -43,16 +42,6 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Queries
             var dto = SolicitudHelper.ToDto(solicitud, cuenta);
             
             return Result<SolicitudRepartidorDto>.Success(200, dto, "Solicitud encontrada", true);
-=======
-                IdSolicitud = solicitud.IdSolicitud,
-                IdUsuario = solicitud.IdUsuario,
-                NombreUsuario = solicitud.Usuario != null ? $"{solicitud.Usuario.Nombre} {solicitud.Usuario.PrimerApellido}".Trim() : string.Empty,
-                DatosRepartidor = solicitud.DatosRepartidor,
-                Estado = solicitud.Estado,
-                FechaSolicitud = solicitud.FechaSolicitud,
-                Departamento = solicitud.DatosRepartidor?.Departamento?? ""
-            };
->>>>>>> f9cee1e4a6d9d324d3d908dc89f2268a03844f10
         }
     }
 }

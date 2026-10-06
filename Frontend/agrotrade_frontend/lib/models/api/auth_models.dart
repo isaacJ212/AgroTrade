@@ -93,18 +93,21 @@ class GoogleSignInRequestDto {
 
 class GoogleCatchDataDto {
   final String departamento;
-  final String direccionBase;
+  final String municipio;
+  final String direccionExacta;
   final String telefono;
 
   const GoogleCatchDataDto({
     required this.departamento,
-    required this.direccionBase,
+    required this.municipio,
+    required this.direccionExacta,
     required this.telefono,
   });
 
   Map<String, dynamic> toJson() => {
     'departamento': departamento,
-    'direccionBase': direccionBase,
+    'municipio': municipio,
+    'direccionExacta': direccionExacta,
     'telefono': telefono,
   };
 }

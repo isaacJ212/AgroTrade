@@ -29,7 +29,7 @@ namespace Agro_Trade.Application.Features.Suscripciones.Queries
         {
 
             var suscripciones = await _unitOfWork.Suscripciones.FindAsync(
-                s => s.IdUsuario == request.IdUsuario, includes: p=> p.Plan, cancellationToken: ct);
+                s => s.IdUsuario == request.IdUsuario, includes: p=> p.TipoPlan, cancellationToken: ct);
 
 
             if (suscripciones == null || !suscripciones.Any())
@@ -42,11 +42,7 @@ namespace Agro_Trade.Application.Features.Suscripciones.Queries
                 {
                     IdSuscripcionApp = s.IdSuscripcionApp,
                     IdUsuario = s.IdUsuario,
-<<<<<<< HEAD
-                    TipoPlan = s.Plan.NombrePlan,
-=======
                     TipoPlan = s.TipoPlan?.NombrePlan ?? "Desconocido",
->>>>>>> f9cee1e4a6d9d324d3d908dc89f2268a03844f10
                     TarifaPago = s.TarifaPago,
                     Estado = s.Estado,
                     FechaInicio = s.FechaInicio,

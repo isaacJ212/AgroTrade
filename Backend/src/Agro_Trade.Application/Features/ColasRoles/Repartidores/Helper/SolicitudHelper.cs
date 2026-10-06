@@ -12,7 +12,7 @@ public class SolicitudHelper
         {
             IdSolicitud = solicitud.IdSolicitud,
             IdUsuario = solicitud.IdUsuario,
-            NombreUsuario = solicitud.Usuario?.NombreCompleto ?? string.Empty,
+            NombreUsuario = $"{solicitud.Usuario.Nombre} {solicitud.Usuario.PrimerApellido}",
             DatosRepartidor = toDatosDto(solicitud.DatosRepartidor, cuentaBancaria),
             Estado = solicitud.Estado,
             FechaSolicitud = solicitud.FechaSolicitud,

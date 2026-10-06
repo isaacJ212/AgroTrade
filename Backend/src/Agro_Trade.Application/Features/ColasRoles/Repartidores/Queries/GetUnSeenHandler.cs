@@ -30,32 +30,6 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Queries
             {
                 return Result<PagedResponse<SolicitudRepartidorDto>>.Failure(404, "No se encontraron solicitudes pendientes");
             }
-<<<<<<< HEAD
-=======
-            var unseenRequestsDto = unseenRequests.Select(s => new SolicitudRepartidorDto
-            {
-                IdSolicitud = s.IdSolicitud,
-                IdUsuario = s.IdUsuario,
-                NombreUsuario = $"{s.Usuario.Nombre} {s.Usuario.PrimerApellido} {s.Usuario.SegundoApellido}".Trim(),
-                DatosRepartidor = new DatosRepartidorDto
-                {
-                    TipoVehiculo = s.DatosRepartidor.TipoVehiculo,
-                    PlacaVehiculo = s.DatosRepartidor.PlacaVehiculo,
-                    UrlFotoCedula = s.DatosRepartidor.UrlFotoCedula,
-                    UrlFotoPerfil = s.DatosRepartidor.UrlFotoPerfil,
-                    UrlLicencia = s.DatosRepartidor.UrlLicencia,
-                    UrlRecordPolicial = s.DatosRepartidor.UrlRecordPolicial,
-                    BancoNombre = s.DatosRepartidor.BancoNombre,
-                    NumeroCedula = s.DatosRepartidor.NumeroCedula,
-                    NumeroCuenta = s.DatosRepartidor.NumeroCuenta,
-                    MarcaVehiculo = s.DatosRepartidor.MarcaVehiculo,
-                    ZonaOperaciones = s.DatosRepartidor.ZonaOperaciones,
-                    Departamento = s.DatosRepartidor.Departamento?? ""
-                },
-                Estado = s.Estado,
-                FechaSolicitud = s.FechaSolicitud
-            }).ToList();
->>>>>>> f9cee1e4a6d9d324d3d908dc89f2268a03844f10
 
             // 1. Guardamos la cantidad total de registros antes de paginar
             var totalRegisters = unseenRequests.Count;

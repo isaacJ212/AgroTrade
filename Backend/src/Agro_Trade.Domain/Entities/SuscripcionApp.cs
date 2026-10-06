@@ -18,7 +18,7 @@ namespace Agro_Trade.Domain.Entities
         [Required]
         public int IdPlan { get; set; }
         [ForeignKey("IdPlan")]
-        public TipoPlan Plan { get; set; }
+        public TipoPlan TipoPlan { get; set; }
         public decimal TarifaPago { get; set; }
         public string? Estado { get; set; }
         public DateTime FechaInicio { get; set; }

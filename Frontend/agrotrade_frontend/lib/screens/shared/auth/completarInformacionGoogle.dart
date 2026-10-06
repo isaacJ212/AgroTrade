@@ -19,10 +19,12 @@ class CompletarInformacionGoogle extends StatefulWidget {
 class _CompletarInformacionGoogleState
     extends State<CompletarInformacionGoogle> {
   final _departamentoController = TextEditingController();
+  final _municipioController = TextEditingController();
   final _direccionController = TextEditingController();
   final _telefonoController = TextEditingController();
 
   String? _departamentoError;
+  String? _municipioError;
   String? _direccionError;
   String? _telefonoError;
   bool _isLoading = false;
@@ -30,6 +32,7 @@ class _CompletarInformacionGoogleState
   @override
   void dispose() {
     _departamentoController.dispose();
+    _municipioController.dispose();
     _direccionController.dispose();
     _telefonoController.dispose();
     super.dispose();
@@ -37,10 +40,12 @@ class _CompletarInformacionGoogleState
 
   bool _validar() {
     final departamento = _departamentoController.text.trim();
+    final municipio = _municipioController.text.trim();
     final direccion = _direccionController.text.trim();
     final telefono = _telefonoController.text.trim();
 
     String? departamentoError;
+    String? municipioError;
     String? direccionError;
     String? telefonoError;
 
@@ -48,6 +53,12 @@ class _CompletarInformacionGoogleState
       departamentoError = 'El departamento es obligatorio.';
     } else if (departamento.length > 100) {
       departamentoError = 'Máximo 100 caracteres.';
+    }
+
+    if (municipio.isEmpty) {
+      municipioError = 'El municipio es obligatorio.';
+    } else if (municipio.length > 100) {
+      municipioError = 'Máximo 100 caracteres.';
     }
 
     if (direccion.isEmpty) {
@@ -64,11 +75,13 @@ class _CompletarInformacionGoogleState
 
     setState(() {
       _departamentoError = departamentoError;
+      _municipioError = municipioError;
       _direccionError = direccionError;
       _telefonoError = telefonoError;
     });
 
     return departamentoError == null &&
+        municipioError == null &&
         direccionError == null &&
         telefonoError == null;
   }
@@ -96,7 +109,8 @@ class _CompletarInformacionGoogleState
       await AuthApiService.instance.completeGoogleInfo(
         GoogleCatchDataDto(
           departamento: _departamentoController.text.trim(),
-          direccionBase: _direccionController.text.trim(),
+          municipio: _municipioController.text.trim(),
+          direccionExacta: _direccionController.text.trim(),
           telefono: _telefonoController.text.trim(),
         ),
       );
@@ -169,7 +183,14 @@ class _CompletarInformacionGoogleState
                 ),
                 const SizedBox(height: 16),
                 AppTextField(
-                  label: 'Dirección Base',
+                  label: 'Municipio',
+                  hint: 'Ej: Jinotepe',
+                  controller: _municipioController,
+                  errorText: _municipioError,
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
+                  label: 'Dirección exacta',
                   hint: 'Ingresa tu dirección exacta',
                   controller: _direccionController,
                   errorText: _direccionError,

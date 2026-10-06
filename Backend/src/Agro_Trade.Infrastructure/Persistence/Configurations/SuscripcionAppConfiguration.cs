@@ -19,9 +19,6 @@ namespace Agro_Trade.Infrastructure.Persistence.Configurations
             builder.Property(s => s.CreadaEn).HasDefaultValueSql("now()");
             builder.Property(s => s.RenovacionAutomatica).HasDefaultValue(true);
             
-            builder.HasOne(d => d.Plan)
-                .WithMany() 
-                .HasForeignKey(d => d.IdTipoPlan);
 
 
             builder.HasOne(s => s.Usuario)

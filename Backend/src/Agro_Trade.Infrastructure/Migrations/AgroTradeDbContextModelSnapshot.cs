@@ -59,7 +59,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 10, 2, 3, 42, 26, 723, DateTimeKind.Utc).AddTicks(4559),
+                            CreatedAt = new DateTime(2026, 10, 5, 17, 31, 45, 338, DateTimeKind.Utc).AddTicks(8325),
                             IconClass = "icon-green-bg",
                             IconType = "user",
                             Title = "El productor 'Finca Los Pinos' se ha registrado en la plataforma"
@@ -67,7 +67,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2026, 10, 2, 2, 47, 26, 723, DateTimeKind.Utc).AddTicks(4572),
+                            CreatedAt = new DateTime(2026, 10, 5, 16, 36, 45, 338, DateTimeKind.Utc).AddTicks(8335),
                             IconClass = "icon-blue-bg",
                             IconType = "check-circle",
                             Title = "Verificación aprobada para 'Transportes El Rápido'"
@@ -75,7 +75,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2026, 10, 2, 1, 47, 26, 723, DateTimeKind.Utc).AddTicks(4578),
+                            CreatedAt = new DateTime(2026, 10, 5, 15, 36, 45, 338, DateTimeKind.Utc).AddTicks(8340),
                             IconClass = "icon-orange-bg",
                             IconType = "alert-circle",
                             Title = "Se ha reportado un problema con el pedido #1045"
@@ -83,7 +83,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                         new
                         {
                             Id = 4,
-                            CreatedAt = new DateTime(2026, 10, 1, 3, 47, 26, 723, DateTimeKind.Utc).AddTicks(4580),
+                            CreatedAt = new DateTime(2026, 10, 4, 17, 36, 45, 338, DateTimeKind.Utc).AddTicks(8343),
                             IconClass = "icon-purple-bg",
                             IconType = "layers",
                             Title = "Nueva categoría 'Frutas Tropicales' creada"
@@ -681,11 +681,11 @@ namespace Agro_Trade.Infrastructure.Migrations
                     b.HasKey("IdProveedor")
                         .HasName("pk_proveedores");
 
-                    b.HasIndex("IdUsuario")
-                        .HasDatabaseName("ix_proveedores_id_usuario");
-
                     b.HasIndex("IdCuentaBancaria")
                         .HasDatabaseName("ix_proveedores_id_cuenta_bancaria");
+
+                    b.HasIndex("IdUsuario")
+                        .HasDatabaseName("ix_proveedores_id_usuario");
 
                     b.ToTable("proveedores", (string)null);
                 });

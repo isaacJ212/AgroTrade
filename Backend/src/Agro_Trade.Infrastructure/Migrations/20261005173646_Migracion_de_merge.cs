@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Agro_Trade.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Inicial_AgroTrade : Migration
+    public partial class Migracion_de_merge : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -29,6 +29,20 @@ namespace Agro_Trade.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_actividades", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "banco",
+                columns: table => new
+                {
+                    id_banco = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    nombre_banco = table.Column<string>(type: "text", nullable: false),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_banco", x => x.id_banco);
                 });
 
             migrationBuilder.CreateTable(
@@ -58,6 +72,23 @@ namespace Agro_Trade.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "refresh_tokens",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<int>(type: "integer", nullable: false),
+                    hash = table.Column<string>(type: "text", nullable: false),
+                    created_by_ip = table.Column<string>(type: "text", nullable: false),
+                    expires_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    revoked_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_refresh_tokens", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Roles",
                 columns: table => new
                 {
@@ -71,12 +102,48 @@ namespace Agro_Trade.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "tipos_planes",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    nombre_plan = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    precio = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    coste = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    descripcion = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    beneficios = table.Column<string>(type: "text", nullable: false),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_tipos_planes", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "unidad_de_medida",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    nombre = table.Column<string>(type: "text", nullable: false),
+                    codigo = table.Column<string>(type: "text", nullable: false),
+                    factor = table.Column<int>(type: "integer", nullable: false),
+                    id_base = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_unidad_de_medida", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "usuarios",
                 columns: table => new
                 {
                     id_usuario = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    nombre_completo = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    nombre = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    primer_apellido = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    segundo_apellido = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     password_hash = table.Column<string>(type: "text", nullable: true),
                     identidad_verificada = table.Column<bool>(type: "boolean", nullable: false),
@@ -84,8 +151,9 @@ namespace Agro_Trade.Infrastructure.Migrations
                     o_auth_provider = table.Column<string>(type: "text", nullable: true),
                     o_auth_provider_id = table.Column<string>(type: "text", nullable: true),
                     telefono = table.Column<string>(type: "text", nullable: true),
-                    direccion_base = table.Column<string>(type: "text", nullable: true),
-                    departamento = table.Column<string>(type: "text", nullable: true),
+                    departamento = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
+                    municipio = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
+                    direccion_exacta = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     fecha_registro = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
@@ -118,6 +186,36 @@ namespace Agro_Trade.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "cuenta_bancaria",
+                columns: table => new
+                {
+                    id_cuenta = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id_usuario = table.Column<int>(type: "integer", nullable: false),
+                    id_banco = table.Column<int>(type: "integer", nullable: false),
+                    numero_cuenta = table.Column<string>(type: "text", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    titular = table.Column<string>(type: "text", nullable: false),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_cuenta_bancaria", x => x.id_cuenta);
+                    table.ForeignKey(
+                        name: "fk_cuenta_bancaria_banco_id_banco",
+                        column: x => x.id_banco,
+                        principalTable: "banco",
+                        principalColumn: "id_banco",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_cuenta_bancaria_usuarios_id_usuario",
+                        column: x => x.id_usuario,
+                        principalTable: "usuarios",
+                        principalColumn: "id_usuario",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "pedidos",
                 columns: table => new
                 {
@@ -136,59 +234,6 @@ namespace Agro_Trade.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "fk_pedidos_usuarios_id_usuario_cliente",
                         column: x => x.id_usuario_cliente,
-                        principalTable: "usuarios",
-                        principalColumn: "id_usuario",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "proveedores",
-                columns: table => new
-                {
-                    id_proveedor = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    id_usuario = table.Column<int>(type: "integer", nullable: false),
-                    nombre_proveedor = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
-                    nombre_finca = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: true),
-                    ubicacion_gps = table.Column<string>(type: "text", nullable: true),
-                    biografia = table.Column<string>(type: "text", nullable: true),
-                    calificacion_promedio = table.Column<float>(type: "real", nullable: true),
-                    banco = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    cuenta_bancaria = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_proveedores", x => x.id_proveedor);
-                    table.ForeignKey(
-                        name: "fk_proveedores_usuarios_id_usuario",
-                        column: x => x.id_usuario,
-                        principalTable: "usuarios",
-                        principalColumn: "id_usuario",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "repartidor",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    id_usuario = table.Column<int>(type: "integer", nullable: false),
-                    placa_vehiculo = table.Column<string>(type: "text", nullable: false),
-                    estado = table.Column<string>(type: "text", nullable: false),
-                    vehiculo = table.Column<string>(type: "text", nullable: false),
-                    promedio_calificacion = table.Column<decimal>(type: "numeric", nullable: false),
-                    cuenta_bancaria = table.Column<string>(type: "text", nullable: false),
-                    url_foto_perfil = table.Column<string>(type: "text", nullable: false),
-                    zona_operaciones = table.Column<string>(type: "text", nullable: false),
-                    departamento = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_repartidor", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_repartidor_usuarios_id_usuario",
-                        column: x => x.id_usuario,
                         principalTable: "usuarios",
                         principalColumn: "id_usuario",
                         onDelete: ReferentialAction.Cascade);
@@ -223,7 +268,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                     id_suscripcion_app = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     id_usuario = table.Column<int>(type: "integer", nullable: false),
-                    tipo_plan = table.Column<string>(type: "text", nullable: false),
+                    id_plan = table.Column<int>(type: "integer", nullable: false),
                     tarifa_pago = table.Column<decimal>(type: "numeric", nullable: false),
                     estado = table.Column<string>(type: "text", nullable: true),
                     fecha_inicio = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -234,6 +279,12 @@ namespace Agro_Trade.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_suscripciones_app", x => x.id_suscripcion_app);
+                    table.ForeignKey(
+                        name: "fk_suscripciones_app_tipo_plan_id_plan",
+                        column: x => x.id_plan,
+                        principalTable: "tipos_planes",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "fk_suscripciones_app_usuarios_id_usuario",
                         column: x => x.id_usuario,
@@ -260,6 +311,71 @@ namespace Agro_Trade.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "fk_usuarios_roles_usuarios_id_usuario",
+                        column: x => x.id_usuario,
+                        principalTable: "usuarios",
+                        principalColumn: "id_usuario",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "proveedores",
+                columns: table => new
+                {
+                    id_proveedor = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id_usuario = table.Column<int>(type: "integer", nullable: false),
+                    nombre_proveedor = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
+                    nombre_finca = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: true),
+                    ubicacion_gps = table.Column<string>(type: "text", nullable: true),
+                    biografia = table.Column<string>(type: "text", nullable: true),
+                    calificacion_promedio = table.Column<float>(type: "real", nullable: true),
+                    id_cuenta_bancaria = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_proveedores", x => x.id_proveedor);
+                    table.ForeignKey(
+                        name: "fk_proveedores_cuenta_bancaria_id_cuenta_bancaria",
+                        column: x => x.id_cuenta_bancaria,
+                        principalTable: "cuenta_bancaria",
+                        principalColumn: "id_cuenta",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_proveedores_usuarios_id_usuario",
+                        column: x => x.id_usuario,
+                        principalTable: "usuarios",
+                        principalColumn: "id_usuario",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "repartidor",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id_usuario = table.Column<int>(type: "integer", nullable: false),
+                    placa_vehiculo = table.Column<string>(type: "text", nullable: false),
+                    estado = table.Column<string>(type: "text", nullable: false),
+                    vehiculo = table.Column<string>(type: "text", nullable: false),
+                    promedio_calificacion = table.Column<decimal>(type: "numeric", nullable: false),
+                    id_cuenta_bancaria = table.Column<int>(type: "integer", nullable: false),
+                    url_foto_perfil = table.Column<string>(type: "text", nullable: false),
+                    municipio = table.Column<string>(type: "text", nullable: false),
+                    departamento = table.Column<string>(type: "text", nullable: false),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_repartidor", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_repartidor_cuenta_bancaria_id_cuenta_bancaria",
+                        column: x => x.id_cuenta_bancaria,
+                        principalTable: "cuenta_bancaria",
+                        principalColumn: "id_cuenta",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_repartidor_usuarios_id_usuario",
                         column: x => x.id_usuario,
                         principalTable: "usuarios",
                         principalColumn: "id_usuario",
@@ -378,7 +494,8 @@ namespace Agro_Trade.Infrastructure.Migrations
                     id_proveedor = table.Column<int>(type: "integer", nullable: false),
                     nombre = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     descripcion = table.Column<string>(type: "text", nullable: true),
-                    unidad_medida = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false)
+                    unidad_medida = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    url_foto_producto = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -592,10 +709,19 @@ namespace Agro_Trade.Infrastructure.Migrations
                 columns: new[] { "id", "created_at", "icon_class", "icon_type", "title" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2026, 9, 26, 4, 32, 5, 828, DateTimeKind.Utc).AddTicks(9944), "icon-green-bg", "user", "El productor 'Finca Los Pinos' se ha registrado en la plataforma" },
-                    { 2, new DateTime(2026, 9, 26, 3, 37, 5, 828, DateTimeKind.Utc).AddTicks(9950), "icon-blue-bg", "check-circle", "Verificación aprobada para 'Transportes El Rápido'" },
-                    { 3, new DateTime(2026, 9, 26, 2, 37, 5, 828, DateTimeKind.Utc).AddTicks(9954), "icon-orange-bg", "alert-circle", "Se ha reportado un problema con el pedido #1045" },
-                    { 4, new DateTime(2026, 9, 25, 4, 37, 5, 828, DateTimeKind.Utc).AddTicks(9955), "icon-purple-bg", "layers", "Nueva categoría 'Frutas Tropicales' creada" }
+                    { 1, new DateTime(2026, 10, 5, 17, 31, 45, 338, DateTimeKind.Utc).AddTicks(8325), "icon-green-bg", "user", "El productor 'Finca Los Pinos' se ha registrado en la plataforma" },
+                    { 2, new DateTime(2026, 10, 5, 16, 36, 45, 338, DateTimeKind.Utc).AddTicks(8335), "icon-blue-bg", "check-circle", "Verificación aprobada para 'Transportes El Rápido'" },
+                    { 3, new DateTime(2026, 10, 5, 15, 36, 45, 338, DateTimeKind.Utc).AddTicks(8340), "icon-orange-bg", "alert-circle", "Se ha reportado un problema con el pedido #1045" },
+                    { 4, new DateTime(2026, 10, 4, 17, 36, 45, 338, DateTimeKind.Utc).AddTicks(8343), "icon-purple-bg", "layers", "Nueva categoría 'Frutas Tropicales' creada" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "tipos_planes",
+                columns: new[] { "id", "beneficios", "coste", "descripcion", "is_active", "nombre_plan", "precio" },
+                values: new object[,]
+                {
+                    { 1, "Acceso estándar, Soporte por email", 0m, "Plan gratuito con funciones básicas", true, "Básico", 0m },
+                    { 2, "Prioridad en búsqueda, Soporte 24/7, Estadísticas avanzadas", 5.00m, "Plan avanzado para productores", true, "Premium", 29.99m }
                 });
 
             migrationBuilder.CreateIndex(
@@ -607,6 +733,16 @@ namespace Agro_Trade.Infrastructure.Migrations
                 name: "ix_conversaciones_id_pedido",
                 table: "conversaciones",
                 column: "id_pedido");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_cuenta_bancaria_id_banco",
+                table: "cuenta_bancaria",
+                column: "id_banco");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_cuenta_bancaria_id_usuario",
+                table: "cuenta_bancaria",
+                column: "id_usuario");
 
             migrationBuilder.CreateIndex(
                 name: "ix_detalles_pedido_id_inventario",
@@ -692,6 +828,11 @@ namespace Agro_Trade.Infrastructure.Migrations
                 column: "id_proveedor");
 
             migrationBuilder.CreateIndex(
+                name: "ix_proveedores_id_cuenta_bancaria",
+                table: "proveedores",
+                column: "id_cuenta_bancaria");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_proveedores_id_usuario",
                 table: "proveedores",
                 column: "id_usuario");
@@ -700,6 +841,11 @@ namespace Agro_Trade.Infrastructure.Migrations
                 name: "ix_registros_transferencia_mock_id_pedido",
                 table: "registros_transferencia_mock",
                 column: "id_pedido");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_repartidor_id_cuenta_bancaria",
+                table: "repartidor",
+                column: "id_cuenta_bancaria");
 
             migrationBuilder.CreateIndex(
                 name: "ix_repartidor_id_usuario",
@@ -715,6 +861,11 @@ namespace Agro_Trade.Infrastructure.Migrations
                 name: "ix_solicitud_repartidor_id_usuario",
                 table: "solicitud_repartidor",
                 column: "id_usuario");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_suscripciones_app_id_plan",
+                table: "suscripciones_app",
+                column: "id_plan");
 
             migrationBuilder.CreateIndex(
                 name: "ix_suscripciones_app_id_usuario",
@@ -770,6 +921,9 @@ namespace Agro_Trade.Infrastructure.Migrations
                 name: "notificaciones_entrega");
 
             migrationBuilder.DropTable(
+                name: "refresh_tokens");
+
+            migrationBuilder.DropTable(
                 name: "registros_transferencia_mock");
 
             migrationBuilder.DropTable(
@@ -785,6 +939,9 @@ namespace Agro_Trade.Infrastructure.Migrations
                 name: "suscripciones_app");
 
             migrationBuilder.DropTable(
+                name: "unidad_de_medida");
+
+            migrationBuilder.DropTable(
                 name: "usuarios_roles");
 
             migrationBuilder.DropTable(
@@ -798,6 +955,9 @@ namespace Agro_Trade.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "permisos");
+
+            migrationBuilder.DropTable(
+                name: "tipos_planes");
 
             migrationBuilder.DropTable(
                 name: "Roles");
@@ -816,6 +976,12 @@ namespace Agro_Trade.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "proveedores");
+
+            migrationBuilder.DropTable(
+                name: "cuenta_bancaria");
+
+            migrationBuilder.DropTable(
+                name: "banco");
 
             migrationBuilder.DropTable(
                 name: "usuarios");
