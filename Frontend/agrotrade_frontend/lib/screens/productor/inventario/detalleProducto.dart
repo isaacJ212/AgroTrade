@@ -170,6 +170,7 @@ class DetalleProducto extends StatelessWidget {
                       AppRoutes.crearOferta,
                       arguments: p,
                     ),
+            ),
             const SizedBox(height: 12),
             // Jafet: Botón para dar de baja un producto lógicamente
             ProductorButton(

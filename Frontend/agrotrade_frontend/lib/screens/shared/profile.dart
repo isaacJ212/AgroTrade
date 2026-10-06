@@ -1,3 +1,4 @@
+import 'package:agrotrade_frontend/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import '../../services/api_session.dart';
 import '../../ui/app_theme.dart';
@@ -194,6 +195,18 @@ class Profile extends StatelessWidget {
                   ),
 
                   ProfileMenuItem(
+                    icon: Icons.card_membership,
+                    title: 'Mis Suscripciones',
+                    onTap: () => Navigator.pushNamed(context, AppRoutes.suscripciones),
+                  ),
+
+                  const Divider(
+                    height: 1,
+                    indent: 48,
+                    color: AppColors.cardBorder,
+                  ),
+
+                  ProfileMenuItem(
                     icon: Icons.settings_outlined,
                     title: 'Configuración',
                     onTap: () {
@@ -243,52 +256,6 @@ class Profile extends StatelessWidget {
             const SizedBox(height: 12),
           ],
         ),
-      ),
-
-      bottomNavigationBar: ProductorBottomNav(
-        items: const [
-          NavElemento(
-            label: 'Inicio',
-            icon: Icons.home_outlined,
-            activeIcon: Icons.home,
-          ),
-          NavElemento(
-            label: 'Explorar',
-            icon: Icons.search_outlined,
-            activeIcon: Icons.search,
-          ),
-          NavElemento(
-            label: 'Pedidos',
-            icon: Icons.shopping_bag_outlined,
-            activeIcon: Icons.shopping_bag,
-          ),
-          NavElemento(
-            label: 'Perfil',
-            icon: Icons.person_outline,
-            activeIcon: Icons.person,
-          ),
-        ],
-        currentIndex: 3,
-        onTap: (index) {
-          final Widget pagina;
-          switch (index) {
-            case 0:
-              pagina = const InicioComprador();
-              break;
-            case 1:
-              pagina = const ExploradorProductos();
-              break;
-            case 2:
-              pagina = const MisPedidosScreen();
-              break;
-            default:
-              return;
-          }
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => pagina),
-          );
-        },
       ),
     );
   }

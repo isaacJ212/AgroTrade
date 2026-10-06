@@ -18,10 +18,12 @@ namespace Agro_Trade.Application.Features.Suscripciones.Commands
     {
 
         private readonly IUnitofWork _unitOfWork;
+        private readonly IEmailService _emailService;
 
-        public CreateSuscripcionCommandHandler(IUnitofWork unitOfWork)
+        public CreateSuscripcionCommandHandler(IUnitofWork unitOfWork, IEmailService emailService)
         {
             _unitOfWork = unitOfWork;
+            _emailService = emailService;
         }
 
         public async Task<Result<int>> Handle(CreateSuscripcionCommand request, CancellationToken ct)
@@ -52,6 +54,17 @@ namespace Agro_Trade.Application.Features.Suscripciones.Commands
 
             await _unitOfWork.Suscripciones.AddAsync(nuevaSuscripcion, ct);
             await _unitOfWork.SaveChangesAsync(ct);
+
+            // Enviar correo de confirmación de suscripción de forma asíncrona pero sin esperar si no es necesario o esperándolo si queremos asegurar.
+            // Para asegurar que llegue, usamos await.
+            try
+            {
+                await _emailService.SendSubscriptionReceiptAsync(usuario.Email, request.Dto.TipoPlan, request.Dto.TarifaPago.ToString("F2"), ct);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al intentar enviar el correo de suscripción: {ex.Message}");
+            }
 
             return Result<int>.Success(201, nuevaSuscripcion.IdSuscripcionApp, "Suscripción activada con éxito.", true);
         }

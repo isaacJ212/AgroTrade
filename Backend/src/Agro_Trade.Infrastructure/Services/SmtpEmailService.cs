@@ -3,7 +3,6 @@ using Mailjet.Client.TransactionalEmails;
 using MailKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
-using MailKit.Security;
 using Agro_Trade.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
@@ -84,6 +83,57 @@ namespace Agro_Trade.Infrastructure.Services
 
 
 
+        }
+
+        public async Task SendSubscriptionReceiptAsync(string toEmail, string planName, string price, CancellationToken ct = default)
+        {
+            var apiKey = _configuration["Mailjet:ApiKey"];
+            var secretKey = _configuration["Mailjet:SecretKey"];
+            var emailSender = _configuration["Mailjet:EmailSender"];
+            var fromName = _configuration["Mailjet:FromName"] ?? "AgroTrade";
+
+            var emailContent = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 12px;'>
+                    <h2 style='color: #0f172a; margin-bottom: 8px;'>¡Suscripción Exitosa!</h2>
+                    <p style='color: #475569; font-size: 16px;'>Hola,</p>
+                    <p style='color: #475569; font-size: 16px;'>Tu suscripción a AgroTrade se ha procesado exitosamente.</p>
+                    <div style='background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 20px 0;'>
+                        <p style='color: #475569; font-size: 16px;'><strong>Plan:</strong> {planName}</p>
+                        <p style='color: #475569; font-size: 16px;'><strong>Total Pagado:</strong> C${price}</p>
+                    </div>
+                    <p style='color: #475569; font-size: 16px;'>Gracias por confiar en nosotros.</p>
+                </div>";
+
+            if (string.IsNullOrWhiteSpace(apiKey) || string.IsNullOrWhiteSpace(secretKey))
+            {
+                throw new InvalidOperationException("Las credenciales de Mailjet no están configuradas en appsettings.json");
+            }
+
+            var client = new MailjetClient(apiKey, secretKey);
+
+            var email = new TransactionalEmailBuilder()
+                .WithFrom(new SendContact(emailSender, fromName))
+                .WithSubject("Recibo de Suscripción - AgroTrade")
+                .WithHtmlPart(emailContent)
+                .WithTo(new SendContact(toEmail))
+                .Build();
+
+            try
+            {
+                var response = await client.SendTransactionalEmailAsync(email);
+                if (response.Messages != null && response.Messages.Length > 0 && response.Messages[0].Status == "success")
+                {
+                    Console.WriteLine($"\n[MAILJET SUCCESS] ¡Recibo enviado a {toEmail}!");
+                }
+                else
+                {
+                    Console.WriteLine($"\n[MAILJET ERROR] El correo no se pudo procesar correctamente.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\n[MAILJET CRITICAL] Ocurrió un error en el cliente: {ex.Message}");
+            }
         }
     }
 }
