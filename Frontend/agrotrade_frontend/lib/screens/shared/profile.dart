@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/api_session.dart';
+import '../../services/auth_api_service.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
 import '../cliente/inicioComprador.dart';
@@ -7,7 +8,9 @@ import '../cliente/misPedidos.dart';
 import '../cliente/exploradorProductos.dart';
 import 'auth/Login.dart';
 import 'editarPerfil.dart';
+import 'change_password_dialog.dart';
 import 'centroAyuda.dart';
+import 'bank_accounts_screen.dart';
 
 class Profile extends StatelessWidget {
   const Profile({super.key});
@@ -194,6 +197,35 @@ class Profile extends StatelessWidget {
                   ),
 
                   ProfileMenuItem(
+                    icon: Icons.account_balance_outlined,
+                    title: 'Cuentas bancarias',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const BankAccountsScreen(),
+                      ),
+                    ),
+                  ),
+
+                  const Divider(
+                    height: 1,
+                    indent: 48,
+                    color: AppColors.cardBorder,
+                  ),
+
+                  ProfileMenuItem(
+                    icon: Icons.lock_outline,
+                    title: 'Cambiar contraseña',
+                    onTap: () => showChangePasswordDialog(context),
+                  ),
+
+                  const Divider(
+                    height: 1,
+                    indent: 48,
+                    color: AppColors.cardBorder,
+                  ),
+
+                  ProfileMenuItem(
                     icon: Icons.settings_outlined,
                     title: 'Configuración',
                     onTap: () {
@@ -230,8 +262,9 @@ class Profile extends StatelessWidget {
             TertiaryButton(
               label: 'Cerrar Sesión',
               icon: Icons.logout,
-              onPressed: () {
-                ApiSession.instance.clear();
+              onPressed: () async {
+                await AuthApiService.instance.logout();
+                if (!context.mounted) return;
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (_) => const Login()),

@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Agro_Trade.Domain.Entities;
+namespace Agro_Trade.Application.Common.DTOs.DatosSolicitudRoles;
 
-namespace Agro_Trade.Domain.Events
-{
-    public class DatosRepartidorDto
+    public class UnseenRequestDto
     {
         //Regex Nicaragua Ceula
       
@@ -26,11 +18,12 @@ namespace Agro_Trade.Domain.Events
        
         public string UrlLicencia { get; set; } = string.Empty;
        
-        public int IdCuentaBancaria { get; set; }
+        public string NumeroCuenta { get; set; } = string.Empty;
+        public string BancoNombre { get; set; } = string.Empty;
 
-      
-
+        
+        
 
 
     }
-}
+

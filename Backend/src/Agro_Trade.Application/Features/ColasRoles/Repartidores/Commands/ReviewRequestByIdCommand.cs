@@ -9,23 +9,36 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Agro_Trade.Application.Features.ColasRoles.Repartidores.Helper;
+using Agro_Trade.Domain.Events;
 
 namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
 {
     public record ReviewRequestByIdCommand(int id, ReviewRequestDto dto) : IRequest<Result<SolicitudRepartidorDto>>;
 
-    public class ReviewRequestByIdCommandHandler(IUnitofWork context, IRepository<UsuarioRol> roles, IRepository<Repartidor> repartidores) : IRequestHandler<ReviewRequestByIdCommand, Result<SolicitudRepartidorDto>>
+    public class ReviewRequestByIdCommandHandler(IUnitofWork context, IRepository<UsuarioRol> roles, IRepository<Repartidor> repartidores, IRepository<CuentaBancaria> _cuentas) : IRequestHandler<ReviewRequestByIdCommand, Result<SolicitudRepartidorDto>>
     {
         public async Task<Result<SolicitudRepartidorDto>> Handle(ReviewRequestByIdCommand request, CancellationToken cancellationToken)
         {
 
             var dto = request.dto;
             var solicitud = await context.SolicitudRepartidor.GetToUpdateAsync(request.id, cancellationToken);
+           
+            
 
             if (solicitud == null) return Result<SolicitudRepartidorDto>.Failure(404, "Solicitud no encontrada");
 
-            if (!solicitud.Estado.Equals("pendiente", StringComparison.OrdinalIgnoreCase)) return Result<SolicitudRepartidorDto>.Failure(400, "La solicitud ya ha sido revisada");
+            if (solicitud.Estado != "pendiente") return Result<SolicitudRepartidorDto>.Failure(400, "La solicitud ya ha sido revisada");
 
+            
+            CuentaBancaria? cuentaBancaria = null;
+            int idCuenta = solicitud.DatosRepartidor.IdCuentaBancaria;
+
+            if (idCuenta > 0)
+            {
+                cuentaBancaria =
+                    await _cuentas.FirstOrDefaultAsync(c => c.IdCuenta == idCuenta, includes: b => b.Banco, cancellationToken:cancellationToken);
+            }
             
             await context.BeginTransactionAsync(cancellationToken);
 
@@ -36,21 +49,17 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
                 {
                     solicitud.Estado = "Aprobada";
                     // COMO ES APROBADA, SE DEBE CREAR EL ROL DE REPARTIDOR PARA EL USUARIO ASI COMO SU PERFIL DE REPARTIDOR
-                    await roles.AddAsync(new UsuarioRol
-                    {
-                        IdUsuario = solicitud.IdUsuario,
-                        IdRol = 3 // ID del rol de repartidor
-                    }, cancellationToken);
-
                     var repartidor = new Repartidor
                     {
                         IdUsuario = solicitud.IdUsuario,
+                        // Inicializar otros campos del perfil de repartidor según sea necesario
                         PlacaVehiculo = solicitud.DatosRepartidor.PlacaVehiculo,
                         Vehiculo = solicitud.DatosRepartidor.TipoVehiculo,
-                        CuentaBancaria = solicitud.DatosRepartidor.NumeroCuenta,
-                        ZonaOperaciones = solicitud.DatosRepartidor.ZonaOperaciones,
+                        IdCuentaBancaria = solicitud.DatosRepartidor.IdCuentaBancaria,
+                        Municipio = solicitud.DatosRepartidor.ZonaOperaciones,
                         UrlFotoPerfil = solicitud.DatosRepartidor.UrlFotoPerfil,
-                        Departamento = solicitud.DatosRepartidor.Departamento,
+                        IsActive = true
+
                     };
 
                     await repartidores.AddAsync(repartidor, cancellationToken);
@@ -71,7 +80,7 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
                 await context.CommitAsync(cancellationToken);
 
                 context.SolicitudRepartidor.ConfirmarRevision();
-                var solicitudDto = ToDto(solicitud);
+                var solicitudDto = SolicitudHelper.ToDto(solicitud, cuentaBancaria);
 
                 if (solicitudDto.Estado == "Rechazada") return Result<SolicitudRepartidorDto>.Success(200, solicitudDto, $"La Solicitud fue rechazada, Comentario del Moderador :{dto.Comentario}", false);
 
@@ -87,18 +96,6 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
 
 
 
-        public SolicitudRepartidorDto ToDto(SolicitudRepartidor solicitud)
-        {
-            return new SolicitudRepartidorDto
-            {
-                IdSolicitud = solicitud.IdSolicitud,
-                IdUsuario = solicitud.IdUsuario,
-                NombreUsuario = solicitud.Usuario?.NombreCompleto ?? string.Empty,
-                DatosRepartidor = solicitud.DatosRepartidor,
-                Estado = solicitud.Estado,
-                FechaSolicitud = solicitud.FechaSolicitud,
-                Departamento = solicitud.DatosRepartidor?.Departamento ?? string.Empty,
-            };
-        }
+       
     }
 }
