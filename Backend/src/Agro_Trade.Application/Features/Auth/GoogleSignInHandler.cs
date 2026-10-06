@@ -61,7 +61,7 @@ namespace Agro_Trade.Application.Features.Auth
                     OAuthProvider = "Google",
                     OAuthProviderId = payload.Subject,
                     IdentidadVerificada = false,
-                    FechaRegistro = DateTime.Now,
+                    FechaRegistro = DateTime.UtcNow,
                 };
                 await _unitOfWork.Users.AddAsync(user, cancellationToken);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);

@@ -30,12 +30,13 @@ namespace Agro_Trade.Infrastructure.Persistence.UnitofWork
         private readonly IRepository<Mensaje> _mensajeRepository;
         private readonly IRepository<Banco> _banco;
         private readonly IRepository<CuentaBancaria> _cuentaBancaria;
+        private readonly IRepository<UnidadDeMedida> _unidadesDeMedida;
 
         private readonly AgroTradeDbContext _context;
         private IDbContextTransaction? _transaction;
         public UnitOfWork(AgroTradeDbContext context, IServiceProvider serviceProvider, IRepository<Categoria> categoriaRepository, IRepository<Producto> productoRepository, IRepository<Proveedor> proveedorRepository, IRepository<Usuario> usuarioRepository, IRepository<InventarioProveedor> inventarioProveedorRepository, IRepository<ImpactoSocial> impactoSocialRepository, IRepository<Valoracion> valoracionRepository, IRepository<Pedido> pedidoRepository
             , IRepository<DetallePedido> detallePedidoRepository, IRepository<Conversacion> conversacionRepository, IRepository<ConversacionParticipante> ConversacionParticpanteRepository
-            , IRepository<Mensaje> mensajeRepository,IRepository<SuscripcionApp> suscripcionAppRepository, IRepository<Banco> banco, IRepository<CuentaBancaria> cuentaBancaria)
+            , IRepository<Mensaje> mensajeRepository, IRepository<SuscripcionApp> suscripcionAppRepository, IRepository<Banco> banco, IRepository<CuentaBancaria> cuentaBancaria, IRepository<UnidadDeMedida> unidadesDeMedida)
         {
             _context = context;
             _serviceProvider = serviceProvider;
@@ -54,7 +55,7 @@ namespace Agro_Trade.Infrastructure.Persistence.UnitofWork
             _mensajeRepository = mensajeRepository;
             _banco = banco;
             _cuentaBancaria = cuentaBancaria;
-
+            _unidadesDeMedida = unidadesDeMedida;
         }
         //PROPIEDADES DE NAVEGACION DE CONTEXTO
         public IUserRepository Users => _serviceProvider.GetRequiredService<IUserRepository>();
@@ -74,8 +75,8 @@ namespace Agro_Trade.Infrastructure.Persistence.UnitofWork
         public IRepository<ConversacionParticipante> ConversacionParticipantes => _ConversacionParticipanteRepository;
         public IRepository<Mensaje> Mensajes => _mensajeRepository;
         public IRepository<Banco> Bancos => _banco;
-
         public IRepository<CuentaBancaria> CuentasBancaria => _cuentaBancaria;
+        public IRepository<UnidadDeMedida> UnidadesDeMedida => _unidadesDeMedida;
 
 
         //CONFIGURACIONES DE PERSISTENCIA
