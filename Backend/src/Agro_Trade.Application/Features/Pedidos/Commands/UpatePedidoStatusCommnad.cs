@@ -20,7 +20,7 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
         IRepository<NotificacionEntrega> notificacionEntregaRepository,
         IRepository<InventarioProveedor> inventarioRepository,
         IRepository<Producto> productoRepository,
-        IRepository<RegistroTransferenciaMock> transferenciaRepository,
+        IRepository<RegistroTransferencia> transferenciaRepository,
         ICartRepository cartRepository,
         IUnitofWork unitOfWork) : IRequestHandler<ConfirmarPagoPedidoCommand, Result<bool>>
     {
@@ -98,7 +98,7 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
                     await inventarioRepository.UpdateAsync(inventario, cancellationToken);
 
                     // Generamos el registro de transferencia para el productor
-                    var transferencia = new RegistroTransferenciaMock
+                    var transferencia = new RegistroTransferencia
                     {
                         IdTransferencia = Guid.NewGuid().ToString("N"),
                         IdPedido = pedido.IdPedido,

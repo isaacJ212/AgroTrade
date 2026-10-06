@@ -16,6 +16,5 @@ namespace Agro_Trade.Application.Common.DTOs.ProductosDtos
         public string? CategoriaNombre { get; set; }
         public decimal Precio { get; set; }
         public string? FotoUrl { get; set; }
-        public bool Activo { get; set; }
     }
 }

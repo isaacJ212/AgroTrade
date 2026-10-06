@@ -1,9 +1,11 @@
 using MediatR;
 using Agro_Trade.Application.Common.DTOs.AuthServices;
 using Agro_Trade.Application.Features.Auth;
+using Agro_Trade.Application.Common.DTOs.TokensDtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Agro_Trade.Controllers
 {
@@ -23,9 +25,10 @@ namespace Agro_Trade.Controllers
         /// Inicio de sesión tradicional mediante Correo y Contraseña.
         /// </summary>
         [HttpPost("login")]
+        [EnableRateLimiting("LoginPolicy")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto, CancellationToken ct)
         {
-            // Enviamos el comando tradicional (asumiendo que devuelve un LoginResponse o un string)
+            // Enviamos el comando tradicional
             var result = await _mediator.Send(new LoginCommand(dto), ct);
 
             if (result.IsSuccess)
@@ -39,6 +42,7 @@ namespace Agro_Trade.Controllers
         /// <summary>
         /// Inicio de sesión y registro automático mediante Google Sign-In.
         /// </summary>
+        [EnableRateLimiting("AgroBotPolicy")]
         [HttpPost("google-signin")]
         public async Task<IActionResult> GoogleSignIn([FromBody] OAuthSignInDto dto, CancellationToken ct)
         {
@@ -53,7 +57,7 @@ namespace Agro_Trade.Controllers
             return StatusCode(result.StatusCode, new { ErrorMessage = result.Message });
         }
 
-
+        [EnableRateLimiting("LoginPolicy")]
         [HttpPost("verify-code")]
         public async Task<IActionResult> VerifyCode([FromBody] VerifyCodeDto dto, CancellationToken ct)
         {
@@ -65,6 +69,37 @@ namespace Agro_Trade.Controllers
             }
 
             return StatusCode(result.StatusCode, new { ErrorMessage = result.Message });
+        }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout([FromBody] RefreshTokenRequest request, CancellationToken ct)
+        {
+            var result = await _mediator.Send(new RevokeRefreshTokenCommand(request), ct);
+            return Ok(result);
+        }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request, CancellationToken ct)
+        {
+            var result = await _mediator.Send(new RefreshTokenCommand(request), ct);
+            return result.IsSuccess
+                ? Ok(result)
+                : StatusCode(result.StatusCode, new { ErrorMessage = result.Message });
+        }
+
+        [HttpPut("complete-info")]
+        [Authorize]
+        public async Task<IActionResult> CompleteInfo([FromBody] GoogleCatchDataDto dto, CancellationToken ct)
+        {
+            var claim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value;
+            int.TryParse(claim, out int id);
+
+            var result = await _mediator.Send(new GoogleDataCatchCommand(id, dto), ct);
+            if (!result.IsSuccess) return StatusCode(result.StatusCode, result);
+            
+            return Ok(result);
+
+
         }
     }
 }

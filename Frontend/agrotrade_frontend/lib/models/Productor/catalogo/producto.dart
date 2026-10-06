@@ -5,7 +5,6 @@ class Producto {
   final String nombre;
   final String? descripcion;
   final String unidadMedida;
-  final bool activo;
 
   const Producto({
     required this.idProducto,
@@ -14,7 +13,6 @@ class Producto {
     required this.nombre,
     this.descripcion,
     required this.unidadMedida,
-    this.activo = true,
   });
 
   factory Producto.fromJson(Map<String, dynamic> json) {
@@ -25,7 +23,6 @@ class Producto {
       nombre: json['nombre'] as String? ?? '',
       descripcion: json['descripcion'] as String?,
       unidadMedida: json['unidadMedida'] as String? ?? '',
-      activo: json['activo'] as bool? ?? true,
     );
   }
 
@@ -37,7 +34,6 @@ class Producto {
       'nombre': nombre,
       'descripcion': descripcion,
       'unidadMedida': unidadMedida,
-      'activo': activo,
     };
   }
 }

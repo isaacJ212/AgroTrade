@@ -63,8 +63,7 @@ namespace Agro_Trade.Application.Features.Productos.Queries
                     Descripcion = p.Descripcion,
                     UnidadMedida = p.UnidadMedida,
                     Precio = inventario?.PrecioVenta ?? 0,
-                    FotoUrl = inventario?.FotoUrl,
-                    Activo = p.Activo
+                    FotoUrl = inventario?.FotoUrl
                 };
             }).ToList();
 

@@ -28,9 +28,10 @@ namespace Agro_Trade.Application.Features.Productos.Commands
                 return Result<bool>.Failure(404, "No se encontró el producto.");
             }
 
-            // Solo eliminamos de forma lógica
-            producto.Activo = false;
-            await _unitOfWork.Productos.UpdateAsync(producto, cancellationToken);
+            // Si quieres validar que no tenga registros asociados (como inventario, pedidos, etc.), puedes hacerlo aquí
+            // Por ahora solo eliminamos el producto
+
+            await _unitOfWork.Productos.DeleteAsync(producto, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result<bool>.Success(200, true, "Producto eliminado correctamente.", true);

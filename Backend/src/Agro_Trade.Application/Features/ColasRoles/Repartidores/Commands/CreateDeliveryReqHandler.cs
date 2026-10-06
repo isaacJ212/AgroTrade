@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Agro_Trade.Domain.Entities;
 using Agro_Trade.Domain.Events;
 using Agro_Trade.Application.Common;

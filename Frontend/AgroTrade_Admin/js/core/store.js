@@ -113,9 +113,7 @@ class AdminStore {
   async approveVerification(idSolicitud, comment = '') {
     try {
       if (typeof apiService !== 'undefined') {
-        // El backend requiere Comentario [Required], si está vacío se envía un texto por defecto
-        const comentario = comment?.trim() || 'Aprobado por el administrador';
-        await apiService.patch(`/DeliveryJobRequest/review/${idSolicitud}`, { estado: 1, comentario });
+        await apiService.patch(`/DeliveryJobRequest/review/${idSolicitud}`, { estado: 1, comentario: comment });
         this.addActivity(`Verificación aprobada ID: ${idSolicitud}`, 'verified', 'icon-green-bg');
         return { success: true };
       }
@@ -128,9 +126,7 @@ class AdminStore {
   async rejectVerification(idSolicitud, comment = '') {
     try {
       if (typeof apiService !== 'undefined') {
-        // El backend requiere Comentario [Required]
-        const comentario = comment?.trim() || 'Rechazado por el administrador';
-        await apiService.patch(`/DeliveryJobRequest/review/${idSolicitud}`, { estado: 2, comentario });
+        await apiService.patch(`/DeliveryJobRequest/review/${idSolicitud}`, { estado: 2, comentario: comment });
         this.addActivity(`Verificación rechazada ID: ${idSolicitud}`, 'alert', 'icon-gray-bg');
         return { success: true };
       }
@@ -230,21 +226,6 @@ class AdminStore {
  
   }
 
-  async getProveedores() {
-    try {
-      if (typeof apiService !== 'undefined') {
-        const res = await apiService.get('/Proveedores');
-        // apiService retorna el JSON crudo: { isSuccess, data: [...], ... }
-        const items = (res && Array.isArray(res.data)) ? res.data : [];
-        return { totalCount: items.length };
-      }
-      return { totalCount: 0 };
-    } catch(e) {
-      console.error("Error loading proveedores", e);
-      return { totalCount: 0 };
-    }
-  }
-
   async getStats() {
     try {
       let stats = { totalUsuarios: 0, totalVentas: 0 };
@@ -254,16 +235,15 @@ class AdminStore {
            if (resStats && resStats.data) stats = resStats.data;
          } catch(e) {}
       }
-      const [catsRes, verifRes, usersRes, proveedoresRes] = await Promise.all([
+      const [catsRes, verifRes, usersRes] = await Promise.all([
         this.getCategories(1, 1),
         this.getVerifications(1, 1).catch(() => ({ totalCount: 0 })),
-        this.getUsers(1, 1).catch(() => ({ totalCount: 0 })),
-        this.getProveedores().catch(() => ({ totalCount: 0 }))
+        this.getUsers(1, 1).catch(() => ({ totalCount: 0 }))
       ]);
 
       return {
         usuariosRegistrados: stats.totalUsuarios || usersRes.totalCount || 0,
-        productores: proveedoresRes.totalCount || 0,
+        productores: 0, 
         verificacionesPendientes: verifRes.totalCount || 0,
         categorias: catsRes.totalCount || 0
       };
