@@ -9,9 +9,12 @@ namespace Agro_Trade.Application.Common.DTOs.UsersDtos
 {
     public class CreateUserDto
     {
-        [Required(ErrorMessage = "El nombre es obligatorio")]
-        [MinLength(15, ErrorMessage ="El Nombre Completo requiere mas de 15 Caracteres")]
-        public string NombreCompleto { get; set; }
+        // Jafet: Se dividió el NombreCompleto en Nombres y Apellidos
+        [Required(ErrorMessage = "Los nombres son obligatorios")]
+        public string Nombres { get; set; }
+        
+        [Required(ErrorMessage = "Los apellidos son obligatorios")]
+        public string Apellidos { get; set; }
 
         [Required(ErrorMessage = "El email es obligatorio")]
         [EmailAddress(ErrorMessage = "Formato de email invlido")]
@@ -31,6 +34,10 @@ namespace Agro_Trade.Application.Common.DTOs.UsersDtos
         
         [MaxLength(30, ErrorMessage = "El Departamento no debe sobrepasar los 30 caracteres ")]
         public string? Departamento { get; set; }
+
+        // Jafet: Se agregó el campo Municipio
+        [MaxLength(30, ErrorMessage = "El Municipio no debe sobrepasar los 30 caracteres ")]
+        public string? Municipio { get; set; }
 
         public int? IdRol { get; set; }
     }

@@ -12,7 +12,10 @@ namespace Agro_Trade.Domain.Entities
         [Key]
         public int IdUsuario { get; set; }
 
-        public string NombreCompleto { get; set; } 
+        // Jafet: Se dividió el NombreCompleto en Nombres y Apellidos, dejando NombreCompleto solo de lectura
+        public string Nombres { get; set; } = string.Empty;
+        public string Apellidos { get; set; } = string.Empty;
+        public string NombreCompleto => $"{Nombres} {Apellidos}".Trim();
         public string Email { get; set; } 
         public string? PasswordHash { get; set; } 
         public bool IdentidadVerificada { get; set; }
@@ -23,6 +26,7 @@ namespace Agro_Trade.Domain.Entities
         public string? Telefono { get; set; }
         public string? DireccionBase { get; set; }
         public string? Departamento { get; set; }
+        public string? Municipio { get; set; }
         public DateTime? FechaRegistro { get; set; }
 
         

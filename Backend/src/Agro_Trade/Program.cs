@@ -45,7 +45,7 @@ namespace Agro_Trade
                         ValidIssuer = builder.Configuration["Jwt:Issuer"],
                         ValidAudience = builder.Configuration["Jwt:Audience"],
                         IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
-                            System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+                            System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "DefaultSecretKeyForDevelopmentOnlyPleaseChangeThisInProduction"))
                     };
                 });
             builder.Services.AddAuthorization();

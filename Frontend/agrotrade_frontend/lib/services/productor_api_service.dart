@@ -341,6 +341,25 @@ class ProductorApiService {
     return true;
   }
 
+  Future<bool> eliminarProducto(int idProducto) async {
+    try {
+      print('DEBUG: [ProductorApiService] ══ DELETE /api/Productos/$idProducto ══');
+      final response = await ApiClient.instance
+          .delete('/api/Productos/$idProducto', authorized: true);
+
+      print('DEBUG: [ProductorApiService] DELETE Status: ${response.statusCode}');
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        ProductorStore.instance.eliminarProducto(idProducto);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('DEBUG: [ProductorApiService] ✗ Error DELETE producto: $e');
+      return false;
+    }
+  }
+
   // ─────────────────────────────────────────────
   //  GET /api/Pedidos/proveedor/{idProveedor}
   //  pedidosRecibidos.dart / sales.dart → lista pedidos del productor

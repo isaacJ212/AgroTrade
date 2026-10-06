@@ -36,7 +36,7 @@ namespace Agro_Trade.Infrastructure.Services
          {
              claims.Add(new Claim(ClaimTypes.Role, role));
            }
-         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? "DefaultSecretKeyForDevelopmentOnlyPleaseChangeThisInProduction"));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(

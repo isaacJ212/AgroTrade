@@ -41,6 +41,18 @@ class UsersApiService {
     return result.data!;
   }
 
+  Future<UserDto> getUserById(int id) async {
+    final response = await ApiClient.instance.get(UserRoutes.byId(id), authorized: true);
+    final result = _decodeResult<UserDto>(
+      response.jsonBody,
+      (json) => UserDto.fromJson(ensureJsonMap(json)),
+    );
+    if (!result.isSuccess || result.data == null) {
+      throw ApiException(response.statusCode, result.message.isNotEmpty ? result.message : 'No se pudo obtener el usuario.');
+    }
+    return result.data!;
+  }
+
   Future<void> updatePassword({
     required int userId,
     required UpdatePasswordRequestDto dto,

@@ -21,6 +21,7 @@ namespace Agro_Trade.Infrastructure.Persistence
         public DbSet<Producto> Productos { get; set; } = null!;
         public DbSet<InventarioProveedor> InventarioProveedor { get; set; } = null!;
         public DbSet<SuscripcionApp> SuscripcionesApp { get; set; } = null!;
+        public DbSet<TipoPlan> TipoPlanes { get; set; } = null!;
         public DbSet<Pedido> Pedidos { get; set; } = null!;
         public DbSet<RegistroTransferenciaMock> RegistrosTransferenciaMock { get; set; } = null!;
         public DbSet<DetallePedido> DetallesPedido { get; set; } = null!;

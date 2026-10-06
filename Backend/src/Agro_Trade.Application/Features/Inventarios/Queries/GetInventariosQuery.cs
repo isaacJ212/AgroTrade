@@ -10,7 +10,8 @@ using Agro_Trade.Application.Common.Interface;
 
 namespace Agro_Trade.Application.Features.Inventarios.Queries
 {
-    public record GetInventariosQuery : IRequest<Result<List<InventarioDtos>>>;
+    // Jafet: Se añadió el filtro de Estado opcional para manejar el inventario
+    public record GetInventariosQuery(string? Estado = null) : IRequest<Result<List<InventarioDtos>>>;
 
     public class GetInventariosQueryHandler : IRequestHandler<GetInventariosQuery, Result<List<InventarioDtos>>>
     {
@@ -23,8 +24,20 @@ namespace Agro_Trade.Application.Features.Inventarios.Queries
 
         public async Task<Result<List<InventarioDtos>>> Handle(GetInventariosQuery request, CancellationToken cancellationToken)
         {
-            
+            // Modificado para poder devolver todo o filtrar por estado simulado
             var inventarios = await _unitOfWork.InventarioProveedor.FindAsync(i => i.Disponible, cancellationToken);
+            
+            // Si viene filtro de estado (Disponible, Poco inventario, Agotado), aplicamos lógica en memoria
+            if (!string.IsNullOrEmpty(request.Estado))
+            {
+                inventarios = request.Estado.ToLower() switch
+                {
+                    "disponible" => inventarios.Where(i => i.StockActual > 20).ToList(),
+                    "poco inventario" => inventarios.Where(i => i.StockActual > 0 && i.StockActual <= 20).ToList(),
+                    "agotado" => inventarios.Where(i => i.StockActual <= 0).ToList(),
+                    _ => inventarios
+                };
+            }
             
             if (inventarios == null || !inventarios.Any())
             {

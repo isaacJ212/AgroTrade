@@ -21,9 +21,11 @@ namespace Agro_Trade.Application.Features.Productos.Queries
 
         public async Task<Result<PaginatedResultDto<ProductoDto>>> Handle(GetProductosQuery request, CancellationToken cancellationToken)
         {
+            // Jafet: Aquí filtramos para traer únicamente los productos que estén activos (Soft delete aplicado)
             var query = _unitOfWork.Productos.GetQueryable()
                 .Include(p => p.Categoria)
                 .Include(p => p.Inventarios)
+                .Where(p => p.Activo)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(request.Search))

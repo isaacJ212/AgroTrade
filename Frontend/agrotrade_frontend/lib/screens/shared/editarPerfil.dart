@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:agrotrade_frontend/ui/app_theme.dart';
 import 'package:agrotrade_frontend/ui/components.dart';
+import '../../services/users_api_service.dart';
 import '../../services/api_session.dart';
+import '../../models/api/user_models.dart';
 
 class EditarPerfil extends StatefulWidget {
   const EditarPerfil({super.key});
@@ -11,40 +13,103 @@ class EditarPerfil extends StatefulWidget {
 }
 
 class _EditarPerfilState extends State<EditarPerfil> {
-  late TextEditingController _nameController;
+  late TextEditingController _nombresController;
+  late TextEditingController _apellidosController;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
-  late TextEditingController _locationController;
+  late TextEditingController _departamentoController;
+  late TextEditingController _municipioController;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    // Mock data pre-filled
-    _nameController = TextEditingController(
-      text: ApiSession.instance.userName ?? 'María González',
-    );
-    _emailController = TextEditingController(text: 'maria@agrotrade.com');
-    _phoneController = TextEditingController(text: '+505 8888 8888');
-    _locationController = TextEditingController(text: 'Jinotepe, Carazo');
+    _nombresController = TextEditingController();
+    _apellidosController = TextEditingController();
+    _emailController = TextEditingController();
+    _phoneController = TextEditingController();
+    _departamentoController = TextEditingController();
+    _municipioController = TextEditingController();
+    _loadUserProfile();
+  }
+
+  Future<void> _loadUserProfile() async {
+    try {
+      final userIdStr = ApiSession.instance.userId;
+      if (userIdStr != null) {
+        final userId = int.tryParse(userIdStr);
+        if (userId != null) {
+          final user = await UsersApiService.instance.getUserById(userId);
+          setState(() {
+            final parts = user.name.split(' ');
+            _nombresController.text = parts.isNotEmpty ? parts[0] : '';
+            _apellidosController.text = parts.length > 1 ? parts.sublist(1).join(' ') : '';
+            _emailController.text = user.email;
+            _phoneController.text = user.telefono ?? '';
+            _departamentoController.text = user.departamento ?? '';
+            _municipioController.text = user.municipio ?? '';
+            _isLoading = false;
+          });
+          return;
+        }
+      }
+    } catch (e) {
+      debugPrint("Error loading user: $e");
+    }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _nombresController.dispose();
+    _apellidosController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
-    _locationController.dispose();
+    _departamentoController.dispose();
+    _municipioController.dispose();
     super.dispose();
   }
 
-  void _saveProfile() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Perfil guardado exitosamente'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-    Navigator.pop(context);
+  Future<void> _saveProfile() async {
+    try {
+      final userIdStr = ApiSession.instance.userId;
+      if (userIdStr != null) {
+        final userId = int.tryParse(userIdStr);
+        if (userId != null) {
+          await UsersApiService.instance.updateUser(
+            userId: userId,
+            // Jafet: Se integró el fetch a la API para enviar los campos actualizados (Nombres, Apellidos, Municipio)
+            dto: UpdateUserRequestDto(
+              nombres: _nombresController.text,
+              apellidos: _apellidosController.text,
+              telefono: _phoneController.text,
+              departamento: _departamentoController.text,
+              municipio: _municipioController.text,
+            ),
+          );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Perfil guardado exitosamente'),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+            Navigator.pop(context);
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al guardar: $e'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -74,7 +139,9 @@ class _EditarPerfilState extends State<EditarPerfil> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
+      body: _isLoading 
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         child: Column(
           children: [
@@ -134,9 +201,15 @@ class _EditarPerfilState extends State<EditarPerfil> {
 
             // Form Fields
             AppTextField(
-              controller: _nameController,
-              label: 'Nombre completo',
-              hint: 'Ingresa tu nombre completo',
+              controller: _nombresController,
+              label: 'Nombres',
+              hint: 'Ingresa tus nombres',
+            ),
+            const SizedBox(height: 20),
+            AppTextField(
+              controller: _apellidosController,
+              label: 'Apellidos',
+              hint: 'Ingresa tus apellidos',
             ),
             const SizedBox(height: 20),
 
@@ -157,9 +230,15 @@ class _EditarPerfilState extends State<EditarPerfil> {
             const SizedBox(height: 20),
 
             AppTextField(
-              controller: _locationController,
-              label: 'Ubicación',
-              hint: 'Ej: Jinotepe, Carazo',
+              controller: _departamentoController,
+              label: 'Departamento',
+              hint: 'Ej: Carazo',
+            ),
+            const SizedBox(height: 20),
+            AppTextField(
+              controller: _municipioController,
+              label: 'Municipio',
+              hint: 'Ej: Jinotepe',
             ),
             const SizedBox(height: 32),
 

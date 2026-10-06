@@ -4,6 +4,7 @@ using Agro_Trade.Domain.Events;
 using Agro_Trade.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Agro_Trade.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AgroTradeDbContext))]
-    partial class AgroTradeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261006034844_UpdateUsuarioAndTipoPlan")]
+    partial class UpdateUsuarioAndTipoPlan
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

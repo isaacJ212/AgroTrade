@@ -1,56 +1,68 @@
 import 'json_helpers.dart';
 
 class CreateUserRequestDto {
-  final String nombreCompleto;
+  final String nombres;
+  final String apellidos;
   final String email;
   final String password;
   final String? telefono;
   final String? direccionBase;
   final String? departamento;
+  final String? municipio;
   final int? idRol;
 
   const CreateUserRequestDto({
-    required this.nombreCompleto,
+    required this.nombres,
+    required this.apellidos,
     required this.email,
     required this.password,
     this.telefono,
     this.direccionBase,
     this.departamento,
+    this.municipio,
     this.idRol,
   });
 
   Map<String, dynamic> toJson() => {
-        'nombreCompleto': nombreCompleto,
+        'nombres': nombres,
+        'apellidos': apellidos,
         'email': email,
         'password': password,
         if (telefono != null && telefono!.isNotEmpty) 'telefono': telefono,
         if (direccionBase != null && direccionBase!.isNotEmpty) 'direccionBase': direccionBase,
         if (departamento != null && departamento!.isNotEmpty) 'departamento': departamento,
+        if (municipio != null && municipio!.isNotEmpty) 'municipio': municipio,
         if (idRol != null) 'idRol': idRol,
       };
 }
 
 class UpdateUserRequestDto {
-  final String? nombreCompleto;
+  final String? nombres;
+  final String? apellidos;
   final String? email;
   final String? telefono;
   final String? direccionBase;
   final String? departamento;
+  final String? municipio;
 
   const UpdateUserRequestDto({
-    this.nombreCompleto,
+    this.nombres,
+    this.apellidos,
     this.email,
     this.telefono,
     this.direccionBase,
     this.departamento,
+    this.municipio,
   });
 
   Map<String, dynamic> toJson() => {
-        if (nombreCompleto != null) 'nombreCompleto': nombreCompleto,
+        if (nombres != null) 'nombres': nombres,
+        if (apellidos != null) 'apellidos': apellidos,
         if (email != null) 'email': email,
         if (telefono != null) 'telefono': telefono,
         if (direccionBase != null) 'direccionBase': direccionBase,
         if (departamento != null) 'departamento': departamento,
+        if (municipio != null) 'municipio': municipio,
       };
 }
 
@@ -77,6 +89,7 @@ class UserDto {
   final String? telefono;
   final String? direccionBase;
   final String? departamento;
+  final String? municipio;
   final String estadoCuenta;
   final DateTime? fechaRegistro;
   final List<String> roles;
@@ -89,6 +102,7 @@ class UserDto {
     this.telefono,
     this.direccionBase,
     this.departamento,
+    this.municipio,
     this.estadoCuenta = '',
     this.fechaRegistro,
     this.roles = const [],
@@ -103,6 +117,7 @@ class UserDto {
       telefono: readString(json, const ['Telefono', 'telefono']),
       direccionBase: readString(json, const ['DireccionBase', 'direccionBase']),
       departamento: readString(json, const ['Departamento', 'departamento']),
+      municipio: readString(json, const ['Municipio', 'municipio']),
       estadoCuenta: readString(json, const ['EstadoCuenta', 'estadoCuenta']) ?? '',
       fechaRegistro: readDateTime(json, const ['FechaRegistro', 'fechaRegistro']),
       roles: (json['Roles'] ?? json['roles'] as List?)?.map<String>((e) => e.toString()).toList() ?? <String>[],

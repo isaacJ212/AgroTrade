@@ -27,14 +27,16 @@ namespace Agro_Trade.Application.Features.Usuarios.Commands
                  
                 var newUser = new Usuario
                 {
-                    NombreCompleto = dto.NombreCompleto,
+                    Nombres = dto.Nombres,
+                    Apellidos = dto.Apellidos,
                     Email = dto.Email,
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
                     IdentidadVerificada = false,
                     FechaRegistro = DateTime.UtcNow,
                     Telefono = dto.Telefono,
-                    DireccionBase = dto.DireccionBase
-
+                    DireccionBase = dto.DireccionBase,
+                    Departamento = dto.Departamento,
+                    Municipio = dto.Municipio
                 };
                 var user = await context.Users.AddAsync(newUser, ct);
 
@@ -57,7 +59,7 @@ namespace Agro_Trade.Application.Features.Usuarios.Commands
 
                     var mapped = new UserDto {
                         Id = user.IdUsuario,
-                        Name = user.NombreCompleto,
+                        Name = user.Nombres + " " + user.Apellidos,
                         Email = user.Email,
                         IdentidadVerificada = user.IdentidadVerificada,
                         Telefono = user.Telefono,

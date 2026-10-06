@@ -20,12 +20,14 @@ class Registro extends StatefulWidget {
 }
 
 class _RegistroState extends State<Registro> {
-  final TextEditingController _nombreController = TextEditingController();
+  final TextEditingController _nombresController = TextEditingController();
+  final TextEditingController _apellidosController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmController = TextEditingController();
   final TextEditingController _numberController = TextEditingController();
   final TextEditingController _departamentController = TextEditingController();
+  final TextEditingController _municipioController = TextEditingController();
 
   String? _nombreError;
   String? _emailError;
@@ -58,12 +60,14 @@ class _RegistroState extends State<Registro> {
 
   @override
   void dispose() {
-    _nombreController.dispose();
+    _nombresController.dispose();
+    _apellidosController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmController.dispose();
     _numberController.dispose();
     _departamentController.dispose();
+    _municipioController.dispose();
     super.dispose();
   }
 
@@ -77,18 +81,16 @@ class _RegistroState extends State<Registro> {
 
     //Lectura
 
-    final nombre = _nombreController.text.trim();
+    final nombres = _nombresController.text.trim();
+    final apellidos = _apellidosController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
     final confirm = _confirmController.text.trim();
     final city = _departamentController.text.trim();
     final telefono = _numberController.text.trim();
 
-    // --- NOMBRE: backend exige al menos 15 caracteres ---
-    if (nombre.isEmpty) {
-      nombreError = "El nombre es obligatorio";
-    } else if (nombre.length < 15) {
-      nombreError = "Mínimo 15 caracteres";
+    if (nombres.isEmpty || apellidos.isEmpty) {
+      nombreError = "Los nombres y apellidos son obligatorios";
     }
 
     // --- EMAIL: formato básico ---
@@ -171,12 +173,15 @@ class _RegistroState extends State<Registro> {
     try {
       print("DEBUG: [Registro] Iniciando creación de cuenta con idRol: $_idRol");
       await UsersApiService.instance.createUser(
+        // Jafet: Modificado para enviar Nombres, Apellidos y Municipio en el request de registro
         CreateUserRequestDto(
-          nombreCompleto: _nombreController.text.trim(),
+          nombres: _nombresController.text.trim(),
+          apellidos: _apellidosController.text.trim(),
           email: _emailController.text.trim(),
           password: _passwordController.text,
           telefono: _numberController.text.trim(),
           departamento: _departamentController.text.trim(),
+          municipio: _municipioController.text.trim(),
           idRol: _idRol,
         ),
       );
@@ -256,10 +261,16 @@ class _RegistroState extends State<Registro> {
                 ),
                 const SizedBox(height: 28),
                 AppTextField(
-                  hint: "Ej: Juan Perez Lopez",
-                  label: "Nombre Completo",
-                  controller: _nombreController,
+                  hint: "Ej: Juan Perez",
+                  label: "Nombres",
+                  controller: _nombresController,
                   errorText: _nombreError,
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
+                  hint: "Ej: Lopez",
+                  label: "Apellidos",
+                  controller: _apellidosController,
                 ),
                 const SizedBox(height: 16),
                 AppTextField(
@@ -297,6 +308,12 @@ class _RegistroState extends State<Registro> {
                   label: 'Departamento',
                   errorText: _cityError,
                   controller: _departamentController,
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
+                  hint: "Managua",
+                  label: 'Municipio',
+                  controller: _municipioController,
                 ),
                 const SizedBox(height: 16),
 

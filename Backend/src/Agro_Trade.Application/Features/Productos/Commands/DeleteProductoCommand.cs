@@ -28,13 +28,13 @@ namespace Agro_Trade.Application.Features.Productos.Commands
                 return Result<bool>.Failure(404, "No se encontró el producto.");
             }
 
-            // Si quieres validar que no tenga registros asociados (como inventario, pedidos, etc.), puedes hacerlo aquí
-            // Por ahora solo eliminamos el producto
-
-            await _unitOfWork.Productos.DeleteAsync(producto, cancellationToken);
+            // En lugar de eliminar físicamente, hacemos un Soft Delete
+            // Jafet: Aquí se modificó para hacer un update del campo Activo a false en lugar de borrarlo físicamente
+            producto.Activo = false;
+            await _unitOfWork.Productos.UpdateAsync(producto, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Result<bool>.Success(200, true, "Producto eliminado correctamente.", true);
+            return Result<bool>.Success(200, true, "Producto dado de baja correctamente.", true);
         }
     }
 }

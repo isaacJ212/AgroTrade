@@ -44,10 +44,11 @@ namespace Agro_Trade.Controllers
 
 
 
+        // Jafet: Se añadió el parámetro 'estado' para filtrar el inventario (Disponible, poco inventario, agotado)
         [HttpGet]
-        public async Task<ActionResult<Result<List<InventarioDtos>>>> Get(CancellationToken ct)
+        public async Task<ActionResult<Result<List<InventarioDtos>>>> Get([FromQuery] string? estado, CancellationToken ct)
         {
-            var query = new GetInventariosQuery();
+            var query = new GetInventariosQuery(estado);
             var result = await _mediator.Send(query, ct);
     
             return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, result);
