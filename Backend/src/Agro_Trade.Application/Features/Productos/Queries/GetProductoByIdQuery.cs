@@ -32,7 +32,7 @@ namespace Agro_Trade.Application.Features.Productos.Queries
                 Nombre = producto.Nombre,
                 Descripcion = producto.Descripcion,
                 UnidadMedida = producto.UnidadMedida,
-                FotoUrl = producto.urlFotoProducto
+                Activo = producto.Activo
             };
             return Result<ProductoDto?>.Success(200, data, "Producto obtenido correctamente.", true);
         }

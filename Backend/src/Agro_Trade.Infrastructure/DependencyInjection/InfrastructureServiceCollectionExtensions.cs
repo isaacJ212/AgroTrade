@@ -45,7 +45,6 @@ namespace Agro_Trade.Infrastructure.DependencyInjection
             services.AddScoped<IStorageService, SupabaseStorageService>();
 
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            services.AddScoped<IUserRepository, UserRepository>();
             services.AddMemoryCache();
             services.AddScoped<ICartRepository, CartRepository>();
             services.AddScoped<ITokenServices, TokenServices>();

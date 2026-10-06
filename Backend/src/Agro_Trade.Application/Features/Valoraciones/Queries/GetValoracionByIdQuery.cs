@@ -33,7 +33,7 @@ namespace Agro_Trade.Application.Features.Valoraciones.Queries
                 IdValoracion = valoracion.IdValoracion,
                 IdPedido = valoracion.IdPedido,
                 IdUsuarioCliente = valoracion.IdUsuarioCliente,
-                NombreCliente = $"{valoracion.UsuarioCliente.Nombre} {valoracion.UsuarioCliente.PrimerApellido} {valoracion.UsuarioCliente.SegundoApellido}".Trim(),
+                NombreCliente = valoracion.UsuarioCliente.NombreCompleto,
                 IdProveedor = valoracion.IdProveedor,
                 NombreProveedor = valoracion.Proveedor.NombreProveedor,
                 TipoValoracion = valoracion.TipoValoracion,

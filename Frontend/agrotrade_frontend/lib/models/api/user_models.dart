@@ -20,16 +20,14 @@ class CreateUserRequestDto {
   });
 
   Map<String, dynamic> toJson() => {
-    'nombreCompleto': nombreCompleto,
-    'email': email,
-    'password': password,
-    if (telefono != null && telefono!.isNotEmpty) 'telefono': telefono,
-    if (direccionBase != null && direccionBase!.isNotEmpty)
-      'direccionBase': direccionBase,
-    if (departamento != null && departamento!.isNotEmpty)
-      'departamento': departamento,
-    if (idRol != null) 'idRol': idRol,
-  };
+        'nombreCompleto': nombreCompleto,
+        'email': email,
+        'password': password,
+        if (telefono != null && telefono!.isNotEmpty) 'telefono': telefono,
+        if (direccionBase != null && direccionBase!.isNotEmpty) 'direccionBase': direccionBase,
+        if (departamento != null && departamento!.isNotEmpty) 'departamento': departamento,
+        if (idRol != null) 'idRol': idRol,
+      };
 }
 
 class UpdateUserRequestDto {
@@ -48,12 +46,12 @@ class UpdateUserRequestDto {
   });
 
   Map<String, dynamic> toJson() => {
-    if (nombreCompleto != null) 'nombreCompleto': nombreCompleto,
-    if (email != null) 'email': email,
-    if (telefono != null) 'telefono': telefono,
-    if (direccionBase != null) 'direccionBase': direccionBase,
-    if (departamento != null) 'departamento': departamento,
-  };
+        if (nombreCompleto != null) 'nombreCompleto': nombreCompleto,
+        if (email != null) 'email': email,
+        if (telefono != null) 'telefono': telefono,
+        if (direccionBase != null) 'direccionBase': direccionBase,
+        if (departamento != null) 'departamento': departamento,
+      };
 }
 
 class UpdatePasswordRequestDto {
@@ -66,9 +64,9 @@ class UpdatePasswordRequestDto {
   });
 
   Map<String, dynamic> toJson() => {
-    'currentPassword': currentPassword,
-    'newPassword': newPassword,
-  };
+        'currentPassword': currentPassword,
+        'newPassword': newPassword,
+      };
 }
 
 class UserDto {
@@ -98,36 +96,17 @@ class UserDto {
 
   factory UserDto.fromJson(Map<String, dynamic> json) {
     return UserDto(
-      id: readInt(json, const ['Id', 'id', 'UserId', 'userId']) ?? 0,
-      name:
-          readString(json, const [
-            'Name',
-            'name',
-            'NombreCompleto',
-            'nombreCompleto',
-          ]) ??
-          '',
+      id: readInt(json, const ['Id', 'id']) ?? 0,
+      name: readString(json, const ['Name', 'name']) ?? '',
       email: readString(json, const ['Email', 'email']) ?? '',
-      identidadVerificada:
-          readBool(json, const [
-            'IdentidadVerificada',
-            'identidadVerificada',
-          ]) ??
-          false,
+      identidadVerificada: readBool(json, const ['IdentidadVerificada', 'identidadVerificada']) ?? false,
       telefono: readString(json, const ['Telefono', 'telefono']),
       direccionBase: readString(json, const ['DireccionBase', 'direccionBase']),
       departamento: readString(json, const ['Departamento', 'departamento']),
-      estadoCuenta:
-          readString(json, const ['EstadoCuenta', 'estadoCuenta']) ?? '',
-      fechaRegistro: readDateTime(json, const [
-        'FechaRegistro',
-        'fechaRegistro',
-      ]),
-      roles:
-          (json['Roles'] ?? json['roles'] as List?)
-              ?.map<String>((e) => e.toString())
-              .toList() ??
-          <String>[],
+      estadoCuenta: readString(json, const ['EstadoCuenta', 'estadoCuenta']) ?? '',
+      fechaRegistro: readDateTime(json, const ['FechaRegistro', 'fechaRegistro']),
+      roles: (json['Roles'] ?? json['roles'] as List?)?.map<String>((e) => e.toString()).toList() ?? <String>[],
     );
   }
 }
+

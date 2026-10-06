@@ -15,6 +15,7 @@ namespace Agro_Trade.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class UsersController : ControllerBase
     {
         private readonly IHttpContextAccessor _contextAccessor;
@@ -61,8 +62,6 @@ namespace Agro_Trade.Controllers
             var result = await mediator.Send(new GetUserByEmailQuery(email), ct);
             return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, new { ErrorMesagge = result.Message });
         }
-        
-      
 
         /// <summary>
         /// Registra un nuevo usuario en la base de datos.
@@ -112,7 +111,7 @@ namespace Agro_Trade.Controllers
             int.TryParse(tokenUserIdStr, out int tokenUserId);
 
             // 2. revisar si tiene el rol "Admin" 
-            bool esAdmin = User.IsInRole("Administrador");
+            bool esAdmin = User.IsInRole("Admin");
 
             // 3. El filtro de seguridad: Si NO es admin Y el ID del token NO coincide con el de la ruta se deniega el acceso
             if (!esAdmin && tokenUserId != id)
@@ -122,101 +121,6 @@ namespace Agro_Trade.Controllers
             var result = await mediator.Send(new UpdatePasswordCommand(id, dto));
             return result.IsSuccess ? NoContent() : StatusCode(result.StatusCode, new { ErrorMesagge = result.Message });
         }
-
-        /// <summary>
-        /// Envía un código de verificación al correo del usuario autenticado.
-        /// </summary>
-        [Authorize]
-        [HttpPost("{id:int}/password/send-code")]
-        public async Task<IActionResult> SendChangePasswordCode([FromRoute] int id, CancellationToken ct)
-        {
-            if (!IsAuthenticatedUser(id))
-                return Unauthorized();
-
-            await mediator.Send(new SendChangePasswordCodeCommand(id), ct);
-            return NoContent();
-        }
-
-        /// <summary>
-        /// Valida el código enviado al correo del usuario autenticado.
-        /// </summary>
-        [Authorize]
-        [HttpPost("{id:int}/password/verify-code")]
-        public async Task<IActionResult> VerifyChangePasswordCode(
-            [FromRoute] int id,
-            [FromBody] VerifyChangePasswordOtpDto dto,
-            CancellationToken ct)
-        {
-            if (!IsAuthenticatedUser(id))
-                return Unauthorized();
-
-            await mediator.Send(new VerifyChangePasswordOtpCommand(id, dto.Code), ct);
-            return NoContent();
-        }
-
-        /// <summary>
-        /// Cambia la contraseña después de validar el código de seguridad.
-        /// </summary>
-        [Authorize]
-        [HttpPost("{id:int}/password/reset")]
-        public async Task<IActionResult> ResetPasswordAfterCode(
-            [FromRoute] int id,
-            [FromBody] ResetPasswordAfterOtpDto dto,
-            CancellationToken ct)
-        {
-            if (!IsAuthenticatedUser(id))
-                return Unauthorized();
-
-            await mediator.Send(new ResetPasswordAfterOtpCommand(id, dto.NewPassword), ct);
-            return NoContent();
-        }
-
-        /// <summary>
-        /// Solicita un OTP de recuperación sin revelar si el correo está registrado.
-        /// </summary>
-        [AllowAnonymous]
-        [HttpPost("password/recovery/send-code")]
-        public async Task<IActionResult> SendPasswordRecoveryCode(
-            [FromBody] PasswordRecoveryEmailDto dto,
-            CancellationToken ct)
-        {
-            await mediator.Send(new SendPasswordRecoveryCodeCommand(dto.Email), ct);
-            return NoContent();
-        }
-
-        /// <summary>
-        /// Valida el OTP de recuperación asociado al correo.
-        /// </summary>
-        [AllowAnonymous]
-        [HttpPost("password/recovery/verify-code")]
-        public async Task<IActionResult> VerifyPasswordRecoveryCode(
-            [FromBody] VerifyPasswordRecoveryCodeDto dto,
-            CancellationToken ct)
-        {
-            await mediator.Send(new VerifyPasswordRecoveryCodeCommand(dto.Email, dto.Code), ct);
-            return NoContent();
-        }
-
-        /// <summary>
-        /// Restablece la contraseña después de validar el OTP de recuperación.
-        /// </summary>
-        [AllowAnonymous]
-        [HttpPost("password/recovery/reset")]
-        public async Task<IActionResult> ResetPasswordByRecoveryCode(
-            [FromBody] ResetPasswordByRecoveryCodeDto dto,
-            CancellationToken ct)
-        {
-            await mediator.Send(new ResetPasswordByRecoveryCodeCommand(dto.Email, dto.NewPassword), ct);
-            return NoContent();
-        }
-
-        private bool IsAuthenticatedUser(int userId)
-        {
-            var userIdValue = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            return int.TryParse(userIdValue, out var authenticatedUserId)
-                && authenticatedUserId == userId;
-        }
-
         /// <summary>
         /// Elimina permanentemente a un usuario del sistema (Requiere permisos de administrador o ser el mismo usuario).
         /// </summary>

@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Folder Include="Indentity\" />
+    <Folder Include="Persistence\Migrations\" />
   </ItemGroup>
 
   <ItemGroup>

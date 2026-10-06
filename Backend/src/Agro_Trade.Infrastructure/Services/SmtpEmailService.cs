@@ -17,15 +17,14 @@ namespace Agro_Trade.Infrastructure.Services
             _configuration = configuration;
         }
 
-        public async Task SendVerificationCodeAsync(string toEmail, string code, string subject, string title, string description, CancellationToken ct = default)
+        public async Task SendVerificationCodeAsync(string toEmail, string code, CancellationToken ct = default)
         {
-            
-            var smtpLogin = _configuration["GmailSmtp:SmtpLogin"];
-            var smtpPassword = _configuration["GmailSmtp:SmtpPassword"];
-            var emailSender = _configuration["GmailSmtp:EmailSender"];
-            var fromName = _configuration["GmailSmtp:FromName"] ?? "AgroTrade";
-            var smtpHost = _configuration["GmailSmtp:SmtpHost"] ?? "smtp.gmail.com";
-            var smtpPortString = _configuration["GmailSmtp:SmtpPort"] ?? "587";
+            var smtpLogin = _configuration["Brevo:SmtpLogin"];
+            var smtpPassword = _configuration["Brevo:SmtpPassword"];
+            var emailSender = _configuration["Brevo:EmailSender"];
+            var fromName = _configuration["Brevo:FromName"] ?? "AgroTrade";
+            var smtpHost = _configuration["Brevo:SmtpHost"] ?? "smtp-relay.brevo.com";
+            var smtpPortString = _configuration["Brevo:SmtpPort"] ?? "587";
             
             if (!int.TryParse(smtpPortString, out int smtpPort)) 
             {
@@ -34,25 +33,25 @@ namespace Agro_Trade.Infrastructure.Services
 
             var emailContent = $@"
                 <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 12px;'>
-                    <h2 style='color: #0f172a; margin-bottom: 8px;'>{WebUtility.HtmlEncode(title)}</h2>
+                    <h2 style='color: #0f172a; margin-bottom: 8px;'>Código de verificación</h2>
                     <p style='color: #475569; font-size: 16px;'>Hola,</p>
-                    <p style='color: #475569; font-size: 16px;'>{WebUtility.HtmlEncode(description)}</p>
+                    <p style='color: #475569; font-size: 16px;'>Tu código de verificación para Agro Trade es:</p>
                     <div style='background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; text-align: center; margin: 20px 0;'>
-                        <strong style='font-size: 28px; letter-spacing: 4px;'>{WebUtility.HtmlEncode(code)}</strong>
+                        <strong style='font-size: 28px; letter-spacing: 4px;'>{code}</strong>
                     </div>
-                    <p style='color: #475569; font-size: 16px;'>Ingresa este código en el formulario para continuar.</p>
+                    <p style='color: #475569; font-size: 16px;'>Ingresa este código para completar tu registro.</p>
                     <p style='color: #94a3b8; font-size: 14px; margin-top: 24px;'>Este código expira en 10 minutos.</p>
                 </div>";
 
             if (string.IsNullOrWhiteSpace(smtpLogin) || string.IsNullOrWhiteSpace(smtpPassword))
             {
-                throw new InvalidOperationException("Las credenciales de Gmail SMTP no están configuradas en appsettings.json");
+                throw new InvalidOperationException("Las credenciales de Brevo no están configuradas en appsettings.json");
             }
 
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(fromName, emailSender));
             message.To.Add(new MailboxAddress("", toEmail));
-            message.Subject = subject;
+            message.Subject = "Código de Verificación 2FA - AgroTrade";
             
             var bodyBuilder = new BodyBuilder { HtmlBody = emailContent };
             message.Body = bodyBuilder.ToMessageBody();
@@ -60,18 +59,16 @@ namespace Agro_Trade.Infrastructure.Services
             try
             {
                 using var client = new SmtpClient();
-                client.ServerCertificateValidationCallback = (s, c, h, e) => true; 
-                // Gmail funciona perfectamente con el puerto 587 y StartTls
                 await client.ConnectAsync(smtpHost, smtpPort, SecureSocketOptions.StartTls, ct);
                 await client.AuthenticateAsync(smtpLogin, smtpPassword, ct);
                 await client.SendAsync(message, ct);
                 await client.DisconnectAsync(true, ct);
 
-                Console.WriteLine($"\n[GMAIL SUCCESS] ¡Correo 2FA enviado con éxito a {toEmail}!");
+                Console.WriteLine($"\n[BREVO SUCCESS] ¡Correo 2FA enviado con éxito a {toEmail}!");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"\n[GMAIL CRITICAL] Ocurrió un error al enviar el correo: {ex.Message}");
+                Console.WriteLine($"\n[BREVO CRITICAL] Ocurrió un error al enviar el correo: {ex.Message}");
                 throw;
             }
         }

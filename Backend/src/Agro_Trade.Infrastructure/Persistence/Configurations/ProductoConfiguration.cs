@@ -17,6 +17,9 @@ namespace Agro_Trade.Infrastructure.Persistence.Configurations
 
             builder.Property(p => p.Nombre).IsRequired().HasMaxLength(200);
             builder.Property(p => p.UnidadMedida).IsRequired().HasMaxLength(50);
+            builder.Property(p => p.Activo).HasDefaultValue(true);
+
+            builder.HasQueryFilter(p => p.Activo);
 
             builder.HasMany(p => p.Inventarios)
                .WithOne(i => i.Producto)

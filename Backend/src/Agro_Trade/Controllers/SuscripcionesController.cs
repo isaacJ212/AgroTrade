@@ -56,14 +56,7 @@ namespace Agro_Trade.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>
-        /// Obtiene los tipos de planes de suscripción activos.
-        /// </summary>
-        [HttpGet("planes")]
-        public async Task<IActionResult> GetPlanes(CancellationToken ct = default)
-        {
-            var result = await _mediator.Send(new GetTiposPlanesQuery(), ct);
-            return StatusCode(result.StatusCode, result);
-        }
+        
+        
     }
 }

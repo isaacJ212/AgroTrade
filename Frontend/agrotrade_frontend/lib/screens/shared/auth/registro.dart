@@ -1,14 +1,15 @@
+
 import 'package:flutter/material.dart';
 import '../../../services/api_client.dart';
 import '../../../models/api/user_models.dart';
 import '../../../services/users_api_service.dart';
 import '../../../services/auth_api_service.dart';
-import '../../../services/api_session.dart';
 import '../../../ui/app_theme.dart';
 import '../../../ui/components.dart';
 import '../../../routes/app_routes.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'verificarCodigo.dart';
+
+
+
 
 class Registro extends StatefulWidget {
   final int? idRol;
@@ -37,11 +38,6 @@ class _RegistroState extends State<Registro> {
   bool _isLoading = false;
   int? _idRol;
 
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    serverClientId:
-        '68671877007-u61dd67hhnr2ou6lmut467r1tmftcu42.apps.googleusercontent.com',
-  );
-
   @override
   void initState() {
     super.initState();
@@ -55,9 +51,7 @@ class _RegistroState extends State<Registro> {
       final args = ModalRoute.of(context)?.settings.arguments;
       if (args is int) {
         _idRol = args;
-        print(
-          "DEBUG: [Registro] idRol recuperado en didChangeDependencies: $_idRol",
-        );
+        print("DEBUG: [Registro] idRol recuperado en didChangeDependencies: $_idRol");
       }
     }
   }
@@ -119,7 +113,7 @@ class _RegistroState extends State<Registro> {
       confirmError = "Las contraseñas no coinciden";
     }
     if (city.isEmpty) {
-      cityError = "El departamento es obligatorio";
+      confirmError = " El departamento es obligatorio";
     }
 
     // --- TELÉFONO: backend valida 8 dígitos y debe comenzar con 5, 7 u 8 ---
@@ -175,10 +169,8 @@ class _RegistroState extends State<Registro> {
     setState(() => _isLoading = true);
 
     try {
-      print(
-        "DEBUG: [Registro] Iniciando creación de cuenta con idRol: $_idRol",
-      );
-      final usuarioCreado = await UsersApiService.instance.createUser(
+      print("DEBUG: [Registro] Iniciando creación de cuenta con idRol: $_idRol");
+      await UsersApiService.instance.createUser(
         CreateUserRequestDto(
           nombreCompleto: _nombreController.text.trim(),
           email: _emailController.text.trim(),
@@ -189,55 +181,32 @@ class _RegistroState extends State<Registro> {
         ),
       );
       print("DEBUG: [Registro] Cuenta creada correctamente en la API");
-      if (usuarioCreado.id <= 0) {
-        throw const ApiException(
-          0,
-          'La cuenta se creó, pero la API no devolvió un ID válido para verificar el código.',
-        );
-      }
-
-      final correoApi = usuarioCreado.email.trim();
-      final correo = correoApi.isNotEmpty
-          ? correoApi
-          : _emailController.text.trim();
-      ApiSession.instance.setPendingVerification(
-        userId: usuarioCreado.id,
-        email: correo,
-      );
 
       if (!mounted) return;
-      _mostrarSnackBar(
-        'Cuenta creada. Revisa tu correo: el OTP fue enviado automáticamente.',
-        error: false,
+      _mostrarSnackBar("¡Cuenta creada! Iniciando sesión...", error: false);
+      
+      // Auto-Login
+      print("DEBUG: [Registro] Realizando Auto-Login...");
+      final loginResponse = await AuthApiService.instance.login(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
       );
+      print("DEBUG: [Registro] Login exitoso. Roles obtenidos: ${loginResponse.roles}");
 
-      final verified = await Navigator.of(context).push<bool>(
-        MaterialPageRoute<bool>(
-          builder: (_) => VerificarCodigo(
-            correo: correo,
-            userId: usuarioCreado.id,
-            title: 'Verifica tu correo',
-          ),
-        ),
-      );
-      if (!mounted || verified != true) return;
-
-      final roles = ApiSession.instance.roles;
-      if (roles.contains('Cliente') || roles.contains('Comprador')) {
+      if (!mounted) return;
+      
+      // Redirect based on role
+      if (loginResponse.roles.contains('Cliente') || loginResponse.roles.contains('Comprador')) {
         print("DEBUG: [Registro] Redirigiendo a Inicio Comprador");
         Navigator.pushReplacementNamed(context, AppRoutes.inicioComprador);
-      } else if (roles.contains('Productor') ||
-          roles.contains('Proveedor') ||
-          roles.contains('Productor/Proveedor')) {
+      } else if (loginResponse.roles.contains('Productor') || loginResponse.roles.contains('Proveedor')) {
         print("DEBUG: [Registro] Redirigiendo a Inicio Productor");
         Navigator.pushReplacementNamed(context, AppRoutes.inicioProductor);
-      } else if (roles.contains('Repartidor')) {
+      } else if (loginResponse.roles.contains('Repartidor')) {
         print("DEBUG: [Registro] Redirigiendo a Inicio Repartidor");
         Navigator.pushReplacementNamed(context, AppRoutes.inicioRepartidor);
       } else {
-        print(
-          "DEBUG: [Registro] Rol no detectado, redirigiendo a Login manual",
-        );
+        print("DEBUG: [Registro] Rol no detectado, redirigiendo a Login manual");
         Navigator.pushReplacementNamed(context, AppRoutes.login);
       }
     } on ApiException catch (e) {
@@ -248,52 +217,6 @@ class _RegistroState extends State<Registro> {
       print("DEBUG: [Registro] Error inesperado capturado: $e");
       if (!mounted) return;
       _mostrarSnackBar("Error inesperado: $e");
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
-  Future<void> _continuarConGoogle() async {
-    setState(() => _isLoading = true);
-
-    try {
-      final googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return;
-
-      final googleAuth = await googleUser.authentication;
-      final idToken = googleAuth.idToken;
-      if (idToken == null) {
-        throw const ApiException(0, 'No se pudo obtener el token de Google.');
-      }
-
-      final user = await AuthApiService.instance.googleSignIn(idToken, _idRol);
-      if (!mounted) return;
-
-      if (user.requiereCompletarInformacion) {
-        Navigator.pushReplacementNamed(
-          context,
-          AppRoutes.completarInformacionGoogle,
-        );
-      } else if (user.roles.contains('Cliente') ||
-          user.roles.contains('Comprador')) {
-        Navigator.pushReplacementNamed(context, AppRoutes.inicioComprador);
-      } else if (user.roles.contains('Productor') ||
-          user.roles.contains('Proveedor') ||
-          user.roles.contains('Productor/Proveedor')) {
-        Navigator.pushReplacementNamed(context, AppRoutes.inicioProductor);
-      } else if (user.roles.contains('Repartidor')) {
-        Navigator.pushReplacementNamed(context, AppRoutes.inicioRepartidor);
-      } else {
-        Navigator.pushReplacementNamed(context, AppRoutes.roleSelection);
-      }
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      _mostrarSnackBar(e.message);
-    } catch (_) {
-      if (!mounted) return;
-      _mostrarSnackBar('No se pudo iniciar sesión con Google.');
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -413,47 +336,6 @@ class _RegistroState extends State<Registro> {
                   onPressed: _isLoading ? null : _crearCuenta,
                 ),
                 const SizedBox(height: 20),
-                const OrDivider(),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: OutlinedButton(
-                    onPressed: _isLoading ? null : _continuarConGoogle,
-                    style: OutlinedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      disabledBackgroundColor: Colors.white,
-                      side: const BorderSide(
-                        color: Color(0xFF747775),
-                        width: 1,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.network(
-                          'https://developers.google.com/identity/images/g-logo.png',
-                          width: 22,
-                          height: 22,
-                          fit: BoxFit.contain,
-                        ),
-                        const SizedBox(width: 12),
-                        const Text(
-                          'Continuar con Google',
-                          style: TextStyle(
-                            color: Color(0xFF1F1F1F),
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -464,10 +346,7 @@ class _RegistroState extends State<Registro> {
                     GestureDetector(
                       onTap: () {
                         print("DEBUG: [Registro] Navegando a Login");
-                        Navigator.pushReplacementNamed(
-                          context,
-                          AppRoutes.login,
-                        );
+                        Navigator.pushReplacementNamed(context, AppRoutes.login);
                       },
                       child: Text(
                         " Inicia Sesion",
