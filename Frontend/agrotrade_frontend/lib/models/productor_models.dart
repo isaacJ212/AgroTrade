@@ -150,6 +150,8 @@ class PedidoRecibido {
   final EstadoPedido estado;
   final List<LineaPedido> productos;
   final double envio;
+  final double? latitud;
+  final double? longitud;
   const PedidoRecibido({
     required this.codigo,
     required this.cliente,
@@ -160,6 +162,8 @@ class PedidoRecibido {
     this.direccion = '',
     this.nota = '',
     this.envio = 0,
+    this.latitud,
+    this.longitud,
   });
   double get subtotal => productos.fold(0, (sum, p) => sum + p.total);
   double get monto => subtotal + envio;
@@ -180,6 +184,8 @@ class PedidoRecibido {
     direccion: direccion,
     nota: nota,
     envio: envio,
+    latitud: latitud,
+    longitud: longitud,
   );
 }
 

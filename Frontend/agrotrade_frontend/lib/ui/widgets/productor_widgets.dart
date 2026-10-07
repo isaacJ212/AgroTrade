@@ -4,6 +4,9 @@ import '../../models/productor_models.dart';
 import '../../routes/productor_navigation.dart';
 import '../app_theme.dart';
 import 'productor_bottom_nav.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:io';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 
 void mensajeProductor(BuildContext context, String text) {
   ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -519,79 +522,118 @@ class ProductorEmpty extends StatelessWidget {
   );
 }
 
-class ProductorMap extends StatelessWidget {
+class ProductorMap extends StatefulWidget {
+  final List<PedidoRecibido>? pedidos;
   final String label;
-  const ProductorMap({super.key, required this.label});
+
+  const ProductorMap({super.key, required this.label, this.pedidos});
+
   @override
-  Widget build(BuildContext context) => Semantics(
-    label: 'Representación de la zona: $label',
-    child: ClipRRect(
-      borderRadius: BorderRadius.circular(14),
-      child: SizedBox(
-        height: 160,
-        width: double.infinity,
-        child: CustomPaint(
-          painter: ProductorMapPainter(),
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const CircleAvatar(
-                  backgroundColor: AppColors.primaryColor,
-                  child: Icon(Icons.location_on, color: Colors.white),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(label, textAlign: TextAlign.center),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
+  State<ProductorMap> createState() => _ProductorMapState();
 }
 
-class ProductorMapPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.drawRect(
-      Offset.zero & size,
-      Paint()..color = const Color(0xFFD1FAE5),
-    );
-    final grid = Paint()
-      ..color = const Color(0xFFB9EDD3)
-      ..strokeWidth = 1;
-    for (double x = 0; x < size.width; x += 28) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), grid);
+class _ProductorMapState extends State<ProductorMap> {
+  mapbox.MapboxMap? mapboxMap;
+
+  _onMapCreated(mapbox.MapboxMap mapboxMap) {
+    this.mapboxMap = mapboxMap;
+
+    double lat = 11.8499; 
+    double lng = -86.1990;
+    
+    if (widget.pedidos != null && widget.pedidos!.isNotEmpty) {
+      final validPedido = widget.pedidos!.firstWhere(
+        (p) => p.latitud != null && p.longitud != null, 
+        orElse: () => widget.pedidos!.first
+      );
+      if (validPedido.latitud != null) {
+        lat = validPedido.latitud!;
+        lng = validPedido.longitud!;
+      }
     }
-    for (double y = 0; y < size.height; y += 24) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), grid);
-    }
-    final road = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 4;
-    canvas.drawLine(
-      Offset(size.width * .45, 0),
-      Offset(size.width * .45, size.height),
-      road,
-    );
-    canvas.drawLine(
-      Offset(0, size.height * .5),
-      Offset(size.width, size.height * .5),
-      road,
-    );
+
+    mapboxMap.setCamera(mapbox.CameraOptions(
+      center: mapbox.Point(coordinates: mapbox.Position(lng, lat)),
+      zoom: 12.0,
+    ));
+
+    _agregarMarcadores();
+  }
+
+  void _agregarMarcadores() async {
+    mapboxMap?.annotations.createPointAnnotationManager().then((pointAnnotationManager) async {
+      final options = <mapbox.PointAnnotationOptions>[];
+      
+      if (widget.pedidos != null && widget.pedidos!.isNotEmpty) {
+        for (var pedido in widget.pedidos!) {
+          if (pedido.latitud != null && pedido.longitud != null) {
+            options.add(mapbox.PointAnnotationOptions(
+              geometry: mapbox.Point(coordinates: mapbox.Position(pedido.longitud!, pedido.latitud!)),
+              textField: pedido.direccion.split(',').first,
+              iconImage: 'marker-15', // Icono por defecto en mapbox
+            ));
+          }
+        }
+      }
+
+      // DATOS HARDCODEADOS DE PRUEBA
+      // Solo se agregan si no se encontraron coordenadas reales, o para forzar que se vean datos de ejemplo
+      if (options.isEmpty) {
+        final mockData = [
+          {'lat': 11.8499, 'lng': -86.1990, 'title': 'Jinotepe Centro'},
+          {'lat': 11.8580, 'lng': -86.2386, 'title': 'Diriamba'},
+          {'lat': 11.8480, 'lng': -86.2000, 'title': 'Mercado'},
+        ];
+
+        for (var data in mockData) {
+          options.add(mapbox.PointAnnotationOptions(
+            geometry: mapbox.Point(coordinates: mapbox.Position(data['lng'] as double, data['lat'] as double)),
+            textField: data['title'] as String,
+            iconImage: 'marker-15', 
+          ));
+        }
+      }
+      
+      if (options.isNotEmpty) {
+        await pointAnnotationManager.createMulti(options);
+      }
+    });
   }
 
   @override
-  bool shouldRepaint(covariant ProductorMapPainter oldDelegate) => false;
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: 'Representación de la zona: ${widget.label}',
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: SizedBox(
+          height: 300, // Altura aumentada para mejor visualización
+          width: double.infinity,
+          child: (kIsWeb || Platform.isAndroid || Platform.isIOS)
+              ? mapbox.MapWidget(
+                  key: const ValueKey("mapWidget"),
+                  styleUri: mapbox.MapboxStyles.MAPBOX_STREETS,
+                  onMapCreated: _onMapCreated,
+                )
+              : Container(
+                  color: Colors.grey.shade200,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.all(20),
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.warning_amber_outlined, size: 48, color: Colors.grey),
+                      SizedBox(height: 12),
+                      Text(
+                        'Mapbox no está disponible en esta plataforma (Linux/Windows/macOS). Por favor usa un emulador de Android/iOS o Chrome web.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
 }
