@@ -21,6 +21,7 @@ namespace Agro_Trade.Domain.Entities
         public string? EstadoPago { get; set; }
         public string? EstadoEnvio { get; set; }
         
+        
        
         public ICollection<DetallePedido> Detalles { get; set; } = new List<DetallePedido>();
         public ICollection<ImpactoSocial> ImpactosSociales { get; set; } = new List<ImpactoSocial>();

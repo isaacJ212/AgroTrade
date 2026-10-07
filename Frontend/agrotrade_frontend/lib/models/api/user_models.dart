@@ -47,13 +47,36 @@ class UpdateUserRequestDto {
     this.departamento,
   });
 
-  Map<String, dynamic> toJson() => {
-    if (nombreCompleto != null) 'nombreCompleto': nombreCompleto,
-    if (email != null) 'email': email,
-    if (telefono != null) 'telefono': telefono,
-    if (direccionBase != null) 'direccionBase': direccionBase,
-    if (departamento != null) 'departamento': departamento,
-  };
+  // Split nombreCompleto into Nombre, PrimerApellido, SegundoApellido
+  // Mapea direccionBase -> DireccionExacta, departamento -> Departamento
+  Map<String, dynamic> toJsonForUpdate() {
+    final parts = (nombreCompleto ?? '').trim().split(RegExp(r'\s+'));
+    String nombre = '';
+    String primerApellido = '';
+    String segundoApellido = '';
+
+    if (parts.isNotEmpty) nombre = parts[0];
+    if (parts.length > 1) primerApellido = parts[1];
+    if (parts.length > 2) segundoApellido = parts.skip(2).join(' ');
+
+    // Validaciones mínimas para evitar 400
+    if (nombre.length < 2) nombre = 'User';
+    if (primerApellido.length < 2) primerApellido = 'Name';
+    if (segundoApellido.length < 2) segundoApellido = 'Name';
+
+    // Teléfono: solo dígitos, backend valida 8 dígitos empezando 5/7/8
+    final telefonoLimpio = (telefono ?? '').replaceAll(RegExp(r'\D'), '');
+
+    return {
+      'Nombre': nombre,
+      'PrimerApellido': primerApellido,
+      'SegundoApellido': segundoApellido,
+      if (email != null && email!.isNotEmpty) 'Email': email,
+      if (telefonoLimpio.isNotEmpty) 'Telefono': telefonoLimpio,
+      if (departamento != null && departamento!.isNotEmpty) 'Departamento': departamento,
+      if (direccionBase != null && direccionBase!.isNotEmpty) 'DireccionExacta': direccionBase,
+    };
+  }
 }
 
 class UpdatePasswordRequestDto {

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Agro_Trade.Application.Features.Inventarios.Queries
 {
-    public record GetInventariosQuery : IRequest<Result<List<InventarioDtos>>>;
+    public record GetInventariosQuery(int? UsuarioId = null) : IRequest<Result<List<InventarioDtos>>>;
 
     public class GetInventariosQueryHandler : IRequestHandler<GetInventariosQuery, Result<List<InventarioDtos>>>
     {
@@ -19,7 +19,27 @@ namespace Agro_Trade.Application.Features.Inventarios.Queries
 
         public async Task<Result<List<InventarioDtos>>> Handle(GetInventariosQuery request, CancellationToken cancellationToken)
         {
-            var inventarios = await _unitOfWork.InventarioProveedor.FindAsync(i => i.Disponible, cancellationToken);
+            // Si se proporciona UsuarioId, buscar el proveedor y filtrar por él
+            int? idProveedor = null;
+            if (request.UsuarioId.HasValue && request.UsuarioId.Value > 0)
+            {
+                var proveedor = await _unitOfWork.Proveedores.FirstOrDefaultAsync(
+                    p => p.IdUsuario == request.UsuarioId.Value, cancellationToken);
+                if (proveedor != null)
+                {
+                    idProveedor = proveedor.IdProveedor;
+                }
+            }
+
+            var query = _unitOfWork.InventarioProveedor.GetQueryable()
+                .Where(i => i.Disponible);
+
+            if (idProveedor.HasValue)
+            {
+                query = query.Where(i => i.IdProveedor == idProveedor.Value);
+            }
+
+            var inventarios = await query.ToListAsync(cancellationToken);
 
             if (inventarios == null || !inventarios.Any())
                 return Result<List<InventarioDtos>>.Success(200, [], "No hay inventarios disponibles en este momento.", true);
@@ -41,6 +61,7 @@ namespace Agro_Trade.Application.Features.Inventarios.Queries
                     IdProducto          = i.IdProducto,
                     NombreProducto      = prod?.Nombre ?? "Producto Desconocido",
                     UnidadMedida        = prod?.UnidadDeMedida?.Codigo ?? "und",
+                    IdUnidadMedida      = prod?.UnidadDeMedida?.Id ?? 1,
                     FotoUrl             = i.FotoUrl,
                     VideoUrl            = i.VideoUrl,
                     StockActual         = i.StockActual,

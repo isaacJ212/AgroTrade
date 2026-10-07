@@ -6,30 +6,21 @@ using Agro_Trade.Application.Common.Interface;
 
 namespace Agro_Trade.Application.Features.Pedidos.Queries
 {
-    // DTO extendido para el productor (incluye nombre del cliente)
-    public class PedidoProveedorDto
-    {
-        public int IdPedido { get; set; }
-        public DateTime FechaPedido { get; set; }
-        public decimal Total { get; set; }
-        public string? EstadoEnvio { get; set; }
-        public string? EstadoPago { get; set; }
-        public string? MetodoPago { get; set; }
-        public string NombreCliente { get; set; } = string.Empty;
-        public int IdUsuarioCliente { get; set; }
-        public ICollection<DetallePedidoDto> Detalles { get; set; } = new List<DetallePedidoDto>();
-    }
+    public sealed record GetPedidosPendientesProveedorQuery(int UsuarioId) : IRequest<Result<List<PedidoProveedorDto>>>;
 
-    public sealed record GetPedidosProveedorQuery(int UsuarioId) : IRequest<Result<List<PedidoProveedorDto>>>;
-
-    public class GetPedidosProveedorHandler(
+    public class GetPedidosPendientesProveedorHandler(
         IRepository<Pedido> pedidoRepo,
         IRepository<DetallePedido> detalleRepo,
         IRepository<Proveedor> proveedorRepo)
-        : IRequestHandler<GetPedidosProveedorQuery, Result<List<PedidoProveedorDto>>>
+        : IRequestHandler<GetPedidosPendientesProveedorQuery, Result<List<PedidoProveedorDto>>>
     {
+        private static readonly HashSet<string> _estadosPendientes = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "PENDIENTE", "PREPARANDO"
+        };
+
         public async Task<Result<List<PedidoProveedorDto>>> Handle(
-            GetPedidosProveedorQuery request, CancellationToken ct)
+            GetPedidosPendientesProveedorQuery request, CancellationToken ct)
         {
             if (request.UsuarioId <= 0)
                 return Result<List<PedidoProveedorDto>>.Failure(400, "Usuario inválido.");
@@ -37,20 +28,24 @@ namespace Agro_Trade.Application.Features.Pedidos.Queries
             // Buscar el proveedor asociado al usuario
             var proveedor = await proveedorRepo.FirstOrDefaultAsync(
                 p => p.IdUsuario == request.UsuarioId, ct);
-
+            
             if (proveedor is null)
                 return Result<List<PedidoProveedorDto>>.Failure(404, "No se encontró proveedor para este usuario.");
 
             // Obtener detalles donde el inventario pertenece al proveedor
+            // y el pedido está en estado pendiente/preparando
             var detalles = await detalleRepo.FindAsync(
-                d => d.Inventario.IdProveedor == proveedor.IdProveedor,
+                d => d.Inventario.IdProveedor == proveedor.IdProveedor 
+                  && _estadosPendientes.Contains(d.Pedido.EstadoEnvio ?? ""),
                 ct,
                 "Pedido.UsuarioCliente",
                 "Inventario.Producto.UnidadDeMedida");
 
-            // Agrupar por pedido
-            var pedidoIds = detalles.Select(d => d.IdPedido).Distinct().ToList();
+            if (!detalles.Any())
+                return Result<List<PedidoProveedorDto>>.Success(200, new List<PedidoProveedorDto>(), 
+                    "No hay pedidos pendientes para este proveedor.", true);
 
+            // Agrupar por pedido
             var resultado = detalles
                 .GroupBy(d => d.IdPedido)
                 .Select(g =>
@@ -65,7 +60,9 @@ namespace Agro_Trade.Application.Features.Pedidos.Queries
                         EstadoEnvio = pedido.EstadoEnvio,
                         EstadoPago = pedido.EstadoPago,
                         MetodoPago = pedido.MetodoPago,
-                        NombreCliente = pedido.UsuarioCliente != null ? $"{pedido.UsuarioCliente.Nombre} {pedido.UsuarioCliente.PrimerApellido}".Trim() : $"Cliente #{pedido.IdUsuarioCliente}",
+                        NombreCliente = pedido.UsuarioCliente != null 
+                            ? $"{pedido.UsuarioCliente.Nombre} {pedido.UsuarioCliente.PrimerApellido}".Trim() 
+                            : $"Cliente #{pedido.IdUsuarioCliente}",
                         IdUsuarioCliente = pedido.IdUsuarioCliente,
                         Detalles = g.Select(d => new DetallePedidoDto
                         {
@@ -84,7 +81,7 @@ namespace Agro_Trade.Application.Features.Pedidos.Queries
                 .ToList();
 
             return Result<List<PedidoProveedorDto>>.Success(200, resultado,
-                $"{resultado.Count} pedidos encontrados para proveedor {request.UsuarioId}.", true);
+                $"{resultado.Count} pedidos pendientes encontrados.", true);
         }
     }
 }

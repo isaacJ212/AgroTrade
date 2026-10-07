@@ -311,10 +311,22 @@ class _BuscarProductosState extends State<BuscarProductos> {
       itemCount: lista.length,
       itemBuilder: (context, i) => _GridCard(
         producto: lista[i],
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const PerfilProductorScreen()),
-        ),
+        onTap: () {
+          final prod = lista[i];
+          final productor = ProductorDestacado(
+            id: null,
+            nombre: prod.finca,
+            rating: 0,
+            ventas: 0,
+            verificado: false,
+            avatarUrl: 'https://via.placeholder.com/150',
+            ubicacion: prod.distancia,
+          );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => PerfilProductorScreen(productor: productor)),
+          );
+        },
       ),
     );
   }

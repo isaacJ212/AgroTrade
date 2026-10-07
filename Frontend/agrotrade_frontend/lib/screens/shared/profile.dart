@@ -142,9 +142,11 @@ class Profile extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 12),
-                  const Text(
-                    'Jinotepe, Carazo',
-                    style: TextStyle(
+                  Text(
+                    ApiSession.instance.userLocation?.isNotEmpty == true
+                        ? ApiSession.instance.userLocation!
+                        : 'Ubicación no registrada',
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: AppColors.TextSoft,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/productor_models.dart';
+import '../../services/api_session.dart';
 import '../../services/productor_store.dart';
 import '../../routes/app_routes.dart';
 import '../../routes/productor_navigation.dart';
@@ -20,6 +21,12 @@ class PerfilFinca extends StatelessWidget {
       builder: (context, _) {
         final f = store.finca;
         final persona = store.persona;
+        final nombreMostrar = (ApiSession.instance.userName?.isNotEmpty ?? false)
+            ? ApiSession.instance.userName!
+            : persona.nombre;
+        final telefonoMostrar = (ApiSession.instance.userPhone?.isNotEmpty ?? false)
+            ? ApiSession.instance.userPhone!
+            : persona.telefono;
         final publicados = store.productos
             .where((p) => p.publicado && p.cantidad > 0)
             .length;
@@ -39,7 +46,7 @@ class PerfilFinca extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Text(persona.nombre, style: AppTextStyles.Title),
+                  Text(nombreMostrar, style: AppTextStyles.Title),
                   const SizedBox(height: 10),
                   const ProductorStatus(
                     'Productor verificado',
@@ -93,7 +100,7 @@ class PerfilFinca extends StatelessWidget {
                     spacing: 20,
                     runSpacing: 14,
                     children: [
-                      Text('Teléfono: ${persona.telefono}'),
+                      Text('Teléfono: $telefonoMostrar'),
                       Text('Productos: $publicados publicados'),
                       Text('Tamaño: ${numero(f.hectareas)} hectáreas'),
                       Text('Cultivo: ${f.cultivo}'),

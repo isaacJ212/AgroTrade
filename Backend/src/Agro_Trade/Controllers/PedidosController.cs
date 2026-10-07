@@ -38,13 +38,13 @@ namespace Agro_Trade.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// GET /api/Pedidos/proveedor/{idProveedor}
-        /// Lista los pedidos que contienen productos del proveedor indicado.
-        [HttpGet("proveedor/{idProveedor}")]
-        public async Task<IActionResult> GetPorProveedor([FromRoute] int idProveedor, CancellationToken ct)
+        /// GET /api/Pedidos/proveedor
+        /// Lista los pedidos que contienen productos del proveedor autenticado.
+        [HttpGet("proveedor")]
+        public async Task<IActionResult> GetPorProveedor(CancellationToken ct)
         {
-            if (!TryGetUserId(out var _)) return Unauthorized();
-            var result = await mediator.Send(new GetPedidosProveedorQuery(idProveedor), ct);
+            if (!TryGetUserId(out var userId)) return Unauthorized();
+            var result = await mediator.Send(new GetPedidosProveedorQuery(userId), ct);
             return StatusCode(result.StatusCode, result);
         }
 
@@ -55,6 +55,16 @@ namespace Agro_Trade.Controllers
         {
             if (!TryGetUserId(out var _)) return Unauthorized();
             var result = await mediator.Send(new PatchPedidoEstadoCommand(id, body.NuevoEstado), ct);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        /// GET /api/Pedidos/pendientes
+        /// Lista los pedidos pendientes/preparando del productor autenticado.
+        [HttpGet("pendientes")]
+        public async Task<IActionResult> GetPendientes(CancellationToken ct)
+        {
+            if (!TryGetUserId(out var userId)) return Unauthorized();
+            var result = await mediator.Send(new GetPedidosPendientesProveedorQuery(userId), ct);
             return StatusCode(result.StatusCode, result);
         }
 
