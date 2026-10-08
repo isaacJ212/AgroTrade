@@ -103,7 +103,7 @@ class _EditarPerfilState extends State<EditarPerfil> {
         await UsersApiService.instance.updateUser(
           userId: int.parse(userId),
           dto: UpdateUserRequestDto(
-            nombreCompleto: nombre,
+            nombres: nombre,
             email: correo,
             telefono: telefono,
             direccionBase: ubicacion,
@@ -170,7 +170,7 @@ class _EditarPerfilState extends State<EditarPerfil> {
           ),
         ],
       ),
-      body: _isLoading
+      body: _cargando
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),

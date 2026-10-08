@@ -266,6 +266,7 @@ class _EntregaCard extends StatelessWidget {
           ],
         ),
       ),
+      ),
     );
   }
 }
@@ -310,6 +311,7 @@ class _EmptyState extends StatelessWidget {
             ),
           ],
         ),
-      );
+      ),
+    );
   }
 }
