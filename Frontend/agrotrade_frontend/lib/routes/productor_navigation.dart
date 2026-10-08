@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/api_session.dart';
+import '../services/auth_api_service.dart';
 import '../services/productor_store.dart';
 import 'app_routes.dart';
 
@@ -28,19 +28,16 @@ class ProductorNavigation extends InheritedWidget {
       Navigator.pushReplacementNamed(context, routes[index]);
   }
 
-  static void cerrarSesion(BuildContext context) {
-    ApiSession.instance.clear();
+  static Future<void> cerrarSesion(BuildContext context) async {
+    await AuthApiService.instance.logout();
     ProductorStore.instance.reiniciar();
     Navigator.of(
       context,
     ).pushNamedAndRemoveUntil(AppRoutes.login, (_) => false);
   }
 
-  static void chat(BuildContext context, dynamic pedido) => Navigator.pushNamed(
-    context,
-    '/productor/chat',
-    arguments: pedido,
-  );
+  static void chat(BuildContext context, dynamic pedido) =>
+      Navigator.pushNamed(context, '/productor/chat', arguments: pedido);
   @override
   bool updateShouldNotify(ProductorNavigation oldWidget) => false;
 }

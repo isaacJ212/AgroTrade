@@ -50,7 +50,7 @@ namespace Agro_Trade.Application.Features.Conversaciones.Queries
                     IdMensaje = m.IdMensaje,
                     IdConversacion = m.IdConversacion,
                     IdUsuarioEmisor = m.IdUsuarioEmisor,
-                    NombreEmisor = m.Emisor?.NombreCompleto ?? "Usuario Desconocido",
+                    NombreEmisor = m.Emisor != null ? $"{m.Emisor.Nombre} {m.Emisor.PrimerApellido}".Trim() : "Usuario Desconocido",
                     Contenido = m.Contenido,
                     EnviadoEn = m.EnviadoEn,
                     Leido = m.Leido

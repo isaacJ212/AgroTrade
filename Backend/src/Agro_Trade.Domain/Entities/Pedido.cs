@@ -21,14 +21,19 @@ namespace Agro_Trade.Domain.Entities
         public string? EstadoPago { get; set; }
         public string? EstadoEnvio { get; set; }
         
+<<<<<<< HEAD
         // Coordenadas para el mapa
         public string? DireccionEnvio { get; set; }
         public double? Latitud { get; set; }
         public double? Longitud { get; set; }
         
+=======
+        
+       
+>>>>>>> Staging
         public ICollection<DetallePedido> Detalles { get; set; } = new List<DetallePedido>();
         public ICollection<ImpactoSocial> ImpactosSociales { get; set; } = new List<ImpactoSocial>();
         public ICollection<Valoracion> Valoraciones { get; set; } = new List<Valoracion>();
-        public ICollection<RegistroTransferenciaMock> TransferenciasDistribuidas { get; set; } = new List<RegistroTransferenciaMock>();
+        public ICollection<RegistroTransferencia> TransferenciasDistribuidas { get; set; } = new List<RegistroTransferencia>();
     }
 }

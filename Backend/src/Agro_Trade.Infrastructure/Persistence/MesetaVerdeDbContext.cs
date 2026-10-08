@@ -23,7 +23,7 @@ namespace Agro_Trade.Infrastructure.Persistence
         public DbSet<SuscripcionApp> SuscripcionesApp { get; set; } = null!;
         public DbSet<TipoPlan> TipoPlanes { get; set; } = null!;
         public DbSet<Pedido> Pedidos { get; set; } = null!;
-        public DbSet<RegistroTransferenciaMock> RegistrosTransferenciaMock { get; set; } = null!;
+        public DbSet<RegistroTransferencia> RegistrosTransferencia { get; set; } = null!;
         public DbSet<DetallePedido> DetallesPedido { get; set; } = null!;
         public DbSet<LogisticaEntrega> LogisticaEntregas { get; set; } = null!;
         public DbSet<NotificacionEntrega> NotificacionesEntrega { get; set; } = null!;
@@ -35,6 +35,13 @@ namespace Agro_Trade.Infrastructure.Persistence
         public DbSet<SolicitudRepartidor> SolicitudRepartidor { get; set; } = null!;
         public DbSet<Repartidor> Repartidor { get; set; } = null!;  
         public DbSet<Actividad> Actividades { get; set; } = null!;
+        public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
+        
+        //Tablas Agregadas despues de refactorizacion
+        public DbSet<TipoPlan> TipoPlan { get; set; } = null!;
+        public DbSet<UnidadDeMedida> UnidadDeMedida { get; set; } = null!;
+
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -46,6 +53,10 @@ namespace Agro_Trade.Infrastructure.Persistence
                 new Actividad { Id = 2, Title = "Verificación aprobada para 'Transportes El Rápido'", IconType = "check-circle", IconClass = "icon-blue-bg", CreatedAt = DateTime.UtcNow.AddHours(-1) },
                 new Actividad { Id = 3, Title = "Se ha reportado un problema con el pedido #1045", IconType = "alert-circle", IconClass = "icon-orange-bg", CreatedAt = DateTime.UtcNow.AddHours(-2) },
                 new Actividad { Id = 4, Title = "Nueva categoría 'Frutas Tropicales' creada", IconType = "layers", IconClass = "icon-purple-bg", CreatedAt = DateTime.UtcNow.AddDays(-1) }
+            );
+            modelBuilder.Entity<TipoPlan>().HasData(
+                new TipoPlan { Id = 1, NombrePlan = "Básico", Precio = 0m, Coste = 0m, Descripcion = "Plan gratuito con funciones básicas", Beneficios = "Acceso estándar, Soporte por email", IsActive = true },
+                new TipoPlan { Id = 2, NombrePlan = "Premium", Precio = 29.99m, Coste = 5.00m, Descripcion = "Plan avanzado para productores", Beneficios = "Prioridad en búsqueda, Soporte 24/7, Estadísticas avanzadas", IsActive = true }
             );
         }
     }

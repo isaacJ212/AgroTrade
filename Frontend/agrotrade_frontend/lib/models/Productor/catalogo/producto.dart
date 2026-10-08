@@ -4,7 +4,8 @@ class Producto {
   final int idProveedor;
   final String nombre;
   final String? descripcion;
-  final String unidadMedida;
+  final int idUnidadMedida;
+  final String? unidadMedida;
 
   const Producto({
     required this.idProducto,
@@ -12,17 +13,19 @@ class Producto {
     required this.idProveedor,
     required this.nombre,
     this.descripcion,
-    required this.unidadMedida,
+    required this.idUnidadMedida,
+    this.unidadMedida,
   });
 
   factory Producto.fromJson(Map<String, dynamic> json) {
     return Producto(
-      idProducto: json['idProducto'] as int,
-      idCategoria: json['idCategoria'] as int,
-      idProveedor: json['idProveedor'] as int,
+      idProducto: json['idProducto'] as int? ?? 0,
+      idCategoria: json['idCategoria'] as int? ?? 0,
+      idProveedor: json['idProveedor'] as int? ?? 0,
       nombre: json['nombre'] as String? ?? '',
       descripcion: json['descripcion'] as String?,
-      unidadMedida: json['unidadMedida'] as String? ?? '',
+      idUnidadMedida: json['idUnidadMedida'] as int? ?? 1,
+      unidadMedida: json['unidadMedida'] as String?,
     );
   }
 
@@ -33,7 +36,8 @@ class Producto {
       'idProveedor': idProveedor,
       'nombre': nombre,
       'descripcion': descripcion,
-      'unidadMedida': unidadMedida,
+      'idUnidadMedida': idUnidadMedida,
+      if (unidadMedida != null) 'unidadMedida': unidadMedida,
     };
   }
 }

@@ -9,14 +9,16 @@ using Agro_Trade.Domain.Entities;
 
 namespace Agro_Trade.Application.Features.Proveedores.Commands
 {
-    public record CreateProveedorCommand(int IdUsuario, string NombreProveedor, string? NombreFinca, string? UbicacionGps, string? Biografia, string Banco, string CuentaBancaria) : IRequest<Result<int>>;
+    public record CreateProveedorCommand(int IdUsuario, string NombreProveedor, string? NombreFinca, string? UbicacionGps, string? Biografia, int IdCuentaBancaria) : IRequest<Result<int>>;
     public class CreateProveedorCommandHandler : IRequestHandler<CreateProveedorCommand, Result<int>>
     {
         private readonly IUnitofWork _unitOfWork;
+        private readonly IRepository<CuentaBancaria> _cuentasBancarias;
 
-        public CreateProveedorCommandHandler(IUnitofWork unitOfWork)
+        public CreateProveedorCommandHandler(IUnitofWork unitOfWork, IRepository<CuentaBancaria> cuentasBancarias)
         {
             _unitOfWork = unitOfWork;
+            _cuentasBancarias = cuentasBancarias;
         }
 
         public async Task<Result<int>> Handle(CreateProveedorCommand request, CancellationToken cancellationToken)
@@ -34,6 +36,21 @@ namespace Agro_Trade.Application.Features.Proveedores.Commands
                 return Result<int>.Failure(400, "El nombre del proveedor es obligatorio.");
             }
 
+            if (request.IdCuentaBancaria <= 0)
+            {
+                return Result<int>.Failure(400, "Debe seleccionar una cuenta bancaria válida.");
+            }
+
+            var cuentaBancaria = await _cuentasBancarias.FirstOrDefaultAsync(
+                cuenta => cuenta.IdCuenta == request.IdCuentaBancaria
+                          && cuenta.IdUsuario == request.IdUsuario
+                          && cuenta.isActive,
+                cancellationToken);
+            if (cuentaBancaria is null)
+            {
+                return Result<int>.Failure(400, "La cuenta bancaria no existe, no está activa o no pertenece al usuario.");
+            }
+
             var proveedor = new Proveedor
             {
                 IdUsuario = request.IdUsuario,
@@ -42,8 +59,7 @@ namespace Agro_Trade.Application.Features.Proveedores.Commands
                 UbicacionGps = request.UbicacionGps,
                 Biografia = request.Biografia,
                 CalificacionPromedio = null,
-                Banco = request.Banco,
-                CuentaBancaria = request.CuentaBancaria
+                IdCuentaBancaria = cuentaBancaria.IdCuenta
                 
             };
 

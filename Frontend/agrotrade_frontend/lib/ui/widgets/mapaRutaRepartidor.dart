@@ -1,17 +1,26 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
-import '../../screens/repartidor/repartidor_demo.dart';
 import 'repartidor_widgets.dart';
 
 class MapaRutaRepartidor extends StatelessWidget {
-  final EntregaDemo entrega;
+  final String? zonaRecogida;
+  final String? zonaDestino;
+  final String? estado; // 'pendiente', 'en_curso', 'completada'
+  final bool recogido;
 
-  const MapaRutaRepartidor({super.key, required this.entrega});
+  const MapaRutaRepartidor({
+    super.key,
+    this.zonaRecogida,
+    this.zonaDestino,
+    this.estado = 'pendiente',
+    this.recogido = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Ruta de ${entrega.finca} a ${entrega.destino}.',
+      label:
+          'Ruta de ${zonaRecogida ?? 'recogida'} a ${zonaDestino ?? 'destino'}.',
       child: LayoutBuilder(
         builder: (context, constraints) {
           final puntos = _PuntosRuta(constraints.biggest);
@@ -23,24 +32,22 @@ class MapaRutaRepartidor extends StatelessWidget {
                 puntos.recogida,
                 icono: Icons.storefront,
                 etiqueta: 'Recogida',
-                detalle: entrega.finca,
+                detalle: zonaRecogida ?? 'Recogida',
                 color: AppColors.TextSoft,
               ),
-              if (entrega.estado == EstadoEntregaDemo.enCurso)
+              if (estado == 'en_curso')
                 _marcador(
                   puntos.enCamino,
                   icono: Icons.delivery_dining,
-                  etiqueta: entrega.recogido ? 'En camino' : 'Por recoger',
-                  detalle: entrega.estadoTexto,
+                  etiqueta: recogido ? 'En camino' : 'Por recoger',
+                  detalle: estado!,
                   color: AppColors.primaryColor,
                 ),
               _marcador(
                 puntos.destino,
                 icono: Icons.home,
-                etiqueta: entrega.estado == EstadoEntregaDemo.completada
-                    ? 'Entregado'
-                    : 'Cliente',
-                detalle: '${entrega.cliente} · ${entrega.destino}',
+                etiqueta: estado == 'completada' ? 'Entregado' : 'Cliente',
+                detalle: '${zonaDestino ?? 'Destino'}',
                 color: AppColors.accentBlue,
               ),
             ],

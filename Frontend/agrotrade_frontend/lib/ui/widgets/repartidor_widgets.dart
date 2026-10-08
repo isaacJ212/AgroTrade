@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/widgets/repartidor_bottom_nav.dart';
-import '../../screens/repartidor/repartidor_demo.dart';
 import '../../screens/repartidor/repartidor_navigation.dart';
 
 class RepartidorTextStyles {
@@ -324,12 +323,14 @@ class RepartidorBoton extends StatelessWidget {
   }
 }
 
+// Reemplazo simple para EstadoEntregaChip - usa un string de estado en lugar de EntregaDemo
 class EstadoEntregaChip extends StatelessWidget {
-  final EntregaDemo entrega;
-  const EstadoEntregaChip({super.key, required this.entrega});
+  final String estado; // 'pendiente', 'en_curso', 'completada'
+  const EstadoEntregaChip({super.key, required this.estado});
+
   @override
   Widget build(BuildContext context) {
-    final pendiente = entrega.estado == EstadoEntregaDemo.pendiente;
+    final pendiente = estado == 'pendiente';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
@@ -337,7 +338,7 @@ class EstadoEntregaChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        entrega.estadoTexto,
+        estado.toUpperCase(),
         style: RepartidorTextStyles.chip.copyWith(
           color: pendiente ? AppColors.warning : AppColors.primaryColor,
         ),
@@ -382,9 +383,22 @@ class DatoRepartidor extends StatelessWidget {
   );
 }
 
+// Reemplazo simple para EntregaDemoCard - usa datos simples en lugar de EntregaDemo
 class EntregaDemoCard extends StatelessWidget {
-  final EntregaDemo entrega;
-  const EntregaDemoCard({super.key, required this.entrega});
+  final int pedidoId;
+  final String zonaEntrega;
+  final double totalPedido;
+  final String estado;
+  final VoidCallback? onTap;
+  const EntregaDemoCard({
+    super.key,
+    required this.pedidoId,
+    required this.zonaEntrega,
+    required this.totalPedido,
+    required this.estado,
+    this.onTap,
+  });
+
   @override
   Widget build(BuildContext context) => RepartidorCard(
     child: Column(
@@ -396,34 +410,31 @@ class EntregaDemoCard extends StatelessWidget {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             Text(
-              'Entrega ${entrega.codigo}',
+              'Entrega #AT-$pedidoId',
               style: RepartidorTextStyles.productoTitle,
             ),
-            EstadoEntregaChip(entrega: entrega),
+            _EstadoChip(estado: estado),
           ],
         ),
         const SizedBox(height: 12),
-        DatoRepartidor(
+        _DatoSimple(
           icon: Icons.storefront_outlined,
           titulo: 'Recogida',
-          valor: entrega.finca,
+          valor: '—',
         ),
-        DatoRepartidor(
+        _DatoSimple(
           icon: Icons.location_on_outlined,
           titulo: 'Destino',
-          valor: entrega.destino,
+          valor: zonaEntrega,
         ),
         const Divider(height: 24, color: AppColors.cardBorder),
         Wrap(
           spacing: 20,
           runSpacing: 10,
           children: [
+            Text('— productos', style: RepartidorTextStyles.SubTitle),
             Text(
-              '${entrega.productos.length} productos · ${entrega.hora}',
-              style: RepartidorTextStyles.SubTitle,
-            ),
-            Text(
-              'Pago de entrega: ${dineroRepartidor(entrega.pago)}',
+              'Pago: \$${totalPedido.toStringAsFixed(2)}',
               style: RepartidorTextStyles.label.copyWith(
                 color: AppColors.primaryColor,
               ),
@@ -432,19 +443,89 @@ class EntregaDemoCard extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         RepartidorBoton(
-          label: entrega.estado == EstadoEntregaDemo.enCurso
-              ? 'Continuar entrega'
-              : 'Ver detalle',
-          onPressed: () => abrirEntregaDemo(context, entrega),
+          label: estado == 'en_curso' ? 'Continuar entrega' : 'Ver detalle',
+          onPressed: () {},
         ),
       ],
     ),
   );
 }
 
+class _EstadoChip extends StatelessWidget {
+  final String estado;
+  const _EstadoChip({required this.estado});
+
+  @override
+  Widget build(BuildContext context) {
+    final pendiente = estado == 'pendiente';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: pendiente ? AppColors.amberSoft : AppColors.navPill,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        estado.toUpperCase(),
+        style: RepartidorTextStyles.chip.copyWith(
+          color: pendiente ? AppColors.warning : AppColors.primaryColor,
+        ),
+      ),
+    );
+  }
+}
+
+class _DatoSimple extends StatelessWidget {
+  final IconData icon;
+  final String titulo;
+  final String valor;
+  const _DatoSimple({
+    required this.icon,
+    required this.titulo,
+    required this.valor,
+  });
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, color: AppColors.primaryColor, size: 22),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(titulo, style: RepartidorTextStyles.SubTitle),
+              const SizedBox(height: 4),
+              Text(
+                valor,
+                style: RepartidorTextStyles.label.copyWith(fontSize: 15),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+// Reemplazo simple para ProductoRepartidorRow - usa datos simples
 class ProductoRepartidorRow extends StatelessWidget {
-  final ProductoEntregaDemo producto;
-  const ProductoRepartidorRow({super.key, required this.producto});
+  final String nombre;
+  final String cantidadUnidad;
+  final String precio;
+  final String subtotal;
+  final String? imagen;
+  const ProductoRepartidorRow({
+    super.key,
+    required this.nombre,
+    required this.cantidadUnidad,
+    required this.precio,
+    required this.subtotal,
+    this.imagen,
+  });
+
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 8),
@@ -456,24 +537,14 @@ class ProductoRepartidorRow extends StatelessWidget {
           height: 56,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: Image.network(
-              producto.imagen,
-              fit: BoxFit.cover,
-              width: 56,
-              height: 56,
-              errorBuilder: (_, __, ___) => const ColoredBox(
-                color: AppColors.navPill,
-                child: Center(
-                  child: Icon(
-                    Icons.eco_outlined,
-                    color: AppColors.primaryColor,
-                  ),
-                ),
-              ),
-              loadingBuilder: (_, child, progress) => progress == null
-                  ? child
-                  : const ColoredBox(
-                      color: AppColors.surfaceAlt,
+            child: imagen != null
+                ? Image.network(
+                    imagen!,
+                    fit: BoxFit.cover,
+                    width: 56,
+                    height: 56,
+                    errorBuilder: (_, __, ___) => const ColoredBox(
+                      color: AppColors.navPill,
                       child: Center(
                         child: Icon(
                           Icons.eco_outlined,
@@ -481,7 +552,16 @@ class ProductoRepartidorRow extends StatelessWidget {
                         ),
                       ),
                     ),
-            ),
+                  )
+                : const ColoredBox(
+                    color: AppColors.navPill,
+                    child: Center(
+                      child: Icon(
+                        Icons.eco_outlined,
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
+                  ),
           ),
         ),
         const SizedBox(width: 12),
@@ -489,15 +569,12 @@ class ProductoRepartidorRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(producto.nombre, style: RepartidorTextStyles.label),
+              Text(nombre, style: RepartidorTextStyles.label),
+              const SizedBox(height: 4),
+              Text(cantidadUnidad, style: RepartidorTextStyles.SubTitle),
               const SizedBox(height: 4),
               Text(
-                '${producto.cantidad} ${producto.unidad} × ${dineroRepartidor(producto.precio)}',
-                style: RepartidorTextStyles.SubTitle,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                dineroRepartidor(producto.subtotal),
+                subtotal,
                 style: RepartidorTextStyles.label.copyWith(
                   color: AppColors.primaryColor,
                 ),
@@ -513,21 +590,19 @@ class ProductoRepartidorRow extends StatelessWidget {
 void mostrarInfoRepartidor(BuildContext context, String titulo, String texto) {
   showDialog<void>(
     context: context,
-    builder: (context) => RepartidorTheme(
-      child: AlertDialog(
-        backgroundColor: AppColors.White,
-        surfaceTintColor: Colors.transparent,
-        title: Text(titulo, style: RepartidorTextStyles.Title),
-        content: SingleChildScrollView(
-          child: Text(texto, style: RepartidorTextStyles.SubTitle),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Entendido'),
-          ),
-        ],
+    builder: (context) => AlertDialog(
+      backgroundColor: AppColors.White,
+      surfaceTintColor: Colors.transparent,
+      title: Text(titulo, style: RepartidorTextStyles.Title),
+      content: SingleChildScrollView(
+        child: Text(texto, style: RepartidorTextStyles.SubTitle),
       ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Entendido'),
+        ),
+      ],
     ),
   );
 }

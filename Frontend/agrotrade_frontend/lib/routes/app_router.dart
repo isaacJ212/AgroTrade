@@ -8,6 +8,7 @@ import '../screens/shared/auth/registro.dart';
 import '../screens/shared/auth/roleSelection.dart';
 import '../screens/shared/auth/resetPassword.dart';
 import '../screens/shared/auth/verificarCodigo.dart';
+import '../screens/shared/auth/completarInformacionGoogle.dart';
 
 // ── Shared ────────────────────────────────────────────────────────────────────
 import '../screens/shared/profile.dart';
@@ -72,6 +73,8 @@ import '../screens/repartidor/recogerPedidoRepartidor.dart';
 import '../screens/repartidor/entregaEnCursoRepartidor.dart';
 import '../screens/repartidor/rutaEntregaRepartidor.dart';
 import '../screens/repartidor/confirmarEntregaRepartidor.dart';
+import '../screens/repartidor/onboardingRepartidor.dart';
+import '../screens/repartidor/formularioSolicitudRepartidor.dart';
 
 import 'app_routes.dart';
 import 'productor_router.dart';
@@ -109,8 +112,14 @@ class AppRouter {
       case AppRoutes.verificarCodigo:
         final vcMap = args is Map<String, dynamic> ? args : <String, dynamic>{};
         return _slide(
-          VerificarCodigo(correo: vcMap['correo'] as String? ?? ''),
+          VerificarCodigo(
+            correo: vcMap['correo'] as String? ?? '',
+            userId: vcMap['userId'] as int?,
+          ),
         );
+
+      case AppRoutes.completarInformacionGoogle:
+        return _slide(const CompletarInformacionGoogle());
 
       // ── Shared ────────────────────────────────────────────────────────────
       case AppRoutes.profile:
@@ -179,7 +188,18 @@ class AppRouter {
         return _slide(DetalleProductoCliente(producto: args));
 
       case AppRoutes.perfilProductor:
-        return _slide(const PerfilProductorScreen());
+        final productorArg = args is ProductorDestacado ? args : null;
+        if (productorArg == null) {
+          return _slide(
+            Scaffold(
+              appBar: AppBar(title: const Text('Perfil del Productor')),
+              body: const Center(
+                child: Text('Selecciona un productor para ver su perfil.'),
+              ),
+            ),
+          );
+        }
+        return _slide(PerfilProductorScreen(productor: productorArg));
 
       case AppRoutes.productoresCercanos:
         return _slide(const ProductoresCercanos());
@@ -352,6 +372,13 @@ class AppRouter {
 
       case AppRoutes.confirmarEntregaRepartidor:
         return _slide(const ConfirmarEntregaRepartidor());
+
+      // ── Repartidor Verificación ──────────────────────────────────────────────
+      case AppRoutes.onboardingRepartidor:
+        return _slide(const OnboardingRepartidor());
+
+      case AppRoutes.formularioSolicitudRepartidor:
+        return _slide(const FormularioSolicitudRepartidor());
 
       // ── Ruta no encontrada ────────────────────────────────────────────────
       default:

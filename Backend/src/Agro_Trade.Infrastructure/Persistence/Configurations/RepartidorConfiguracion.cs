@@ -17,6 +17,7 @@ namespace Agro_Trade.Infrastructure.Persistence.Configurations
             builder.HasKey(p=>p.Id);
 
             builder.HasOne(p=>p.Usuario).WithMany().HasForeignKey(p=> p.IdUsuario);
+            
         }
     }
 }

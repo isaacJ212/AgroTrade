@@ -1,17 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using MediatR;
 using Agro_Trade.Application.Common;
 using Agro_Trade.Application.Common.DTOs.InventarioDtos;
-using Agro_Trade.Domain.Entities;
 using Agro_Trade.Application.Common.Interface;
+using Microsoft.EntityFrameworkCore;
 
 namespace Agro_Trade.Application.Features.Inventarios.Queries
 {
-    // Jafet: Se añadió el filtro de Estado opcional para manejar el inventario
-    public record GetInventariosQuery(string? Estado = null) : IRequest<Result<List<InventarioDtos>>>;
+    public record GetInventariosQuery(int? UsuarioId = null) : IRequest<Result<List<InventarioDtos>>>;
 
     public class GetInventariosQueryHandler : IRequestHandler<GetInventariosQuery, Result<List<InventarioDtos>>>
     {
@@ -24,58 +19,62 @@ namespace Agro_Trade.Application.Features.Inventarios.Queries
 
         public async Task<Result<List<InventarioDtos>>> Handle(GetInventariosQuery request, CancellationToken cancellationToken)
         {
-            // Modificado para poder devolver todo o filtrar por estado simulado
-            var inventarios = await _unitOfWork.InventarioProveedor.FindAsync(i => i.Disponible, cancellationToken);
-            
-            // Si viene filtro de estado (Disponible, Poco inventario, Agotado), aplicamos lógica en memoria
-            if (!string.IsNullOrEmpty(request.Estado))
+            // Si se proporciona UsuarioId, buscar el proveedor y filtrar por él
+            int? idProveedor = null;
+            if (request.UsuarioId.HasValue && request.UsuarioId.Value > 0)
             {
-                inventarios = request.Estado.ToLower() switch
+                var proveedor = await _unitOfWork.Proveedores.FirstOrDefaultAsync(
+                    p => p.IdUsuario == request.UsuarioId.Value, cancellationToken);
+                if (proveedor != null)
                 {
-                    "disponible" => inventarios.Where(i => i.StockActual > 20).ToList(),
-                    "poco inventario" => inventarios.Where(i => i.StockActual > 0 && i.StockActual <= 20).ToList(),
-                    "agotado" => inventarios.Where(i => i.StockActual <= 0).ToList(),
-                    _ => inventarios
-                };
+                    idProveedor = proveedor.IdProveedor;
+                }
             }
-            
-            if (inventarios == null || !inventarios.Any())
+
+            var query = _unitOfWork.InventarioProveedor.GetQueryable()
+                .Where(i => i.Disponible);
+
+            if (idProveedor.HasValue)
             {
-                return Result<List<InventarioDtos>>.Success(200, new List<InventarioDtos>(), "No hay inventarios disponibles en este momento.", true);
+                query = query.Where(i => i.IdProveedor == idProveedor.Value);
             }
 
-            // Obtener los IDs de productos únicos para hacer lookup
-            var productoIds = inventarios.Select(i => i.IdProducto).Distinct().ToList();
-            var productos = await _unitOfWork.Productos.FindAsync(p => productoIds.Contains(p.IdProducto), cancellationToken);
-            var productosDict = productos?.ToDictionary(p => p.IdProducto) ?? new Dictionary<int, Agro_Trade.Domain.Entities.Producto>();
+            var inventarios = await query.ToListAsync(cancellationToken);
 
-            var data = inventarios.Select(i => {
-                productosDict.TryGetValue(i.IdProducto, out var prod);
+            if (inventarios == null || !inventarios.Any())
+                return Result<List<InventarioDtos>>.Success(200, [], "No hay inventarios disponibles en este momento.", true);
+
+            // Cargar productos con su unidad de medida en un solo query
+            var productoIds = inventarios.Select(i => i.IdProducto).Distinct().ToList();
+            var productos = await _unitOfWork.Productos.GetQueryable()
+                .Include(p => p.UnidadDeMedida)
+                .Where(p => productoIds.Contains(p.IdProducto))
+                .ToDictionaryAsync(p => p.IdProducto, cancellationToken);
+
+            var data = inventarios.Select(i =>
+            {
+                productos.TryGetValue(i.IdProducto, out var prod);
                 return new InventarioDtos
                 {
-                    IdInventario = i.IdInventario,
-                    IdProveedor = i.IdProveedor,
-                    IdProducto = i.IdProducto,
-                    NombreProducto = prod?.Nombre ?? "Producto Desconocido",
-                    UnidadMedida = prod?.UnidadMedida ?? "kg",
-                    FotoUrl = i.FotoUrl,
-                    VideoUrl = i.VideoUrl,
-                    StockActual = i.StockActual,
-                    CostoProduccion = i.CostoProduccion,
-                    PrecioVenta = i.PrecioVenta,
-                    EsOfertaExcedente = i.EsOfertaExcedente,
+                    IdInventario        = i.IdInventario,
+                    IdProveedor         = i.IdProveedor,
+                    IdProducto          = i.IdProducto,
+                    NombreProducto      = prod?.Nombre ?? "Producto Desconocido",
+                    UnidadMedida        = prod?.UnidadDeMedida?.Codigo ?? "und",
+                    IdUnidadMedida      = prod?.UnidadDeMedida?.Id ?? 1,
+                    FotoUrl             = i.FotoUrl,
+                    VideoUrl            = i.VideoUrl,
+                    StockActual         = i.StockActual,
+                    CostoProduccion     = i.CostoProduccion,
+                    PrecioVenta         = i.PrecioVenta,
+                    EsOfertaExcedente   = i.EsOfertaExcedente,
                     PorcentajeDescuento = i.PorcentajeDescuento,
-                    FechaCosecha = i.FechaCosecha,
-                    Disponible = i.Disponible
+                    FechaCosecha        = i.FechaCosecha,
+                    Disponible          = i.Disponible
                 };
             }).ToList();
 
             return Result<List<InventarioDtos>>.Success(200, data, "Inventarios obtenidos correctamente.", true);
-
         }
-
-
-        
-        
     }
 }

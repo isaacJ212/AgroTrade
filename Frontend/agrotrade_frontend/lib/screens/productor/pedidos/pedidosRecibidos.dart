@@ -18,7 +18,9 @@ class PedidosRecibidos extends StatefulWidget {
 class _PedidosRecibidosState extends State<PedidosRecibidos> {
   EstadoPedido? _filtro;
   List<PedidoRecibido> _apiPedidos = [];
+  List<PedidoRecibido> _apiPedidosPendientes = [];
   bool _cargando = true;
+  bool _usarEndpointPendientes = false;
 
   @override
   void initState() {
@@ -29,13 +31,32 @@ class _PedidosRecibidosState extends State<PedidosRecibidos> {
   Future<void> _loadPedidos() async {
     print('DEBUG: [PedidosRecibidos] ══ Cargando pedidos del proveedor ══');
     setState(() => _cargando = true);
-    final pedidos = await ProductorApiService.instance.getPedidosProveedor();
+
+    // Si el filtro es Pendiente o En Preparación, usar endpoint optimizado
+    final usarPendientes = _filtro == EstadoPedido.pendiente ||
+        _filtro == EstadoPedido.enPreparacion;
+
+    List<PedidoRecibido> pedidos;
+    if (usarPendientes) {
+      pedidos = await ProductorApiService.instance.getPedidosPendientes();
+      _apiPedidosPendientes = pedidos;
+      _usarEndpointPendientes = true;
+    } else {
+      pedidos = await ProductorApiService.instance.getPedidosProveedor();
+      _apiPedidos = pedidos;
+      _usarEndpointPendientes = false;
+    }
+
     if (mounted) {
       setState(() {
-        _apiPedidos = pedidos;
+        if (usarPendientes) {
+          _apiPedidosPendientes = pedidos;
+        } else {
+          _apiPedidos = pedidos;
+        }
         _cargando = false;
       });
-      print('DEBUG: [PedidosRecibidos] Pedidos cargados: ${pedidos.length}');
+      print('DEBUG: [PedidosRecibidos] Pedidos cargados: ${pedidos.length} (endpoint pendientes: $usarPendientes)');
     }
   }
 
@@ -53,10 +74,16 @@ class _PedidosRecibidosState extends State<PedidosRecibidos> {
     return AnimatedBuilder(
       animation: store,
       builder: (context, _) {
-        final listaBase = _apiPedidos.isNotEmpty ? _apiPedidos : store.pedidos;
-        final pedidos = listaBase
-            .where((p) => _filtro == null || p.estado == _filtro)
-            .toList();
+        // Usar la lista correcta según el endpoint usado
+        final listaBase = _usarEndpointPendientes
+            ? (_apiPedidosPendientes.isNotEmpty ? _apiPedidosPendientes : store.pedidos)
+            : (_apiPedidos.isNotEmpty ? _apiPedidos : store.pedidos);
+
+        // Si usamos endpoint de pendientes, los datos ya vienen filtrados
+        // Solo filtramos adicionalmente si el usuario seleccionó un estado específico
+        final pedidos = _usarEndpointPendientes && _filtro != null
+            ? listaBase.where((p) => p.estado == _filtro).toList()
+            : listaBase.where((p) => _filtro == null || p.estado == _filtro).toList();
         return ProductorPage(
           title: 'Pedidos recibidos',
           rootIndex: 2,

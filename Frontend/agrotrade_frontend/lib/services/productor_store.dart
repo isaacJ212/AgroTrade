@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../models/productor_models.dart';
 import 'api_session.dart';
+import 'users_api_service.dart';
 
 /// Estado de sesión del frontend. No sustituye la API ni una base de datos.
 /// Las pantallas comparten esta instancia; los formularios editan copias.
@@ -217,8 +218,35 @@ class ProductorStore extends ChangeNotifier {
 
   void guardarPersona(DatosProductor datos) {
     persona = datos;
-    ApiSession.instance.userName = datos.nombre;
+    ApiSession.instance.updateUserProfile(
+      name: datos.nombre,
+      email: datos.correo,
+      phone: datos.telefono,
+      location: datos.ubicacion,
+    );
     notifyListeners();
+  }
+
+  Future<void> cargarPerfilDesdeApi() async {
+    try {
+      final user = await UsersApiService.instance.getPerfilActual();
+      if (user != null) {
+        persona = DatosProductor(
+          nombre: user.name.isNotEmpty ? user.name : persona.nombre,
+          correo: user.email.isNotEmpty ? user.email : persona.correo,
+          telefono: (user.telefono != null && user.telefono!.isNotEmpty)
+              ? user.telefono!
+              : persona.telefono,
+          ubicacion: (user.direccionBase != null && user.direccionBase!.isNotEmpty)
+              ? user.direccionBase!
+              : (user.departamento ?? persona.ubicacion),
+          foto: persona.foto,
+        );
+        notifyListeners();
+      }
+    } catch (e) {
+      print('DEBUG: [ProductorStore] cargarPerfilDesdeApi error: $e');
+    }
   }
 
   void configurarNotificaciones(bool value) {
@@ -232,9 +260,11 @@ class ProductorStore extends ChangeNotifier {
   }
 
   void asegurarSesion() {
-    if (_sessionToken == ApiSession.instance.token) return;
-    _cargar(DateTime.now());
-    notifyListeners();
+    if (_sessionToken != ApiSession.instance.token) {
+      _cargar(DateTime.now());
+      notifyListeners();
+    }
+    cargarPerfilDesdeApi();
   }
 
   void _cargar(DateTime now) {
@@ -254,11 +284,25 @@ class ProductorStore extends ChangeNotifier {
       portadaUrl:
           'https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=1200&q=80',
     );
+    final sesion = ApiSession.instance;
+    final nombre = (sesion.userName != null && sesion.userName!.trim().isNotEmpty)
+        ? sesion.userName!.trim()
+        : 'Carlos Martínez';
+    final correo = (sesion.userEmail != null && sesion.userEmail!.trim().isNotEmpty)
+        ? sesion.userEmail!.trim()
+        : 'carlos@agrotrade.com';
+    final telefono = (sesion.userPhone != null && sesion.userPhone!.trim().isNotEmpty)
+        ? sesion.userPhone!.trim()
+        : '8888 1234';
+    final ubicacion = (sesion.userLocation != null && sesion.userLocation!.trim().isNotEmpty)
+        ? sesion.userLocation!.trim()
+        : finca.ubicacion;
+
     persona = DatosProductor(
-      nombre: ApiSession.instance.userName ?? 'Carlos Martínez',
-      correo: 'carlos@agrotrade.com',
-      telefono: '8888 1234',
-      ubicacion: finca.ubicacion,
+      nombre: nombre,
+      correo: correo,
+      telefono: telefono,
+      ubicacion: ubicacion,
     );
     _productos.addAll([
       Producto(

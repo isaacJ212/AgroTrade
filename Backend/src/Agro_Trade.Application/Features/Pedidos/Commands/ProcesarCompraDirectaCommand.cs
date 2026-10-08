@@ -16,7 +16,7 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
         IRepository<NotificacionEntrega> notificacionRepository,
         IRepository<Repartidor> repartidorRepository,
         IRepository<DetallePedido> detallePedidoRepository,
-        IRepository<RegistroTransferenciaMock> transferenciaRepository,
+        IRepository<RegistroTransferencia> transferenciaRepository,
         IUnitofWork unitOfWork) : IRequestHandler<ProcesarCompraDirectaCommand, Result<CheckoutResponseDto>>
     {
         public async Task<Result<CheckoutResponseDto>> Handle(ProcesarCompraDirectaCommand request, CancellationToken cancellationToken)
@@ -32,7 +32,7 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
                 return Result<CheckoutResponseDto>.Failure(404, "El usuario cliente no existe.");
 
             var detalles = new List<DetallePedido>();
-            var transferenciasAGenerar = new Dictionary<string, (decimal Monto, string Banco, string Cuenta)>();
+            var transferenciasAGenerar = new Dictionary<int, (string Proveedor, decimal Monto, string Banco, string Cuenta)>();
             decimal totalGeneral = 0;
             var inventariosAActualizar = new List<InventarioProveedor>();
 
@@ -44,8 +44,8 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
                 var producto = await productoRepository.FirstOrDefaultAsync(
                     p => p.IdProducto == item.ProductId,
                     cancellationToken,
-                    p => p.Proveedor,
-                    p => p.Inventarios);
+                    "Proveedor.CuentaBancaria.Banco",
+                    "Inventarios");
 
                 if (producto is null)
                     return Result<CheckoutResponseDto>.Failure(404, $"El producto con ID {item.ProductId} no existe.");
@@ -72,15 +72,32 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
                 if (inventario.StockActual <= 0) inventario.Disponible = false;
                 inventariosAActualizar.Add(inventario);
 
-                var proveedorNombre = producto.Proveedor.NombreProveedor;
-                if (transferenciasAGenerar.ContainsKey(proveedorNombre))
+                var proveedor = producto.Proveedor;
+                var cuentaBancaria = proveedor.CuentaBancaria;
+                if (cuentaBancaria is null
+                    || !cuentaBancaria.isActive
+                    || cuentaBancaria.IdUsuario != proveedor.IdUsuario
+                    || cuentaBancaria.Banco is null)
                 {
-                    var actual = transferenciasAGenerar[proveedorNombre];
-                    transferenciasAGenerar[proveedorNombre] = (actual.Monto + subtotal, actual.Banco, actual.Cuenta);
+                    return Result<CheckoutResponseDto>.Failure(409,
+                        $"El productor '{proveedor.NombreProveedor}' no tiene una cuenta bancaria activa válida.");
+                }
+
+                if (transferenciasAGenerar.TryGetValue(proveedor.IdProveedor, out var transferenciaExistente))
+                {
+                    transferenciasAGenerar[proveedor.IdProveedor] = (
+                        transferenciaExistente.Proveedor,
+                        transferenciaExistente.Monto + subtotal,
+                        transferenciaExistente.Banco,
+                        transferenciaExistente.Cuenta);
                 }
                 else
                 {
-                    transferenciasAGenerar[proveedorNombre] = (subtotal, producto.Proveedor.Banco, producto.Proveedor.CuentaBancaria);
+                    transferenciasAGenerar[proveedor.IdProveedor] = (
+                        proveedor.NombreProveedor,
+                        subtotal,
+                        cuentaBancaria.Banco.NombreBanco,
+                        cuentaBancaria.NumeroCuenta);
                 }
             }
 
@@ -127,7 +144,7 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
                         {
                             IdPedido = pedido.IdPedido,
                             IdUsuarioRepartidor = rep.IdUsuario,
-                            ZonaEntrega = cliente.DireccionBase ?? $"En {cliente.Departamento}"
+                            ZonaEntrega = $"{cliente.Departamento}, {cliente.Municipio}, {cliente.DireccionExacta}".Trim(new char[] { ',' , ' ' }) ?? $"En {cliente.Departamento}"
                         }, cancellationToken);
                         repartidoresNotificados++;
                     }
@@ -135,16 +152,16 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
 
                 // Crear Transferencias
                 var dtosTransferencias = new List<TransferenciaCheckoutDto>();
-                foreach (var kvp in transferenciasAGenerar)
+                foreach (var transferenciaProveedor in transferenciasAGenerar.Values)
                 {
-                    var transferencia = new RegistroTransferenciaMock
+                    var transferencia = new RegistroTransferencia
                     {
                         IdTransferencia = Guid.NewGuid().ToString("N"),
                         IdPedido = pedido.IdPedido,
-                        Proveedor = kvp.Key,
-                        BancoDestino = kvp.Value.Banco,
-                        Cuenta = kvp.Value.Cuenta,
-                        MontoEnviado = kvp.Value.Monto,
+                        Proveedor = transferenciaProveedor.Proveedor,
+                        BancoDestino = transferenciaProveedor.Banco,
+                        Cuenta = transferenciaProveedor.Cuenta,
+                        MontoEnviado = transferenciaProveedor.Monto,
                         Estado = "LIQUIDADO_ACH_EXITOSO"
                     };
                     await transferenciaRepository.AddAsync(transferencia, cancellationToken);

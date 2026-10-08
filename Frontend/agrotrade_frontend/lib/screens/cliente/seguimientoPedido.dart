@@ -63,8 +63,12 @@ class _SeguimientoPedidoScreenState extends State<SeguimientoPedidoScreen> {
     int currentIndex = 0;
     switch (estadoEnvio.toUpperCase()) {
       case 'PENDIENTE': currentIndex = 1; break;
+      case 'PREPARANDO': currentIndex = 1; break;   // En preparación
+      case 'LISTO': currentIndex = 2; break;        // Listo para entregar
       case 'EN_CAMINO': currentIndex = 3; break;
       case 'ENTREGADO': currentIndex = 4; break;
+      case 'CANCELADO':
+      case 'RECHAZADO': currentIndex = 0; break;
       default: currentIndex = 1;
     }
 

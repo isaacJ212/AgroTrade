@@ -2,7 +2,6 @@ using MediatR;
 using Agro_Trade.Application.Common;
 using Agro_Trade.Application.Common.DTOs.ProductosDtos;
 using Agro_Trade.Application.Common.Interface;
-
 using Agro_Trade.Application.Common.DTOs;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,6 +23,7 @@ namespace Agro_Trade.Application.Features.Productos.Queries
             // Jafet: Aquí filtramos para traer únicamente los productos que estén activos (Soft delete aplicado)
             var query = _unitOfWork.Productos.GetQueryable()
                 .Include(p => p.Categoria)
+                .Include(p => p.UnidadDeMedida)
                 .Include(p => p.Inventarios)
                 .Where(p => p.Activo)
                 .AsQueryable();
@@ -33,17 +33,13 @@ namespace Agro_Trade.Application.Features.Productos.Queries
                 var lowerSearch = request.Search.ToLower();
                 query = query.Where(p => p.Nombre.ToLower().Contains(lowerSearch));
             }
-            
+
             if (request.IdProveedor.HasValue)
-            {
                 query = query.Where(p => p.IdProveedor == request.IdProveedor.Value);
-            }
 
             if (request.CategoriaId.HasValue)
-            {
                 query = query.Where(p => p.IdCategoria == request.CategoriaId.Value);
-            }
-            
+
             var totalItems = await query.CountAsync(cancellationToken);
             var totalPages = (int)Math.Ceiling(totalItems / (double)request.Limit);
 
@@ -52,7 +48,7 @@ namespace Agro_Trade.Application.Features.Productos.Queries
                 .Take(request.Limit)
                 .ToListAsync(cancellationToken);
 
-            var data = productos.Select(p => 
+            var data = productos.Select(p =>
             {
                 var inventario = p.Inventarios.FirstOrDefault(i => i.Disponible);
                 return new ProductoDto
@@ -61,9 +57,10 @@ namespace Agro_Trade.Application.Features.Productos.Queries
                     IdCategoria = p.IdCategoria,
                     CategoriaNombre = p.Categoria?.Nombre,
                     IdProveedor = p.IdProveedor,
+                    IdUnidadMedida = p.IdUnidadDeMedida,
+                    UnidadMedida = p.UnidadDeMedida?.Codigo,
                     Nombre = p.Nombre,
                     Descripcion = p.Descripcion,
-                    UnidadMedida = p.UnidadMedida,
                     Precio = inventario?.PrecioVenta ?? 0,
                     FotoUrl = inventario?.FotoUrl
                 };

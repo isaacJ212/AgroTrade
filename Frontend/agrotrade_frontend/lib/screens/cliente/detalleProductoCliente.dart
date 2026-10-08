@@ -322,12 +322,22 @@ class _DetalleProductoClienteState extends State<DetalleProductoCliente> {
                   ),
                   const SizedBox(height: 12),
                   InkWell(
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const PerfilProductorScreen(),
-                      ),
-                    ),
+                    onTap: () {
+                      final prod = widget.producto;
+                      final productor = ProductorDestacado(
+                        id: null,
+                        nombre: prod.finca,
+                        rating: 0,
+                        ventas: 0,
+                        verificado: false,
+                        avatarUrl: 'https://via.placeholder.com/150',
+                        ubicacion: prod.distancia,
+                      );
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => PerfilProductorScreen(productor: productor)),
+                      );
+                    },
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [

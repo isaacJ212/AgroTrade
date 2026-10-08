@@ -91,12 +91,20 @@ class PrepareOrderScreen extends StatelessWidget {
                         print('DEBUG: [PrepareOrder] Marcando listo pedido ${p.codigo}');
                         if (accionProductor(
                           context,
-                          () =>
-                              store.cambiarEstado(p.codigo, EstadoPedido.listo),
+                          () => store.cambiarEstado(p.codigo, EstadoPedido.listo),
                         )) {
                           // Sincronizar con API
-                          await ProductorApiService.instance
+                          final ok = await ProductorApiService.instance
                               .actualizarEstadoPedido(p.codigo, EstadoPedido.listo);
+                          if (!ok && context.mounted) {
+                            // Rollback local si falla API
+                            store.cambiarEstado(p.codigo, EstadoPedido.enPreparacion);
+                            mensajeProductor(
+                              context,
+                              'Error de conexión: no se pudo confirmar. Reintenta.',
+                            );
+                            return;
+                          }
                           if (context.mounted) {
                             mensajeProductor(
                               context,

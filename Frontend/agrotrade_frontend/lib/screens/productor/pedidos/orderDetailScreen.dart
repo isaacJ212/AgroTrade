@@ -30,16 +30,25 @@ class OrderDetailsScreen extends StatelessWidget {
     );
     if (context.mounted && aceptar == true) {
       print('DEBUG: [OrderDetail] Rechazando pedido ${pedido.codigo}');
-      accionProductor(
+      if (accionProductor(
         context,
         () => ProductorStore.instance.cambiarEstado(
           pedido.codigo,
           EstadoPedido.rechazado,
         ),
-      );
-      // Sincronizar con API
-      await ProductorApiService.instance.actualizarEstadoPedido(
-          pedido.codigo, EstadoPedido.rechazado);
+      )) {
+        // Sincronizar con API
+        final ok = await ProductorApiService.instance.actualizarEstadoPedido(
+            pedido.codigo, EstadoPedido.rechazado);
+        if (!ok && context.mounted) {
+          // Rollback local si falla API
+          ProductorStore.instance.cambiarEstado(pedido.codigo, EstadoPedido.pendiente);
+          mensajeProductor(
+            context,
+            'Error de conexión: no se pudo rechazar. Reintenta.',
+          );
+        }
+      }
     }
   }
 
@@ -186,9 +195,18 @@ class OrderDetailsScreen extends StatelessWidget {
                       EstadoPedido.enPreparacion,
                     ),
                   )) {
-                    // Sincronizar con API en background
-                    await ProductorApiService.instance.actualizarEstadoPedido(
+                    // Sincronizar con API
+                    final ok = await ProductorApiService.instance.actualizarEstadoPedido(
                         p.codigo, EstadoPedido.enPreparacion);
+                    if (!ok && context.mounted) {
+                      // Rollback local si falla API
+                      ProductorStore.instance.cambiarEstado(p.codigo, EstadoPedido.pendiente);
+                      mensajeProductor(
+                        context,
+                        'Error de conexión: no se pudo confirmar. Reintenta.',
+                      );
+                      return;
+                    }
                     if (context.mounted) {
                       Navigator.pushNamed(
                         context,

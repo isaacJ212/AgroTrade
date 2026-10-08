@@ -2,12 +2,15 @@ using MediatR;
 using Agro_Trade.Domain.Entities;
 using Agro_Trade.Application.Common;
 using Agro_Trade.Application.Common.Interface;
+using Agro_Trade.Application.Common.Interface;
 
 namespace Agro_Trade.Application.Features.Pedidos.Commands
 {
     public sealed record PatchPedidoEstadoCommand(int IdPedido, string NuevoEstado) : IRequest<Result<bool>>;
 
-    public class PatchPedidoEstadoHandler(IRepository<Pedido> pedidoRepo)
+    public class PatchPedidoEstadoHandler(
+        IRepository<Pedido> pedidoRepo,
+        IUnitofWork unitOfWork)
         : IRequestHandler<PatchPedidoEstadoCommand, Result<bool>>
     {
         private static readonly HashSet<string> _estadosValidos = new(StringComparer.OrdinalIgnoreCase)
@@ -30,6 +33,7 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
 
             pedido.EstadoEnvio = request.NuevoEstado;
             await pedidoRepo.UpdateAsync(pedido, ct);
+            await unitOfWork.SaveChangesAsync(ct);
 
             return Result<bool>.Success(200, true,
                 $"Pedido {request.IdPedido} actualizado a '{request.NuevoEstado}'.", true);
