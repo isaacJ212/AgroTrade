@@ -9,6 +9,7 @@ class BankAccountApiService {
 
   static const _accountsPath = '/api/CuentasBancarias';
   static const _banksPath = '/api/Bancos';
+  static const _userAccountsPath = '/api/CuentaBancaria/usuario';
 
   Future<List<BankAccountDto>> getAccounts() async {
     final response = await ApiClient.instance.get(
@@ -107,5 +108,29 @@ class BankAccountApiService {
     if (!isSuccess) {
       throw ApiException(statusCode, message.isNotEmpty ? message : fallback);
     }
+  }
+
+  /// Obtiene las cuentas bancarias de un usuario específico
+  Future<List<BankAccountDto>> getAccountsByUser(int userId) async {
+    final response = await ApiClient.instance.get(
+      '$_userAccountsPath/$userId',
+      authorized: true,
+    );
+    final result = BackendResult<List<BankAccountDto>>.fromJson(
+      response.jsonBody ?? const <String, dynamic>{},
+      dataParser: (data) => data is List
+          ? data
+                .whereType<Map<String, dynamic>>()
+                .map(BankAccountDto.fromJson)
+                .toList()
+          : <BankAccountDto>[],
+    );
+    _ensureSuccess(
+      response.statusCode,
+      result.isSuccess,
+      result.message,
+      'No se pudieron cargar las cuentas bancarias del usuario.',
+    );
+    return result.data ?? <BankAccountDto>[];
   }
 }

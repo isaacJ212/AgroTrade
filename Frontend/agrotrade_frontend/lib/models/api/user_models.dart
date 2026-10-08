@@ -1,34 +1,41 @@
 import 'json_helpers.dart';
 
 class CreateUserRequestDto {
-  final String nombreCompleto;
+  final String nombre;
+  final String primerApellido;
+  final String segundoApellido;
   final String email;
   final String password;
   final String? telefono;
   final String? direccionBase;
   final String? departamento;
+  final String? municipio;
   final int? idRol;
 
   const CreateUserRequestDto({
-    required this.nombreCompleto,
+    required this.nombre,
+    required this.primerApellido,
+    required this.segundoApellido,
     required this.email,
     required this.password,
     this.telefono,
     this.direccionBase,
     this.departamento,
+    this.municipio,
     this.idRol,
   });
 
   Map<String, dynamic> toJson() => {
-    'nombreCompleto': nombreCompleto,
-    'email': email,
-    'password': password,
-    if (telefono != null && telefono!.isNotEmpty) 'telefono': telefono,
-    if (direccionBase != null && direccionBase!.isNotEmpty)
-      'direccionBase': direccionBase,
-    if (departamento != null && departamento!.isNotEmpty)
-      'departamento': departamento,
-    if (idRol != null) 'idRol': idRol,
+    'Nombre': nombre,
+    'PrimerApellido': primerApellido,
+    'SegundoApellido': segundoApellido,
+    'Email': email,
+    'Password': password,
+    if (telefono != null && telefono!.isNotEmpty) 'Telefono': telefono,
+    if (direccionBase != null && direccionBase!.isNotEmpty) 'DireccionExacta': direccionBase,
+    if (departamento != null && departamento!.isNotEmpty) 'Departamento': departamento,
+    if (municipio != null && municipio!.isNotEmpty) 'Municipio': municipio,
+    if (idRol != null) 'IdRol': idRol,
   };
 }
 

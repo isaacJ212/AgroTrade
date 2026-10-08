@@ -1,5 +1,5 @@
 # =============================================================================
-# .dockerignore para Backend (ASP.NET Core)
+# .dockerignore para Frontend/AgroTrade_Admin (Node.js)
 # =============================================================================
 
 # Control de versiones
@@ -16,6 +16,13 @@ docker-compose*.yml
 .env.*
 !.env.example
 
+# Dependencias (se instalan en el container)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
 # IDE y editores
 .vscode
 .idea
@@ -23,40 +30,29 @@ docker-compose*.yml
 *.swo
 *~
 
-# Compilación y build
-bin/
-obj/
-out/
-publish/
-
-# Paquetes NuGet
-packages/
-*.nupkg
-*.snupkg
+# Build y distribución
+dist/
+build/
+*.local
 
 # Logs
-*.log
 logs/
+*.log
 
 # Tests
-TestResults/
-*.trx
 coverage/
-
-# Documentación
-docs/
-*.md
-!README.md
-
-# Base de datos local
-*.db
-*.sqlite
-
-# Archivos temporales
-tmp/
-temp/
-*.tmp
+.nyc_output/
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Archivos temporales
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Archivos de configuración local
+*.local.js
+*.local.json

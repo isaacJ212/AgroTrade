@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:agrotrade_frontend/models/repartidor_models.dart';
 
 class ApiSession {
   ApiSession._();
@@ -11,6 +12,7 @@ class ApiSession {
   static const String _userEmailKey = 'agrotrade.user_email';
   static const String _userPhoneKey = 'agrotrade.user_phone';
   static const String _userLocationKey = 'agrotrade.user_location';
+  static const String _repartidorEstadoKey = 'agrotrade.repartidor_estado';
 
   String? token;
   String? refreshToken;
@@ -20,8 +22,15 @@ class ApiSession {
   String? userLocation;
   String? userId;
   List<String> roles = [];
+  
+  // Estado de verificación del repartidor
+  RepartidorEstado? repartidorEstado;
 
   bool get isAuthenticated => token != null && token!.isNotEmpty;
+  
+  /// Verifica si el usuario es repartidor y está verificado
+  bool get isRepartidorVerificado => 
+      roles.contains('Repartidor') && repartidorEstado?.estaVerificado == true;
 
   Future<void> setAuth({
     required String token,
@@ -119,6 +128,18 @@ class ApiSession {
     userEmail = email;
   }
 
+  /// Establece el estado de verificación del repartidor
+  Future<void> setRepartidorEstado(RepartidorEstado estado) async {
+    repartidorEstado = estado;
+    // Opcional: persistir en secure storage para restaurar entre sesiones
+    await _storeOptional(_repartidorEstadoKey, estado.toJson().toString());
+  }
+
+  /// Limpia el estado del repartidor (ej. al hacer logout)
+  void clearRepartidorEstado() {
+    repartidorEstado = null;
+  }
+
   List<String> _extractRoles(String token) {
     try {
       final parts = token.split('.');
@@ -137,9 +158,12 @@ class ApiSession {
           claims['role'] ??
           claims['roles'] ??
           claims['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-      if (rawRoles is List)
+      if (rawRoles is List) {
         return rawRoles.map((role) => role.toString()).toList();
-      if (rawRoles is String && rawRoles.isNotEmpty) return [rawRoles];
+      }
+      if (rawRoles is String && rawRoles.isNotEmpty) {
+        return [rawRoles];
+      }
       return const [];
     } catch (_) {
       return const [];
@@ -221,10 +245,12 @@ class ApiSession {
     userLocation = null;
     userId = null;
     roles = [];
+    repartidorEstado = null;
     await _secureStorage.delete(key: _refreshTokenKey);
     await _secureStorage.delete(key: _userNameKey);
     await _secureStorage.delete(key: _userEmailKey);
     await _secureStorage.delete(key: _userPhoneKey);
     await _secureStorage.delete(key: _userLocationKey);
+    await _secureStorage.delete(key: _repartidorEstadoKey);
   }
 }

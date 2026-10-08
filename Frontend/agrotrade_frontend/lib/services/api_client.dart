@@ -107,6 +107,57 @@ class ApiClient {
     return ApiResponse.fromHttpResponse(response);
   }
 
+  /// Envía una petición multipart/form-data (para subida de archivos)
+  Future<ApiResponse> postMultipart(
+    String path, {
+    required Map<String, String> fields,
+    required Map<String, List<int>> files,
+    required Map<String, String> fileNames,
+    bool authorized = false,
+  }) async {
+    final uri = _buildUri(path);
+    var request = http.MultipartRequest('POST', uri);
+    
+    // Agregar campos de texto
+    request.fields.addAll(fields);
+    
+    // Agregar archivos
+    files.forEach((fieldName, bytes) {
+      final fileName = fileNames[fieldName] ?? 'file';
+      request.files.add(http.MultipartFile.fromBytes(
+        fieldName,
+        bytes,
+        filename: fileName,
+      ));
+    });
+    
+    if (authorized) {
+      final token = ApiSession.instance.token;
+      if (token != null && token.isNotEmpty) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+    }
+    request.headers['Accept'] = 'application/json';
+    
+    var response = await _client.send(request);
+    var httpResponse = await http.Response.fromStream(response);
+    
+    final isRefreshOrLogout =
+        path.toLowerCase().endsWith('/refresh') ||
+        path.toLowerCase().endsWith('/logout');
+    if (authorized &&
+        httpResponse.statusCode == 401 &&
+        !isRefreshOrLogout &&
+        await refreshSession()) {
+      // Reintentar con nuevo token
+      request.headers['Authorization'] = 'Bearer ${ApiSession.instance.token}';
+      response = await _client.send(request);
+      httpResponse = await http.Response.fromStream(response);
+    }
+    
+    return ApiResponse.fromHttpResponse(httpResponse);
+  }
+
   Future<http.Response> _sendRequest(
     String method,
     Uri uri,

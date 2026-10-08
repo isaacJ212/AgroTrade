@@ -4,6 +4,7 @@ import '../models/api/json_helpers.dart';
 import '../routes/auth_routes.dart';
 import 'api_client.dart';
 import 'api_session.dart';
+import 'repartidor_api_service.dart';
 
 class AuthApiService {
   AuthApiService._();
@@ -64,6 +65,8 @@ class AuthApiService {
           userEmail: cleanEmail,
           roles: demoUser.roles,
         );
+        // Para usuarios demo, no llamamos al backend real
+        // El estado se puede simular o dejar null
         return demoUser;
       }
     } else if (cleanEmail == 'admin@agrotrade.com') {
@@ -109,6 +112,12 @@ class AuthApiService {
           userEmail: cleanEmail,
           roles: result.data!.roles,
         );
+        
+        // Si el usuario tiene rol Repartidor, verificar estado de verificación
+        if (result.data!.roles.contains('Repartidor')) {
+          await _cargarEstadoRepartidor();
+        }
+        
         return result.data!;
       } else {
         throw ApiException(
@@ -155,6 +164,12 @@ class AuthApiService {
       userName: result.data!.userName,
       roles: result.data!.roles,
     );
+    
+    // Si el usuario tiene rol Repartidor, verificar estado de verificación
+    if (result.data!.roles.contains('Repartidor')) {
+      await _cargarEstadoRepartidor();
+    }
+    
     return result.data!;
   }
 
@@ -214,6 +229,12 @@ class AuthApiService {
       userIdOverride: userId.toString(),
       roles: result.data!.roles,
     );
+    
+    // Si el usuario tiene rol Repartidor, verificar estado de verificación
+    if (result.data!.roles.contains('Repartidor')) {
+      await _cargarEstadoRepartidor();
+    }
+    
     return result.data!;
   }
 
@@ -246,5 +267,16 @@ class AuthApiService {
   ) {
     final safeJson = json ?? const <String, dynamic>{};
     return BackendResult<T>.fromJson(safeJson, dataParser: parser);
+  }
+
+  /// Carga el estado de verificación del repartidor y lo guarda en la sesión
+  Future<void> _cargarEstadoRepartidor() async {
+    try {
+      final estado = await RepartidorApiService.instance.getEstadoVerificacion();
+      await ApiSession.instance.setRepartidorEstado(estado);
+    } catch (e) {
+      // Si falla, no bloqueamos el login; el estado se verificará al entrar a homeRepartidor
+      // print('Error cargando estado repartidor: $e');
+    }
   }
 }

@@ -72,6 +72,8 @@ import '../screens/repartidor/recogerPedidoRepartidor.dart';
 import '../screens/repartidor/entregaEnCursoRepartidor.dart';
 import '../screens/repartidor/rutaEntregaRepartidor.dart';
 import '../screens/repartidor/confirmarEntregaRepartidor.dart';
+import '../screens/repartidor/onboardingRepartidor.dart';
+import '../screens/repartidor/formularioSolicitudRepartidor.dart';
 
 import 'app_routes.dart';
 import 'productor_router.dart';
@@ -366,6 +368,13 @@ class AppRouter {
 
       case AppRoutes.confirmarEntregaRepartidor:
         return _slide(const ConfirmarEntregaRepartidor());
+
+      // ── Repartidor Verificación ──────────────────────────────────────────────
+      case AppRoutes.onboardingRepartidor:
+        return _slide(const OnboardingRepartidor());
+
+      case AppRoutes.formularioSolicitudRepartidor:
+        return _slide(const FormularioSolicitudRepartidor());
 
       // ── Ruta no encontrada ────────────────────────────────────────────────
       default:

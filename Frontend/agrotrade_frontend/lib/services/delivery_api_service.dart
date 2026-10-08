@@ -41,6 +41,12 @@ class DeliveryApiService {
     return result.data ?? <PendingDeliveryNotificationDto>[];
   }
 
+  Future<Map<String, dynamic>?> getDetalleEntrega(int pedidoId) async {
+    // Intentar endpoint de detalle si existe en el futuro
+    // Por ahora retorna null ya que el endpoint no existe
+    return null;
+  }
+
   Future<void> acceptDelivery(int pedidoId) async {
     final response = await ApiClient.instance.post(
       DeliveryRoutes.acceptDelivery(pedidoId),

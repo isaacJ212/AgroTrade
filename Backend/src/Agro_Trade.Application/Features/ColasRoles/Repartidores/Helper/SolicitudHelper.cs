@@ -34,7 +34,8 @@ public class SolicitudHelper
             UrlFotoCedula = dto.UrlFotoCedula,
             UrlFotoPerfil = dto.UrlFotoPerfil,
             UrlRecordPolicial = dto.UrlRecordPolicial,
-            UrlLicencia = dto.UrlLicencia
+            UrlLicencia = dto.UrlLicencia,
+            Municipio = dto. Municipio
         };
     }
 }

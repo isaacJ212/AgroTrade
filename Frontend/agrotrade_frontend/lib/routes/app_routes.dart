@@ -79,4 +79,7 @@ class AppRoutes {
   static const String rutaEntregaRepartidor = '/repartidor/pedido/ruta';
   static const String confirmarEntregaRepartidor =
       '/repartidor/pedido/confirmar';
+  // Verificación y Onboarding
+  static const String onboardingRepartidor = '/repartidor/onboarding';
+  static const String formularioSolicitudRepartidor = '/repartidor/solicitud';
 }
