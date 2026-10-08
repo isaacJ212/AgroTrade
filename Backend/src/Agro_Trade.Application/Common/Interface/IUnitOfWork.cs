@@ -35,5 +35,6 @@ namespace Agro_Trade.Application.Common.Interface
         IRepository<Mensaje> Mensajes {get;}
         IRepository<CuentaBancaria> CuentasBancaria {get;}
         IRepository<Banco> Bancos { get; }
+        IRepository<UnidadDeMedida> UnidadesDeMedida { get; }
     }
 }

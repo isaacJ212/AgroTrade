@@ -1,4 +1,5 @@
 import 'package:agrotrade_frontend/screens/repartidor/perfilRepartidor.dart';
+import 'package:agrotrade_frontend/screens/repartidor/verificacionRepartidorModal.dart';
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 import '../../ui/app_theme.dart';
@@ -7,8 +8,8 @@ import '../../ui/widgets/repartidor_bottom_nav.dart';
 import 'detalleEntregaRepartidor.dart';
 import 'entregasRepartidor.dart';
 import 'rutaEntregaRepartidor.dart';
-import 'repartidor_demo.dart';
 import '../../services/delivery_api_service.dart';
+import '../../services/repartidor_api_service.dart';
 import '../../services/api_session.dart';
 import 'package:agrotrade_frontend/models/api/delivery_models.dart';
 
@@ -32,11 +33,30 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
     super.initState();
     _pendingFuture = DeliveryApiService.instance
         .getPendingDeliveries()
-        .then((deliveries) {
-          RepartidorDemo.instance.registrarPendientesApi(deliveries);
-          return deliveries;
-        })
         .catchError((_) => <PendingDeliveryNotificationDto>[]);
+    _verificarEstadoRepartidor();
+  }
+
+  Future<void> _verificarEstadoRepartidor() async {
+    try {
+      final estado = await RepartidorApiService.instance.getEstadoVerificacion();
+      if (mounted && !estado.estaVerificado) {
+        // Usar addPostFrameCallback para mostrar el modal después del primer frame
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            VerificacionRepartidorModal.show(
+              context: context,
+              estado: estado,
+              onCorregirReenviar: () => Navigator.pushNamed(context, AppRoutes.formularioSolicitudRepartidor),
+              onIrAOnboarding: () => Navigator.pushNamed(context, AppRoutes.onboardingRepartidor),
+            );
+          }
+        });
+      }
+    } catch (e) {
+      // Si falla la verificación, continuar sin bloquear
+      debugPrint('Error verificando estado repartidor: $e');
+    }
   }
 
   String get _saludo {
@@ -171,7 +191,11 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
                         style: AppTextStyles.sectionTitle,
                       ),
                       const SizedBox(height: 12),
-                      _StatsGrid(pendingCount: pendingDeliveries.length),
+                      _StatsGrid(
+                        pendingCount: pendingDeliveries.length,
+                        enCursoCount: 0,
+                        completadasCount: 0,
+                      ),
                       const SizedBox(height: 24),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -219,6 +243,7 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
                       _RouteSummaryCard(
                         onVerRuta: () =>
                             _navigate(context, const RutaEntregaRepartidor()),
+                        paradasCount: pendingDeliveries.length,
                       ),
                     ],
                   ),
@@ -251,8 +276,14 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
 
 class _StatsGrid extends StatelessWidget {
   final int pendingCount;
+  final int enCursoCount;
+  final int completadasCount;
 
-  const _StatsGrid({required this.pendingCount});
+  const _StatsGrid({
+    required this.pendingCount,
+    required this.enCursoCount,
+    required this.completadasCount,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -272,10 +303,10 @@ class _StatsGrid extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            const Expanded(
+            Expanded(
               child: _StatCard(
                 title: 'En curso',
-                value: '1',
+                value: '$enCursoCount',
                 icon: Icons.local_shipping,
                 background: AppColors.primaryColor,
                 iconColor: AppColors.fabIcon,
@@ -287,12 +318,12 @@ class _StatsGrid extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        const Row(
+        Row(
           children: [
             Expanded(
               child: _StatCard(
                 title: 'Completadas',
-                value: '2',
+                value: '$completadasCount',
                 icon: Icons.check_circle_outline,
                 background: Color(0xFFE7E8E9),
                 iconColor: AppColors.bodyText,
@@ -611,8 +642,9 @@ class _NextDeliveryCard extends StatelessWidget {
 
 class _RouteSummaryCard extends StatelessWidget {
   final VoidCallback onVerRuta;
+  final int paradasCount;
 
-  const _RouteSummaryCard({required this.onVerRuta});
+  const _RouteSummaryCard({required this.onVerRuta, required this.paradasCount});
 
   @override
   Widget build(BuildContext context) {
@@ -647,7 +679,7 @@ class _RouteSummaryCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '3 paradas pendientes',
+                      '$paradasCount paradas pendientes',
                       style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
                     ),
                   ],

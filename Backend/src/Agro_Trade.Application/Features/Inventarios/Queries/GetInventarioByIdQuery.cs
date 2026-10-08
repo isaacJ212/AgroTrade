@@ -6,6 +6,7 @@ using MediatR;
 using Agro_Trade.Application.Common;
 using Agro_Trade.Application.Common.DTOs.InventarioDtos;
 using Agro_Trade.Application.Common.Interface;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace Agro_Trade.Application.Features.Inventarios.Queries
@@ -32,9 +33,12 @@ namespace Agro_Trade.Application.Features.Inventarios.Queries
             }
 
             // Usamos FirstOrDefaultAsync para buscar el ID y asegurarnos de que el registro no esté eliminado lógicamente
-            var inventario = await _unitOfWork.InventarioProveedor.FirstOrDefaultAsync(
-                i => i.IdInventario == request.IdInventario && i.Disponible, 
-                cancellationToken);
+            var inventario = await _unitOfWork.InventarioProveedor.GetQueryable()
+                .Include(i => i.Producto)
+                    .ThenInclude(p => p.UnidadDeMedida)
+                .FirstOrDefaultAsync(
+                    i => i.IdInventario == request.IdInventario && i.Disponible, 
+                    cancellationToken);
 
             // Si es null, significa que no existe o Disponible es false
             if (inventario is null)
@@ -49,6 +53,9 @@ namespace Agro_Trade.Application.Features.Inventarios.Queries
                 IdInventario = inventario.IdInventario,
                 IdProveedor = inventario.IdProveedor,
                 IdProducto = inventario.IdProducto,
+                NombreProducto = inventario.Producto?.Nombre ?? "Producto Desconocido",
+                UnidadMedida = inventario.Producto?.UnidadDeMedida?.Codigo ?? "und",
+                IdUnidadMedida = inventario.Producto?.UnidadDeMedida?.Id ?? 1,
                 FotoUrl = inventario.FotoUrl,
                 VideoUrl = inventario.VideoUrl,
                 StockActual = inventario.StockActual,
@@ -61,7 +68,6 @@ namespace Agro_Trade.Application.Features.Inventarios.Queries
             };
 
             return Result<InventarioDtos?>.Success(200, data, "Inventario obtenido correctamente.", true);
-
 
 
         }

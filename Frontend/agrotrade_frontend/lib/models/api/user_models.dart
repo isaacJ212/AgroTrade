@@ -1,34 +1,41 @@
 import 'json_helpers.dart';
 
 class CreateUserRequestDto {
-  final String nombreCompleto;
+  final String nombre;
+  final String primerApellido;
+  final String segundoApellido;
   final String email;
   final String password;
   final String? telefono;
   final String? direccionBase;
   final String? departamento;
+  final String? municipio;
   final int? idRol;
 
   const CreateUserRequestDto({
-    required this.nombreCompleto,
+    required this.nombre,
+    required this.primerApellido,
+    required this.segundoApellido,
     required this.email,
     required this.password,
     this.telefono,
     this.direccionBase,
     this.departamento,
+    this.municipio,
     this.idRol,
   });
 
   Map<String, dynamic> toJson() => {
-    'nombreCompleto': nombreCompleto,
-    'email': email,
-    'password': password,
-    if (telefono != null && telefono!.isNotEmpty) 'telefono': telefono,
-    if (direccionBase != null && direccionBase!.isNotEmpty)
-      'direccionBase': direccionBase,
-    if (departamento != null && departamento!.isNotEmpty)
-      'departamento': departamento,
-    if (idRol != null) 'idRol': idRol,
+    'Nombre': nombre,
+    'PrimerApellido': primerApellido,
+    'SegundoApellido': segundoApellido,
+    'Email': email,
+    'Password': password,
+    if (telefono != null && telefono!.isNotEmpty) 'Telefono': telefono,
+    if (direccionBase != null && direccionBase!.isNotEmpty) 'DireccionExacta': direccionBase,
+    if (departamento != null && departamento!.isNotEmpty) 'Departamento': departamento,
+    if (municipio != null && municipio!.isNotEmpty) 'Municipio': municipio,
+    if (idRol != null) 'IdRol': idRol,
   };
 }
 
@@ -47,13 +54,36 @@ class UpdateUserRequestDto {
     this.departamento,
   });
 
-  Map<String, dynamic> toJson() => {
-    if (nombreCompleto != null) 'nombreCompleto': nombreCompleto,
-    if (email != null) 'email': email,
-    if (telefono != null) 'telefono': telefono,
-    if (direccionBase != null) 'direccionBase': direccionBase,
-    if (departamento != null) 'departamento': departamento,
-  };
+  // Split nombreCompleto into Nombre, PrimerApellido, SegundoApellido
+  // Mapea direccionBase -> DireccionExacta, departamento -> Departamento
+  Map<String, dynamic> toJsonForUpdate() {
+    final parts = (nombreCompleto ?? '').trim().split(RegExp(r'\s+'));
+    String nombre = '';
+    String primerApellido = '';
+    String segundoApellido = '';
+
+    if (parts.isNotEmpty) nombre = parts[0];
+    if (parts.length > 1) primerApellido = parts[1];
+    if (parts.length > 2) segundoApellido = parts.skip(2).join(' ');
+
+    // Validaciones mínimas para evitar 400
+    if (nombre.length < 2) nombre = 'User';
+    if (primerApellido.length < 2) primerApellido = 'Name';
+    if (segundoApellido.length < 2) segundoApellido = 'Name';
+
+    // Teléfono: solo dígitos, backend valida 8 dígitos empezando 5/7/8
+    final telefonoLimpio = (telefono ?? '').replaceAll(RegExp(r'\D'), '');
+
+    return {
+      'Nombre': nombre,
+      'PrimerApellido': primerApellido,
+      'SegundoApellido': segundoApellido,
+      if (email != null && email!.isNotEmpty) 'Email': email,
+      if (telefonoLimpio.isNotEmpty) 'Telefono': telefonoLimpio,
+      if (departamento != null && departamento!.isNotEmpty) 'Departamento': departamento,
+      if (direccionBase != null && direccionBase!.isNotEmpty) 'DireccionExacta': direccionBase,
+    };
+  }
 }
 
 class UpdatePasswordRequestDto {

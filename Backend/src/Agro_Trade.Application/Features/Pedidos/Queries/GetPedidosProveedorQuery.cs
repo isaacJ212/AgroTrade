@@ -20,25 +20,33 @@ namespace Agro_Trade.Application.Features.Pedidos.Queries
         public ICollection<DetallePedidoDto> Detalles { get; set; } = new List<DetallePedidoDto>();
     }
 
-    public sealed record GetPedidosProveedorQuery(int IdProveedor) : IRequest<Result<List<PedidoProveedorDto>>>;
+    public sealed record GetPedidosProveedorQuery(int UsuarioId) : IRequest<Result<List<PedidoProveedorDto>>>;
 
     public class GetPedidosProveedorHandler(
         IRepository<Pedido> pedidoRepo,
-        IRepository<DetallePedido> detalleRepo)
+        IRepository<DetallePedido> detalleRepo,
+        IRepository<Proveedor> proveedorRepo)
         : IRequestHandler<GetPedidosProveedorQuery, Result<List<PedidoProveedorDto>>>
     {
         public async Task<Result<List<PedidoProveedorDto>>> Handle(
             GetPedidosProveedorQuery request, CancellationToken ct)
         {
-            if (request.IdProveedor <= 0)
-                return Result<List<PedidoProveedorDto>>.Failure(400, "IdProveedor inválido.");
+            if (request.UsuarioId <= 0)
+                return Result<List<PedidoProveedorDto>>.Failure(400, "Usuario inválido.");
+
+            // Buscar el proveedor asociado al usuario
+            var proveedor = await proveedorRepo.FirstOrDefaultAsync(
+                p => p.IdUsuario == request.UsuarioId, ct);
+
+            if (proveedor is null)
+                return Result<List<PedidoProveedorDto>>.Failure(404, "No se encontró proveedor para este usuario.");
 
             // Obtener detalles donde el inventario pertenece al proveedor
             var detalles = await detalleRepo.FindAsync(
-                d => d.Inventario.IdProveedor == request.IdProveedor,
+                d => d.Inventario.IdProveedor == proveedor.IdProveedor,
                 ct,
                 "Pedido.UsuarioCliente",
-                "Inventario.Producto");
+                "Inventario.Producto.UnidadDeMedida");
 
             // Agrupar por pedido
             var pedidoIds = detalles.Select(d => d.IdPedido).Distinct().ToList();
@@ -63,8 +71,11 @@ namespace Agro_Trade.Application.Features.Pedidos.Queries
                         {
                             Id = d.IdDetallePedido,
                             PedidoId = d.IdPedido,
+                            IdProducto = d.Inventario.IdProducto,
                             Producto = d.Inventario.Producto.Nombre,
+                            UnidadMedida = d.Inventario.Producto.UnidadDeMedida?.Codigo ?? "und",
                             Cantidad = d.Cantidad,
+                            PrecioUnitario = (decimal)d.PrecioUnitario,
                             TotalLinea = d.Subtotal
                         }).ToList()
                     };
@@ -73,7 +84,7 @@ namespace Agro_Trade.Application.Features.Pedidos.Queries
                 .ToList();
 
             return Result<List<PedidoProveedorDto>>.Success(200, resultado,
-                $"{resultado.Count} pedidos encontrados para proveedor {request.IdProveedor}.", true);
+                $"{resultado.Count} pedidos encontrados para proveedor {request.UsuarioId}.", true);
         }
     }
 }

@@ -17,10 +17,11 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
 
     public class ReviewRequestHandler(
         IUnitofWork context,
-        IRepository<UsuarioRol> roles,
         IRepository<SolicitudRepartidor> contextoSoli,
         IRepository<Repartidor> repartidores,
-        IRepository<CuentaBancaria> _banc) : IRequestHandler<ReviewRequestCommand, Result<SolicitudRepartidorDto>>
+        IRepository<CuentaBancaria> _banc,
+        IRepository<Usuario> usuarios,
+        IEmailService emailService) : IRequestHandler<ReviewRequestCommand, Result<SolicitudRepartidorDto>>
     {
         public async Task<Result<SolicitudRepartidorDto>> Handle(ReviewRequestCommand request,
             CancellationToken cancellationToken)
@@ -34,25 +35,31 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
             if (solicitud.Estado != "pendiente")
                 return Result<SolicitudRepartidorDto>.Failure(400, "La solicitud ya ha sido revisada");
 
+            // Obtener usuario para email
+            var usuario = await usuarios.GetByIdAsync(solicitud.IdUsuario, cancellationToken);
+            if (usuario == null) return Result<SolicitudRepartidorDto>.Failure(404, "Usuario asociado no encontrado");
+
             await contextoSoli.UpdateAsync(solicitud, cancellationToken);
             await context.BeginTransactionAsync(cancellationToken);
 
 
             try
             {
+                bool aprobado = false;
+                string nombreCompleto = $"{usuario.Nombre} {usuario.PrimerApellido}".Trim();
+
                 if (dto.Estado == 1)
                 {
+                    aprobado = true;
                     solicitud.Estado = "Aprobada";
                    
-
                     var repartidor = new Repartidor
                     {
                         IdUsuario = solicitud.IdUsuario,
-                        // Inicializar otros campos del perfil de repartidor según sea necesario
                         PlacaVehiculo = solicitud.DatosRepartidor.PlacaVehiculo,
                         Vehiculo = solicitud.DatosRepartidor.TipoVehiculo,
                         IdCuentaBancaria = solicitud.DatosRepartidor.IdCuentaBancaria,
-                        Municipio = solicitud.DatosRepartidor.ZonaOperaciones,
+                        Municipio = solicitud.DatosRepartidor.Municipio,
                         UrlFotoPerfil = solicitud.DatosRepartidor.UrlFotoPerfil,
                         Departamento = solicitud.DatosRepartidor.Departamento,
                         IsActive = true
@@ -65,6 +72,7 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
 
                 else if (dto.Estado == 2)
                 {
+                    aprobado = false;
                     solicitud.Estado = "Rechazada";
 
                 }
@@ -81,6 +89,21 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
                 var Cuenta = await _banc.FirstOrDefaultAsync(c=>c.IdCuenta == solicitud.DatosRepartidor.IdCuentaBancaria, includes:b=>b.Banco, cancellationToken:cancellationToken);
                 var solicitudDto = SolicitudHelper.ToDto(solicitud, Cuenta);
 
+                // Enviar email de notificación
+                try
+                {
+                    await emailService.SendVerificationResultAsync(
+                        usuario.Email, 
+                        nombreCompleto, 
+                        aprobado, 
+                        dto.Comentario, 
+                        cancellationToken);
+                }
+                catch (Exception emailEx)
+                {
+                    Console.WriteLine($"[EMAIL ERROR] No se pudo enviar email de verificación: {emailEx.Message}");
+                }
+
                 if (solicitudDto.Estado == "Rechazada")
                     return Result<SolicitudRepartidorDto>.Success(200, solicitudDto,
                         $"La Solicitud fue rechazada, Comentario del Moderador :{dto.Comentario}", false);
@@ -91,15 +114,10 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
             catch (Exception ex)
             {
                 await context.RollbackAsync(cancellationToken);
-                return Result<SolicitudRepartidorDto>.Failure(500, $"Error al revisar la solicitud");
+                return Result<SolicitudRepartidorDto>.Failure(500, $"Error al revisar la solicitud: {ex.Message}");
             }
-
         }
 
 
-        
-    
     }
 }
-
-

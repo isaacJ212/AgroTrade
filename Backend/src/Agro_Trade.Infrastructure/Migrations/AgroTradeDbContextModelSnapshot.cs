@@ -59,7 +59,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 10, 5, 17, 31, 45, 338, DateTimeKind.Utc).AddTicks(8325),
+                            CreatedAt = new DateTime(2026, 10, 6, 4, 44, 28, 691, DateTimeKind.Utc).AddTicks(7271),
                             IconClass = "icon-green-bg",
                             IconType = "user",
                             Title = "El productor 'Finca Los Pinos' se ha registrado en la plataforma"
@@ -67,7 +67,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2026, 10, 5, 16, 36, 45, 338, DateTimeKind.Utc).AddTicks(8335),
+                            CreatedAt = new DateTime(2026, 10, 6, 3, 49, 28, 691, DateTimeKind.Utc).AddTicks(7286),
                             IconClass = "icon-blue-bg",
                             IconType = "check-circle",
                             Title = "Verificación aprobada para 'Transportes El Rápido'"
@@ -75,7 +75,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2026, 10, 5, 15, 36, 45, 338, DateTimeKind.Utc).AddTicks(8340),
+                            CreatedAt = new DateTime(2026, 10, 6, 2, 49, 28, 691, DateTimeKind.Utc).AddTicks(7292),
                             IconClass = "icon-orange-bg",
                             IconType = "alert-circle",
                             Title = "Se ha reportado un problema con el pedido #1045"
@@ -83,7 +83,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                         new
                         {
                             Id = 4,
-                            CreatedAt = new DateTime(2026, 10, 4, 17, 36, 45, 338, DateTimeKind.Utc).AddTicks(8343),
+                            CreatedAt = new DateTime(2026, 10, 5, 4, 49, 28, 691, DateTimeKind.Utc).AddTicks(7295),
                             IconClass = "icon-purple-bg",
                             IconType = "layers",
                             Title = "Nueva categoría 'Frutas Tropicales' creada"
@@ -609,22 +609,15 @@ namespace Agro_Trade.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("id_proveedor");
 
+                    b.Property<int>("IdUnidadDeMedida")
+                        .HasColumnType("integer")
+                        .HasColumnName("id_unidad_de_medida");
+
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
                         .HasColumnName("nombre");
-
-                    b.Property<string>("UnidadMedida")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("unidad_medida");
-
-                    b.Property<string>("urlFotoProducto")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("url_foto_producto");
 
                     b.HasKey("IdProducto")
                         .HasName("pk_productos");
@@ -634,6 +627,9 @@ namespace Agro_Trade.Infrastructure.Migrations
 
                     b.HasIndex("IdProveedor")
                         .HasDatabaseName("ix_productos_id_proveedor");
+
+                    b.HasIndex("IdUnidadDeMedida")
+                        .HasDatabaseName("ix_productos_id_unidad_de_medida");
 
                     b.ToTable("productos", (string)null);
                 });
@@ -1057,7 +1053,8 @@ namespace Agro_Trade.Infrastructure.Migrations
 
                     b.Property<string>("Codigo")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
                         .HasColumnName("codigo");
 
                     b.Property<int>("Factor")
@@ -1070,13 +1067,88 @@ namespace Agro_Trade.Infrastructure.Migrations
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("nombre");
 
                     b.HasKey("Id")
-                        .HasName("pk_unidad_de_medida");
+                        .HasName("pk_unidades_de_medida");
 
-                    b.ToTable("unidad_de_medida", (string)null);
+                    b.ToTable("unidades_de_medida", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Codigo = "kg",
+                            Factor = 1,
+                            Nombre = "Kilogramo"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Codigo = "g",
+                            Factor = 1000,
+                            IdBase = 1,
+                            Nombre = "Gramo"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Codigo = "lb",
+                            Factor = 1,
+                            Nombre = "Libra"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Codigo = "qq",
+                            Factor = 1,
+                            Nombre = "Quintal"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Codigo = "und",
+                            Factor = 1,
+                            Nombre = "Unidad"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Codigo = "L",
+                            Factor = 1,
+                            Nombre = "Litro"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Codigo = "mL",
+                            Factor = 1000,
+                            IdBase = 6,
+                            Nombre = "Mililitro"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Codigo = "dz",
+                            Factor = 1,
+                            Nombre = "Docena"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Codigo = "cj",
+                            Factor = 1,
+                            Nombre = "Caja"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Codigo = "t",
+                            Factor = 1,
+                            Nombre = "Tonelada"
+                        });
                 });
 
             modelBuilder.Entity("Agro_Trade.Domain.Entities.Usuario", b =>
@@ -1454,9 +1526,18 @@ namespace Agro_Trade.Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_productos_proveedores_id_proveedor");
 
+                    b.HasOne("Agro_Trade.Domain.Entities.UnidadDeMedida", "UnidadDeMedida")
+                        .WithMany("Productos")
+                        .HasForeignKey("IdUnidadDeMedida")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_productos_unidad_de_medida_id_unidad_de_medida");
+
                     b.Navigation("Categoria");
 
                     b.Navigation("Proveedor");
+
+                    b.Navigation("UnidadDeMedida");
                 });
 
             modelBuilder.Entity("Agro_Trade.Domain.Entities.Proveedor", b =>
@@ -1676,6 +1757,11 @@ namespace Agro_Trade.Infrastructure.Migrations
                     b.Navigation("RolesPermisos");
 
                     b.Navigation("UsuariosRoles");
+                });
+
+            modelBuilder.Entity("Agro_Trade.Domain.Entities.UnidadDeMedida", b =>
+                {
+                    b.Navigation("Productos");
                 });
 
             modelBuilder.Entity("Agro_Trade.Domain.Entities.Usuario", b =>

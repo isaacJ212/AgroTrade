@@ -118,19 +118,10 @@ class _CalculadoraPrecioJustoState extends State<CalculadoraPrecioJusto> {
                       ? 'Ingresa una cantidad mayor que cero.'
                       : null,
                 ),
-                DropdownButtonFormField<String>(
-                  value: _unidad,
-                  isExpanded: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Unidad de medida',
-                  ),
-                  items: unidades
-                      .map((v) => DropdownMenuItem(value: v, child: Text(v)))
-                      .toList(),
-                  // Al regresar un precio a inventario no se puede cambiar la unidad sin convertirlo.
-                  onChanged: widget.devolverPrecio
-                      ? null
-                      : (v) => setState(() => _unidad = v!),
+                ProductorField(
+                  controller: TextEditingController(text: _unidad),
+                  label: 'Unidad de medida',
+                  readOnly: true,
                 ),
                 const SizedBox(height: 20),
                 Text('Margen de ganancia: ${_margen.round()}%'),

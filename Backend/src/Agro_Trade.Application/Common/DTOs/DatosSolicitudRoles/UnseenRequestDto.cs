@@ -9,7 +9,7 @@ namespace Agro_Trade.Application.Common.DTOs.DatosSolicitudRoles;
         public string PlacaVehiculo { get; set; }= string.Empty;
         public string TipoVehiculo { get; set; }= string.Empty;
         public string MarcaVehiculo { get; set; }= string.Empty;
-        public string ZonaOperaciones { get; set; }= string.Empty;
+        public string Municipio { get; set; }= string.Empty;
         public string Departamento { get; set; }= string.Empty;
         public string UrlFotoPerfil { get; set; } = string.Empty;
         public string UrlFotoCedula { get; set; } = string.Empty;

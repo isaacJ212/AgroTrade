@@ -49,8 +49,8 @@ namespace Agro_Trade.Application.Common.DTOs.DatosSolicitudRoles
 
         [Required(ErrorMessage = "La marca del vehículo es obligatoria.")]
         public string MarcaVehiculo { get; set; } = string.Empty;
-        [Required(ErrorMessage = "La zona de operaciones es obligatoria.")]
-        public string ZonaOperaciones { get; set; } = string.Empty;
+        [Required(ErrorMessage = "El municipio de operaciones es obligatorio.")]
+        public string Municipio { get; set; } = string.Empty;
         [Required(ErrorMessage = "El Departamento de operaciones es obligatoria.")]
         public string Departamento { get; set; } = string.Empty;
 

@@ -81,7 +81,7 @@ namespace Agro_Trade.Application.Features.ColasRoles.Repartidores.Commands
                 UrlRecordPolicial = fileUrls.GetValueOrDefault(nameof(dto.RecordPolicial), string.Empty),
                 UrlLicencia = fileUrls.GetValueOrDefault(nameof(dto.FotoLicencia), string.Empty),
                 MarcaVehiculo = dto.MarcaVehiculo,
-                ZonaOperaciones = dto.ZonaOperaciones,
+                Municipio = dto.Municipio,
                 IdCuentaBancaria = dto.IdCuentaBancaria,
                 Departamento = dto.Departamento
             };

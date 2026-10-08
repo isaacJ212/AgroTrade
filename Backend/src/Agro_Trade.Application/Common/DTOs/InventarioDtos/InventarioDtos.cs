@@ -12,6 +12,7 @@ namespace Agro_Trade.Application.Common.DTOs.InventarioDtos
         public int IdProducto { get; set; }
         public string? NombreProducto { get; set; }
         public string? UnidadMedida { get; set; }
+        public int IdUnidadMedida { get; set; }
         public string? FotoUrl { get; set; }
         public string? VideoUrl { get; set; }
         public float StockActual { get; set; }
