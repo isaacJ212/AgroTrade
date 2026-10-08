@@ -7,6 +7,8 @@ using Agro_Trade.Application.Common.DTOs.BotCommunication;
 using Agro_Trade.Application.Features.AgroBot.Commands;
 using Agro_Trade.Application.Features.AgroBot.Queries;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Agro_Trade.Controllers
 {
@@ -49,6 +51,7 @@ namespace Agro_Trade.Controllers
         /// <response code="503">Si el servicio de IA de Gemini se encuentra saturado temporalmente tras agotar los 3 reintentos.</response>
         [HttpPost("push-request")]
         [Consumes("application/json")]
+        [EnableRateLimiting("AgroBotPolicy")]
         [ProducesResponseType(typeof(Result<BotResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]

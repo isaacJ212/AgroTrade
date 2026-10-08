@@ -33,7 +33,8 @@ class AuthService {
     if (this.isAuthenticated()) {
       if (isLoginPage) window.location.href = 'index.html';
     } else {
-      if (!isLoginPage) window.location.href = 'login.html';
+     if (!isLoginPage) window.location.href = 'login.html';
+     return;
     }
   }
 

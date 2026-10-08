@@ -32,14 +32,16 @@ namespace Agro_Trade.Application.Features.Usuarios.Commands
 
                 if (emailOcupado)
                 {
-                    return Result<Unit>.Failure(409, "Email ya esta en uso");
+                    return Result<Unit>.Failure(409, "Email ya está en uso");
                 }
 
                 user.Email = dto.Email;
             }
-            if (!string.IsNullOrEmpty(dto.Nombres)) user.Nombres = dto.Nombres;
-            if (!string.IsNullOrEmpty(dto.Apellidos)) user.Apellidos = dto.Apellidos;
-            if (!string.IsNullOrEmpty(dto.DireccionBase)) user.DireccionBase = dto.DireccionBase;
+            if (!string.IsNullOrEmpty(dto.Nombre)) user.Nombre = dto.Nombre;
+            if (!string.IsNullOrEmpty(dto.PrimerApellido)) user.PrimerApellido = dto.PrimerApellido;
+            if (!string.IsNullOrEmpty(dto.SegundoApellido)) user.SegundoApellido = dto.SegundoApellido;
+            if (!string.IsNullOrEmpty(dto.DireccionExacta)) user.DireccionExacta = dto.DireccionExacta;
+            if (!string.IsNullOrEmpty(dto.Municipio)) user.Municipio = dto.Municipio;
             if (!string.IsNullOrEmpty(dto.Telefono)) user.Telefono = dto.Telefono;
             if (!string.IsNullOrEmpty(dto.Departamento)) user.Departamento = dto.Departamento;
             if (!string.IsNullOrEmpty(dto.Municipio)) user.Municipio = dto.Municipio;

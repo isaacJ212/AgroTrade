@@ -1,15 +1,14 @@
-
 import 'package:flutter/material.dart';
 import '../../../services/api_client.dart';
 import '../../../models/api/user_models.dart';
 import '../../../services/users_api_service.dart';
 import '../../../services/auth_api_service.dart';
+import '../../../services/api_session.dart';
 import '../../../ui/app_theme.dart';
 import '../../../ui/components.dart';
 import '../../../routes/app_routes.dart';
-
-
-
+import 'package:google_sign_in/google_sign_in.dart';
+import 'verificarCodigo.dart';
 
 class Registro extends StatefulWidget {
   final int? idRol;
@@ -20,25 +19,53 @@ class Registro extends StatefulWidget {
 }
 
 class _RegistroState extends State<Registro> {
-  final TextEditingController _nombresController = TextEditingController();
-  final TextEditingController _apellidosController = TextEditingController();
+  final TextEditingController _nombreController = TextEditingController();
+  final TextEditingController _primerApellidoController =
+      TextEditingController();
+  final TextEditingController _segundoApellidoController =
+      TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmController = TextEditingController();
   final TextEditingController _numberController = TextEditingController();
-  final TextEditingController _departamentController = TextEditingController();
-  final TextEditingController _municipioController = TextEditingController();
 
   String? _nombreError;
+  String? _primerApellidoError;
+  String? _segundoApellidoError;
   String? _emailError;
   String? _passwordError;
   String? _confirmError;
   String? _numberError;
-  String? _cityError;
 
   bool _terminosAcepta = false;
   bool _isLoading = false;
   int? _idRol;
+  String? _selectedDepartamento;
+
+  static const List<String> _departamentosNicaragua = [
+    'Managua',
+    'León',
+    'Granada',
+    'Masaya',
+    'Matagalpa',
+    'Estelí',
+    'Chinandega',
+    'Jinotega',
+    'Boaco',
+    'Carazo',
+    'Chontales',
+    'Madriz',
+    'Nueva Segovia',
+    'Rivas',
+    'Río San Juan',
+    'Región Autónoma Costa Caribe Norte',
+    'Región Autónoma Costa Caribe Sur',
+  ];
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    serverClientId:
+        '68671877007-u61dd67hhnr2ou6lmut467r1tmftcu42.apps.googleusercontent.com',
+  );
 
   @override
   void initState() {
@@ -53,44 +80,63 @@ class _RegistroState extends State<Registro> {
       final args = ModalRoute.of(context)?.settings.arguments;
       if (args is int) {
         _idRol = args;
-        print("DEBUG: [Registro] idRol recuperado en didChangeDependencies: $_idRol");
+        print(
+          "DEBUG: [Registro] idRol recuperado en didChangeDependencies: $_idRol",
+        );
       }
     }
   }
 
   @override
   void dispose() {
-    _nombresController.dispose();
-    _apellidosController.dispose();
+    _nombreController.dispose();
+    _primerApellidoController.dispose();
+    _segundoApellidoController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmController.dispose();
     _numberController.dispose();
-    _departamentController.dispose();
-    _municipioController.dispose();
     super.dispose();
   }
 
   bool _validar() {
     String? nombreError;
+    String? primerApellidoError;
+    String? segundoApellidoError;
     String? emailError;
     String? passwordError;
     String? confirmError;
     String? numberError;
-    String? cityError;
 
     //Lectura
 
-    final nombres = _nombresController.text.trim();
-    final apellidos = _apellidosController.text.trim();
+    final nombre = _nombreController.text.trim();
+    final primerApellido = _primerApellidoController.text.trim();
+    final segundoApellido = _segundoApellidoController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
     final confirm = _confirmController.text.trim();
-    final city = _departamentController.text.trim();
     final telefono = _numberController.text.trim();
 
-    if (nombres.isEmpty || apellidos.isEmpty) {
-      nombreError = "Los nombres y apellidos son obligatorios";
+    // --- NOMBRE: backend exige al menos 2 caracteres ---
+    if (nombre.isEmpty) {
+      nombreError = "El nombre es obligatorio";
+    } else if (nombre.length < 2) {
+      nombreError = "Mínimo 2 caracteres";
+    }
+
+    // --- PRIMER APELLIDO: backend exige al menos 2 caracteres ---
+    if (primerApellido.isEmpty) {
+      primerApellidoError = "El primer apellido es obligatorio";
+    } else if (primerApellido.length < 2) {
+      primerApellidoError = "Mínimo 2 caracteres";
+    }
+
+    // --- SEGUNDO APELLIDO: backend exige al menos 2 caracteres ---
+    if (segundoApellido.isEmpty) {
+      segundoApellidoError = "El segundo apellido es obligatorio";
+    } else if (segundoApellido.length < 2) {
+      segundoApellidoError = "Mínimo 2 caracteres";
     }
 
     // --- EMAIL: formato básico ---
@@ -108,14 +154,10 @@ class _RegistroState extends State<Registro> {
     }
 
     // --- CONFIRMAR CONTRASEÑA: debe coincidir ---
-    // APRENDIZAJE: aquí comparamos DOS controllers entre sí
     if (confirm.isEmpty) {
       confirmError = "Confirma tu contraseña";
     } else if (password != confirm) {
       confirmError = "Las contraseñas no coinciden";
-    }
-    if (city.isEmpty) {
-      confirmError = " El departamento es obligatorio";
     }
 
     // --- TELÉFONO: backend valida 8 dígitos y debe comenzar con 5, 7 u 8 ---
@@ -129,19 +171,23 @@ class _RegistroState extends State<Registro> {
     // Un solo setState al final → redibuja todos los errores de una vez
     setState(() {
       _nombreError = nombreError;
+      _primerApellidoError = primerApellidoError;
+      _segundoApellidoError = segundoApellidoError;
       _emailError = emailError;
       _passwordError = passwordError;
       _confirmError = confirmError;
       _numberError = numberError;
-      _cityError = cityError;
     });
 
     // Válido si TODOS los errores son null Y aceptó los términos
+    // Nota: Departamento se valida en el FormField del dropdown
     return nombreError == null &&
+        primerApellidoError == null &&
+        segundoApellidoError == null &&
         emailError == null &&
         passwordError == null &&
+        confirmError == null &&
         numberError == null &&
-        cityError == null &&
         _terminosAcepta;
   }
 
@@ -171,47 +217,71 @@ class _RegistroState extends State<Registro> {
     setState(() => _isLoading = true);
 
     try {
-      print("DEBUG: [Registro] Iniciando creación de cuenta con idRol: $_idRol");
-      await UsersApiService.instance.createUser(
-        // Jafet: Modificado para enviar Nombres, Apellidos y Municipio en el request de registro
+      print(
+        "DEBUG: [Registro] Iniciando creación de cuenta con idRol: $_idRol",
+      );
+      final usuarioCreado = await UsersApiService.instance.createUser(
         CreateUserRequestDto(
-          nombres: _nombresController.text.trim(),
-          apellidos: _apellidosController.text.trim(),
+          nombre: _nombreController.text.trim(),
+          primerApellido: _primerApellidoController.text.trim(),
+          segundoApellido: _segundoApellidoController.text.trim(),
           email: _emailController.text.trim(),
           password: _passwordController.text,
           telefono: _numberController.text.trim(),
-          departamento: _departamentController.text.trim(),
-          municipio: _municipioController.text.trim(),
+          departamento: _selectedDepartamento,
           idRol: _idRol,
         ),
       );
       print("DEBUG: [Registro] Cuenta creada correctamente en la API");
+      if (usuarioCreado.id <= 0) {
+        throw const ApiException(
+          0,
+          'La cuenta se creó, pero la API no devolvió un ID válido para verificar el código.',
+        );
+      }
 
-      if (!mounted) return;
-      _mostrarSnackBar("¡Cuenta creada! Iniciando sesión...", error: false);
-      
-      // Auto-Login
-      print("DEBUG: [Registro] Realizando Auto-Login...");
-      final loginResponse = await AuthApiService.instance.login(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
+      final correoApi = usuarioCreado.email.trim();
+      final correo = correoApi.isNotEmpty
+          ? correoApi
+          : _emailController.text.trim();
+      ApiSession.instance.setPendingVerification(
+        userId: usuarioCreado.id,
+        email: correo,
       );
-      print("DEBUG: [Registro] Login exitoso. Roles obtenidos: ${loginResponse.roles}");
 
       if (!mounted) return;
-      
-      // Redirect based on role
-      if (loginResponse.roles.contains('Cliente') || loginResponse.roles.contains('Comprador')) {
+      _mostrarSnackBar(
+        'Cuenta creada. Revisa tu correo: el OTP fue enviado automáticamente.',
+        error: false,
+      );
+
+      final verified = await Navigator.of(context).push<bool>(
+        MaterialPageRoute<bool>(
+          builder: (_) => VerificarCodigo(
+            correo: correo,
+            userId: usuarioCreado.id,
+            title: 'Verifica tu correo',
+          ),
+        ),
+      );
+      if (!mounted || verified != true) return;
+
+      final roles = ApiSession.instance.roles;
+      if (roles.contains('Cliente') || roles.contains('Comprador')) {
         print("DEBUG: [Registro] Redirigiendo a Inicio Comprador");
         Navigator.pushReplacementNamed(context, AppRoutes.inicioComprador);
-      } else if (loginResponse.roles.contains('Productor') || loginResponse.roles.contains('Proveedor')) {
+      } else if (roles.contains('Productor') ||
+          roles.contains('Proveedor') ||
+          roles.contains('Productor/Proveedor')) {
         print("DEBUG: [Registro] Redirigiendo a Inicio Productor");
         Navigator.pushReplacementNamed(context, AppRoutes.inicioProductor);
-      } else if (loginResponse.roles.contains('Repartidor')) {
+      } else if (roles.contains('Repartidor')) {
         print("DEBUG: [Registro] Redirigiendo a Inicio Repartidor");
         Navigator.pushReplacementNamed(context, AppRoutes.inicioRepartidor);
       } else {
-        print("DEBUG: [Registro] Rol no detectado, redirigiendo a Login manual");
+        print(
+          "DEBUG: [Registro] Rol no detectado, redirigiendo a Login manual",
+        );
         Navigator.pushReplacementNamed(context, AppRoutes.login);
       }
     } on ApiException catch (e) {
@@ -222,6 +292,52 @@ class _RegistroState extends State<Registro> {
       print("DEBUG: [Registro] Error inesperado capturado: $e");
       if (!mounted) return;
       _mostrarSnackBar("Error inesperado: $e");
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _continuarConGoogle() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) return;
+
+      final googleAuth = await googleUser.authentication;
+      final idToken = googleAuth.idToken;
+      if (idToken == null) {
+        throw const ApiException(0, 'No se pudo obtener el token de Google.');
+      }
+
+      final user = await AuthApiService.instance.googleSignIn(idToken, _idRol);
+      if (!mounted) return;
+
+      if (user.requiereCompletarInformacion) {
+        Navigator.pushReplacementNamed(
+          context,
+          AppRoutes.completarInformacionGoogle,
+        );
+      } else if (user.roles.contains('Cliente') ||
+          user.roles.contains('Comprador')) {
+        Navigator.pushReplacementNamed(context, AppRoutes.inicioComprador);
+      } else if (user.roles.contains('Productor') ||
+          user.roles.contains('Proveedor') ||
+          user.roles.contains('Productor/Proveedor')) {
+        Navigator.pushReplacementNamed(context, AppRoutes.inicioProductor);
+      } else if (user.roles.contains('Repartidor')) {
+        Navigator.pushReplacementNamed(context, AppRoutes.inicioRepartidor);
+      } else {
+        Navigator.pushReplacementNamed(context, AppRoutes.roleSelection);
+      }
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      _mostrarSnackBar(e.message);
+    } catch (_) {
+      if (!mounted) return;
+      _mostrarSnackBar('No se pudo iniciar sesión con Google.');
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -261,16 +377,24 @@ class _RegistroState extends State<Registro> {
                 ),
                 const SizedBox(height: 28),
                 AppTextField(
-                  hint: "Ej: Juan Perez",
-                  label: "Nombres",
-                  controller: _nombresController,
+                  hint: "Ej: Juan",
+                  label: "Nombre",
+                  controller: _nombreController,
                   errorText: _nombreError,
                 ),
                 const SizedBox(height: 16),
                 AppTextField(
+                  hint: "Ej: Perez",
+                  label: "Primer Apellido",
+                  controller: _primerApellidoController,
+                  errorText: _primerApellidoError,
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
                   hint: "Ej: Lopez",
-                  label: "Apellidos",
-                  controller: _apellidosController,
+                  label: "Segundo Apellido",
+                  controller: _segundoApellidoController,
+                  errorText: _segundoApellidoError,
                 ),
                 const SizedBox(height: 16),
                 AppTextField(
@@ -303,17 +427,84 @@ class _RegistroState extends State<Registro> {
                   errorText: _numberError,
                 ),
                 const SizedBox(height: 16),
-                AppTextField(
-                  hint: "Managua",
-                  label: 'Departamento',
-                  errorText: _cityError,
-                  controller: _departamentController,
+                FormField<String>(
+                  initialValue: _selectedDepartamento,
+                  validator: (v) => v == null || v.isEmpty
+                      ? 'El departamento es obligatorio'
+                      : null,
+                  builder: (state) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        DropdownButtonFormField<String>(
+                          value: _selectedDepartamento,
+                          isExpanded: true,
+                          decoration: appInputDecoration(
+                            label: 'Departamento *',
+                            hint: 'Selecciona el departamento',
+                            errorText: state.errorText,
+                          ),
+                          items: _departamentosNicaragua
+                              .map(
+                                (d) => DropdownMenuItem(
+                                  value: d,
+                                  child: Text(
+                                    d,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (v) {
+                            setState(() => _selectedDepartamento = v);
+                            state.didChange(v);
+                          },
+                          menuMaxHeight: 300,
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 16),
-                AppTextField(
-                  hint: "Managua",
-                  label: 'Municipio',
-                  controller: _municipioController,
+                FormField<String>(
+                  initialValue: _selectedDepartamento,
+                  validator: (v) => v == null || v.isEmpty
+                      ? 'El departamento es obligatorio'
+                      : null,
+                  builder: (state) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        DropdownButtonFormField<String>(
+                          value: _selectedDepartamento,
+                          isExpanded: true,
+                          decoration: appInputDecoration(
+                            label: 'Departamento *',
+                            hint: 'Selecciona el departamento',
+                            errorText: state.errorText,
+                          ),
+                          items: _departamentosNicaragua
+                              .map(
+                                (d) => DropdownMenuItem(
+                                  value: d,
+                                  child: Text(
+                                    d,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (v) {
+                            setState(() => _selectedDepartamento = v);
+                            state.didChange(v);
+                          },
+                          menuMaxHeight: 300,
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 16),
 
@@ -353,6 +544,47 @@ class _RegistroState extends State<Registro> {
                   onPressed: _isLoading ? null : _crearCuenta,
                 ),
                 const SizedBox(height: 20),
+                const OrDivider(),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: OutlinedButton(
+                    onPressed: _isLoading ? null : _continuarConGoogle,
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      disabledBackgroundColor: Colors.white,
+                      side: const BorderSide(
+                        color: Color(0xFF747775),
+                        width: 1,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.network(
+                          'https://developers.google.com/identity/images/g-logo.png',
+                          width: 22,
+                          height: 22,
+                          fit: BoxFit.contain,
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Continuar con Google',
+                          style: TextStyle(
+                            color: Color(0xFF1F1F1F),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -363,7 +595,10 @@ class _RegistroState extends State<Registro> {
                     GestureDetector(
                       onTap: () {
                         print("DEBUG: [Registro] Navegando a Login");
-                        Navigator.pushReplacementNamed(context, AppRoutes.login);
+                        Navigator.pushReplacementNamed(
+                          context,
+                          AppRoutes.login,
+                        );
                       },
                       child: Text(
                         " Inicia Sesion",

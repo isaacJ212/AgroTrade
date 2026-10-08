@@ -13,40 +13,7 @@ import 'productoresCercanos.dart';
 import '../../models/Consumidor/consumidor_models.dart';
 import '../../services/consumer_api_service.dart';
 import '../../services/cart_service.dart';
-
-
-const cooperativaLosAndes = ProductorDestacado(
-  nombre: 'Cooperativa Los Andes',
-  rating: 4.9,
-  ventas: 120,
-  verificado: true,
-  avatarUrl: 'https://www.cooperativasextremadura.es/media/files/999-media.jpg',
-  portadaUrl:
-      'https://eos.com/wp-content/uploads/2020/06/AGRICULTURAL-COOPERATIVES-img.jpg',
-  ubicacion: 'Diriamba, Carazo',
-  descripcion:
-      'Dedicados a la producción agrícola sostenible '
-      'desde hace más de 20 años.',
-);
-
-const fincaLaEsperanza = ProductorDestacado(
-  nombre: 'Finca La Esperanza',
-  rating: 4.7,
-  ventas: 85,
-  verificado: false,
-  avatarUrl:
-      'https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=200&q=60',
-  portadaUrl:
-      'https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=1200&q=80',
-  ubicacion: 'Jinotepe, Carazo',
-  descripcion:
-      'Dedicados a la producción agrícola sostenible '
-      'desde hace más de 20 años. En Finca La Esperanza, '
-      'cultivamos nuestras tierras respetando los ciclos '
-      'naturales y utilizando prácticas amigables con el '
-      'medio ambiente para ofrecer los productos más '
-      'frescos de la región.',
-);
+import '../../services/api_session.dart';
 
 class InicioComprador extends StatefulWidget {
   const InicioComprador({super.key});
@@ -72,7 +39,7 @@ class _InicioCompradorState extends State<InicioComprador> {
   Future<void> _cargarDatos() async {
     final cercanos = await ConsumerApiService.instance.getProductosCercanos();
     final oferta = await ConsumerApiService.instance.getOfertaDia();
-    final productores = await ConsumerApiService.instance.getProductoresDestacados(_productores);
+    final productores = await ConsumerApiService.instance.getProductoresDestacados([]);
     if (mounted) {
       setState(() {
         _cercanos = cercanos;
@@ -91,11 +58,6 @@ class _InicioCompradorState extends State<InicioComprador> {
       ),
     );
   }
-
-  static const List<ProductorDestacado> _productores = [
-    cooperativaLosAndes,
-    fincaLaEsperanza,
-  ];
 
   static const List<CategoriaMercado> _listaCategorias = [
     CategoriaMercado(
@@ -259,6 +221,7 @@ class _InicioCompradorState extends State<InicioComprador> {
   }
 
   Widget _encabezado() {
+    final userName = ApiSession.instance.userName;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
       child: Row(
@@ -269,7 +232,7 @@ class _InicioCompradorState extends State<InicioComprador> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Hola, María',
+                  userName != null && userName.isNotEmpty ? 'Hola, $userName' : 'Hola',
                   style: AppTextStyles.headline.copyWith(fontSize: 22),
                 ),
                 const SizedBox(height: 4),
@@ -438,10 +401,22 @@ class _InicioCompradorState extends State<InicioComprador> {
         itemBuilder: (context, i) => _ProductoCercanoCard(
           producto: _cercanos[i],
           onAdd: () => _agregarAlCarrito(_cercanos[i]),
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const PerfilProductorScreen()),
-          ),
+          onTap: () {
+            final prod = _cercanos[i];
+            final productor = ProductorDestacado(
+              id: null,
+              nombre: prod.finca,
+              rating: 0,
+              ventas: 0,
+              verificado: false,
+              avatarUrl: 'https://via.placeholder.com/150',
+              ubicacion: prod.distancia,
+            );
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => PerfilProductorScreen(productor: productor)),
+            );
+          },
         ),
       ),
     );

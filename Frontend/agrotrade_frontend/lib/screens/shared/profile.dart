@@ -1,6 +1,7 @@
 import 'package:agrotrade_frontend/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import '../../services/api_session.dart';
+import '../../services/auth_api_service.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
 import '../cliente/inicioComprador.dart';
@@ -8,7 +9,9 @@ import '../cliente/misPedidos.dart';
 import '../cliente/exploradorProductos.dart';
 import 'auth/Login.dart';
 import 'editarPerfil.dart';
+import 'change_password_dialog.dart';
 import 'centroAyuda.dart';
+import 'bank_accounts_screen.dart';
 
 class Profile extends StatelessWidget {
   const Profile({super.key});
@@ -140,9 +143,11 @@ class Profile extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 12),
-                  const Text(
-                    'Jinotepe, Carazo',
-                    style: TextStyle(
+                  Text(
+                    ApiSession.instance.userLocation?.isNotEmpty == true
+                        ? ApiSession.instance.userLocation!
+                        : 'Ubicación no registrada',
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: AppColors.TextSoft,
@@ -197,7 +202,31 @@ class Profile extends StatelessWidget {
                   ProfileMenuItem(
                     icon: Icons.card_membership,
                     title: 'Mis Suscripciones',
-                    onTap: () => Navigator.pushNamed(context, AppRoutes.suscripciones),
+                    onTap: () =>
+                        Navigator.pushNamed(context, AppRoutes.suscripciones),
+                  ),
+
+                  ProfileMenuItem(
+                    icon: Icons.account_balance_outlined,
+                    title: 'Cuentas bancarias',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const BankAccountsScreen(),
+                      ),
+                    ),
+                  ),
+
+                  const Divider(
+                    height: 1,
+                    indent: 48,
+                    color: AppColors.cardBorder,
+                  ),
+
+                  ProfileMenuItem(
+                    icon: Icons.lock_outline,
+                    title: 'Cambiar contraseña',
+                    onTap: () => showChangePasswordDialog(context),
                   ),
 
                   const Divider(
@@ -243,8 +272,9 @@ class Profile extends StatelessWidget {
             TertiaryButton(
               label: 'Cerrar Sesión',
               icon: Icons.logout,
-              onPressed: () {
-                ApiSession.instance.clear();
+              onPressed: () async {
+                await AuthApiService.instance.logout();
+                if (!context.mounted) return;
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (_) => const Login()),

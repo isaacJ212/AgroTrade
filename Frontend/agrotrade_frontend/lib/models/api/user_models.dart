@@ -1,8 +1,9 @@
 import 'json_helpers.dart';
 
 class CreateUserRequestDto {
-  final String nombres;
-  final String apellidos;
+  final String nombre;
+  final String primerApellido;
+  final String segundoApellido;
   final String email;
   final String password;
   final String? telefono;
@@ -12,8 +13,9 @@ class CreateUserRequestDto {
   final int? idRol;
 
   const CreateUserRequestDto({
-    required this.nombres,
-    required this.apellidos,
+    required this.nombre,
+    required this.primerApellido,
+    required this.segundoApellido,
     required this.email,
     required this.password,
     this.telefono,
@@ -24,16 +26,19 @@ class CreateUserRequestDto {
   });
 
   Map<String, dynamic> toJson() => {
-        'nombres': nombres,
-        'apellidos': apellidos,
-        'email': email,
-        'password': password,
-        if (telefono != null && telefono!.isNotEmpty) 'telefono': telefono,
-        if (direccionBase != null && direccionBase!.isNotEmpty) 'direccionBase': direccionBase,
-        if (departamento != null && departamento!.isNotEmpty) 'departamento': departamento,
-        if (municipio != null && municipio!.isNotEmpty) 'municipio': municipio,
-        if (idRol != null) 'idRol': idRol,
-      };
+    'Nombre': nombre,
+    'PrimerApellido': primerApellido,
+    'SegundoApellido': segundoApellido,
+    'Email': email,
+    'Password': password,
+    if (telefono != null && telefono!.isNotEmpty) 'Telefono': telefono,
+    if (direccionBase != null && direccionBase!.isNotEmpty)
+      'DireccionExacta': direccionBase,
+    if (departamento != null && departamento!.isNotEmpty)
+      'Departamento': departamento,
+    if (municipio != null && municipio!.isNotEmpty) 'Municipio': municipio,
+    if (idRol != null) 'IdRol': idRol,
+  };
 }
 
 class UpdateUserRequestDto {
@@ -55,15 +60,38 @@ class UpdateUserRequestDto {
     this.municipio,
   });
 
-  Map<String, dynamic> toJson() => {
-        if (nombres != null) 'nombres': nombres,
-        if (apellidos != null) 'apellidos': apellidos,
-        if (email != null) 'email': email,
-        if (telefono != null) 'telefono': telefono,
-        if (direccionBase != null) 'direccionBase': direccionBase,
-        if (departamento != null) 'departamento': departamento,
-        if (municipio != null) 'municipio': municipio,
-      };
+  // Split nombreCompleto into Nombre, PrimerApellido, SegundoApellido
+  // Mapea direccionBase -> DireccionExacta, departamento -> Departamento
+  Map<String, dynamic> toJsonForUpdate() {
+    final parts = (nombres ?? '').trim().split(RegExp(r'\s+'));
+    String nombre = '';
+    String primerApellido = '';
+    String segundoApellido = '';
+
+    if (parts.isNotEmpty) nombre = parts[0];
+    if (parts.length > 1) primerApellido = parts[1];
+    if (parts.length > 2) segundoApellido = parts.skip(2).join(' ');
+
+    // Validaciones mínimas para evitar 400
+    if (nombre.length < 2) nombre = 'User';
+    if (primerApellido.length < 2) primerApellido = 'Name';
+    if (segundoApellido.length < 2) segundoApellido = 'Name';
+
+    // Teléfono: solo dígitos, backend valida 8 dígitos empezando 5/7/8
+    final telefonoLimpio = (telefono ?? '').replaceAll(RegExp(r'\D'), '');
+
+    return {
+      'Nombre': nombre,
+      'PrimerApellido': primerApellido,
+      'SegundoApellido': segundoApellido,
+      if (email != null && email!.isNotEmpty) 'Email': email,
+      if (telefonoLimpio.isNotEmpty) 'Telefono': telefonoLimpio,
+      if (departamento != null && departamento!.isNotEmpty)
+        'Departamento': departamento,
+      if (direccionBase != null && direccionBase!.isNotEmpty)
+        'DireccionExacta': direccionBase,
+    };
+  }
 }
 
 class UpdatePasswordRequestDto {
@@ -76,9 +104,9 @@ class UpdatePasswordRequestDto {
   });
 
   Map<String, dynamic> toJson() => {
-        'currentPassword': currentPassword,
-        'newPassword': newPassword,
-      };
+    'currentPassword': currentPassword,
+    'newPassword': newPassword,
+  };
 }
 
 class UserDto {
@@ -110,18 +138,36 @@ class UserDto {
 
   factory UserDto.fromJson(Map<String, dynamic> json) {
     return UserDto(
-      id: readInt(json, const ['Id', 'id']) ?? 0,
-      name: readString(json, const ['Name', 'name']) ?? '',
+      id: readInt(json, const ['Id', 'id', 'UserId', 'userId']) ?? 0,
+      name:
+          readString(json, const [
+            'Name',
+            'name',
+            'NombreCompleto',
+            'nombreCompleto',
+          ]) ??
+          '',
       email: readString(json, const ['Email', 'email']) ?? '',
-      identidadVerificada: readBool(json, const ['IdentidadVerificada', 'identidadVerificada']) ?? false,
+      identidadVerificada:
+          readBool(json, const [
+            'IdentidadVerificada',
+            'identidadVerificada',
+          ]) ??
+          false,
       telefono: readString(json, const ['Telefono', 'telefono']),
       direccionBase: readString(json, const ['DireccionBase', 'direccionBase']),
       departamento: readString(json, const ['Departamento', 'departamento']),
-      municipio: readString(json, const ['Municipio', 'municipio']),
-      estadoCuenta: readString(json, const ['EstadoCuenta', 'estadoCuenta']) ?? '',
-      fechaRegistro: readDateTime(json, const ['FechaRegistro', 'fechaRegistro']),
-      roles: (json['Roles'] ?? json['roles'] as List?)?.map<String>((e) => e.toString()).toList() ?? <String>[],
+      estadoCuenta:
+          readString(json, const ['EstadoCuenta', 'estadoCuenta']) ?? '',
+      fechaRegistro: readDateTime(json, const [
+        'FechaRegistro',
+        'fechaRegistro',
+      ]),
+      roles:
+          (json['Roles'] ?? json['roles'] as List?)
+              ?.map<String>((e) => e.toString())
+              .toList() ??
+          <String>[],
     );
   }
 }
-

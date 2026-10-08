@@ -23,6 +23,89 @@ enum EstadoProducto {
   };
 }
 
+class UnidadMedidaModel {
+  final int id;
+  final String nombre;
+  final String codigo;
+  final int? factor;
+  final int? idBase;
+
+  const UnidadMedidaModel({
+    required this.id,
+    required this.nombre,
+    required this.codigo,
+    this.factor,
+    this.idBase,
+  });
+
+  factory UnidadMedidaModel.fromJson(Map<String, dynamic> json) {
+    return UnidadMedidaModel(
+      id: json['id'] as int? ?? (json['idUnidadMedida'] as int? ?? 0),
+      nombre: json['nombre'] as String? ?? '',
+      codigo: json['codigo'] as String? ?? '',
+      factor: json['factor'] as int?,
+      idBase: json['idBase'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'nombre': nombre,
+    'codigo': codigo,
+    'factor': factor,
+    'idBase': idBase,
+  };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UnidadMedidaModel &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() => '$nombre ($codigo)';
+
+  static const List<UnidadMedidaModel> defaultUnidades = [
+    UnidadMedidaModel(id: 1, nombre: 'Kilogramo', codigo: 'kg'),
+    UnidadMedidaModel(id: 2, nombre: 'Gramo', codigo: 'g'),
+    UnidadMedidaModel(id: 3, nombre: 'Libra', codigo: 'lb'),
+    UnidadMedidaModel(id: 4, nombre: 'Quintal', codigo: 'qq'),
+    UnidadMedidaModel(id: 5, nombre: 'Unidad', codigo: 'und'),
+    UnidadMedidaModel(id: 6, nombre: 'Litro', codigo: 'L'),
+    UnidadMedidaModel(id: 7, nombre: 'Mililitro', codigo: 'mL'),
+    UnidadMedidaModel(id: 8, nombre: 'Docena', codigo: 'dz'),
+    UnidadMedidaModel(id: 9, nombre: 'Caja', codigo: 'cj'),
+    UnidadMedidaModel(id: 10, nombre: 'Tonelada', codigo: 't'),
+  ];
+}
+
+int resolverIdUnidadMedida(dynamic valor) {
+  if (valor == null) return 1;
+  if (valor is int && valor > 0) return valor;
+  final str = valor.toString().trim();
+  final parsed = int.tryParse(str);
+  if (parsed != null && parsed > 0) return parsed;
+
+  final lower = str.toLowerCase();
+  return switch (lower) {
+    'kg' || 'kilogramo' || 'kilogramos' => 1,
+    'g' || 'gr' || 'gramo' || 'gramos' => 2,
+    'lb' || 'libra' || 'libras' => 3,
+    'qq' || 'quintal' || 'quintales' => 4,
+    'und' || 'unidad' || 'unidades' => 5,
+    'l' || 'litro' || 'litros' => 6,
+    'ml' || 'mililitro' || 'mililitros' => 7,
+    'dz' || 'docena' || 'docenas' => 8,
+    'cj' || 'caja' || 'cajas' => 9,
+    't' || 'tonelada' || 'toneladas' => 10,
+    _ => 1,
+  };
+}
+
 class Costo {
   final String concepto;
   final String monto;
@@ -39,6 +122,7 @@ class Producto {
   final bool publicado;
   final List<Costo> costos;
   final List<Uint8List> fotos;
+  final int idUnidadMedida;
   const Producto({
     required this.id,
     required this.nombre,
@@ -47,6 +131,7 @@ class Producto {
     required this.precio,
     required this.estado,
     required this.imagenUrl,
+    this.idUnidadMedida = 1,
     this.categoria = 'Verduras',
     this.sufijoPrecio = '',
     this.etiqueta = 'Fresco',
@@ -66,6 +151,7 @@ class Producto {
     String? nombre,
     String? categoria,
     String? unidad,
+    int? idUnidadMedida,
     double? cantidad,
     double? precio,
     double? costoProduccion,
@@ -81,6 +167,7 @@ class Producto {
       nombre: nombre ?? this.nombre,
       categoria: categoria ?? this.categoria,
       unidad: unidad ?? this.unidad,
+      idUnidadMedida: idUnidadMedida ?? this.idUnidadMedida,
       cantidad: stock,
       precio: precio ?? this.precio,
       costoProduccion: costoProduccion ?? this.costoProduccion,

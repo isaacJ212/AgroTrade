@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Agro_Trade.Application.Common.DTOs.TokensDtos;
+using Google.Apis.Auth.OAuth2.Responses;
 
 namespace Agro_Trade.Application.Features.Auth
 {
@@ -20,12 +22,16 @@ namespace Agro_Trade.Application.Features.Auth
         private readonly ITokenServices _tokenServices;
         private readonly IConfiguration _configuration;
         private readonly IRepository<UsuarioRol> _roles;
-        public GoogleSignInHandler(IUnitofWork unitOfWork, ITokenServices tokenServices, IConfiguration configuration, IRepository<UsuarioRol> roles)
+        private readonly IRepository<RefreshToken> _refreshTokens;
+        private readonly IAppContext _appContext;
+        public GoogleSignInHandler(IUnitofWork unitOfWork, ITokenServices tokenServices, IConfiguration configuration, IRepository<UsuarioRol> roles,IRepository<RefreshToken> refreshTokens, IAppContext appContext)
         {
             _unitOfWork = unitOfWork;
             _tokenServices = tokenServices;
             _configuration = configuration;
             _roles = roles;
+            _appContext = appContext;
+            _refreshTokens = refreshTokens;
         }
 
         public async Task<Result<LoginResponse>> Handle(GoogleSignInCommand request, CancellationToken cancellationToken)
@@ -54,29 +60,51 @@ namespace Agro_Trade.Application.Features.Auth
 
                 user = new Agro_Trade.Domain.Entities.Usuario
                 {
+<<<<<<< HEAD
                     Nombres = nombres,
                     Apellidos = apellidos,
+=======
+                    Nombre = payload.GivenName ?? payload.Name, PrimerApellido = payload.FamilyName ?? "", SegundoApellido = "",
+>>>>>>> Staging
                     Email = payload.Email,
                     OAuthProvider = "Google",
                     OAuthProviderId = payload.Subject,
-                    IdentidadVerificada = false
+                    IdentidadVerificada = false,
+                    FechaRegistro = DateTime.UtcNow,
                 };
                 await _unitOfWork.Users.AddAsync(user, cancellationToken);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
-                //Rol Predeterminado que es el de cliente
-                await _roles.AddAsync(new UsuarioRol { IdUsuario = user.IdUsuario, IdRol = 1 }, cancellationToken);
+                //Si no pasa el rol se asigna el de cliente 
+                await _roles.AddAsync(new UsuarioRol { IdUsuario = user.IdUsuario, IdRol = request.dto.idRol?? 1 }, cancellationToken);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                
             }
-            var jwtToken = await _tokenServices.GenerateTokenAsync(user);
+            //CAMBIOS PARA LA GENERACION DE RefreshToken
+            var token = _tokenServices.GenerateRefreshToken();
+
+            RefreshToken refreshToken = new()
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.IdUsuario,
+                ExpiresAt = token.ExpiresAtUtc,
+                CreatedAt = DateTime.UtcNow,
+                Hash = token.HashedToken,
+                CreatedByIp = _appContext.IpAdress,
+            };
+            var jwtToken = await _tokenServices.GenerateTokenAsync(user, refreshToken.Id);
+            await _refreshTokens.AddAsync(refreshToken, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            
+            bool faltanDatos = string.IsNullOrEmpty(user.Departamento)||string.IsNullOrEmpty($"{user.Departamento}, {user.Municipio}, {user.DireccionExacta}".Trim(new char[] { ',' , ' ' })) || string.IsNullOrEmpty(user.Telefono);
+            
              var roles = await _roles.FindAsync(r=> r.IdUsuario == user.IdUsuario,cancellationToken, "Rol");
             var stringList = roles
                             .Where(r => r.Rol != null)
                             .Select(r => r.Rol.NombreRol)
                             .ToList();
 
-            return Result<LoginResponse>.Success(200, new LoginResponse { UserName = user.NombreCompleto, Token = jwtToken, Roles= stringList }, "Usuario Registrado Con Google Exitosamente", true);
+            return Result<LoginResponse>.Success(200, new LoginResponse { UserName = $"{user.Nombre} {user.PrimerApellido} {user.SegundoApellido}".Trim(), TokenResponse = new TokensResponse(jwtToken, token.RawToken, token.ExpiresAtUtc), Roles= stringList, RequiereCompletarInformacion = faltanDatos}, "Usuario Registrado Con Google Exitosamente", true);
         }
     }
 }

@@ -2,7 +2,6 @@ using MediatR;
 using Agro_Trade.Application.Common;
 using Agro_Trade.Application.Common.DTOs.ProductosDtos;
 using Agro_Trade.Application.Common.Interface;
-using Agro_Trade.Application.Common.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Agro_Trade.Application.Features.Productos.Queries
@@ -20,18 +19,16 @@ namespace Agro_Trade.Application.Features.Productos.Queries
 
         public async Task<Result<List<ProductoDto>>> Handle(GetProductosCercanosQuery request, CancellationToken cancellationToken)
         {
-            var query = _unitOfWork.Productos.GetQueryable()
+            var productos = await _unitOfWork.Productos.GetQueryable()
                 .Include(p => p.Categoria)
+                .Include(p => p.UnidadDeMedida)
                 .Include(p => p.Inventarios)
                 .Where(p => p.Inventarios.Any(i => i.Disponible))
                 .OrderByDescending(p => p.IdProducto) // Simulación de "Cercanos"
-                .AsQueryable();
-
-            var productos = await query
                 .Take(request.Limit)
                 .ToListAsync(cancellationToken);
 
-            var data = productos.Select(p => 
+            var data = productos.Select(p =>
             {
                 var inventario = p.Inventarios.FirstOrDefault(i => i.Disponible);
                 return new ProductoDto
@@ -40,9 +37,10 @@ namespace Agro_Trade.Application.Features.Productos.Queries
                     IdCategoria = p.IdCategoria,
                     CategoriaNombre = p.Categoria?.Nombre,
                     IdProveedor = p.IdProveedor,
+                    IdUnidadMedida = p.IdUnidadDeMedida,
+                    UnidadMedida = p.UnidadDeMedida?.Codigo,
                     Nombre = p.Nombre,
                     Descripcion = p.Descripcion,
-                    UnidadMedida = p.UnidadMedida,
                     Precio = inventario?.PrecioVenta ?? 0,
                     FotoUrl = inventario?.FotoUrl
                 };

@@ -21,13 +21,10 @@ namespace Agro_Trade.Domain.Entities
         public Usuario Usuario { get; set; } = null!;
         // Aquí está el truco: se mapea como columna tipo jsonb
         [Column("datos_repartidor", TypeName = "jsonb")]
-        public  DatosRepartidorDto DatosRepartidor { get; set; } = new();
+        public DatosRepartidorDto DatosRepartidor { get; set; } = new();
         [StringLength(20)]
         public string Estado { get; set; } = "pendiente";
 
         public DateTime FechaSolicitud { get; set; } = DateTime.UtcNow;
-
-       
-
     }
 }

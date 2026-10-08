@@ -42,7 +42,11 @@ namespace Agro_Trade.Infrastructure.Repository
                 using var scope = _scopeFactory.CreateScope();
                 var context = scope.ServiceProvider.GetRequiredService<AgroTradeDbContext>();
 
-                var lista = await context.SolicitudRepartidor.AsNoTracking().Include(x => x.Usuario).Where(x => x.Estado == "pendiente" || x.Estado == "Pendiente").ToListAsync(ct);
+                var lista = await context.SolicitudRepartidor.AsNoTracking()
+                    .Include(x => x.Usuario)
+                    .Where(x => x.Estado == "pendiente" || x.Estado == "Pendiente")
+                    .ToListAsync(ct);
+                
                 _colaDeSolicitudes.Clear();
                 Enqueue(lista);
                 //Hcaemos La Carga de scope
@@ -73,10 +77,15 @@ namespace Agro_Trade.Infrastructure.Repository
         {
             using var scope = _scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AgroTradeDbContext>();
-            var solicitud = await context.SolicitudRepartidor.AsNoTracking().Include(d=>d.Usuario).FirstOrDefaultAsync(x => x.IdSolicitud == id, ct);
+            var solicitud = await context.SolicitudRepartidor.AsNoTracking()
+                .Include(d => d.Usuario)
+                .FirstOrDefaultAsync(x => x.IdSolicitud == id, ct);
+          
+
             return solicitud;
         }
 
+        
         public async Task<SolicitudRepartidor>ReviewRequestAsync(CancellationToken ct)
         {
             await EnsureEnqueued(ct);
@@ -86,11 +95,13 @@ namespace Agro_Trade.Infrastructure.Repository
                 using var scope = _scopeFactory.CreateScope();
                 var context = scope.ServiceProvider.GetRequiredService<AgroTradeDbContext>();
                 
-                var solicitudPorRevisar = await context.SolicitudRepartidor.Include(d=>d.Usuario).AsNoTracking().FirstOrDefaultAsync(x => x.IdSolicitud == solicitud.IdSolicitud, ct);
-                if(solicitudPorRevisar != null)
-                {
+                var solicitudPorRevisar = await context.SolicitudRepartidor
+                    .Include(d => d.Usuario)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.IdSolicitud == solicitud.IdSolicitud, ct);
+               
                     return solicitudPorRevisar;
-                }
+                
 
 
             }
@@ -112,7 +123,11 @@ namespace Agro_Trade.Infrastructure.Repository
         {
             using var scope = _scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AgroTradeDbContext>();
-            var solicitud = await context.SolicitudRepartidor.Include(d => d.Usuario).FirstOrDefaultAsync(x => x.IdSolicitud == id, ct);
+            var solicitud = await context.SolicitudRepartidor
+                .Include(d => d.Usuario)
+                .FirstOrDefaultAsync(x => x.IdSolicitud == id, ct);
+           
+
             return solicitud;
         }
 

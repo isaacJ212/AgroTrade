@@ -7,6 +7,7 @@ import '../../../ui/widgets/app_text_field.dart';
 import '../../../ui/widgets/buttons.dart';
 import '../../../ui/widgets/app_dropdown.dart';
 import '../../../models/productor_models.dart';
+import '../../../services/productor_api_service.dart';
 import 'registroCosecha.dart';
 
 class AgregarProducto extends StatefulWidget {
@@ -23,12 +24,40 @@ class _AgregarProductoState extends State<AgregarProducto> {
   final _precioController = TextEditingController();
 
   String? _categoriaSeleccionada;
-  String? _unidadSeleccionada;
+  UnidadMedidaModel? _unidadSeleccionada;
   final List<XFile> _imagenes = [];
   final ImagePicker _picker = ImagePicker();
 
   final List<String> _categorias = ['Frutas', 'Verduras', 'Granos', 'Lácteos'];
-  final List<String> _unidades = ['kg', 'Tonelada', 'Caja', 'Docena'];
+  List<UnidadMedidaModel> _unidades = UnidadMedidaModel.defaultUnidades;
+  bool _cargandoUnidades = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarUnidades();
+  }
+
+  Future<void> _cargarUnidades() async {
+    setState(() => _cargandoUnidades = true);
+    try {
+      final list = await ProductorApiService.instance.getUnidadesDeMedida();
+      if (mounted && list.isNotEmpty) {
+        setState(() {
+          _unidades = list;
+          _cargandoUnidades = false;
+          if (_unidadSeleccionada != null) {
+            _unidadSeleccionada = _unidades.firstWhere(
+              (u) => u.id == _unidadSeleccionada!.id,
+              orElse: () => _unidadSeleccionada!,
+            );
+          }
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _cargandoUnidades = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -101,7 +130,8 @@ class _AgregarProductoState extends State<AgregarProducto> {
       id: 0, // 0 significa nuevo producto
       nombre: _nombreController.text.trim(),
       categoria: _categoriaSeleccionada!,
-      unidad: _unidadSeleccionada!,
+      unidad: _unidadSeleccionada!.codigo,
+      idUnidadMedida: _unidadSeleccionada!.id,
       descripcion: _descripcionController.text.trim(),
       precio: double.tryParse(_precioController.text.trim()) ?? 0.0,
       cantidad: 0,
@@ -233,12 +263,12 @@ class _AgregarProductoState extends State<AgregarProducto> {
                   const SizedBox(height: 16),
 
                   //  Unidad de Medida
-                  AppDropdown<String>(
+                  AppDropdown<UnidadMedidaModel>(
                     label: 'Unidad de Medida *',
                     value: _unidadSeleccionada,
                     items: _unidades,
-                    itemLabel: (item) => item,
-                    hint: 'Seleccione unidad',
+                    itemLabel: (item) => '${item.nombre} (${item.codigo})',
+                    hint: _cargandoUnidades ? 'Cargando unidades...' : 'Seleccione unidad de medida',
                     onChanged: (val) =>
                         setState(() => _unidadSeleccionada = val),
                   ),

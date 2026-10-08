@@ -1,4 +1,5 @@
 node_modules/
+/sesiones/
 **/[Bb]in/
 **/[Oo]bj/
 **/[Dd]ebug/

@@ -33,7 +33,7 @@ class PerfilProductorScreen extends StatefulWidget {
 
   const PerfilProductorScreen({
     super.key,
-    this.productor = fincaLaEsperanza,
+    required this.productor,
     this.soloLectura = false,
     this.portadaBytes,
     this.productosContenido,
@@ -110,7 +110,7 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
     // Fallback
     if (mounted) {
       setState(() {
-        _valoracionesLista = widget.productor.nombre == fincaLaEsperanza.nombre
+        _valoracionesLista = widget.productor.id == 2 // Finca La Esperanza ID
             ? _valoracionesEsperanza
             : const [];
       });

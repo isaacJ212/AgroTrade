@@ -1,7 +1,12 @@
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:http/http.dart' as http;
 
+import '../models/api/auth_models.dart';
+import '../models/api/backend_result.dart';
+import '../models/api/json_helpers.dart';
+import '../routes/auth_routes.dart';
 import 'api_session.dart';
 
 class ApiClient {
@@ -10,9 +15,10 @@ class ApiClient {
   static final ApiClient instance = ApiClient._();
 
   final http.Client _client = http.Client();
+  Future<bool>? _refreshOperation;
 
   String get baseUrl {
-    const envBaseUrl = "http://localhost:5080";
+    const envBaseUrl = "http://10.0.2.2:5080";
     return envBaseUrl.endsWith('/')
         ? envBaseUrl.substring(0, envBaseUrl.length - 1)
         : envBaseUrl;
@@ -79,6 +85,83 @@ class ApiClient {
     bool authorized = false,
     Map<String, String>? queryParameters,
   }) async {
+    final uri = _buildUri(path, queryParameters);
+    final payload = body == null ? null : jsonEncode(body);
+    var response = await _sendRequest(
+      method,
+      uri,
+      payload,
+      authorized: authorized,
+    );
+
+    final isRefreshOrLogout =
+        path.toLowerCase().endsWith('/refresh') ||
+        path.toLowerCase().endsWith('/logout');
+    if (authorized &&
+        response.statusCode == 401 &&
+        !isRefreshOrLogout &&
+        await refreshSession()) {
+      response = await _sendRequest(method, uri, payload, authorized: true);
+    }
+
+    return ApiResponse.fromHttpResponse(response);
+  }
+
+  /// Envía una petición multipart/form-data (para subida de archivos)
+  Future<ApiResponse> postMultipart(
+    String path, {
+    required Map<String, String> fields,
+    required Map<String, List<int>> files,
+    required Map<String, String> fileNames,
+    bool authorized = false,
+  }) async {
+    final uri = _buildUri(path);
+    var request = http.MultipartRequest('POST', uri);
+
+    // Agregar campos de texto
+    request.fields.addAll(fields);
+
+    // Agregar archivos
+    files.forEach((fieldName, bytes) {
+      final fileName = fileNames[fieldName] ?? 'file';
+      request.files.add(
+        http.MultipartFile.fromBytes(fieldName, bytes, filename: fileName),
+      );
+    });
+
+    if (authorized) {
+      final token = ApiSession.instance.token;
+      if (token != null && token.isNotEmpty) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+    }
+    request.headers['Accept'] = 'application/json';
+
+    var response = await _client.send(request);
+    var httpResponse = await http.Response.fromStream(response);
+
+    final isRefreshOrLogout =
+        path.toLowerCase().endsWith('/refresh') ||
+        path.toLowerCase().endsWith('/logout');
+    if (authorized &&
+        httpResponse.statusCode == 401 &&
+        !isRefreshOrLogout &&
+        await refreshSession()) {
+      // Reintentar con nuevo token
+      request.headers['Authorization'] = 'Bearer ${ApiSession.instance.token}';
+      response = await _client.send(request);
+      httpResponse = await http.Response.fromStream(response);
+    }
+
+    return ApiResponse.fromHttpResponse(httpResponse);
+  }
+
+  Future<http.Response> _sendRequest(
+    String method,
+    Uri uri,
+    String? payload, {
+    required bool authorized,
+  }) async {
     final headers = <String, String>{
       'Accept': 'application/json',
       'Content-Type': 'application/json; charset=utf-8',
@@ -88,9 +171,6 @@ class ApiClient {
     if (authorized && token != null && token.isNotEmpty) {
       headers['Authorization'] = 'Bearer $token';
     }
-
-    final uri = _buildUri(path, queryParameters);
-    final payload = body == null ? null : jsonEncode(body);
 
     late final http.Response response;
     switch (method) {
@@ -113,7 +193,74 @@ class ApiClient {
         throw ApiException(0, 'Método HTTP no soportado: $method');
     }
 
-    return ApiResponse.fromHttpResponse(response);
+    return response;
+  }
+
+  Future<bool> refreshSession() async {
+    final pending = _refreshOperation;
+    if (pending != null) return pending;
+
+    final operation = _performRefresh();
+    _refreshOperation = operation;
+    try {
+      return await operation;
+    } finally {
+      if (identical(_refreshOperation, operation)) {
+        _refreshOperation = null;
+      }
+    }
+  }
+
+  Future<bool> _performRefresh() async {
+    try {
+      final session = ApiSession.instance;
+      await session.restoreStoredSession();
+      final currentRefreshToken = session.refreshToken;
+      if (currentRefreshToken == null || currentRefreshToken.isEmpty) {
+        return false;
+      }
+
+      final response = await _client
+          .post(
+            _buildUri(AuthRoutes.refresh),
+            headers: const {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json; charset=utf-8',
+            },
+            body: jsonEncode({'refreshToken': currentRefreshToken}),
+          )
+          .timeout(const Duration(seconds: 8));
+
+      if (response.statusCode == 401) {
+        await session.clear();
+        return false;
+      }
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        return false;
+      }
+
+      final apiResponse = ApiResponse.fromHttpResponse(response);
+      final result = BackendResult<TokensResponseDto>.fromJson(
+        apiResponse.jsonBody ?? const <String, dynamic>{},
+        dataParser: (json) => TokensResponseDto.fromJson(ensureJsonMap(json)),
+      );
+      final tokens = result.data;
+      if (!result.isSuccess ||
+          tokens == null ||
+          tokens.accessToken.isEmpty ||
+          tokens.refreshToken.isEmpty) {
+        return false;
+      }
+
+      await session.updateTokens(
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+      );
+      return true;
+    } catch (_) {
+      // Mantener el refresh token ante fallos temporales de red.
+      return false;
+    }
   }
 }
 

@@ -27,11 +27,8 @@ namespace Agro_Trade.Domain.Entities
         
         public float? CalificacionPromedio { get; set; }
 
-        [MaxLength(100)]
-        public string Banco { get; set; } = string.Empty;
-
-        [MaxLength(100)]
-        public string CuentaBancaria { get; set; } = string.Empty;
+        public int? IdCuentaBancaria { get; set; }
+        public CuentaBancaria? CuentaBancaria { get; set; }
 
        
         public ICollection<Producto> Productos { get; set; } = new List<Producto>();

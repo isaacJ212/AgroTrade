@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../ui/app_theme.dart';
 import '../../../routes/app_routes.dart';
+import '../../../services/api_session.dart';
+import '../../../services/auth_api_service.dart';
 
 class Splash extends StatefulWidget {
   const Splash({super.key});
@@ -74,20 +76,43 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
     bool isFirstLaunch = true;
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       // DESCOMENTAR LA SIGUIENTE LÍNEA PARA REINICIAR EL ONBOARDING TEMPORALMENTE
-      // await prefs.clear(); 
+      // await prefs.clear();
 
       isFirstLaunch = prefs.getBool('is_first_launch') ?? true;
-      print("DEBUG: [Splash] SharedPreferences cargado correctamente. isFirstLaunch=$isFirstLaunch");
+      print(
+        "DEBUG: [Splash] SharedPreferences cargado correctamente. isFirstLaunch=$isFirstLaunch",
+      );
     } catch (e) {
-      print("DEBUG: [Splash] Error al cargar SharedPreferences (Posible plugin faltante). Usando valor por defecto true. Error: $e");
+      print(
+        "DEBUG: [Splash] Error al cargar SharedPreferences (Posible plugin faltante). Usando valor por defecto true. Error: $e",
+      );
     }
 
     if (isFirstLaunch) {
       print("DEBUG: [Splash] Navegando a OnBoarding");
       Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
     } else {
+      final restored = await AuthApiService.instance.restoreSession();
+      if (!mounted) return;
+      if (restored) {
+        final roles = ApiSession.instance.roles;
+        final destination = roles.contains('Cliente')
+            ? AppRoutes.inicioComprador
+            : roles.any(
+                (role) =>
+                    role == 'Productor/Proveedor' ||
+                    role == 'Productor' ||
+                    role == 'Proveedor',
+              )
+            ? AppRoutes.inicioProductor
+            : roles.contains('Repartidor')
+            ? AppRoutes.inicioRepartidor
+            : AppRoutes.roleSelection;
+        Navigator.pushReplacementNamed(context, destination);
+        return;
+      }
       print("DEBUG: [Splash] Navegando a Login");
       Navigator.pushReplacementNamed(context, AppRoutes.login);
     }

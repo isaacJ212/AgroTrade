@@ -16,7 +16,7 @@ namespace Agro_Trade.Application.Features.Pedidos.Queries
             if (request.UserId <= 0)
                 return Result<List<PedidoClienteDto>>.Failure(400, "El usuario es invalido.");
 
-            var pedidos = await pedidoRepository.FindAsync(p => p.IdUsuarioCliente == request.UserId, cancellationToken, "Detalles.Inventario.Producto");
+            var pedidos = await pedidoRepository.FindAsync(p => p.IdUsuarioCliente == request.UserId, cancellationToken, "Detalles.Inventario.Producto.UnidadDeMedida");
             var data = pedidos.OrderByDescending(p => p.FechaPedido).Select(p => new PedidoClienteDto
             {
                 IdPedido = p.IdPedido,
@@ -29,8 +29,11 @@ namespace Agro_Trade.Application.Features.Pedidos.Queries
                 {
                     Id = p.IdDetallePedido,
                     PedidoId = p.IdPedido,
+                    IdProducto = p.Inventario.IdProducto,
                     Producto = p.Inventario.Producto.Nombre,
+                    UnidadMedida = p.Inventario.Producto.UnidadDeMedida?.Codigo ?? "und",
                     Cantidad = p.Cantidad,
+                    PrecioUnitario = (decimal)p.PrecioUnitario,
                     TotalLinea = p.Subtotal
                 }).ToList()
             }).ToList();
