@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:math';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
 import '../../services/subscription_api_service.dart';
+import '../../services/payment_method_service.dart';
+import '../../models/payment_method.dart';
 import 'suscripcion_confirmada.dart';
 
 enum _MetodoPago { tarjeta, transferencia, billetera }
@@ -28,11 +31,62 @@ class _PagoSuscripcionScreenState extends State<PagoSuscripcionScreen> {
 
   String _tipoTarjeta = '';
 
+  List<PaymentMethod> _metodosGuardados = [];
+  PaymentMethod? _metodoSeleccionado;
+  bool _cargandoMetodos = true;
+
   @override
   void initState() {
     super.initState();
+    print('DEBUG [PagoSuscripcionScreen] initState - Plan: ${widget.plan['nombre']}, Precio: ${widget.plan['precio']}');
     _numeroCtrl.addListener(_detectarTarjeta);
+    _cargarMetodosGuardados();
   }
+
+  Future<void> _cargarMetodosGuardados() async {
+    try {
+      print('DEBUG [PagoSuscripcionScreen] _cargarMetodosGuardados()');
+      final metodos = await PaymentMethodService.instance.getAll();
+      final predeterminado = await PaymentMethodService.instance.getDefault();
+      if (!mounted) return;
+      setState(() {
+        _metodosGuardados = metodos;
+        _cargandoMetodos = false;
+        if (predeterminado != null) {
+          print('DEBUG [PagoSuscripcionScreen] Autocompletando predeterminado: ${predeterminado.titular ?? predeterminado.tipo}');
+          _seleccionarMetodoGuardado(predeterminado);
+        } else {
+          print('DEBUG [PagoSuscripcionScreen] Sin predeterminado. Formulario vacío.');
+        }
+      });
+    } catch (e) {
+      print('DEBUG [PagoSuscripcionScreen] ERROR _cargarMetodosGuardados: $e');
+      if (mounted) {
+        setState(() => _cargandoMetodos = false);
+      }
+    }
+  }
+
+  void _seleccionarMetodoGuardado(PaymentMethod m) {
+    print('DEBUG [PagoSuscripcionScreen] _seleccionarMetodoGuardado: ${m.tipo} - ${m.titular ?? '-'}');
+    setState(() {
+      _metodoSeleccionado = m;
+      if (m.tipo == 'tarjeta') {
+        _metodo = _MetodoPago.tarjeta;
+        _numeroCtrl.text = m.numeroTarjeta ?? '';
+        _titularCtrl.text = m.titular ?? '';
+        _vencCtrl.text = m.vencimiento ?? '';
+        _cvvCtrl.text = m.cvv ?? '';
+        _tipoTarjeta = m.tipoTarjeta ?? '';
+      } else if (m.tipo == 'transferencia') {
+        _metodo = _MetodoPago.transferencia;
+      } else {
+        _metodo = _MetodoPago.billetera;
+      }
+    });
+  }
+
+  String _generarId() => 'pm_${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(9999)}';
 
   void _detectarTarjeta() {
     String num = _numeroCtrl.text.replaceAll(' ', '');
@@ -53,6 +107,7 @@ class _PagoSuscripcionScreenState extends State<PagoSuscripcionScreen> {
 
   @override
   void dispose() {
+    print('DEBUG [PagoSuscripcionScreen] dispose()');
     _numeroCtrl.removeListener(_detectarTarjeta);
     _numeroCtrl.dispose();
     _titularCtrl.dispose();
@@ -77,10 +132,95 @@ class _PagoSuscripcionScreenState extends State<PagoSuscripcionScreen> {
     return sum % 10 == 0;
   }
 
+  Future<void> _guardarMetodoSiAplica() async {
+    if (!_guardarMetodo) {
+      print('DEBUG [PagoSuscripcionScreen] Check NO marcado. Saltando guardado.');
+      return;
+    }
+    print('DEBUG [PagoSuscripcionScreen] Check SI marcado. Intentando guardar...');
+
+    PaymentMethod? nuevo;
+    final cleanNum = _numeroCtrl.text.replaceAll(' ', '');
+
+    if (_metodo == _MetodoPago.tarjeta && cleanNum.isNotEmpty) {
+      final ultimos4 = cleanNum.length >= 4 ? cleanNum.substring(cleanNum.length - 4) : cleanNum;
+      final existe = _metodosGuardados.any((m) =>
+          m.tipo == 'tarjeta' &&
+          m.ultimos4 == ultimos4 &&
+          m.titular?.toLowerCase() == _titularCtrl.text.trim().toLowerCase());
+      if (existe) {
+        print('DEBUG [PagoSuscripcionScreen] Tarjeta ya existe (últ4=$ultimos4). No duplica.');
+      } else {
+        nuevo = PaymentMethod(
+          id: _generarId(),
+          tipo: 'tarjeta',
+          numeroTarjeta: _numeroCtrl.text.trim(),
+          ultimos4: ultimos4,
+          titular: _titularCtrl.text.trim(),
+          vencimiento: _vencCtrl.text.trim(),
+          cvv: _cvvCtrl.text.trim(),
+          tipoTarjeta: _tipoTarjeta,
+          esPredeterminado: _metodosGuardados.isEmpty,
+          fechaGuardado: DateTime.now(),
+        );
+        print('DEBUG [PagoSuscripcionScreen] Nueva TARJETA: $_tipoTarjeta **** $ultimos4');
+      }
+    } else if (_metodo == _MetodoPago.transferencia) {
+      final existe = _metodosGuardados.any((m) => m.tipo == 'transferencia');
+      if (!existe) {
+        nuevo = PaymentMethod(
+          id: _generarId(),
+          tipo: 'transferencia',
+          titular: 'Transferencia Bancaria',
+          esPredeterminado: _metodosGuardados.isEmpty,
+          fechaGuardado: DateTime.now(),
+        );
+        print('DEBUG [PagoSuscripcionScreen] Nueva TRANSFERENCIA');
+      } else {
+        print('DEBUG [PagoSuscripcionScreen] Transferencia ya guardada.');
+      }
+    } else if (_metodo == _MetodoPago.billetera) {
+      final existe = _metodosGuardados.any((m) => m.tipo == 'billetera');
+      if (!existe) {
+        nuevo = PaymentMethod(
+          id: _generarId(),
+          tipo: 'billetera',
+          titular: 'Billetera Digital',
+          esPredeterminado: _metodosGuardados.isEmpty,
+          fechaGuardado: DateTime.now(),
+        );
+        print('DEBUG [PagoSuscripcionScreen] Nueva BILLETERA');
+      } else {
+        print('DEBUG [PagoSuscripcionScreen] Billetera ya guardada.');
+      }
+    }
+
+    if (nuevo != null) {
+      try {
+        await PaymentMethodService.instance.save(nuevo!);
+        print('DEBUG [PagoSuscripcionScreen] Método guardado OK.');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Método de pago guardado ✓'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      } catch (e) {
+        print('DEBUG [PagoSuscripcionScreen] ERROR guardando: $e');
+      }
+    }
+  }
+
   Future<void> _validarYContinuar() async {
+    print('DEBUG [PagoSuscripcionScreen] _validarYContinuar - Método: $_metodo, guardar=$_guardarMetodo, procesando=$_procesando');
+
     if (_metodo == _MetodoPago.tarjeta) {
       String num = _numeroCtrl.text.replaceAll(' ', '').replaceAll('-', '');
       if (num.isEmpty || _titularCtrl.text.isEmpty || _vencCtrl.text.isEmpty || _cvvCtrl.text.isEmpty) {
+        print('DEBUG [PagoSuscripcionScreen] VALIDACIÓN FALLÓ: campos vacíos.');
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Por favor, completa todos los datos de la tarjeta.'),
           backgroundColor: Colors.red,
@@ -88,22 +228,32 @@ class _PagoSuscripcionScreenState extends State<PagoSuscripcionScreen> {
         return;
       }
       if (!_isLuhnValid(num)) {
+        print('DEBUG [PagoSuscripcionScreen] VALIDACIÓN FALLÓ: Luhn inválido.');
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('El número de tarjeta no es válido (Fallo en Algoritmo de Luhn).'),
           backgroundColor: Colors.red,
         ));
         return;
       }
+      print('DEBUG [PagoSuscripcionScreen] Validación tarjeta OK.');
+    }
+
+    await _guardarMetodoSiAplica();
+    if (!mounted) {
+      print('DEBUG [PagoSuscripcionScreen] Widget desmontado antes de procesar pago.');
+      return;
     }
     
     setState(() => _procesando = true);
 
     try {
+      print('DEBUG [PagoSuscripcionScreen] Llamando SubscriptionApiService.createSubscription...');
       await SubscriptionApiService.instance.createSubscription(
         widget.plan['nombre'],
         widget.plan['precio'],
-        1, // Meses duración
+        1,
       );
+      print('DEBUG [PagoSuscripcionScreen] Suscripción creada EXITOSAMENTE en backend.');
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -121,7 +271,9 @@ class _PagoSuscripcionScreenState extends State<PagoSuscripcionScreen> {
           ),
         );
       }
-    } catch (e) {
+    } catch (e, stack) {
+      print('DEBUG [PagoSuscripcionScreen] ERROR procesando pago: $e');
+      print('DEBUG [PagoSuscripcionScreen] StackTrace: $stack');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -133,6 +285,7 @@ class _PagoSuscripcionScreenState extends State<PagoSuscripcionScreen> {
     } finally {
       if (mounted) {
         setState(() => _procesando = false);
+        print('DEBUG [PagoSuscripcionScreen] Finalizado _validarYContinuar (procesando=false).');
       }
     }
   }
@@ -164,6 +317,9 @@ class _PagoSuscripcionScreenState extends State<PagoSuscripcionScreen> {
 
                   _buildMetodoSelector(),
                   const SizedBox(height: 24),
+
+                  _buildMetodosGuardados(),
+                  if (_cargandoMetodos || _metodosGuardados.isNotEmpty) const SizedBox(height: 20),
 
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),
@@ -245,7 +401,10 @@ class _PagoSuscripcionScreenState extends State<PagoSuscripcionScreen> {
         final bool sel = _metodo == tipo;
         return Expanded(
           child: GestureDetector(
-            onTap: () => setState(() => _metodo = tipo),
+            onTap: () {
+              print('DEBUG [PagoSuscripcionScreen] Método tocado: $label');
+              setState(() => _metodo = tipo);
+            },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 180),
               margin: const EdgeInsets.only(right: 8),
@@ -308,6 +467,128 @@ class _PagoSuscripcionScreenState extends State<PagoSuscripcionScreen> {
           ),
         );
       }).toList(),
+    );
+  }
+
+  Widget _buildMetodosGuardados() {
+    if (_cargandoMetodos) {
+      return const Center(child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 12),
+        child: SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primaryColor)),
+      ));
+    }
+    if (_metodosGuardados.isEmpty) return const SizedBox.shrink();
+
+    final mostrar = _metodosGuardados.where((m) {
+      if (_metodo == _MetodoPago.tarjeta) return m.tipo == 'tarjeta';
+      if (_metodo == _MetodoPago.transferencia) return m.tipo == 'transferencia';
+      return m.tipo == 'billetera';
+    }).toList();
+
+    if (mostrar.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: const [
+            Icon(Icons.bookmark_outline_rounded, size: 16, color: AppColors.primaryColor),
+            SizedBox(width: 6),
+            Text(
+              'Métodos guardados (toca para autocompletar)',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primaryColor),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        ...mostrar.map((m) => _buildTarjetaGuardadaTile(m)),
+      ],
+    );
+  }
+
+  Widget _buildTarjetaGuardadaTile(PaymentMethod m) {
+    final bool sel = _metodoSeleccionado?.id == m.id;
+    String subtitulo = '';
+    IconData icono = Icons.credit_card_outlined;
+
+    if (m.tipo == 'tarjeta') {
+      subtitulo = '${m.tipoTarjeta?.isNotEmpty == true ? m.tipoTarjeta! + '  •  ' : ''}${m.maskedNumber}${m.vencimiento?.isNotEmpty == true ? '  •  Vence ' + m.vencimiento! : ''}';
+      icono = Icons.credit_card_outlined;
+    } else if (m.tipo == 'transferencia') {
+      subtitulo = 'Transferencia bancaria LAFISE';
+      icono = Icons.account_balance_outlined;
+    } else {
+      subtitulo = 'Billetera digital';
+      icono = Icons.account_balance_wallet_outlined;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () {
+            _seleccionarMetodoGuardado(m);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('✓ Datos autocompletados'), backgroundColor: Colors.green, duration: Duration(seconds: 1)),
+            );
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: sel ? AppColors.primarySoftBg : Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: sel ? AppColors.primaryColor : AppColors.cardBorder,
+                width: sel ? 1.6 : 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 38, height: 38,
+                  decoration: BoxDecoration(
+                    color: sel ? AppColors.primaryColor.withOpacity(0.15) : AppColors.scaffoldBg,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(icono, color: sel ? AppColors.primaryColor : AppColors.TextSoft, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              m.titular ?? m.tipo,
+                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: sel ? AppColors.primaryColor : AppColors.titleDark, overflow: TextOverflow.ellipsis),
+                            ),
+                          ),
+                          if (m.esPredeterminado) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(color: AppColors.primaryColor.withOpacity(0.12), borderRadius: BorderRadius.circular(8)),
+                              child: const Text('Predet.', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: AppColors.primaryColor)),
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(subtitulo, style: const TextStyle(fontSize: 12, color: AppColors.TextSoft)),
+                    ],
+                  ),
+                ),
+                if (sel) const Icon(Icons.check_circle, color: AppColors.primaryColor, size: 20),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -421,7 +702,10 @@ class _PagoSuscripcionScreenState extends State<PagoSuscripcionScreen> {
         const SizedBox(height: 16),
 
         GestureDetector(
-          onTap: () => setState(() => _guardarMetodo = !_guardarMetodo),
+          onTap: () {
+            print('DEBUG [PagoSuscripcionScreen] Check guardar: $_guardarMetodo -> ${!_guardarMetodo}');
+            setState(() => _guardarMetodo = !_guardarMetodo);
+          },
           child: Row(
             children: [
               AnimatedContainer(
@@ -496,6 +780,32 @@ class _PagoSuscripcionScreenState extends State<PagoSuscripcionScreen> {
               ),
             ),
           ),
+          const SizedBox(height: 16),
+          GestureDetector(
+            onTap: () {
+              print('DEBUG [PagoSuscripcionScreen] Check guardar transferencia: $_guardarMetodo -> ${!_guardarMetodo}');
+              setState(() => _guardarMetodo = !_guardarMetodo);
+            },
+            child: Row(
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  width: 20, height: 20,
+                  decoration: BoxDecoration(
+                    color: _guardarMetodo ? AppColors.primaryColor : Colors.white,
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(
+                      color: _guardarMetodo ? AppColors.primaryColor : AppColors.inputBorderColor,
+                      width: 1.5,
+                    ),
+                  ),
+                  child: _guardarMetodo ? const Icon(Icons.check, size: 13, color: Colors.white) : null,
+                ),
+                const SizedBox(width: 10),
+                const Text('Guardar este método de pago', style: TextStyle(fontSize: 14, color: AppColors.TextMain)),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -510,24 +820,55 @@ class _PagoSuscripcionScreenState extends State<PagoSuscripcionScreen> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.primaryColor.withOpacity(0.2)),
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Icon(
-            Icons.account_balance_wallet_outlined,
-            size: 22,
-            color: AppColors.primaryColor,
-          ),
-          SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'Paga directamente desde tu billetera digital. '
-              'Serás redirigido para completar el pago.',
-              style: TextStyle(
-                fontSize: 13,
-                color: AppColors.primarySoft,
-                height: 1.6,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Icon(
+                Icons.account_balance_wallet_outlined,
+                size: 22,
+                color: AppColors.primaryColor,
               ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Paga directamente desde tu billetera digital. '
+                  'Serás redirigido para completar el pago.',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.primarySoft,
+                    height: 1.6,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          GestureDetector(
+            onTap: () {
+              print('DEBUG [PagoSuscripcionScreen] Check guardar billetera: $_guardarMetodo -> ${!_guardarMetodo}');
+              setState(() => _guardarMetodo = !_guardarMetodo);
+            },
+            child: Row(
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  width: 20, height: 20,
+                  decoration: BoxDecoration(
+                    color: _guardarMetodo ? AppColors.primaryColor : Colors.white,
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(
+                      color: _guardarMetodo ? AppColors.primaryColor : AppColors.inputBorderColor,
+                      width: 1.5,
+                    ),
+                  ),
+                  child: _guardarMetodo ? const Icon(Icons.check, size: 13, color: Colors.white) : null,
+                ),
+                const SizedBox(width: 10),
+                const Text('Guardar este método de pago', style: TextStyle(fontSize: 14, color: AppColors.TextMain)),
+              ],
             ),
           ),
         ],

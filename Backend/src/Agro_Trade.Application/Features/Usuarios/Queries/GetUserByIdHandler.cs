@@ -28,6 +28,7 @@ namespace Agro_Trade.Application.Features.Usuarios.Queries
                 DireccionBase = user.DireccionBase,
                 FechaRegistro = user.FechaRegistro,
                 Departamento = user.Departamento,
+                Municipio = user.Municipio,
             };
             return Result<UserDto>.Success(200, dto, "User found", true);
         }
