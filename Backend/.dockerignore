@@ -23,7 +23,9 @@ docker-compose*.yml
 *.swo
 *~
 
-
+**/bin/
+**/obj/
+.vs/
 
 # Paquetes NuGet
 packages/
