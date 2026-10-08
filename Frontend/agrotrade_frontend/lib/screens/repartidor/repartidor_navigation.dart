@@ -16,27 +16,28 @@ import 'formularioSolicitudRepartidor.dart';
 void navegarRepartidor(BuildContext context, int actual, int destino) {
   if (actual == destino) return;
   
+  // TEMPORAL: Omitir verificación para testear flujo de pantallas
   // Verificar si el repartidor está verificado para acceder a funciones operativas
-  final session = ApiSession.instance;
-  final esRepartidor = session.roles.contains('Repartidor');
-  final estaVerificado = session.isRepartidorVerificado;
-  
-  // Índices que requieren verificación: 0=Home, 1=Entregas, 2=Ruta
-  // Perfil (3) siempre accesible
-  const indicesProtegidos = {0, 1, 2};
-  
-  if (esRepartidor && indicesProtegidos.contains(destino) && !estaVerificado) {
-    // Obtener estado actual para mostrar modal apropiado
-    final estado = session.repartidorEstado ?? RepartidorEstado(tieneRepartidor: false, solicitudEstado: null);
-    
-    VerificacionRepartidorModal.show(
-      context: context,
-      estado: estado,
-      onCorregirReenviar: () => Navigator.pushNamed(context, AppRoutes.formularioSolicitudRepartidor),
-      onIrAOnboarding: () => Navigator.pushNamed(context, AppRoutes.onboardingRepartidor),
-    );
-    return;
-  }
+  // final session = ApiSession.instance;
+  // final esRepartidor = session.roles.contains('Repartidor');
+  // final estaVerificado = session.isRepartidorVerificado;
+  // 
+  // // Índices que requieren verificación: 0=Home, 1=Entregas, 2=Ruta
+  // // Perfil (3) siempre accesible
+  // const indicesProtegidos = {0, 1, 2};
+  // 
+  // if (esRepartidor && indicesProtegidos.contains(destino) && !estaVerificado) {
+  //   // Obtener estado actual para mostrar modal apropiado
+  //   final estado = session.repartidorEstado ?? RepartidorEstado(tieneRepartidor: false, solicitudEstado: null);
+  //   
+  //   VerificacionRepartidorModal.show(
+  //     context: context,
+  //     estado: estado,
+  //     onCorregirReenviar: () => Navigator.pushNamed(context, AppRoutes.formularioSolicitudRepartidor),
+  //     onIrAOnboarding: () => Navigator.pushNamed(context, AppRoutes.onboardingRepartidor),
+  //   );
+  //   return;
+  // }
   
   final Widget pantalla;
   switch (destino) {

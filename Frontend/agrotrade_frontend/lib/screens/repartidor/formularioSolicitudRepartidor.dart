@@ -14,13 +14,15 @@ class FormularioSolicitudRepartidor extends StatefulWidget {
   const FormularioSolicitudRepartidor({super.key});
 
   @override
-  State<FormularioSolicitudRepartidor> createState() => _FormularioSolicitudRepartidorState();
+  State<FormularioSolicitudRepartidor> createState() =>
+      _FormularioSolicitudRepartidorState();
 }
 
-class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepartidor> {
+class _FormularioSolicitudRepartidorState
+    extends State<FormularioSolicitudRepartidor> {
   final _formKey = GlobalKey<FormState>();
   final _picker = ImagePicker();
-  
+
   // Controladores de texto
   final _cedulaController = TextEditingController();
   final _placaController = TextEditingController();
@@ -28,7 +30,7 @@ class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepar
   final _marcaVehiculoController = TextEditingController();
   final _municipioController = TextEditingController();
   final _departamentoController = TextEditingController();
-  
+
   // Dropdowns
   String? _selectedTipoVehiculo;
   String? _selectedDepartamento;
@@ -36,22 +38,41 @@ class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepar
   List<BankAccountDto> _cuentasBancarias = [];
   bool _loadingCuentas = true;
   String? _cuentasError;
-  
+
   // Imágenes
   XFile? _fotoPerfil;
   XFile? _fotoCedula;
   XFile? _fotoLicencia;
   XFile? _recordPolicial;
-  
+
   // Estado
   bool _submitting = false;
   String? _error;
 
-  static const List<String> _tiposVehiculo = ['Moto', 'Carro', 'Bicicleta', 'Camioneta'];
+  static const List<String> _tiposVehiculo = [
+    'Moto',
+    'Carro',
+    'Bicicleta',
+    'Camioneta',
+  ];
   static const List<String> _departamentos = [
-    'Managua', 'León', 'Granada', 'Masaya', 'Matagalpa', 'Estelí', 'Chinandega',
-    'Jinotega', 'Boaco', 'Carazo', 'Chontales', 'Madriz', 'Nueva Segovia',
-    'Rivas', 'Río San Juan', 'Región Autónoma Costa Caribe Norte', 'Región Autónoma Costa Caribe Sur'
+    'Managua',
+    'León',
+    'Granada',
+    'Masaya',
+    'Matagalpa',
+    'Estelí',
+    'Chinandega',
+    'Jinotega',
+    'Boaco',
+    'Carazo',
+    'Chontales',
+    'Madriz',
+    'Nueva Segovia',
+    'Rivas',
+    'Río San Juan',
+    'Región Autónoma Costa Caribe Norte',
+    'Región Autónoma Costa Caribe Sur',
   ];
 
   @override
@@ -146,10 +167,7 @@ class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepar
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '$label${isRequired ? ' *' : ''}',
-          style: AppTextStyles.label,
-        ),
+        Text('$label${isRequired ? ' *' : ''}', style: AppTextStyles.label),
         const SizedBox(height: 8),
         GestureDetector(
           onTap: onTap,
@@ -159,7 +177,9 @@ class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepar
             decoration: BoxDecoration(
               color: AppColors.surfaceAlt,
               border: Border.all(
-                color: image != null ? AppColors.primaryColor : AppColors.cardBorder,
+                color: image != null
+                    ? AppColors.primaryColor
+                    : AppColors.cardBorder,
                 width: image != null ? 2 : 1,
               ),
               borderRadius: BorderRadius.circular(12),
@@ -209,7 +229,10 @@ class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepar
       setState(() => _error = 'Selecciona una cuenta bancaria');
       return;
     }
-    if (_fotoPerfil == null || _fotoCedula == null || _fotoLicencia == null || _recordPolicial == null) {
+    if (_fotoPerfil == null ||
+        _fotoCedula == null ||
+        _fotoLicencia == null ||
+        _recordPolicial == null) {
       setState(() => _error = 'Todas las fotos son obligatorias');
       return;
     }
@@ -231,37 +254,32 @@ class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepar
         'IdCuentaBancaria': _selectedCuentaBancariaId.toString(),
       };
 
-      // Preparar archivos
-      final files = <String, List<int>>{};
-      final fileNames = <String, String>{};
-      
+      // Preparar rutas de archivos (usar path directo como en productos)
+      final filePaths = <String, String>{};
+
       if (_fotoPerfil != null) {
-        files['FotoPerfil'] = await _fotoPerfil!.readAsBytes();
-        fileNames['FotoPerfil'] = 'perfil_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        filePaths['FotoPerfil'] = _fotoPerfil!.path;
       }
       if (_fotoCedula != null) {
-        files['FotoCedula'] = await _fotoCedula!.readAsBytes();
-        fileNames['FotoCedula'] = 'cedula_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        filePaths['FotoCedula'] = _fotoCedula!.path;
       }
       if (_fotoLicencia != null) {
-        files['FotoLicencia'] = await _fotoLicencia!.readAsBytes();
-        fileNames['FotoLicencia'] = 'licencia_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        filePaths['FotoLicencia'] = _fotoLicencia!.path;
       }
       if (_recordPolicial != null) {
-        files['RecordPolicial'] = await _recordPolicial!.readAsBytes();
-        fileNames['RecordPolicial'] = 'policial_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        filePaths['RecordPolicial'] = _recordPolicial!.path;
       }
 
-      // Enviar multipart
-      final response = await ApiClient.instance.postMultipart(
-        '/api/SolicitudRepartidor',
+      // Enviar multipart (usa fromPath para auto-detectar Content-Type)
+      final response = await ApiClient.instance.EnviaEnviapostMultipart(
+        '/api/DeliveryJobRequest',
         fields: fields,
-        files: files,
-        fileNames: fileNames,
+        filePaths: filePaths,
         authorized: true,
       );
 
       if (!mounted) return;
+      print('DEBUG: etstaus  code del backend  ${response.statusCode}');
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -271,9 +289,14 @@ class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepar
             behavior: SnackBarBehavior.floating,
           ),
         );
-        Navigator.pushNamedAndRemoveUntil(context, AppRoutes.inicioRepartidor, (_) => false);
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.inicioRepartidor,
+          (_) => false,
+        );
       } else {
-        final msg = response.jsonBody?['message'] ?? 'Error al enviar la solicitud';
+        final msg =
+            response.jsonBody?['message'] ?? 'Error al enviar la solicitud';
         setState(() => _error = msg);
       }
     } catch (e) {
@@ -302,7 +325,7 @@ class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepar
     return Scaffold(
       backgroundColor: AppColors.scaffoldBg,
       appBar: AppBar(
-        title: const Text('Solicitud de Repartidor', style: AppTextStyles.Title),
+        title: const Text('Solicitud de   EmpleoP', style: AppTextStyles.Title),
         backgroundColor: AppColors.White,
         elevation: 0,
       ),
@@ -320,7 +343,8 @@ class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepar
                 final val = _cedulaController.text;
                 if (val.trim().isEmpty) return 'La cédula es obligatoria';
                 final regex = RegExp(r'^[0-9]{3}-[0-9]{6}-[0-9]{4}[A-Za-z]$');
-                if (!regex.hasMatch(val.trim())) return 'Formato: 001-120794-0005A';
+                if (!regex.hasMatch(val.trim()))
+                  return 'Formato: 001-120794-0005A';
                 return null;
               },
               builder: (state) {
@@ -334,7 +358,7 @@ class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepar
               },
             ),
             const SizedBox(height: 16),
-            
+
             // Sección: Vehículo
             Text('Datos del Vehículo', style: AppTextStyles.sectionTitle),
             const SizedBox(height: 16),
@@ -359,7 +383,9 @@ class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepar
             const SizedBox(height: 16),
             FormField<String>(
               initialValue: _selectedTipoVehiculo,
-              validator: (v) => v == null || v.isEmpty ? 'Selecciona un tipo de vehículo' : null,
+              validator: (v) => v == null || v.isEmpty
+                  ? 'Selecciona un tipo de vehículo'
+                  : null,
               builder: (state) {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -372,10 +398,18 @@ class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepar
                         hint: 'Selecciona el tipo',
                         errorText: state.errorText,
                       ),
-                      items: _tiposVehiculo.map((t) => DropdownMenuItem(
-                        value: t,
-                        child: Text(t, overflow: TextOverflow.ellipsis, maxLines: 1),
-                      )).toList(),
+                      items: _tiposVehiculo
+                          .map(
+                            (t) => DropdownMenuItem(
+                              value: t,
+                              child: Text(
+                                t,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+                          )
+                          .toList(),
                       onChanged: (v) {
                         setState(() => _selectedTipoVehiculo = v);
                         state.didChange(v);
@@ -404,7 +438,7 @@ class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepar
               },
             ),
             const SizedBox(height: 16),
-            
+
             // Sección: Ubicación
             Text('Ubicación', style: AppTextStyles.sectionTitle),
             const SizedBox(height: 16),
@@ -427,7 +461,8 @@ class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepar
             const SizedBox(height: 16),
             FormField<String>(
               initialValue: _selectedDepartamento,
-              validator: (v) => v == null || v.isEmpty ? 'Selecciona un departamento' : null,
+              validator: (v) =>
+                  v == null || v.isEmpty ? 'Selecciona un departamento' : null,
               builder: (state) {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -440,10 +475,18 @@ class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepar
                         hint: 'Selecciona el departamento',
                         errorText: state.errorText,
                       ),
-                      items: _departamentos.map((d) => DropdownMenuItem(
-                        value: d,
-                        child: Text(d, overflow: TextOverflow.ellipsis, maxLines: 1),
-                      )).toList(),
+                      items: _departamentos
+                          .map(
+                            (d) => DropdownMenuItem(
+                              value: d,
+                              child: Text(
+                                d,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+                          )
+                          .toList(),
                       onChanged: (v) {
                         setState(() => _selectedDepartamento = v);
                         state.didChange(v);
@@ -455,18 +498,26 @@ class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepar
               },
             ),
             const SizedBox(height: 16),
-            
+
             // Sección: Cuenta Bancaria
             Text('Cuenta Bancaria', style: AppTextStyles.sectionTitle),
             const SizedBox(height: 16),
             if (_loadingCuentas)
-              const Center(child: CircularProgressIndicator(color: AppColors.primaryColor))
+              const Center(
+                child: CircularProgressIndicator(color: AppColors.primaryColor),
+              )
             else if (_cuentasError != null)
               Column(
                 children: [
-                  Text(_cuentasError!, style: TextStyle(color: AppColors.inputErrorColor)),
+                  Text(
+                    _cuentasError!,
+                    style: TextStyle(color: AppColors.inputErrorColor),
+                  ),
                   const SizedBox(height: 8),
-                  TextButton(onPressed: _cargarCuentasBancarias, child: const Text('Reintentar')),
+                  TextButton(
+                    onPressed: _cargarCuentasBancarias,
+                    child: const Text('Reintentar'),
+                  ),
                 ],
               )
             else if (_cuentasBancarias.isEmpty)
@@ -475,18 +526,25 @@ class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepar
                 decoration: BoxDecoration(
                   color: AppColors.primarySoftBg,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.primaryColor.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: AppColors.primaryColor.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Column(
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.account_balance_outlined, color: AppColors.primaryColor),
+                        const Icon(
+                          Icons.account_balance_outlined,
+                          color: AppColors.primaryColor,
+                        ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             'No tienes cuentas bancarias registradas. Necesitas una para recibir pagos.',
-                            style: AppTextStyles.SubTitle.copyWith(color: AppColors.primarySoft),
+                            style: AppTextStyles.SubTitle.copyWith(
+                              color: AppColors.primarySoft,
+                            ),
                           ),
                         ),
                       ],
@@ -500,7 +558,9 @@ class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepar
                         radius: 12,
                         onPressed: () => Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const BankAccountsScreen()),
+                          MaterialPageRoute(
+                            builder: (_) => const BankAccountsScreen(),
+                          ),
                         ),
                       ),
                     ),
@@ -510,7 +570,8 @@ class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepar
             else
               FormField<int>(
                 initialValue: _selectedCuentaBancariaId,
-                validator: (v) => v == null ? 'Selecciona una cuenta bancaria' : null,
+                validator: (v) =>
+                    v == null ? 'Selecciona una cuenta bancaria' : null,
                 builder: (state) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -523,10 +584,18 @@ class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepar
                           hint: 'Selecciona una cuenta',
                           errorText: state.errorText,
                         ),
-                        items: _cuentasBancarias.map((c) => DropdownMenuItem(
-                          value: c.idCuentaBancaria,
-                          child: Text('${c.nombreBanco} •••• ${c.numeroCuentaBancaria.substring(c.numeroCuentaBancaria.length - 4)}', overflow: TextOverflow.ellipsis, maxLines: 1),
-                        )).toList(),
+                        items: _cuentasBancarias
+                            .map(
+                              (c) => DropdownMenuItem(
+                                value: c.idCuentaBancaria,
+                                child: Text(
+                                  '${c.nombreBanco} •••• ${c.numeroCuentaBancaria.substring(c.numeroCuentaBancaria.length - 4)}',
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                              ),
+                            )
+                            .toList(),
                         onChanged: (v) {
                           setState(() => _selectedCuentaBancariaId = v);
                           state.didChange(v);
@@ -538,40 +607,54 @@ class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepar
                 },
               ),
             const SizedBox(height: 24),
-            
+
             // Sección: Fotos obligatorias
-            Text('Documentos Requeridos (Fotos)', style: AppTextStyles.sectionTitle),
+            Text(
+              'Documentos Requeridos (Fotos)',
+              style: AppTextStyles.sectionTitle,
+            ),
             const SizedBox(height: 8),
             Text(
               'Todas las fotos son obligatorias para la verificación',
-              style: AppTextStyles.SubTitle.copyWith(fontSize: 12, color: AppColors.TextSoft),
+              style: AppTextStyles.SubTitle.copyWith(
+                fontSize: 12,
+                color: AppColors.TextSoft,
+              ),
             ),
             const SizedBox(height: 16),
             _buildImagePicker(
               label: 'Foto de Perfil',
               image: _fotoPerfil,
-              onTap: () => _showImagePickerOptions((img) => setState(() => _fotoPerfil = img)),
+              onTap: () => _showImagePickerOptions(
+                (img) => setState(() => _fotoPerfil = img),
+              ),
               isRequired: true,
             ),
             _buildImagePicker(
               label: 'Cédula (Frente/Verso)',
               image: _fotoCedula,
-              onTap: () => _showImagePickerOptions((img) => setState(() => _fotoCedula = img)),
+              onTap: () => _showImagePickerOptions(
+                (img) => setState(() => _fotoCedula = img),
+              ),
               isRequired: true,
             ),
             _buildImagePicker(
               label: 'Licencia de Conducir',
               image: _fotoLicencia,
-              onTap: () => _showImagePickerOptions((img) => setState(() => _fotoLicencia = img)),
+              onTap: () => _showImagePickerOptions(
+                (img) => setState(() => _fotoLicencia = img),
+              ),
               isRequired: true,
             ),
             _buildImagePicker(
               label: 'Registro Policial',
               image: _recordPolicial,
-              onTap: () => _showImagePickerOptions((img) => setState(() => _recordPolicial = img)),
+              onTap: () => _showImagePickerOptions(
+                (img) => setState(() => _recordPolicial = img),
+              ),
               isRequired: true,
             ),
-            
+
             // Error general
             if (_error != null)
               Container(
@@ -581,17 +664,28 @@ class _FormularioSolicitudRepartidorState extends State<FormularioSolicitudRepar
                 decoration: BoxDecoration(
                   color: AppColors.errorBg,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.inputErrorColor.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: AppColors.inputErrorColor.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.error_outline, color: AppColors.inputErrorColor, size: 20),
+                    const Icon(
+                      Icons.error_outline,
+                      color: AppColors.inputErrorColor,
+                      size: 20,
+                    ),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(_error!, style: TextStyle(color: AppColors.inputErrorColor))),
+                    Expanded(
+                      child: Text(
+                        _error!,
+                        style: TextStyle(color: AppColors.inputErrorColor),
+                      ),
+                    ),
                   ],
                 ),
               ),
-            
+
             // Botón enviar
             PrimaryButton(
               label: _submitting ? 'Enviando...' : 'Enviar Solicitud',
