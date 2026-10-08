@@ -23,11 +23,7 @@ docker-compose*.yml
 *.swo
 *~
 
-# Compilación y build
-bin/
-obj/
-out/
-publish/
+
 
 # Paquetes NuGet
 packages/
