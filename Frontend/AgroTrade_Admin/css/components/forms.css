@@ -39,7 +39,7 @@
 .app-search-input:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(6, 99, 52, 0.1);
+  box-shadow: 0 0 0 3px rgba(10, 132, 81, 0.15);
 }
 
 .form-field-group {
@@ -72,7 +72,7 @@
 .form-text-input:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(6, 99, 52, 0.1);
+  box-shadow: 0 0 0 3px rgba(10, 132, 81, 0.15);
 }
 
 .form-field-hint {
@@ -111,5 +111,5 @@
 .form-textarea-input:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(6, 99, 52, 0.1);
+  box-shadow: 0 0 0 3px rgba(10, 132, 81, 0.15);
 }

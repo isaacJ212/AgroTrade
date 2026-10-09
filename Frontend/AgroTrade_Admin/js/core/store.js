@@ -29,7 +29,7 @@ class AdminStore {
             telefono: u.Telefono || "N/A",
             fechaRegistro: u.FechaRegistro ? new Date(u.FechaRegistro).toLocaleDateString() : 'N/A',
             direccion: u.DireccionBase || "N/A",
-            avatarUrl: null
+            avatarUrl: u.avatarUrl || u.AvatarUrl || null
           })),
           totalCount: (data && data.TotalRegisters) ? data.TotalRegisters : items.length
         };

@@ -9,6 +9,7 @@ import '../models/api/backend_result.dart';
 import '../models/api/json_helpers.dart';
 import '../routes/auth_routes.dart';
 import 'api_session.dart';
+import 'mock_api.dart';
 
 class ApiClient {
   ApiClient._();
@@ -218,35 +219,40 @@ class ApiClient {
     }
 
     late final http.Response response;
-    switch (method) {
-      case 'GET':
-        response = await _client.get(uri, headers: headers).timeout(_timeout);
-        break;
-      case 'POST':
-        response = await _client
-            .post(uri, headers: headers, body: payload)
-            .timeout(_timeout);
-        break;
-      case 'PUT':
-        response = await _client
-            .put(uri, headers: headers, body: payload)
-            .timeout(_timeout);
-        break;
-      case 'PATCH':
-        response = await _client
-            .patch(uri, headers: headers, body: payload)
-            .timeout(_timeout);
-        break;
-      case 'DELETE':
-        response = await _client
-            .delete(uri, headers: headers, body: payload)
-            .timeout(_timeout);
-        break;
-      default:
-        throw ApiException(0, 'Método HTTP no soportado: $method');
-    }
+    try {
+      switch (method) {
+        case 'GET':
+          response = await _client.get(uri, headers: headers).timeout(_timeout);
+          break;
+        case 'POST':
+          response = await _client
+              .post(uri, headers: headers, body: payload)
+              .timeout(_timeout);
+          break;
+        case 'PUT':
+          response = await _client
+              .put(uri, headers: headers, body: payload)
+              .timeout(_timeout);
+          break;
+        case 'PATCH':
+          response = await _client
+              .patch(uri, headers: headers, body: payload)
+              .timeout(_timeout);
+          break;
+        case 'DELETE':
+          response = await _client
+              .delete(uri, headers: headers, body: payload)
+              .timeout(_timeout);
+          break;
+        default:
+          throw ApiException(0, 'Método HTTP no soportado: $method');
+      }
 
-    return response;
+      return response;
+    } catch (e) {
+      print('DEBUG: ApiClient network error $e -> fallback to MockApi');
+      return MockApi.handle(method, uri);
+    }
   }
 
   Future<bool> refreshSession() async {

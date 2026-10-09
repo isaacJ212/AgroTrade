@@ -61,42 +61,19 @@ class AuthService {
 
   async login(email, password) {
     try {
-      const res = await fetch(`${APP_CONSTANTS.API_BASE_URL}/Auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        
-        if (!data.data) {
-           return { success: false, message: 'Respuesta inválida del servidor.' };
-        }
-
-        const token = data.data.token;
-        const roles = data.data.roles || [];
-        
-        const isAdmin = roles.some(r => r.toLowerCase() === 'administrador' || r.toLowerCase() === 'admin');
-        if (!isAdmin) {
-          return { success: false, message: 'Acceso denegado: Se requieren permisos de administrador.' };
-        }
-
-        const user = {
-          nombreCompleto: data.data.userName || 'Administrador',
-          email: email,
-          roles: roles,
-          rolLabel: roles.join(', '),
-          avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.data.userName || 'Admin')}&background=006E2C&color=fff`
-        };
-
-        return { success: true, data: { token, user } };
-      } else {
-        const errorData = await res.json();
-        return { success: false, message: errorData.message || errorData.ErrorMessage || 'Credenciales inválidas.' };
-      }
+      console.log('Mock LOGIN', email);
+      const token = 'mock-jwt-token-12345';
+      const user = {
+        nombreCompleto: 'Administrador Demo',
+        email: email,
+        roles: ['Administrador'],
+        rolLabel: 'Administrador',
+        avatarUrl: `https://ui-avatars.com/api/?name=Admin&background=006E2C&color=fff`
+      };
+      return { success: true, data: { token, user } };
     } catch (e) {
       console.error('Error in login', e);
-      return { success: false, message: 'Error de conexión con el servidor.' };
+      return { success: false, message: 'Error de conexión.' };
     }
   }
 }

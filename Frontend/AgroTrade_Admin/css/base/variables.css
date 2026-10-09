@@ -1,60 +1,68 @@
 :root {
   
-  --primary: #066334;
-  --primary-hover: #044b27;
-  --primary-light: #e8f5ed;
-  --primary-soft: #d1fae5;
-  --primary-active: #033c1f;
+  --primary: #0a8451;
+  --primary-hover: #076d42;
+  --primary-light: #e6f6ef;
+  --primary-soft: #bcf0d8;
+  --primary-active: #054f2f;
+  --primary-gradient: linear-gradient(135deg, #0a8451 0%, #0d9e63 100%);
 
-  --accent-blue: #0284c7;
-  --accent-blue-bg: #e0f2fe;
-  --accent-blue-text: #0369a1;
+  --accent-blue: #3b82f6;
+  --accent-blue-bg: #eff6ff;
+  --accent-blue-text: #1d4ed8;
 
-  --accent-green: #16a34a;
-  --accent-green-bg: #dcfce7;
-  --accent-green-text: #15803d;
+  --accent-green: #10b981;
+  --accent-green-bg: #ecfdf5;
+  --accent-green-text: #047857;
 
-  --accent-amber: #d97706;
-  --accent-amber-bg: #fef3c7;
-  --accent-amber-border: #fcd34d;
+  --accent-amber: #f59e0b;
+  --accent-amber-bg: #fffbeb;
+  --accent-amber-border: #fde68a;
   --accent-amber-text: #b45309;
-  --amber-dot: #f59e0b;
+  --amber-dot: #fbbf24;
 
-  --accent-danger: #dc2626;
-  --accent-danger-hover: #b91c1c;
-  --accent-danger-bg: #fee2e2;
-  --accent-danger-text: #991b1b;
-  --accent-danger-border: #fca5a5;
+  --accent-danger: #ef4444;
+  --accent-danger-hover: #dc2626;
+  --accent-danger-bg: #fef2f2;
+  --accent-danger-text: #b91c1c;
+  --accent-danger-border: #fecaca;
+  
+  --accent-purple: #8b5cf6;
+  --accent-purple-bg: #f5f3ff;
+  --accent-purple-text: #6d28d9;
 
-  --bg-app: #f6f8fa;
-  --bg-card: #ffffff;
+  --bg-app: #f4f7f9;
+  --bg-card: rgba(255, 255, 255, 0.95);
   --bg-input: #f8fafc;
   --bg-subtle: #f1f5f9;
   --bg-hover: #f8fafc;
+  --bg-glass: rgba(255, 255, 255, 0.7);
 
-  --text-main: #111827;
-  --text-secondary: #64748b;
+  --text-main: #0f172a;
+  --text-secondary: #475569;
   --text-muted: #94a3b8;
   --text-inverse: #ffffff;
 
   --border-light: #e2e8f0;
-  --border-subtle: #f1f5f9;
-  --border-focus: #066334;
+  --border-subtle: rgba(226, 232, 240, 0.6);
+  --border-focus: #0a8451;
 
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
-  --shadow-card: 0 2px 6px rgba(0, 0, 0, 0.03);
-  --shadow-modal: 0 20px 25px -5px rgba(0, 0, 0, 0.25);
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.02);
+  --shadow-md: 0 8px 16px -4px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.03);
+  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.04);
+  --shadow-modal: 0 30px 60px rgba(0, 0, 0, 0.15);
+  --shadow-primary: 0 10px 20px -5px rgba(10, 132, 81, 0.4);
 
-  --radius-xs: 6px;
-  --radius-sm: 10px;
+  --radius-xs: 8px;
+  --radius-sm: 12px;
   --radius-md: 16px;
-  --radius-lg: 20px;
-  --radius-xl: 24px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
   --radius-full: 9999px;
 
   --font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
-  --transition-normal: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-smooth: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-normal: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-bounce: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }

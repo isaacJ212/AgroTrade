@@ -1,86 +1,101 @@
 .btn-primary {
-  width: 100%;
-  background-color: var(--primary);
+  background: var(--primary-gradient);
   color: #ffffff;
   border-radius: var(--radius-full);
-  padding: 12px 20px;
+  padding: 12px 24px;
   font-size: 0.95rem;
   font-weight: 700;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  transition: var(--transition-normal);
-  box-shadow: 0 4px 10px rgba(6, 99, 52, 0.2);
+  gap: 10px;
+  transition: var(--transition-bounce);
+  box-shadow: var(--shadow-primary);
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.02em;
 }
 
 .btn-primary:hover {
-  background-color: var(--primary-hover);
-  transform: translateY(-1px);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 24px -6px rgba(10, 132, 81, 0.5);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
 }
 
 .btn-outline {
-  width: 100%;
-  background-color: #ffffff;
+  background: transparent;
   color: var(--primary);
-  border: 1.5px solid var(--primary);
+  border: 2px solid var(--primary);
   border-radius: var(--radius-full);
-  padding: 10px 18px;
-  font-size: 0.9rem;
+  padding: 10px 22px;
+  font-size: 0.95rem;
   font-weight: 700;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  transition: var(--transition-normal);
+  gap: 10px;
+  transition: var(--transition-bounce);
+  cursor: pointer;
 }
 
 .btn-outline:hover {
   background-color: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-danger-outline {
-  width: 100%;
-  background-color: #ffffff;
+  background: transparent;
   color: var(--accent-danger);
-  border: 1.5px solid var(--accent-danger);
+  border: 2px solid var(--accent-danger);
   border-radius: var(--radius-full);
-  padding: 10px 18px;
-  font-size: 0.9rem;
+  padding: 10px 22px;
+  font-size: 0.95rem;
   font-weight: 700;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  transition: var(--transition-normal);
+  gap: 10px;
+  transition: var(--transition-bounce);
+  cursor: pointer;
 }
 
 .btn-danger-outline:hover {
   background-color: var(--accent-danger-bg);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-secondary-text {
   background: none;
+  border: none;
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
   padding: 10px;
   text-align: center;
-  width: 100%;
   transition: var(--transition-normal);
+  cursor: pointer;
 }
 
 .btn-secondary-text:hover {
   color: var(--text-main);
+  text-decoration: underline;
 }
 
 .filter-tabs-container {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   overflow-x: auto;
-  padding-bottom: 2px;
+  padding: 4px;
   scrollbar-width: none;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-full);
+  width: fit-content;
 }
 
 .filter-tabs-container::-webkit-scrollbar {
@@ -88,45 +103,49 @@
 }
 
 .filter-tab-pill {
-  background-color: #ffffff;
-  border: 1px solid var(--border-light);
+  background-color: transparent;
+  border: none;
   border-radius: var(--radius-full);
-  padding: 7px 16px;
-  font-size: 0.82rem;
-  font-weight: 600;
+  padding: 8px 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
   color: var(--text-secondary);
   white-space: nowrap;
-  transition: var(--transition-normal);
+  transition: var(--transition-bounce);
+  cursor: pointer;
 }
 
 .filter-tab-pill:hover {
-  border-color: #cbd5e1;
   color: var(--text-main);
 }
 
 .filter-tab-pill.active {
-  background-color: var(--primary);
-  color: #ffffff;
-  border-color: var(--primary);
+  background: var(--bg-card);
+  color: var(--text-main);
+  box-shadow: var(--shadow-sm);
 }
 
 .icon-action-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-xs);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #64748b;
-  transition: var(--transition-normal);
+  color: var(--text-secondary);
+  transition: var(--transition-bounce);
+  border: none;
+  background: transparent;
+  cursor: pointer;
 }
 
 .icon-action-btn:hover {
-  background-color: #f1f5f9;
+  background-color: var(--bg-subtle);
   color: var(--text-main);
+  transform: scale(1.1);
 }
 
 .icon-action-btn.btn-delete:hover {
-  background-color: #fee2e2;
+  background-color: var(--accent-danger-bg);
   color: var(--accent-danger);
 }
