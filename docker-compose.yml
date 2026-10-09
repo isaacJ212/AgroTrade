@@ -126,6 +126,7 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
+      - RESEND_API_KEY=${RESEND_API_KEY}
     ports:
       - "${LANDING_HOST_PORT:-3400}:3000"
     networks:
