@@ -32,6 +32,7 @@ namespace Agro_Trade.Application.Features.Auth
 
         public async Task<Result<LoginResponse>> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
+            
             var user = await _unitOfWork.Users.GetByEmailAsync(request.loginDto.Email, cancellationToken);
             if (user == null)
             {
@@ -41,6 +42,13 @@ namespace Agro_Trade.Application.Features.Auth
             {
                 return Result<LoginResponse>.Failure(401, "Contrase�a o Usuario incorrectos.");
             }
+            
+            // Verificar identidad
+            if (!user.IdentidadVerificada)
+            {
+                return Result<LoginResponse>.Failure(401, "La identidad no ha sido verificada.");
+            }
+            
             var token = _token.GenerateRefreshToken();
 
             RefreshToken refreshToken = new()

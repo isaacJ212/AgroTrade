@@ -31,6 +31,8 @@ namespace Agro_Trade.Infrastructure.Persistence.UnitofWork
         private readonly IRepository<Banco> _banco;
         private readonly IRepository<CuentaBancaria> _cuentaBancaria;
         private readonly IRepository<UnidadDeMedida> _unidadesDeMedida;
+        
+
 
         private readonly AgroTradeDbContext _context;
         private IDbContextTransaction? _transaction;
@@ -75,7 +77,7 @@ namespace Agro_Trade.Infrastructure.Persistence.UnitofWork
         public IRepository<ConversacionParticipante> ConversacionParticipantes => _ConversacionParticipanteRepository;
         public IRepository<Mensaje> Mensajes => _mensajeRepository;
         public IRepository<Banco> Bancos => _banco;
-        public IRepository<CuentaBancaria> CuentasBancarias => _cuentaBancaria;
+        public IRepository<CuentaBancaria> CuentasBancarias=> _cuentaBancaria;
         public IRepository<UnidadDeMedida> UnidadesDeMedida => _unidadesDeMedida;
 
 

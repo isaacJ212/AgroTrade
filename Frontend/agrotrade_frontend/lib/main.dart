@@ -10,12 +10,11 @@ import 'config/env.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  
+
   if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
     MapboxOptions.setAccessToken(EnvConfig.mapboxAccessToken);
   }
-  
+
   runApp(const AgroTradeApp());
 }
 

@@ -272,7 +272,6 @@ class _EntregaCard extends StatelessWidget {
           ),
         ),
       ),
-      ),
     );
   }
 }

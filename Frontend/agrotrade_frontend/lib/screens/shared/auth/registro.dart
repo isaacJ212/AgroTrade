@@ -41,6 +41,8 @@ class _RegistroState extends State<Registro> {
   bool _isLoading = false;
   int? _idRol;
   String? _selectedDepartamento;
+  final TextEditingController _municipioController = TextEditingController();
+  String? _municipioError;
 
   static const List<String> _departamentosNicaragua = [
     'Managua',
@@ -96,6 +98,7 @@ class _RegistroState extends State<Registro> {
     _passwordController.dispose();
     _confirmController.dispose();
     _numberController.dispose();
+    _municipioController.dispose();
     super.dispose();
   }
 
@@ -107,6 +110,7 @@ class _RegistroState extends State<Registro> {
     String? passwordError;
     String? confirmError;
     String? numberError;
+    String? municipioError;
 
     //Lectura
 
@@ -117,6 +121,7 @@ class _RegistroState extends State<Registro> {
     final password = _passwordController.text.trim();
     final confirm = _confirmController.text.trim();
     final telefono = _numberController.text.trim();
+    final municipio = _municipioController.text.trim();
 
     // --- NOMBRE: backend exige al menos 2 caracteres ---
     if (nombre.isEmpty) {
@@ -168,6 +173,11 @@ class _RegistroState extends State<Registro> {
       numberError = "Teléfono inválido (8 dígitos, inicia con 5, 7 u 8)";
     }
 
+    // --- MUNICIPIO: opcional pero si se ingresa debe tener al menos 2 caracteres ---
+    if (municipio.isNotEmpty && municipio.length < 2) {
+      municipioError = "Mínimo 2 caracteres";
+    }
+
     // Un solo setState al final → redibuja todos los errores de una vez
     setState(() {
       _nombreError = nombreError;
@@ -177,6 +187,7 @@ class _RegistroState extends State<Registro> {
       _passwordError = passwordError;
       _confirmError = confirmError;
       _numberError = numberError;
+      _municipioError = municipioError;
     });
 
     // Válido si TODOS los errores son null Y aceptó los términos
@@ -188,6 +199,7 @@ class _RegistroState extends State<Registro> {
         passwordError == null &&
         confirmError == null &&
         numberError == null &&
+        municipioError == null &&
         _terminosAcepta;
   }
 
@@ -229,6 +241,9 @@ class _RegistroState extends State<Registro> {
           password: _passwordController.text,
           telefono: _numberController.text.trim(),
           departamento: _selectedDepartamento,
+          municipio: _municipioController.text.trim().isNotEmpty
+              ? _municipioController.text.trim()
+              : null,
           idRol: _idRol,
         ),
       );
@@ -467,44 +482,11 @@ class _RegistroState extends State<Registro> {
                   },
                 ),
                 const SizedBox(height: 16),
-                FormField<String>(
-                  initialValue: _selectedDepartamento,
-                  validator: (v) => v == null || v.isEmpty
-                      ? 'El departamento es obligatorio'
-                      : null,
-                  builder: (state) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        DropdownButtonFormField<String>(
-                          value: _selectedDepartamento,
-                          isExpanded: true,
-                          decoration: appInputDecoration(
-                            label: 'Departamento *',
-                            hint: 'Selecciona el departamento',
-                            errorText: state.errorText,
-                          ),
-                          items: _departamentosNicaragua
-                              .map(
-                                (d) => DropdownMenuItem(
-                                  value: d,
-                                  child: Text(
-                                    d,
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (v) {
-                            setState(() => _selectedDepartamento = v);
-                            state.didChange(v);
-                          },
-                          menuMaxHeight: 300,
-                        ),
-                      ],
-                    );
-                  },
+                AppTextField(
+                  hint: "Ej: Managua",
+                  label: "Municipio",
+                  controller: _municipioController,
+                  errorText: _municipioError,
                 ),
                 const SizedBox(height: 16),
 

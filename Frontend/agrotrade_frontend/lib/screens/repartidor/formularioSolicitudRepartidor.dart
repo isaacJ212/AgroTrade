@@ -278,7 +278,7 @@ class _FormularioSolicitudRepartidorState
       print('DEBUG: FilePaths to send: $filePaths');
 
       // Enviar multipart (usa fromPath para auto-detectar Content-Type)
-      final response = await ApiClient.instance.EnviaEnviapostMultipart(
+      final response = await ApiClient.instance.EnviarPostMultipart(
         '/api/DeliveryJobRequest',
         fields: fields,
         filePaths: filePaths,

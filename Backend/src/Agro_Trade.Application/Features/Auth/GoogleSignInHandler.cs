@@ -77,6 +77,14 @@ namespace Agro_Trade.Application.Features.Auth
 
                
             }
+            else
+            {
+                // Verificar identidad para usuarios existentes
+                if (!user.IdentidadVerificada)
+                {
+                    return Result<LoginResponse>.Failure(401, "La identidad no ha sido verificada.");
+                }
+            }
             //CAMBIOS PARA LA GENERACION DE RefreshToken
             var token = _tokenServices.GenerateRefreshToken();
 
