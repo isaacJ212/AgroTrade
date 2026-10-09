@@ -59,7 +59,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 10, 7, 2, 0, 24, 325, DateTimeKind.Utc).AddTicks(7742),
+                            CreatedAt = new DateTime(2026, 10, 9, 4, 51, 8, 220, DateTimeKind.Utc).AddTicks(5274),
                             IconClass = "icon-green-bg",
                             IconType = "user",
                             Title = "El productor 'Finca Los Pinos' se ha registrado en la plataforma"
@@ -67,7 +67,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2026, 10, 7, 1, 5, 24, 325, DateTimeKind.Utc).AddTicks(7753),
+                            CreatedAt = new DateTime(2026, 10, 9, 3, 56, 8, 220, DateTimeKind.Utc).AddTicks(5309),
                             IconClass = "icon-blue-bg",
                             IconType = "check-circle",
                             Title = "Verificación aprobada para 'Transportes El Rápido'"
@@ -75,7 +75,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2026, 10, 7, 0, 5, 24, 325, DateTimeKind.Utc).AddTicks(7758),
+                            CreatedAt = new DateTime(2026, 10, 9, 2, 56, 8, 220, DateTimeKind.Utc).AddTicks(5322),
                             IconClass = "icon-orange-bg",
                             IconType = "alert-circle",
                             Title = "Se ha reportado un problema con el pedido #1045"
@@ -83,7 +83,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                         new
                         {
                             Id = 4,
-                            CreatedAt = new DateTime(2026, 10, 6, 2, 5, 24, 325, DateTimeKind.Utc).AddTicks(7761),
+                            CreatedAt = new DateTime(2026, 10, 8, 4, 56, 8, 220, DateTimeKind.Utc).AddTicks(5331),
                             IconClass = "icon-purple-bg",
                             IconType = "layers",
                             Title = "Nueva categoría 'Frutas Tropicales' creada"
@@ -109,9 +109,9 @@ namespace Agro_Trade.Infrastructure.Migrations
                         .HasColumnName("nombre_banco");
 
                     b.HasKey("IdBanco")
-                        .HasName("pk_banco");
+                        .HasName("pk_bancos");
 
-                    b.ToTable("banco", (string)null);
+                    b.ToTable("bancos", (string)null);
                 });
 
             modelBuilder.Entity("Agro_Trade.Domain.Entities.Categoria", b =>
@@ -218,15 +218,15 @@ namespace Agro_Trade.Infrastructure.Migrations
                         .HasColumnName("is_active");
 
                     b.HasKey("IdCuenta")
-                        .HasName("pk_cuenta_bancaria");
+                        .HasName("pk_cuentas_bancarias");
 
                     b.HasIndex("IdBanco")
-                        .HasDatabaseName("ix_cuenta_bancaria_id_banco");
+                        .HasDatabaseName("ix_cuentas_bancarias_id_banco");
 
                     b.HasIndex("IdUsuario")
-                        .HasDatabaseName("ix_cuenta_bancaria_id_usuario");
+                        .HasDatabaseName("ix_cuentas_bancarias_id_usuario");
 
-                    b.ToTable("cuenta_bancaria", (string)null);
+                    b.ToTable("cuentas_bancarias", (string)null);
                 });
 
             modelBuilder.Entity("Agro_Trade.Domain.Entities.DetallePedido", b =>
@@ -875,6 +875,28 @@ namespace Agro_Trade.Infrastructure.Migrations
                         .HasName("pk_roles");
 
                     b.ToTable("Roles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            IdRol = 1,
+                            NombreRol = "Cliente"
+                        },
+                        new
+                        {
+                            IdRol = 2,
+                            NombreRol = "Productor"
+                        },
+                        new
+                        {
+                            IdRol = 3,
+                            NombreRol = "Repartidor"
+                        },
+                        new
+                        {
+                            IdRol = 4,
+                            NombreRol = "Administrador"
+                        });
                 });
 
             modelBuilder.Entity("Agro_Trade.Domain.Entities.RolPermiso", b =>
@@ -1009,7 +1031,6 @@ namespace Agro_Trade.Infrastructure.Migrations
                         .HasColumnName("coste");
 
                     b.Property<string>("Descripcion")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
                         .HasColumnName("descripcion");
@@ -1176,12 +1197,6 @@ namespace Agro_Trade.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdUsuario"));
 
-                    b.Property<string>("Apellidos")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("apellidos");
-
                     b.Property<string>("Departamento")
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)")
@@ -1316,6 +1331,10 @@ namespace Agro_Trade.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("tipo_valoracion");
 
+                    b.Property<int?>("UsuarioIdUsuario")
+                        .HasColumnType("integer")
+                        .HasColumnName("usuario_id_usuario");
+
                     b.HasKey("IdValoracion")
                         .HasName("pk_valoraciones");
 
@@ -1327,6 +1346,9 @@ namespace Agro_Trade.Infrastructure.Migrations
 
                     b.HasIndex("IdUsuarioCliente")
                         .HasDatabaseName("ix_valoraciones_id_usuario_cliente");
+
+                    b.HasIndex("UsuarioIdUsuario")
+                        .HasDatabaseName("ix_valoraciones_usuario_id_usuario");
 
                     b.ToTable("valoraciones", (string)null);
                 });
@@ -1371,14 +1393,14 @@ namespace Agro_Trade.Infrastructure.Migrations
                         .HasForeignKey("IdBanco")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_cuenta_bancaria_banco_id_banco");
+                        .HasConstraintName("fk_cuentas_bancarias_bancos_id_banco");
 
                     b.HasOne("Agro_Trade.Domain.Entities.Usuario", "Usuario")
                         .WithMany()
                         .HasForeignKey("IdUsuario")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_cuenta_bancaria_usuarios_id_usuario");
+                        .HasConstraintName("fk_cuentas_bancarias_usuarios_id_usuario");
 
                     b.Navigation("Banco");
 
@@ -1568,7 +1590,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("IdCuentaBancaria")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("fk_proveedores_cuenta_bancaria_id_cuenta_bancaria");
+                        .HasConstraintName("fk_proveedores_cuentas_bancarias_id_cuenta_bancaria");
 
                     b.HasOne("Agro_Trade.Domain.Entities.Usuario", "Usuario")
                         .WithMany()
@@ -1601,7 +1623,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                         .HasForeignKey("IdCuentaBancaria")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_repartidor_cuenta_bancaria_id_cuenta_bancaria");
+                        .HasConstraintName("fk_repartidor_cuentas_bancarias_id_cuenta_bancaria");
 
                     b.HasOne("Agro_Trade.Domain.Entities.Usuario", "Usuario")
                         .WithMany()
@@ -1655,7 +1677,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                         .HasForeignKey("IdPlan")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_suscripciones_app_tipo_plan_id_plan");
+                        .HasConstraintName("fk_suscripciones_app_tipo_planes_id_plan");
 
                     b.HasOne("Agro_Trade.Domain.Entities.Usuario", "Usuario")
                         .WithMany()
@@ -1712,6 +1734,11 @@ namespace Agro_Trade.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_valoraciones_usuarios_id_usuario_cliente");
+
+                    b.HasOne("Agro_Trade.Domain.Entities.Usuario", null)
+                        .WithMany("ValoracionesRecibidas")
+                        .HasForeignKey("UsuarioIdUsuario")
+                        .HasConstraintName("fk_valoraciones_usuarios_usuario_id_usuario");
 
                     b.Navigation("Pedido");
 
@@ -1795,6 +1822,8 @@ namespace Agro_Trade.Infrastructure.Migrations
                     b.Navigation("UsuariosRoles");
 
                     b.Navigation("ValoracionesRealizadas");
+
+                    b.Navigation("ValoracionesRecibidas");
                 });
 #pragma warning restore 612, 618
         }
