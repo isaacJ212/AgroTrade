@@ -54,6 +54,10 @@ namespace Agro_Trade.Application.Features.Auth
             var user = await _unitOfWork.Users.GetByEmailAsync(payload.Email, cancellationToken);
             if (user == null)
             {
+                var partes = payload.Name?.Split(' ') ?? Array.Empty<string>();
+                var nombres = partes.Length > 0 ? partes[0] : string.Empty;
+                var apellidos = partes.Length > 1 ? string.Join(" ", partes.Skip(1)) : string.Empty;
+
                 user = new Agro_Trade.Domain.Entities.Usuario
                 {
                     Nombre = payload.GivenName ?? payload.Name, PrimerApellido = payload.FamilyName ?? "", SegundoApellido = "",

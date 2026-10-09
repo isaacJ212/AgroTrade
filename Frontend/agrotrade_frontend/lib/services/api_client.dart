@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:async';
 
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 import '../models/api/auth_models.dart';
 import '../models/api/backend_result.dart';
@@ -15,10 +16,14 @@ class ApiClient {
   static final ApiClient instance = ApiClient._();
 
   final http.Client _client = http.Client();
+  // Timeout global para que no se quede colgado en dispositivo físico con IP incorrecta
+  static const Duration _timeout = Duration(seconds: 10);
   Future<bool>? _refreshOperation;
 
   String get baseUrl {
-    const envBaseUrl = "http://10.0.2.2:5080";
+    //local tunnerl solo para la demo
+    const envBaseUrl =
+        "http://10.0.2.2:5080"; // CAMBIA ESTA IP EN DISPOSITIVO FÍSICO
     return envBaseUrl.endsWith('/')
         ? envBaseUrl.substring(0, envBaseUrl.length - 1)
         : envBaseUrl;
@@ -108,29 +113,42 @@ class ApiClient {
   }
 
   /// Envía una petición multipart/form-data (para subida de archivos)
-  Future<ApiResponse> postMultipart(
+  /// Usa MultipartFile.fromPath para auto-detectar Content-Type (como en productos)
+  Future<ApiResponse> EnviaEnviapostMultipart(
     String path, {
     required Map<String, String> fields,
-    required Map<String, List<int>> files,
-    required Map<String, String> fileNames,
+    required Map<String, String> filePaths, // fieldName -> file path
     bool authorized = false,
   }) async {
     final uri = _buildUri(path);
     var request = http.MultipartRequest('POST', uri);
-    
+
     // Agregar campos de texto
     request.fields.addAll(fields);
-    
-    // Agregar archivos
-    files.forEach((fieldName, bytes) {
-      final fileName = fileNames[fieldName] ?? 'file';
-      request.files.add(http.MultipartFile.fromBytes(
-        fieldName,
-        bytes,
-        filename: fileName,
-      ));
-    });
-    
+
+    // Agregar archivos usando fromPath con Content-Type explícito
+    for (final entry in filePaths.entries) {
+      try {
+        final filePath = entry.value;
+        final extension = filePath.split('.').last.toLowerCase();
+        final contentType = switch (extension) {
+          'jpg' || 'jpeg' => MediaType('image', 'jpeg'),
+          'png' => MediaType('image', 'png'),
+          'webp' => MediaType('image', 'webp'),
+          _ => MediaType('application', 'octet-stream'),
+        };
+        final multipartFile = await http.MultipartFile.fromPath(
+          entry.key,
+          filePath,
+          contentType: contentType,
+        );
+        print('DEBUG: Adding file ${entry.key}: filename=${multipartFile.filename}, contentType=${multipartFile.contentType}, length=${multipartFile.length}');
+        request.files.add(multipartFile);
+      } catch (e) {
+        print('Error adjuntando archivo ${entry.key}: $e');
+      }
+    }
+
     if (authorized) {
       final token = ApiSession.instance.token;
       if (token != null && token.isNotEmpty) {
@@ -138,10 +156,10 @@ class ApiClient {
       }
     }
     request.headers['Accept'] = 'application/json';
-    
+
     var response = await _client.send(request);
     var httpResponse = await http.Response.fromStream(response);
-    
+
     final isRefreshOrLogout =
         path.toLowerCase().endsWith('/refresh') ||
         path.toLowerCase().endsWith('/logout');
@@ -154,7 +172,7 @@ class ApiClient {
       response = await _client.send(request);
       httpResponse = await http.Response.fromStream(response);
     }
-    
+
     return ApiResponse.fromHttpResponse(httpResponse);
   }
 
@@ -177,19 +195,27 @@ class ApiClient {
     late final http.Response response;
     switch (method) {
       case 'GET':
-        response = await _client.get(uri, headers: headers);
+        response = await _client.get(uri, headers: headers).timeout(_timeout);
         break;
       case 'POST':
-        response = await _client.post(uri, headers: headers, body: payload);
+        response = await _client
+            .post(uri, headers: headers, body: payload)
+            .timeout(_timeout);
         break;
       case 'PUT':
-        response = await _client.put(uri, headers: headers, body: payload);
+        response = await _client
+            .put(uri, headers: headers, body: payload)
+            .timeout(_timeout);
         break;
       case 'PATCH':
-        response = await _client.patch(uri, headers: headers, body: payload);
+        response = await _client
+            .patch(uri, headers: headers, body: payload)
+            .timeout(_timeout);
         break;
       case 'DELETE':
-        response = await _client.delete(uri, headers: headers, body: payload);
+        response = await _client
+            .delete(uri, headers: headers, body: payload)
+            .timeout(_timeout);
         break;
       default:
         throw ApiException(0, 'Método HTTP no soportado: $method');

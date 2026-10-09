@@ -24,7 +24,7 @@ COPY . .
 
 # Compilar en Release
 WORKDIR "/src/src/Agro_Trade"
-RUN dotnet build "Agro_Trade.csproj" -c Release -o /app/build --no-restore
+RUN dotnet build "Agro_Trade.csproj" -c Release -o /app/build 
 
 # -----------------------------------------------------------------------------
 # ETAPA 2: Publish
