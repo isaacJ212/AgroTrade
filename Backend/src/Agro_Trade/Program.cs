@@ -160,6 +160,7 @@ namespace Agro_Trade
 
 
             builder.Services.AddHttpContextAccessor();
+            builder.Services.AddHealthChecks();
 
             var app = builder.Build();
 
@@ -184,6 +185,7 @@ namespace Agro_Trade
 
 
             app.MapControllers();
+            app.MapHealthChecks("/health");
             app.MapHub<Agro_Trade.Hubs.ChatHub>("/chathub");
 
 
