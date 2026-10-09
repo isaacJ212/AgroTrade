@@ -21,6 +21,7 @@ class InicioRepartidor extends StatefulWidget {
 }
 
 class _InicioRepartidorState extends State<InicioRepartidor> {
+  bool _isAvailable = false;
   static const String _avatarUrl =
       'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=160&q=80';
   static const String _mapUrl =
@@ -31,10 +32,35 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
   @override
   void initState() {
     super.initState();
-    _pendingFuture = DeliveryApiService.instance
-        .getPendingDeliveries()
-        .catchError((_) => <PendingDeliveryNotificationDto>[]);
+    _cargarEntregas();
     _verificarEstadoRepartidor();
+  }
+
+  void _cargarEntregas() {
+    if (_isAvailable) {
+      _pendingFuture = DeliveryApiService.instance
+          .getPendingDeliveries()
+          .catchError((_) => _mockDeliveriesFallback());
+    } else {
+      _pendingFuture = Future.value(<PendingDeliveryNotificationDto>[]);
+    }
+  }
+
+  List<PendingDeliveryNotificationDto> _mockDeliveriesFallback() {
+    return [
+      PendingDeliveryNotificationDto(
+        pedidoId: 1054,
+        zonaEntrega: 'Residencial Los Robles, Casa 24',
+        totalPedido: 45.00,
+        fechaCreacion: DateTime.now(),
+      ),
+      PendingDeliveryNotificationDto(
+        pedidoId: 1055,
+        zonaEntrega: 'Centro Comercial Metrocentro',
+        totalPedido: 120.50,
+        fechaCreacion: DateTime.now(),
+      )
+    ];
   }
 
   Future<void> _verificarEstadoRepartidor() async {
@@ -155,29 +181,22 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
                       Stack(
                         clipBehavior: Clip.none,
                         children: [
-                          IconButton(
-                            onPressed: () => _showSnack(
-                              context,
-                              '${pendingDeliveries.length} entregas pendientes',
-                            ),
-                            icon: const Icon(
-                              Icons.notifications_outlined,
-                              color: AppColors.bodyText,
-                            ),
+                          Switch(
+                            value: _isAvailable,
+                            activeColor: AppColors.primaryColor,
+                            onChanged: (val) {
+                              setState(() {
+                                _isAvailable = val;
+                                _cargarEntregas();
+                              });
+                              _showSnack(
+                                context,
+                                val
+                                    ? 'Estás en línea. Buscando pedidos...'
+                                    : 'Estás desconectado.',
+                              );
+                            },
                           ),
-                          if (pendingDeliveries.isNotEmpty)
-                            Positioned(
-                              right: 10,
-                              top: 10,
-                              child: Container(
-                                width: 10,
-                                height: 10,
-                                decoration: const BoxDecoration(
-                                  color: AppColors.inputErrorColor,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                            ),
                         ],
                       ),
                     ],

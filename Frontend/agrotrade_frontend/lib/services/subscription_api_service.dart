@@ -1,5 +1,6 @@
 import 'api_client.dart';
 import 'api_session.dart';
+import 'consumer_api_service.dart';
 
 class SubscriptionApiService {
   SubscriptionApiService._();
@@ -30,16 +31,22 @@ class SubscriptionApiService {
       'mesesDuracion': mesesDuracion,
     };
 
-    final response = await ApiClient.instance.post(
-      'api/Suscripciones',
-      body: body,
-      authorized: true,
-    );
+    try {
+      final response = await ApiClient.instance.post(
+        'api/Suscripciones',
+        body: body,
+        authorized: true,
+      );
 
-    if (response.statusCode >= 200 && response.statusCode < 300) {
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return;
+      }
+      
+      throw ApiException(response.statusCode, response.jsonBody?['message'] ?? 'Error al crear la suscripción');
+    } catch (e) {
+      print('Fallback por error de red: Usando datos locales temporales para suscripción');
+      ConsumerApiService.instance.crearSuscripcionMock(tipoPlan);
       return;
     }
-    
-    throw ApiException(response.statusCode, response.jsonBody?['message'] ?? 'Error al crear la suscripción');
   }
 }

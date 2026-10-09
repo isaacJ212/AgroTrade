@@ -164,11 +164,7 @@ class _ConfirmarEntregaRepartidorState
     if (widget.pedidoId == null) return;
     setState(() => _guardando = true);
     try {
-      // TODO: Implementar endpoint de confirmar entrega en DeliveryApiService
-      // await DeliveryApiService.instance.confirmarEntrega(widget.pedidoId!, _nota.text);
-
-      // Simulación temporal
-      await Future.delayed(const Duration(milliseconds: 500));
+      await DeliveryApiService.instance.confirmarEntrega(widget.pedidoId!, _nota.text);
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

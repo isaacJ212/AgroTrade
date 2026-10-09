@@ -23,7 +23,7 @@ class ApiClient {
 
   String get baseUrl {
     //local tunnerl solo para la demo
-    const envBaseUrl = "http://10.0.2.2:5080"; // ip azure
+    const envBaseUrl = "http://57.154.35.212:8080"; // ip azure
     return envBaseUrl.endsWith('/')
         ? envBaseUrl.substring(0, envBaseUrl.length - 1)
         : envBaseUrl;

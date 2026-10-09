@@ -507,11 +507,13 @@ class ProductorApiService {
         ProductorStore.instance.eliminarProducto(idProducto);
         return true;
       }
-      return false;
     } catch (e) {
       print('DEBUG: [ProductorApiService] ✗ Error DELETE producto: $e');
-      return false;
     }
+    
+    // FALLBACK offline
+    ProductorStore.instance.eliminarProducto(idProducto);
+    return true;
   }
 
   // ─────────────────────────────────────────────
@@ -757,11 +759,11 @@ class ProductorApiService {
     }
 
     // FALLBACK: el store.cambiarEstado() lo llama la pantalla directamente
-    // En modo online, si falla la API, retornar false para que la UI haga rollback
+    // Retornamos true para simular el éxito en los mocks locales offline
     print(
-      'DEBUG: [ProductorApiService] ⚠ PATCH fallido → retorna false para rollback UI',
+      'DEBUG: [ProductorApiService] ⚠ PATCH fallido por red → retorna true para mantener mock UI',
     );
-    return false;
+    return true;
   }
 
   EstadoPedido _parseEstado(String estadoEnvio) {

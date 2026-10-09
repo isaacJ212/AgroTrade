@@ -8,6 +8,7 @@ import 'inicioComprador.dart';
 import '../../models/Consumidor/consumidor_models.dart';
 import '../../services/consumer_api_service.dart';
 import '../../services/cart_service.dart';
+import '../../routes/app_routes.dart';
 
 class _Valoracion {
   final String iniciales;
@@ -164,14 +165,11 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
   }
 
   void _enviarMensaje() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Abriendo chat con el productor…'),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.primaryColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-    );
+    Navigator.pushNamed(context, AppRoutes.chat);
+  }
+
+  void _suscribirse() {
+    Navigator.pushNamed(context, AppRoutes.planesSuscripcion);
   }
 
   void _compartir() {
@@ -399,25 +397,51 @@ class _PerfilProductorScreenState extends State<PerfilProductorScreen> {
                 ),
               ),
               const Spacer(),
-              if (!widget.soloLectura) ElevatedButton.icon(
-                onPressed: _enviarMensaje,
-                icon: const Icon(Icons.chat_bubble_outline, size: 14),
-                label: const Text(
-                  'Enviar mensaje',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
+              if (!widget.soloLectura) Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: _enviarMensaje,
+                    icon: const Icon(Icons.chat_bubble_outline, size: 14),
+                    label: const Text(
+                      'Mensaje',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(22),
+                      ),
+                      elevation: 0,
+                    ),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(22),
+                  const SizedBox(height: 6),
+                  ElevatedButton.icon(
+                    onPressed: _suscribirse,
+                    icon: const Icon(Icons.autorenew, size: 14),
+                    label: const Text(
+                      'Suscribirse',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.accentBlue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(22),
+                      ),
+                      elevation: 0,
+                    ),
                   ),
-                  elevation: 0,
-                ),
+                ],
               ),
             ],
           ),

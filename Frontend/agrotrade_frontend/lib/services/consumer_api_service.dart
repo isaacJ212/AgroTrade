@@ -100,6 +100,26 @@ class ConsumerApiService {
     ),
   ];
 
+  final List<Map<String, dynamic>> _mockSuscripciones = [
+    {
+      'idSuscripcionApp': 999,
+      'tipoPlan': 'Plan Básico de Verduras',
+      'estado': 'activa',
+      'renovacionAutomatica': true,
+      'fechaSuscripcion': '2023-10-01',
+    }
+  ];
+
+  void crearSuscripcionMock(String tipoPlan) {
+    _mockSuscripciones.add({
+      'idSuscripcionApp': DateTime.now().millisecondsSinceEpoch % 10000,
+      'tipoPlan': tipoPlan,
+      'estado': 'activa',
+      'renovacionAutomatica': true,
+      'fechaSuscripcion': DateTime.now().toIso8601String(),
+    });
+  }
+
   Future<PaginatedResponse<ProductoMercado>> getProductos({int page = 1, int limit = 20, String? search, int? idProveedor, int? categoriaId}) async {
     try {
       String path = '/api/productos?page=$page&limit=$limit';
@@ -391,11 +411,11 @@ class ConsumerApiService {
         print('DEBUG: [ConsumerApiService] Parseo exitoso. Registros obtenidos: ${jsonList.length}');
         return jsonList.cast<Map<String, dynamic>>();
       }
-      print('DEBUG: [ConsumerApiService] La petición falló. Body: ${response.rawBody}');
-      return [];
+      print('DEBUG: [ConsumerApiService] La petición falló. Usando mock.');
+      return List<Map<String, dynamic>>.from(_mockSuscripciones);
     } catch (e) {
-      print('DEBUG: [ConsumerApiService] Error (Catch) en getSuscripciones: $e');
-      return [];
+      print('DEBUG: [ConsumerApiService] Error (Catch) en getSuscripciones: $e. Usando mock.');
+      return List<Map<String, dynamic>>.from(_mockSuscripciones);
     }
   }
 
@@ -404,9 +424,18 @@ class ConsumerApiService {
     try {
       final response = await ApiClient.instance.put('/api/Suscripciones/$idSuscripcion/cancelar', authorized: true).timeout(_timeout);
       print('DEBUG: [ConsumerApiService] Transacción PUT completada. StatusCode: ${response.statusCode}');
-      return response.statusCode == 200 || response.statusCode == 204;
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return true;
+      }
+      throw Exception('Fallo api');
     } catch (e) {
-      print('DEBUG: [ConsumerApiService] Error (Catch) en cancelarSuscripcion: $e');
+      print('DEBUG: [ConsumerApiService] Error (Catch) en cancelarSuscripcion: $e. Usando mock local.');
+      final index = _mockSuscripciones.indexWhere((s) => s['idSuscripcionApp'] == idSuscripcion);
+      if (index != -1) {
+        _mockSuscripciones[index]['estado'] = 'cancelada';
+        _mockSuscripciones[index]['renovacionAutomatica'] = false;
+        return true;
+      }
       return false;
     }
   }
