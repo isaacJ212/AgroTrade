@@ -31,15 +31,15 @@ class AgrobotApiService {
       final text = message.toLowerCase();
       
       if (text.contains('pedido') || text.contains('estado')) {
-        reply = 'Tu último pedido (PED-1054) se encuentra actualmente **En Preparación**. Se estima que estará listo para recoger hoy por la tarde.';
+        reply = 'Tu último pedido (PED-1054) se encuentra actualmente **En Preparación**. Se estima que estará listo para recoger hoy por la tarde.|ROUTE|/comprador/mis-pedidos';
       } else if (text.contains('pago') || text.contains('tarjeta')) {
-        reply = 'Aceptamos transferencias bancarias y tarjetas Visa o MasterCard. Todos tus pagos están protegidos de extremo a extremo.';
+        reply = 'Aceptamos transferencias bancarias y tarjetas Visa o MasterCard. Todos tus pagos están protegidos de extremo a extremo.|ROUTE|/planes-suscripcion';
       } else if (text.contains('hola') || text.contains('buen') || text.contains('saludo')) {
-        reply = '¡Hola! Qué gusto saludarte de nuevo. Soy AgroBot, ¿en qué te puedo ayudar el día de hoy?';
+        reply = '¡Hola! Qué gusto saludarte de nuevo. Soy AgroBot, ¿en qué te puedo ayudar el día de hoy? Si quieres explorar, ve al inicio:|ROUTE|/comprador/inicio';
       } else if (text.contains('entrega') || text.contains('ruta') || text.contains('repartidor')) {
-        reply = 'Las entregas se asignan automáticamente al repartidor más cercano. Recibirás una notificación en cuanto el repartidor recoja tus productos en la finca.';
-      } else if (text.contains('precio') || text.contains('producto')) {
-        reply = 'Los precios varían según la oferta del productor. Te recomiendo visitar la sección del catálogo para ver los precios actualizados en tiempo real.';
+        reply = 'Las entregas se asignan automáticamente al repartidor más cercano. Recibirás una notificación en cuanto el repartidor recoja tus productos en la finca.|ROUTE|/comprador/pedido/seguimiento';
+      } else if (text.contains('precio') || text.contains('producto') && !text.contains('agregar')) {
+        reply = 'Los precios varían según la oferta del productor. Te recomiendo visitar la sección del catálogo para ver los precios actualizados en tiempo real.|ROUTE|/comprador/explorar';
       } else if (text.contains('agregar') && (text.contains('producto') || text.contains('inventario'))) {
         reply = 'Para agregar un producto a tu inventario, dirígete a la sección de Inventario y presiona el botón "Agregar Producto". También puedes usar este acceso directo:|ROUTE|/productor/inventario/agregar';
       } else if (text.contains('inventario')) {
