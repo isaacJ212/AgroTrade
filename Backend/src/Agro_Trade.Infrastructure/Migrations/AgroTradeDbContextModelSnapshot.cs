@@ -59,7 +59,11 @@ namespace Agro_Trade.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
+<<<<<<< HEAD:Backend/src/Agro_Trade.Infrastructure/Persistence/Migrations/AgroTradeDbContextModelSnapshot.cs
+                            CreatedAt = new DateTime(2026, 10, 7, 2, 0, 24, 325, DateTimeKind.Utc).AddTicks(7742),
+=======
                             CreatedAt = new DateTime(2026, 10, 6, 4, 44, 28, 691, DateTimeKind.Utc).AddTicks(7271),
+>>>>>>> Staging:Backend/src/Agro_Trade.Infrastructure/Migrations/AgroTradeDbContextModelSnapshot.cs
                             IconClass = "icon-green-bg",
                             IconType = "user",
                             Title = "El productor 'Finca Los Pinos' se ha registrado en la plataforma"
@@ -67,7 +71,11 @@ namespace Agro_Trade.Infrastructure.Migrations
                         new
                         {
                             Id = 2,
+<<<<<<< HEAD:Backend/src/Agro_Trade.Infrastructure/Persistence/Migrations/AgroTradeDbContextModelSnapshot.cs
+                            CreatedAt = new DateTime(2026, 10, 7, 1, 5, 24, 325, DateTimeKind.Utc).AddTicks(7753),
+=======
                             CreatedAt = new DateTime(2026, 10, 6, 3, 49, 28, 691, DateTimeKind.Utc).AddTicks(7286),
+>>>>>>> Staging:Backend/src/Agro_Trade.Infrastructure/Migrations/AgroTradeDbContextModelSnapshot.cs
                             IconClass = "icon-blue-bg",
                             IconType = "check-circle",
                             Title = "Verificación aprobada para 'Transportes El Rápido'"
@@ -75,7 +83,11 @@ namespace Agro_Trade.Infrastructure.Migrations
                         new
                         {
                             Id = 3,
+<<<<<<< HEAD:Backend/src/Agro_Trade.Infrastructure/Persistence/Migrations/AgroTradeDbContextModelSnapshot.cs
+                            CreatedAt = new DateTime(2026, 10, 7, 0, 5, 24, 325, DateTimeKind.Utc).AddTicks(7758),
+=======
                             CreatedAt = new DateTime(2026, 10, 6, 2, 49, 28, 691, DateTimeKind.Utc).AddTicks(7292),
+>>>>>>> Staging:Backend/src/Agro_Trade.Infrastructure/Migrations/AgroTradeDbContextModelSnapshot.cs
                             IconClass = "icon-orange-bg",
                             IconType = "alert-circle",
                             Title = "Se ha reportado un problema con el pedido #1045"
@@ -83,13 +95,19 @@ namespace Agro_Trade.Infrastructure.Migrations
                         new
                         {
                             Id = 4,
+<<<<<<< HEAD:Backend/src/Agro_Trade.Infrastructure/Persistence/Migrations/AgroTradeDbContextModelSnapshot.cs
+                            CreatedAt = new DateTime(2026, 10, 6, 2, 5, 24, 325, DateTimeKind.Utc).AddTicks(7761),
+=======
                             CreatedAt = new DateTime(2026, 10, 5, 4, 49, 28, 691, DateTimeKind.Utc).AddTicks(7295),
+>>>>>>> Staging:Backend/src/Agro_Trade.Infrastructure/Migrations/AgroTradeDbContextModelSnapshot.cs
                             IconClass = "icon-purple-bg",
                             IconType = "layers",
                             Title = "Nueva categoría 'Frutas Tropicales' creada"
                         });
                 });
 
+<<<<<<< HEAD:Backend/src/Agro_Trade.Infrastructure/Persistence/Migrations/AgroTradeDbContextModelSnapshot.cs
+=======
             modelBuilder.Entity("Agro_Trade.Domain.Entities.Banco", b =>
                 {
                     b.Property<int>("IdBanco")
@@ -114,6 +132,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                     b.ToTable("banco", (string)null);
                 });
 
+>>>>>>> Staging:Backend/src/Agro_Trade.Infrastructure/Migrations/AgroTradeDbContextModelSnapshot.cs
             modelBuilder.Entity("Agro_Trade.Domain.Entities.Categoria", b =>
                 {
                     b.Property<int>("IdCategoria")
@@ -535,6 +554,10 @@ namespace Agro_Trade.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdPedido"));
 
+                    b.Property<string>("DireccionEnvio")
+                        .HasColumnType("text")
+                        .HasColumnName("direccion_envio");
+
                     b.Property<string>("EstadoEnvio")
                         .HasColumnType("text")
                         .HasColumnName("estado_envio");
@@ -550,6 +573,14 @@ namespace Agro_Trade.Infrastructure.Migrations
                     b.Property<int>("IdUsuarioCliente")
                         .HasColumnType("integer")
                         .HasColumnName("id_usuario_cliente");
+
+                    b.Property<double?>("Latitud")
+                        .HasColumnType("double precision")
+                        .HasColumnName("latitud");
+
+                    b.Property<double?>("Longitud")
+                        .HasColumnType("double precision")
+                        .HasColumnName("longitud");
 
                     b.Property<string>("MetodoPago")
                         .HasColumnType("text")
@@ -596,6 +627,10 @@ namespace Agro_Trade.Infrastructure.Migrations
                         .HasColumnName("id_producto");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdProducto"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("activo");
 
                     b.Property<string>("Descripcion")
                         .HasColumnType("text")
@@ -989,6 +1024,17 @@ namespace Agro_Trade.Infrastructure.Migrations
                         .HasColumnName("beneficios");
 
                     b.Property<decimal>("Coste")
+<<<<<<< HEAD:Backend/src/Agro_Trade.Infrastructure/Persistence/Migrations/AgroTradeDbContextModelSnapshot.cs
+                        .HasColumnType("numeric")
+                        .HasColumnName("coste");
+
+                    b.Property<string>("Descripcion")
+                        .HasColumnType("text")
+                        .HasColumnName("descripcion");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+=======
                         .HasColumnType("decimal(18,2)")
                         .HasColumnName("coste");
 
@@ -1002,10 +1048,24 @@ namespace Agro_Trade.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasDefaultValue(true)
+>>>>>>> Staging:Backend/src/Agro_Trade.Infrastructure/Migrations/AgroTradeDbContextModelSnapshot.cs
                         .HasColumnName("is_active");
 
                     b.Property<string>("NombrePlan")
                         .IsRequired()
+<<<<<<< HEAD:Backend/src/Agro_Trade.Infrastructure/Persistence/Migrations/AgroTradeDbContextModelSnapshot.cs
+                        .HasColumnType("text")
+                        .HasColumnName("nombre_plan");
+
+                    b.Property<decimal>("Precio")
+                        .HasColumnType("numeric")
+                        .HasColumnName("precio");
+
+                    b.HasKey("Id")
+                        .HasName("pk_tipo_planes");
+
+                    b.ToTable("tipo_planes", (string)null);
+=======
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("nombre_plan");
@@ -1149,6 +1209,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                             Factor = 1,
                             Nombre = "Tonelada"
                         });
+>>>>>>> Staging:Backend/src/Agro_Trade.Infrastructure/Migrations/AgroTradeDbContextModelSnapshot.cs
                 });
 
             modelBuilder.Entity("Agro_Trade.Domain.Entities.Usuario", b =>
@@ -1159,6 +1220,12 @@ namespace Agro_Trade.Infrastructure.Migrations
                         .HasColumnName("id_usuario");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdUsuario"));
+
+                    b.Property<string>("Apellidos")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("apellidos");
 
                     b.Property<string>("Departamento")
                         .HasMaxLength(30)
@@ -1190,6 +1257,16 @@ namespace Agro_Trade.Infrastructure.Migrations
                         .HasColumnName("identidad_verificada");
 
                     b.Property<string>("Municipio")
+<<<<<<< HEAD:Backend/src/Agro_Trade.Infrastructure/Persistence/Migrations/AgroTradeDbContextModelSnapshot.cs
+                        .HasColumnType("text")
+                        .HasColumnName("municipio");
+
+                    b.Property<string>("Nombres")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("nombres");
+=======
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)")
                         .HasColumnName("municipio");
@@ -1199,6 +1276,7 @@ namespace Agro_Trade.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("nombre");
+>>>>>>> Staging:Backend/src/Agro_Trade.Infrastructure/Migrations/AgroTradeDbContextModelSnapshot.cs
 
                     b.Property<string>("OAuthProvider")
                         .HasColumnType("text")

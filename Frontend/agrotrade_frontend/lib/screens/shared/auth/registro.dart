@@ -20,8 +20,10 @@ class Registro extends StatefulWidget {
 
 class _RegistroState extends State<Registro> {
   final TextEditingController _nombreController = TextEditingController();
-  final TextEditingController _primerApellidoController = TextEditingController();
-  final TextEditingController _segundoApellidoController = TextEditingController();
+  final TextEditingController _primerApellidoController =
+      TextEditingController();
+  final TextEditingController _segundoApellidoController =
+      TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmController = TextEditingController();
@@ -427,7 +429,9 @@ class _RegistroState extends State<Registro> {
                 const SizedBox(height: 16),
                 FormField<String>(
                   initialValue: _selectedDepartamento,
-                  validator: (v) => v == null || v.isEmpty ? 'El departamento es obligatorio' : null,
+                  validator: (v) => v == null || v.isEmpty
+                      ? 'El departamento es obligatorio'
+                      : null,
                   builder: (state) {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -440,10 +444,58 @@ class _RegistroState extends State<Registro> {
                             hint: 'Selecciona el departamento',
                             errorText: state.errorText,
                           ),
-                          items: _departamentosNicaragua.map((d) => DropdownMenuItem(
-                            value: d,
-                            child: Text(d, overflow: TextOverflow.ellipsis, maxLines: 1),
-                          )).toList(),
+                          items: _departamentosNicaragua
+                              .map(
+                                (d) => DropdownMenuItem(
+                                  value: d,
+                                  child: Text(
+                                    d,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (v) {
+                            setState(() => _selectedDepartamento = v);
+                            state.didChange(v);
+                          },
+                          menuMaxHeight: 300,
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 16),
+                FormField<String>(
+                  initialValue: _selectedDepartamento,
+                  validator: (v) => v == null || v.isEmpty
+                      ? 'El departamento es obligatorio'
+                      : null,
+                  builder: (state) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        DropdownButtonFormField<String>(
+                          value: _selectedDepartamento,
+                          isExpanded: true,
+                          decoration: appInputDecoration(
+                            label: 'Departamento *',
+                            hint: 'Selecciona el departamento',
+                            errorText: state.errorText,
+                          ),
+                          items: _departamentosNicaragua
+                              .map(
+                                (d) => DropdownMenuItem(
+                                  value: d,
+                                  child: Text(
+                                    d,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              )
+                              .toList(),
                           onChanged: (v) {
                             setState(() => _selectedDepartamento = v);
                             state.didChange(v);

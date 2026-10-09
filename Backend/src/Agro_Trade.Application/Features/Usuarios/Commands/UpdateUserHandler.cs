@@ -44,6 +44,7 @@ namespace Agro_Trade.Application.Features.Usuarios.Commands
             if (!string.IsNullOrEmpty(dto.Municipio)) user.Municipio = dto.Municipio;
             if (!string.IsNullOrEmpty(dto.Telefono)) user.Telefono = dto.Telefono;
             if (!string.IsNullOrEmpty(dto.Departamento)) user.Departamento = dto.Departamento;
+            if (!string.IsNullOrEmpty(dto.Municipio)) user.Municipio = dto.Municipio;
 
 
             await context.SaveChangesAsync(ct);

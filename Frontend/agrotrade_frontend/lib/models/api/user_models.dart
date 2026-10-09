@@ -32,32 +32,38 @@ class CreateUserRequestDto {
     'Email': email,
     'Password': password,
     if (telefono != null && telefono!.isNotEmpty) 'Telefono': telefono,
-    if (direccionBase != null && direccionBase!.isNotEmpty) 'DireccionExacta': direccionBase,
-    if (departamento != null && departamento!.isNotEmpty) 'Departamento': departamento,
+    if (direccionBase != null && direccionBase!.isNotEmpty)
+      'DireccionExacta': direccionBase,
+    if (departamento != null && departamento!.isNotEmpty)
+      'Departamento': departamento,
     if (municipio != null && municipio!.isNotEmpty) 'Municipio': municipio,
     if (idRol != null) 'IdRol': idRol,
   };
 }
 
 class UpdateUserRequestDto {
-  final String? nombreCompleto;
+  final String? nombres;
+  final String? apellidos;
   final String? email;
   final String? telefono;
   final String? direccionBase;
   final String? departamento;
+  final String? municipio;
 
   const UpdateUserRequestDto({
-    this.nombreCompleto,
+    this.nombres,
+    this.apellidos,
     this.email,
     this.telefono,
     this.direccionBase,
     this.departamento,
+    this.municipio,
   });
 
   // Split nombreCompleto into Nombre, PrimerApellido, SegundoApellido
   // Mapea direccionBase -> DireccionExacta, departamento -> Departamento
   Map<String, dynamic> toJsonForUpdate() {
-    final parts = (nombreCompleto ?? '').trim().split(RegExp(r'\s+'));
+    final parts = (nombres ?? '').trim().split(RegExp(r'\s+'));
     String nombre = '';
     String primerApellido = '';
     String segundoApellido = '';
@@ -80,8 +86,10 @@ class UpdateUserRequestDto {
       'SegundoApellido': segundoApellido,
       if (email != null && email!.isNotEmpty) 'Email': email,
       if (telefonoLimpio.isNotEmpty) 'Telefono': telefonoLimpio,
-      if (departamento != null && departamento!.isNotEmpty) 'Departamento': departamento,
-      if (direccionBase != null && direccionBase!.isNotEmpty) 'DireccionExacta': direccionBase,
+      if (departamento != null && departamento!.isNotEmpty)
+        'Departamento': departamento,
+      if (direccionBase != null && direccionBase!.isNotEmpty)
+        'DireccionExacta': direccionBase,
     };
   }
 }
@@ -109,6 +117,7 @@ class UserDto {
   final String? telefono;
   final String? direccionBase;
   final String? departamento;
+  final String? municipio;
   final String estadoCuenta;
   final DateTime? fechaRegistro;
   final List<String> roles;
@@ -121,6 +130,7 @@ class UserDto {
     this.telefono,
     this.direccionBase,
     this.departamento,
+    this.municipio,
     this.estadoCuenta = '',
     this.fechaRegistro,
     this.roles = const [],

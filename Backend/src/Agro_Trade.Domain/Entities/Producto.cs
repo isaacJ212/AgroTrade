@@ -21,6 +21,10 @@ namespace Agro_Trade.Domain.Entities
         [MaxLength(200)]
         public string Nombre { get; set; } = null!;
 
+        // Jafet: Se agregó esta propiedad para hacer el borrado lógico (Soft Delete) de los productos
+        public bool Activo { get; set; } = true;
+
+       
         public string? Descripcion { get; set; }
 
         public int IdUnidadDeMedida { get; set; }

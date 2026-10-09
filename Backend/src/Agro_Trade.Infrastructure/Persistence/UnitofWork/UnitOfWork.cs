@@ -75,7 +75,7 @@ namespace Agro_Trade.Infrastructure.Persistence.UnitofWork
         public IRepository<ConversacionParticipante> ConversacionParticipantes => _ConversacionParticipanteRepository;
         public IRepository<Mensaje> Mensajes => _mensajeRepository;
         public IRepository<Banco> Bancos => _banco;
-        public IRepository<CuentaBancaria> CuentasBancaria => _cuentaBancaria;
+        public IRepository<CuentaBancaria> CuentasBancarias => _cuentaBancaria;
         public IRepository<UnidadDeMedida> UnidadesDeMedida => _unidadesDeMedida;
 
 

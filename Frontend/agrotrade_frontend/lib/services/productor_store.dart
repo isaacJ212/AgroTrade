@@ -423,6 +423,22 @@ class ProductorStore extends ChangeNotifier {
             'Barrio San Antonio, Jinotepe',
             'Masaya, Masaya',
           ][i],
+          latitud: [
+            11.8499,
+            11.8580,
+            11.8480,
+            11.9054,
+            11.8450,
+            11.9744,
+          ][i],
+          longitud: [
+            -86.1990,
+            -86.2386,
+            -86.2000,
+            -86.2036,
+            -86.1950,
+            -86.0942,
+          ][i],
           nota: i == 0
               ? 'Casa de portón verde, frente al parque.'
               : i == 4

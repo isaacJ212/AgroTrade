@@ -21,6 +21,7 @@ namespace Agro_Trade.Infrastructure.Persistence
         public DbSet<Producto> Productos { get; set; } = null!;
         public DbSet<InventarioProveedor> InventarioProveedor { get; set; } = null!;
         public DbSet<SuscripcionApp> SuscripcionesApp { get; set; } = null!;
+        public DbSet<TipoPlan> TipoPlanes { get; set; } = null!;
         public DbSet<Pedido> Pedidos { get; set; } = null!;
         public DbSet<RegistroTransferencia> RegistrosTransferencia { get; set; } = null!;
         public DbSet<DetallePedido> DetallesPedido { get; set; } = null!;
@@ -35,9 +36,8 @@ namespace Agro_Trade.Infrastructure.Persistence
         public DbSet<Repartidor> Repartidor { get; set; } = null!;  
         public DbSet<Actividad> Actividades { get; set; } = null!;
         public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
-        
-        //Tablas Agregadas despues de refactorizacion
-        public DbSet<TipoPlan> TipoPlan { get; set; } = null!;
+        public DbSet<Banco> Bancos { get; set; } = null!;
+        public DbSet<CuentaBancaria> CuentasBancarias { get; set; } = null!;
         public DbSet<UnidadDeMedida> UnidadDeMedida { get; set; } = null!;
 
 

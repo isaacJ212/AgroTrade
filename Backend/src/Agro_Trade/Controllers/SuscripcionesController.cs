@@ -56,14 +56,49 @@ namespace Agro_Trade.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>
-        /// Obtiene los tipos de planes de suscripción activos.
-        /// </summary>
+        // Jafet: Se añadieron los Endpoints para el panel de administración web
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAll([FromQuery] int? roleId = null, CancellationToken ct = default)
+        {
+            // Note: Updated GetAllSuscripcionesQuery might not take roleId anymore depending on the implementation
+            var result = await _mediator.Send(new GetAllSuscripcionesQuery(), ct);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpGet("transacciones")]
+        public async Task<IActionResult> GetTransacciones(CancellationToken ct = default)
+        {
+            var result = await _mediator.Send(new GetTransaccionesSuscripcionQuery(), ct);
+            return StatusCode(result.StatusCode, result);
+        }
+
         [HttpGet("planes")]
         public async Task<IActionResult> GetPlanes(CancellationToken ct = default)
         {
-            var result = await _mediator.Send(new GetTiposPlanesQuery(), ct);
+            var result = await _mediator.Send(new Agro_Trade.Application.Features.TipoPlanes.Queries.GetTipoPlanesQuery(), ct);
             return StatusCode(result.StatusCode, result);
         }
+
+        [HttpPost("planes")]
+        public async Task<IActionResult> CreatePlan([FromBody] Agro_Trade.Application.Features.TipoPlanes.Commands.CreateTipoPlanDto dto, CancellationToken ct = default)
+        {
+            var result = await _mediator.Send(new Agro_Trade.Application.Features.TipoPlanes.Commands.CreateTipoPlanCommand(dto), ct);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPut("planes")]
+        public async Task<IActionResult> UpdatePlan([FromBody] Agro_Trade.Application.Features.TipoPlanes.Commands.UpdateTipoPlanDto dto, CancellationToken ct = default)
+        {
+            var result = await _mediator.Send(new Agro_Trade.Application.Features.TipoPlanes.Commands.UpdateTipoPlanCommand(dto), ct);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpGet("metrics")]
+        public async Task<IActionResult> GetMetrics(CancellationToken ct = default)
+        {
+            var result = await _mediator.Send(new GetSuscripcionesMetricsQuery(), ct);
+            return StatusCode(result.StatusCode, result);
+        }
+
     }
 }

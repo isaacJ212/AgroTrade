@@ -64,7 +64,8 @@ class _DatosPersonalesProductorState extends State<DatosPersonalesProductor> {
           }
           if (user.direccionBase != null && user.direccionBase!.isNotEmpty) {
             _ubicacion.text = user.direccionBase!;
-          } else if (user.departamento != null && user.departamento!.isNotEmpty) {
+          } else if (user.departamento != null &&
+              user.departamento!.isNotEmpty) {
             _ubicacion.text = user.departamento!;
           }
         });
@@ -129,7 +130,7 @@ class _DatosPersonalesProductorState extends State<DatosPersonalesProductor> {
         await UsersApiService.instance.updateUser(
           userId: int.parse(userId),
           dto: UpdateUserRequestDto(
-            nombreCompleto: nombre,
+            nombres: nombre,
             email: correo,
             telefono: telefono,
             direccionBase: ubicacion,
@@ -137,7 +138,9 @@ class _DatosPersonalesProductorState extends State<DatosPersonalesProductor> {
         );
       }
     } catch (e) {
-      print('DEBUG: [datosPersonalesProductor] Error al sincronizar con backend: $e');
+      print(
+        'DEBUG: [datosPersonalesProductor] Error al sincronizar con backend: $e',
+      );
     } finally {
       if (mounted) setState(() => _cargando = false);
     }

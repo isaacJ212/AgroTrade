@@ -16,6 +16,7 @@ import '../screens/shared/editarPerfil.dart';
 import '../screens/shared/notificaciones.dart';
 import '../screens/shared/centroAyuda.dart';
 import '../screens/shared/chat_screen.dart';
+import '../screens/shared/planes_suscripcion.dart';
 
 // ── AgroBot ───────────────────────────────────────────────────────────────────
 import '../screens/shared/agrobot/agrobot_welcome.dart';
@@ -132,6 +133,9 @@ class AppRouter {
 
       case AppRoutes.centroAyuda:
         return _slide(const CentroAyuda());
+
+      case AppRoutes.planesSuscripcion:
+        return _slide(const PlanesSuscripcionScreen());
 
       // ── AgroBot ──────────────────────────────────────────────────────────
       case AppRoutes.agrobotWelcome:

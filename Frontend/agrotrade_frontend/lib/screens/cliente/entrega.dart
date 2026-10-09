@@ -3,6 +3,9 @@ import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
 import 'carrito.dart';
 import 'pago.dart';
+import '../../services/users_api_service.dart';
+import '../../services/api_session.dart';
+import '../../models/api/user_models.dart';
 
 class _Direccion {
   final String alias;
@@ -25,34 +28,130 @@ class EntregaScreen extends StatefulWidget {
 
 class _EntregaScreenState extends State<EntregaScreen> {
   bool _entregaDomicilio = true;
+  bool _cargandoDireccion = true;
+  String? _errorDireccion;
 
-  final List<_Direccion> _direcciones = const [
-    _Direccion(
-      alias: 'Casa',
-      ciudad: 'Jinotepe, Carazo',
-      detalle: 'Barrio San Felipe, De la iglesia 2c al sur',
-    ),
-  ];
+  List<_Direccion> _direcciones = [];
 
   int _selDireccion = 0;
 
   final TextEditingController _indicacionesCtrl = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    print('DEBUG [EntregaScreen] initState - Cargando datos del usuario logueado...');
+    _cargarDireccionUsuario();
+  }
+
+  Future<void> _cargarDireccionUsuario() async {
+    try {
+      final userIdStr = ApiSession.instance.userId;
+      print('DEBUG [EntregaScreen] userId desde sesión: $userIdStr');
+      
+      if (userIdStr == null || userIdStr.isEmpty) {
+        print('DEBUG [EntregaScreen] userId NULL. Usando fallback hardcodeado.');
+        _usarFallback();
+        return;
+      }
+
+      final userId = int.tryParse(userIdStr);
+      if (userId == null) {
+        print('DEBUG [EntregaScreen] userId no es int: $userIdStr. Fallback.');
+        _usarFallback();
+        return;
+      }
+
+      print('DEBUG [EntregaScreen] Llamando UsersApiService.getUserById($userId)...');
+      final UserDto user = await UsersApiService.instance.getUserById(userId);
+      print('DEBUG [EntregaScreen] Usuario cargado OK: name=${user.name}, email=${user.email}');
+      print('DEBUG [EntregaScreen] Campos dirección: direccionBase=${user.direccionBase}, depto=${user.departamento}, muni=${user.municipio}');
+
+      final List<_Direccion> dirs = [];
+
+      final tieneDireccion = (user.direccionBase != null && user.direccionBase!.isNotEmpty) ||
+          (user.departamento != null && user.departamento!.isNotEmpty) ||
+          (user.municipio != null && user.municipio!.isNotEmpty);
+
+      if (tieneDireccion) {
+        final ciudadPartes = <String>[];
+        if (user.municipio?.isNotEmpty == true) ciudadPartes.add(user.municipio!);
+        if (user.departamento?.isNotEmpty == true) ciudadPartes.add(user.departamento!);
+        final ciudad = ciudadPartes.isEmpty ? 'Sin ubicación registrada' : ciudadPartes.join(', ');
+        final detalle = (user.direccionBase?.isNotEmpty == true)
+            ? user.direccionBase!
+            : 'Sin detalles adicionales de dirección.';
+
+        dirs.add(_Direccion(alias: 'Casa', ciudad: ciudad, detalle: detalle));
+        print('DEBUG [EntregaScreen] Dirección PRINCIPAL creada: ciudad=$ciudad, detalle=$detalle');
+      } else {
+        print('DEBUG [EntregaScreen] Usuario NO tiene dirección registrada. Mostrando placeholder + fallback Jinotepe.');
+        dirs.add(const _Direccion(
+          alias: 'Mi dirección',
+          ciudad: 'Toque para agregar',
+          detalle: 'Pulsa el ícono ✏️ para registrar tu dirección de entrega.',
+        ));
+        dirs.add(const _Direccion(
+          alias: 'Casa (Demo)',
+          ciudad: 'Jinotepe, Carazo',
+          detalle: 'Barrio San Felipe, De la iglesia 2c al sur',
+        ));
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _direcciones = dirs;
+        _selDireccion = 0;
+        _cargandoDireccion = false;
+      });
+      print('DEBUG [EntregaScreen] Direcciones cargadas: ${dirs.length}. Seleccionada índice 0.');
+    } catch (e, stack) {
+      print('DEBUG [EntregaScreen] ERROR cargando dirección de usuario: $e');
+      print('DEBUG [EntregaScreen] StackTrace: $stack');
+      _usarFallback(error: 'Error al cargar datos: $e');
+    }
+  }
+
+  void _usarFallback({String? error}) {
+    print('DEBUG [EntregaScreen] Usando dirección fallback (hardcodeada Jinotepe, Carazo).');
+    if (!mounted) return;
+    setState(() {
+      _direcciones = const [
+        _Direccion(
+          alias: 'Casa',
+          ciudad: 'Jinotepe, Carazo',
+          detalle: 'Barrio San Felipe, De la iglesia 2c al sur',
+        ),
+      ];
+      _selDireccion = 0;
+      _cargandoDireccion = false;
+      _errorDireccion = error;
+    });
+  }
+
+  @override
   void dispose() {
+    print('DEBUG [EntregaScreen] dispose()');
     _indicacionesCtrl.dispose();
     super.dispose();
   }
 
   void _agregarDireccion() {
+    print('DEBUG [EntregaScreen] _agregarDireccion - Navegando a /comprador/direccion/formulario');
     Navigator.pushNamed(context, '/comprador/direccion/formulario');
   }
 
   void _editarDireccion(int index) {
+    print('DEBUG [EntregaScreen] _editarDireccion - Índice $index (alias: ${_direcciones[index].alias})');
     Navigator.pushNamed(context, '/comprador/direccion/formulario');
   }
 
   void _continuarAlPago() {
+    final metodo = _entregaDomicilio ? 'Domicilio' : 'Retiro en finca';
+    final dirSel = _entregaDomicilio && _direcciones.isNotEmpty && _selDireccion < _direcciones.length
+        ? '${_direcciones[_selDireccion].alias} - ${_direcciones[_selDireccion].ciudad}'
+        : 'N/A';
+    print('DEBUG [EntregaScreen] _continuarAlPago - Método=$metodo, Dirección=$dirSel, Indicaciones="${_indicacionesCtrl.text.trim()}"');
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const PagoScreen()),
@@ -91,14 +190,20 @@ class _EntregaScreenState extends State<EntregaScreen> {
                     selected: _entregaDomicilio,
                     icon: Icons.local_shipping_outlined,
                     label: 'Entrega a domicilio',
-                    onTap: () => setState(() => _entregaDomicilio = true),
+                    onTap: () {
+                      print('DEBUG [EntregaScreen] Tocado: Entrega a domicilio');
+                      setState(() => _entregaDomicilio = true);
+                    },
                   ),
                   const SizedBox(height: 10),
                   _MetodoEntregaTile(
                     selected: !_entregaDomicilio,
                     icon: Icons.storefront_outlined,
                     label: 'Retiro en finca',
-                    onTap: () => setState(() => _entregaDomicilio = false),
+                    onTap: () {
+                      print('DEBUG [EntregaScreen] Tocado: Retiro en finca');
+                      setState(() => _entregaDomicilio = false);
+                    },
                   ),
 
                
@@ -134,6 +239,7 @@ class _EntregaScreenState extends State<EntregaScreen> {
           if (Navigator.canPop(context)) {
             Navigator.pop(context);
           } else {
+            print('DEBUG [EntregaScreen] No hay pop, navegando a CarritoScreen');
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (_) => const CarritoScreen()),
@@ -190,16 +296,55 @@ class _EntregaScreenState extends State<EntregaScreen> {
         ),
         const SizedBox(height: 12),
 
-        ...List.generate(_direcciones.length, (i) {
-          final d = _direcciones[i];
-          final bool sel = _selDireccion == i;
-          return _DireccionCard(
-            direccion: d,
-            selected: sel,
-            onTap: () => setState(() => _selDireccion = i),
-            onEdit: () => _editarDireccion(i),
-          );
-        }),
+        if (_cargandoDireccion)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 20),
+              child: SizedBox(
+                width: 24, height: 24,
+                child: CircularProgressIndicator(color: AppColors.primaryColor, strokeWidth: 2.5),
+              ),
+            ),
+          )
+        else
+          ...List.generate(_direcciones.length, (i) {
+            final d = _direcciones[i];
+            final bool sel = _selDireccion == i;
+            return _DireccionCard(
+              direccion: d,
+              selected: sel,
+              onTap: () {
+                print('DEBUG [EntregaScreen] Dirección tocada: índice $i (${d.alias})');
+                setState(() => _selDireccion = i);
+              },
+              onEdit: () => _editarDireccion(i),
+            );
+          }),
+
+        if (_errorDireccion != null && !_cargandoDireccion) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.amberSoft,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.warning.withOpacity(0.3)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.warning_amber_rounded, color: AppColors.warning, size: 18),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Cargando dirección predeterminada. $_errorDireccion',
+                    style: const TextStyle(fontSize: 12, color: AppColors.warning, height: 1.4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -296,7 +441,10 @@ class _EntregaScreenState extends State<EntregaScreen> {
               width: double.infinity,
               height: 50,
               child: OutlinedButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () {
+                  print('DEBUG [EntregaScreen] Botón: Volver al carrito');
+                  Navigator.of(context).pop();
+                },
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primaryColor,
                   side: const BorderSide(

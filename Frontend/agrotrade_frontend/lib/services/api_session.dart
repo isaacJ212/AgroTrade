@@ -22,14 +22,14 @@ class ApiSession {
   String? userLocation;
   String? userId;
   List<String> roles = [];
-  
+
   // Estado de verificación del repartidor
   RepartidorEstado? repartidorEstado;
 
   bool get isAuthenticated => token != null && token!.isNotEmpty;
-  
+
   /// Verifica si el usuario es repartidor y está verificado
-  bool get isRepartidorVerificado => 
+  bool get isRepartidorVerificado =>
       roles.contains('Repartidor') && repartidorEstado?.estaVerificado == true;
 
   Future<void> setAuth({
@@ -50,7 +50,8 @@ class ApiSession {
         ? userEmail
         : _extractEmail(token);
     if (userPhone != null && userPhone.isNotEmpty) this.userPhone = userPhone;
-    if (userLocation != null && userLocation.isNotEmpty) this.userLocation = userLocation;
+    if (userLocation != null && userLocation.isNotEmpty)
+      this.userLocation = userLocation;
     this.roles = roles.isNotEmpty ? roles : _extractRoles(token);
     userId = userIdOverride ?? _extractUserId(token);
     this.refreshToken = refreshToken;
@@ -203,14 +204,18 @@ class ApiSession {
       if (parts.length != 3) return null;
       String payload = parts[1].replaceAll('-', '+').replaceAll('_', '/');
       switch (payload.length % 4) {
-        case 2: payload += '=='; break;
-        case 3: payload += '='; break;
+        case 2:
+          payload += '==';
+          break;
+        case 3:
+          payload += '=';
+          break;
       }
       final decoded = utf8.decode(base64Url.decode(payload));
       final json = jsonDecode(decoded);
-      return json['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress']
-          ?? json['email']
-          ?? json['mail'];
+      return json['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] ??
+          json['email'] ??
+          json['mail'];
     } catch (_) {
       return null;
     }
@@ -223,14 +228,18 @@ class ApiSession {
       if (parts.length != 3) return null;
       String payload = parts[1].replaceAll('-', '+').replaceAll('_', '/');
       switch (payload.length % 4) {
-        case 2: payload += '=='; break;
-        case 3: payload += '='; break;
+        case 2:
+          payload += '==';
+          break;
+        case 3:
+          payload += '=';
+          break;
       }
       final decoded = utf8.decode(base64Url.decode(payload));
       final json = jsonDecode(decoded);
-      return json['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name']
-          ?? json['name']
-          ?? json['unique_name'];
+      return json['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] ??
+          json['name'] ??
+          json['unique_name'];
     } catch (_) {
       return null;
     }

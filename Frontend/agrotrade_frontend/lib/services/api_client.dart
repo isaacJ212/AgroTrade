@@ -126,6 +126,13 @@ class ApiClient {
     // Agregar campos de texto
     request.fields.addAll(fields);
 
+    // Agregar archivos
+    files.forEach((fieldName, bytes) {
+      final fileName = fileNames[fieldName] ?? 'file';
+      request.files.add(
+        http.MultipartFile.fromBytes(fieldName, bytes, filename: fileName),
+      );
+    });
     // Agregar archivos usando fromPath con Content-Type explícito
     for (final entry in filePaths.entries) {
       try {

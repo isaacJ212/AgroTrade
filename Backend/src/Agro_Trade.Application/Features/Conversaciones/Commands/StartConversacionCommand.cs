@@ -35,6 +35,22 @@ namespace Agro_Trade.Application.Features.Conversaciones.Commands
                 return Result<int>.Success(200, conversacionExistente.IdConversacion, "La conversación ya existía.", true);
             }
 
+            // Validar que ambos usuarios existan antes de insertar (evita el FK violación)
+            var idCliente = request.Dto.IdUsuarioCliente;
+            var idReceptor = request.Dto.IdUsuarioReceptor;
+
+            var clienteExiste = await _unitOfWork.Users.AnyAsync(u => u.IdUsuario == idCliente, ct);
+            if (!clienteExiste)
+                return Result<int>.Failure(404, $"El usuario cliente con id {idCliente} no existe.");
+
+            var receptorExiste = await _unitOfWork.Users.AnyAsync(u => u.IdUsuario == idReceptor, ct);
+            if (!receptorExiste)
+                return Result<int>.Failure(404, $"El usuario receptor con id {idReceptor} no existe.");
+
+            // Si ambos ids son iguales y no hay más de 2 participantes, seguimos igual pero
+            // para evitar rows duplicadas en participantes:
+            var idsUnicos = new HashSet<int> { idCliente, idReceptor };
+
             
             await _unitOfWork.BeginTransactionAsync(ct);
 
@@ -49,12 +65,15 @@ namespace Agro_Trade.Application.Features.Conversaciones.Commands
                 await _unitOfWork.Conversaciones.AddAsync(nuevaConversacion, ct);
                 await _unitOfWork.SaveChangesAsync(ct); 
 
-                // 3. Crear los participantes
-                var participantes = new List<ConversacionParticipante>
+                var participantes = new List<ConversacionParticipante>();
+                foreach (var uid in idsUnicos)
                 {
-                    new ConversacionParticipante { IdConversacion = nuevaConversacion.IdConversacion, IdUsuario = request.Dto.IdUsuarioCliente },
-                    new ConversacionParticipante { IdConversacion = nuevaConversacion.IdConversacion, IdUsuario = request.Dto.IdUsuarioReceptor }
-                };
+                    participantes.Add(new ConversacionParticipante
+                    {
+                        IdConversacion = nuevaConversacion.IdConversacion,
+                        IdUsuario = uid
+                    });
+                }
 
                 
                 foreach (var participante in participantes)
@@ -67,10 +86,10 @@ namespace Agro_Trade.Application.Features.Conversaciones.Commands
 
                 return Result<int>.Success(201, nuevaConversacion.IdConversacion, "Conversación iniciada con éxito.", true);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync(ct); 
-                return Result<int>.Failure(500, "Ocurrió un error al iniciar la conversación.");
+                return Result<int>.Failure(500, $"Ocurrió un error al iniciar la conversación: {ex.Message}");
             }
 
         }

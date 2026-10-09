@@ -15,6 +15,9 @@ namespace Agro_Trade.Application.Features.Pedidos.Queries
         public string? EstadoEnvio { get; set; }
         public string? EstadoPago { get; set; }
         public string? MetodoPago { get; set; }
+        public string? DireccionEnvio { get; set; }
+        public double? Latitud { get; set; }
+        public double? Longitud { get; set; }
         public string NombreCliente { get; set; } = string.Empty;
         public int IdUsuarioCliente { get; set; }
         public ICollection<DetallePedidoDto> Detalles { get; set; } = new List<DetallePedidoDto>();

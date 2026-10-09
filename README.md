@@ -178,18 +178,18 @@ El sistema se divide en los siguientes módulos, cada uno con sus propios Comman
 
 | Módulo | Controller | Funcionalidad |
 |---|---|---|
-| Auth | `AuthController` | Login, registro, Google OAuth, verificación de email |
-| Usuarios | `UsersController` | CRUD de usuarios, perfil |
+| Auth | `AuthController` | Login, registro detallado (separación de nombres, municipio, dirección), Google OAuth, verificación |
+| Usuarios | `UsersController` | CRUD de usuarios, perfil dinámico |
 | Proveedores | `ProveedoresController` | Registro y gestión de productores |
 | Categorías | `CategoriasController` | Categorías de productos |
-| Productos | `ProductosController` | Catálogo de productos |
+| Productos | `ProductosController` | Catálogo de productos (actualización y baja lógica / soft delete) |
 | Inventario | `InventariosController` | Stock, precios, fotos, ofertas de excedente |
 | Pedidos | — | Creación y gestión de pedidos multi-proveedor |
 | Entregas | `DeliveryJobRequestController` | Cola y asignación de repartidores |
 | Valoraciones | `ValoracionesController` | Calificaciones de pedidos |
 | Impacto Social | `ImpactosSocialesController` | Registro de productos salvados y beneficio extra |
-| Conversaciones | `ConversacionesController` y `ChatHub` | Chat interno por pedido (REST + SignalR/WebSockets) |
-| Suscripciones | `SuscripcionesController` | Planes y pagos de suscripción |
+| Conversaciones | `ConversacionesController` y `ChatHub` | Chat interno por pedido (REST + SignalR/WebSockets con modo offline/fallback) |
+| Suscripciones | `SuscripcionesController` | Planes y pagos de suscripción (incluye integración con Admin Panel Web) |
 
 ### Flujo principal: ciclo de vida de un pedido
 
@@ -249,6 +249,7 @@ Las migraciones aplicadas hasta la fecha son:
 3. `Cola_Solicitudes` — tabla de solicitudes de repartidor
 4. `ImpactoSocial` — tabla de impacto social
 5. `UpdateValoraciones` — ajuste en valoraciones
+6. `AddProductoActivo` y Ajustes a `Usuario` — Soft delete para productos, municipio/dirección, y división de nombres
 
 ### Diagrama Entidad-Relación
 
@@ -256,7 +257,11 @@ Las migraciones aplicadas hasta la fecha son:
 erDiagram
     usuarios {
         int id_usuario PK
-        varchar nombre_completo
+        varchar nombre
+        varchar primer_apellido
+        varchar segundo_apellido
+        varchar municipio
+        varchar direccion_exacta
         varchar email
         text password_hash
         boolean identidad_verificada
@@ -309,6 +314,7 @@ erDiagram
         varchar nombre
         text descripcion
         varchar unidad_medida
+        boolean activo
     }
 
     inventario_proveedor {
@@ -542,7 +548,8 @@ Agro_Trade/
 │       └── agro_backend.sql                # Script SQL de la base de datos
 │
 └── Frontend/
-    └── (Flutter — en desarrollo)
+    ├── agrotrade_frontend/           # App móvil en Flutter (Consumidores, Productores y Repartidores)
+    └── AgroTrade_Admin/              # Panel Administrativo Web (HTML, CSS, JS) para gestión y suscripciones
 ```
 
 ### Convenciones de código

@@ -2,6 +2,8 @@ namespace Agro_Trade.Application.Common.Interface
 {
     public interface IEmailService
     {
+        
+        Task SendSubscriptionReceiptAsync(string toEmail, string planName, string price, CancellationToken ct = default);
         Task SendVerificationCodeAsync(string toEmail, string code, string subject, string title, string description, CancellationToken ct = default);
         
         /// <summary>

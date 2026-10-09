@@ -60,7 +60,9 @@ namespace Agro_Trade.Application.Features.Auth
 
                 user = new Agro_Trade.Domain.Entities.Usuario
                 {
-                    Nombre = payload.GivenName ?? payload.Name, PrimerApellido = payload.FamilyName ?? "", SegundoApellido = "",
+                    Nombre = payload.GivenName ?? (partes.Length > 0 ? partes[0] : payload.Name ?? ""),
+                    PrimerApellido = payload.FamilyName ?? (partes.Length > 1 ? partes[1] : ""),
+                    SegundoApellido = partes.Length > 2 ? string.Join(" ", partes.Skip(2)) : "",
                     Email = payload.Email,
                     OAuthProvider = "Google",
                     OAuthProviderId = payload.Subject,
