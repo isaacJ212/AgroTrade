@@ -33,7 +33,7 @@ namespace Agro_Trade.Application.Common.Interface
         IRepository<Conversacion> Conversaciones {get;}
         IRepository<ConversacionParticipante> ConversacionParticipantes {get;}
         IRepository<Mensaje> Mensajes {get;}
-        IRepository<CuentaBancaria> CuentasBancaria {get;}
+        IRepository<CuentaBancaria> CuentasBancarias {get;}
         IRepository<Banco> Bancos { get; }
         IRepository<UnidadDeMedida> UnidadesDeMedida { get; }
     }

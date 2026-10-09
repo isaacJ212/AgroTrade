@@ -33,5 +33,7 @@ namespace Agro_Trade.Domain.Entities
         public virtual ICollection<Pedido> Pedidos { get; set; } = new List<Pedido>();
         public virtual ICollection<UsuarioRol> UsuariosRoles { get; set; } = new List<UsuarioRol>();
         public virtual ICollection<ConversacionParticipante> ConversacionParticipantes { get; set; } = new List<ConversacionParticipante>();
+        public virtual ICollection<Valoracion> ValoracionesRealizadas { get; set; } = new List<Valoracion>();
+        public virtual ICollection<Valoracion> ValoracionesRecibidas { get; set; } = new List<Valoracion>();
     }
 }

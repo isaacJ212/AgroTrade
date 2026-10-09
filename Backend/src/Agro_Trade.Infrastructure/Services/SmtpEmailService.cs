@@ -168,10 +168,17 @@ namespace Agro_Trade.Infrastructure.Services
 
         public async Task SendSubscriptionReceiptAsync(string toEmail, string planName, string price, CancellationToken ct = default)
         {
-            var apiKey = _configuration["Mailjet:ApiKey"];
-            var secretKey = _configuration["Mailjet:SecretKey"];
-            var emailSender = _configuration["Mailjet:EmailSender"];
-            var fromName = _configuration["Mailjet:FromName"] ?? "AgroTrade";
+            var smtpLogin = _configuration["GmailSmtp:SmtpLogin"];
+            var smtpPassword = _configuration["GmailSmtp:SmtpPassword"];
+            var emailSender = _configuration["GmailSmtp:EmailSender"];
+            var fromName = _configuration["GmailSmtp:FromName"] ?? "AgroTrade";
+            var smtpHost = _configuration["GmailSmtp:SmtpHost"] ?? "smtp.gmail.com";
+            var smtpPortString = _configuration["GmailSmtp:SmtpPort"] ?? "587";
+
+            if (!int.TryParse(smtpPortString, out int smtpPort))
+            {
+                smtpPort = 587;
+            }
 
             var emailContent = $@"
                 <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 12px;'>
@@ -179,41 +186,39 @@ namespace Agro_Trade.Infrastructure.Services
                     <p style='color: #475569; font-size: 16px;'>Hola,</p>
                     <p style='color: #475569; font-size: 16px;'>Tu suscripción a AgroTrade se ha procesado exitosamente.</p>
                     <div style='background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 20px 0;'>
-                        <p style='color: #475569; font-size: 16px;'><strong>Plan:</strong> {planName}</p>
-                        <p style='color: #475569; font-size: 16px;'><strong>Total Pagado:</strong> C${price}</p>
+                        <p style='color: #475569; font-size: 16px;'><strong>Plan:</strong> {WebUtility.HtmlEncode(planName)}</p>
+                        <p style='color: #475569; font-size: 16px;'><strong>Total Pagado:</strong> C${WebUtility.HtmlEncode(price)}</p>
                     </div>
                     <p style='color: #475569; font-size: 16px;'>Gracias por confiar en nosotros.</p>
                 </div>";
 
-            if (string.IsNullOrWhiteSpace(apiKey) || string.IsNullOrWhiteSpace(secretKey))
+            if (string.IsNullOrWhiteSpace(smtpLogin) || string.IsNullOrWhiteSpace(smtpPassword))
             {
-                throw new InvalidOperationException("Las credenciales de Mailjet no están configuradas en appsettings.json");
+                throw new InvalidOperationException("Las credenciales de Gmail SMTP no están configuradas en appsettings.json");
             }
 
-            var client = new MailjetClient(apiKey, secretKey);
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(fromName, emailSender));
+            message.To.Add(new MailboxAddress("", toEmail));
+            message.Subject = "Recibo de Suscripción - AgroTrade";
 
-            var email = new TransactionalEmailBuilder()
-                .WithFrom(new SendContact(emailSender, fromName))
-                .WithSubject("Recibo de Suscripción - AgroTrade")
-                .WithHtmlPart(emailContent)
-                .WithTo(new SendContact(toEmail))
-                .Build();
+            var bodyBuilder = new BodyBuilder { HtmlBody = emailContent };
+            message.Body = bodyBuilder.ToMessageBody();
 
             try
             {
-                var response = await client.SendTransactionalEmailAsync(email);
-                if (response.Messages != null && response.Messages.Length > 0 && response.Messages[0].Status == "success")
-                {
-                    Console.WriteLine($"\n[MAILJET SUCCESS] ¡Recibo enviado a {toEmail}!");
-                }
-                else
-                {
-                    Console.WriteLine($"\n[MAILJET ERROR] El correo no se pudo procesar correctamente.");
-                }
+                using var client = new SmtpClient();
+                client.ServerCertificateValidationCallback = (s, c, h, e) => true;
+                await client.ConnectAsync(smtpHost, smtpPort, SecureSocketOptions.StartTls, ct);
+                await client.AuthenticateAsync(smtpLogin, smtpPassword, ct);
+                await client.SendAsync(message, ct);
+                await client.DisconnectAsync(true, ct);
+
+                Console.WriteLine($"\n[GMAIL SUCCESS] ¡Recibo de suscripción enviado a {toEmail}!");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"\n[MAILJET CRITICAL] Ocurrió un error en el cliente: {ex.Message}");
+                Console.WriteLine($"\n[GMAIL CRITICAL] Error al enviar el recibo de suscripción: {ex.Message}");
             }
         }
     }

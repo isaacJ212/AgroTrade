@@ -21,9 +21,6 @@ namespace Agro_Trade.Domain.Entities
         public string? EstadoPago { get; set; }
         public string? EstadoEnvio { get; set; }
         
-        public string? DireccionEnvio { get; set; }
-        public double? Latitud { get; set; }
-        public double? Longitud { get; set; }
 
         // Coordenadas para el mapa
         public string? DireccionEnvio { get; set; }
