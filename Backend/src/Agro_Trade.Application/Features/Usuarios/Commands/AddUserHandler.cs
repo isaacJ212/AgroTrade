@@ -70,6 +70,7 @@ namespace Agro_Trade.Application.Features.Usuarios.Commands
                        "Tu código de verificación para Agro Trade es:",
                        ct);
 
+                    var roles = await context.Users.GetRolesByUserIdAsync(user.IdUsuario, ct);
                     var mapped = new UserDto {
                         Id = user.IdUsuario,
                         Name = $"{(user.Nombre + " " + user.PrimerApellido + " " + user.SegundoApellido).Trim()}",
@@ -77,7 +78,11 @@ namespace Agro_Trade.Application.Features.Usuarios.Commands
                         IdentidadVerificada = user.IdentidadVerificada,
                         Telefono = user.Telefono,
                         DireccionBase = $"{(user.Departamento + ", " + user.Municipio + ", " + user.DireccionExacta).Trim(new char[] { ',', ' ' })}",
-                        FechaRegistro = user.FechaRegistro
+                        FechaRegistro = user.FechaRegistro,
+                        Departamento = user.Departamento,
+                        Municipio = user.Municipio,
+                        EstadoCuenta = user.EstadoCuenta,
+                        Roles = roles.ToList()
                     };
 
                    

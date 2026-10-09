@@ -59,7 +59,9 @@ namespace Agro_Trade.Application.Features.Suscripciones.Commands
             // Para asegurar que llegue, usamos await.
             try
             {
-                await _emailService.SendSubscriptionReceiptAsync(usuario.Email, request.Dto.TipoPlan, request.Dto.TarifaPago.ToString("F2"), ct);
+                var tipoPlan = await _unitOfWork.TipoPlanes.GetByIdAsync(request.Dto.IdPlan, ct);
+                var nombrePlan = tipoPlan?.NombrePlan ?? "Plan Seleccionado";
+                await _emailService.SendSubscriptionReceiptAsync(usuario.Email, nombrePlan, request.Dto.TarifaPago.ToString("F2"), ct);
             }
             catch (Exception ex)
             {

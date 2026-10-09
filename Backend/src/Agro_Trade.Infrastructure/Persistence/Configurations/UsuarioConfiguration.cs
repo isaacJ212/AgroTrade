@@ -16,18 +16,12 @@ namespace Agro_Trade.Infrastructure.Persistence.Configurations
             builder.HasKey(u => u.IdUsuario);
 
             builder.Property(u => u.Email).IsRequired().HasMaxLength(255);
-<<<<<<< HEAD
-            builder.Ignore(u => u.NombreCompleto);
-            builder.Property(u => u.Nombres).IsRequired().HasMaxLength(100);
-            builder.Property(u => u.Apellidos).IsRequired().HasMaxLength(100);
-=======
             builder.Property(u => u.Nombre).IsRequired().HasMaxLength(100);
             builder.Property(u => u.PrimerApellido).IsRequired().HasMaxLength(100);
             builder.Property(u => u.SegundoApellido).HasMaxLength(100);
             builder.Property(u => u.Departamento).HasMaxLength(30);
             builder.Property(u => u.Municipio).HasMaxLength(30);
             builder.Property(u => u.DireccionExacta).HasMaxLength(200);
->>>>>>> Staging
             builder.HasIndex(u => u.Email).IsUnique();
 
             builder.HasMany(u => u.UsuariosRoles)

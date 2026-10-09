@@ -30,13 +30,14 @@ namespace Agro_Trade.Application.Features.Suscripciones.Queries
         {
             var result = await unitOfWork.Suscripciones.GetQueryable()
                 .Include(s => s.Usuario)
+                .Include(s => s.TipoPlan)
                 .OrderByDescending(s => s.FechaInicio)
                 .Select(s => new TransaccionSuscripcionDto
                 {
                     IdSuscripcion = s.IdSuscripcionApp,
                     IdUsuario = s.IdUsuario,
-                    NombreUsuario = s.Usuario.Nombres + " " + s.Usuario.Apellidos,
-                    Plan = s.TipoPlan,
+                    NombreUsuario = $"{s.Usuario.Nombre} {s.Usuario.PrimerApellido} {s.Usuario.SegundoApellido}".Trim(),
+                    Plan = s.TipoPlan.NombrePlan,
                     MontoPagado = s.TarifaPago,
                     FechaTransaccion = s.CreadaEn,
                     Estado = s.Estado ?? "Activo"

@@ -23,6 +23,7 @@ namespace Agro_Trade.Application.Features.Suscripciones.Queries
         {
             var suscripciones = await unitOfWork.Suscripciones.GetQueryable()
                 .Include(s => s.Usuario)
+                .Include(s => s.TipoPlan)
                 .OrderByDescending(s => s.FechaInicio)
                 .ToListAsync(ct);
 
@@ -30,14 +31,14 @@ namespace Agro_Trade.Application.Features.Suscripciones.Queries
             {
                 IdSuscripcionApp = s.IdSuscripcionApp,
                 IdUsuario = s.IdUsuario,
-                TipoPlan = s.TipoPlan,
+                TipoPlan = s.TipoPlan?.NombrePlan ?? string.Empty,
                 TarifaPago = s.TarifaPago,
                 Estado = s.Estado,
                 FechaInicio = s.FechaInicio,
                 FechaFin = s.FechaFin,
                 RenovacionAutomatica = s.RenovacionAutomatica,
                 CreadaEn = s.CreadaEn,
-                NombreUsuario = s.Usuario?.Nombres + " " + s.Usuario?.Apellidos
+                NombreUsuario = $"{s.Usuario?.Nombre} {s.Usuario?.PrimerApellido} {s.Usuario?.SegundoApellido}".Trim()
             }).ToList();
 
             return Result<List<SuscripcionAdminDto>>.Success(200, mapped, "Exito", true);
