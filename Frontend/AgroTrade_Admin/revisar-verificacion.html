@@ -114,7 +114,7 @@
             <div class="sidebar-user-name">María González</div>
             <div class="sidebar-user-role">Administrador</div>
           </div>
-          <button class="sidebar-logout-btn" title="Cerrar sesión" onclick="Toast.info('Sesión cerrada')">
+          <button class="sidebar-logout-btn" title="Cerrar sesión" onclick="authService.logout()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
               <polyline points="16 17 21 12 16 7"></polyline>
@@ -215,18 +215,64 @@
             <img id="reviewDocVerifImg" src="" alt="Fotografía de verificación" class="doc-preview-image" onclick="viewImageLightbox(this.src, 'Fotografía de verificación')" />
           </div>
 
+          <div class="doc-review-preview-card">
+            <div class="doc-review-preview-header">
+              <div class="doc-review-title-group">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                <span>Record Policial</span>
+              </div>
+              <a class="doc-view-full-link" onclick="viewImageLightbox(document.getElementById('reviewRecordPolicialImg').src, 'Record Policial')">Ver completa</a>
+            </div>
+            <img id="reviewRecordPolicialImg" src="" alt="Record Policial" class="doc-preview-image" onclick="viewImageLightbox(this.src, 'Record Policial')" />
+          </div>
+
+          <div class="doc-review-preview-card">
+            <div class="doc-review-preview-header">
+              <div class="doc-review-title-group">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><line x1="8" y1="16" x2="16" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="8" x2="16" y2="8"></line></svg>
+                <span>Licencia de conducir</span>
+              </div>
+              <a class="doc-view-full-link" onclick="viewImageLightbox(document.getElementById('reviewLicenciaImg').src, 'Licencia de conducir')">Ver completa</a>
+            </div>
+            <img id="reviewLicenciaImg" src="" alt="Licencia de conducir" class="doc-preview-image" onclick="viewImageLightbox(this.src, 'Licencia de conducir')" />
+          </div>
+
           <div class="farm-info-grid">
             <div class="farm-info-item span-full">
               <span class="farm-info-label">Nombre del negocio / Finca</span>
               <span class="farm-info-value" id="reviewFarmName">-</span>
             </div>
             <div class="farm-info-item">
-              <span class="farm-info-label">RUC / NIT</span>
-              <span class="farm-info-value" id="reviewFarmRuc">-</span>
+              <span class="farm-info-label">Cédula</span>
+              <span class="farm-info-value" id="reviewCedula">-</span>
             </div>
             <div class="farm-info-item">
-              <span class="farm-info-label">Extensión / Vehículo</span>
-              <span class="farm-info-value" id="reviewFarmExt">-</span>
+              <span class="farm-info-label">Placa vehículo</span>
+              <span class="farm-info-value" id="reviewPlaca">-</span>
+            </div>
+            <div class="farm-info-item">
+              <span class="farm-info-label">Tipo vehículo</span>
+              <span class="farm-info-value" id="reviewTipoVehiculo">-</span>
+            </div>
+            <div class="farm-info-item">
+              <span class="farm-info-label">Marca vehículo</span>
+              <span class="farm-info-value" id="reviewMarcaVehiculo">-</span>
+            </div>
+            <div class="farm-info-item">
+              <span class="farm-info-label">Municipio</span>
+              <span class="farm-info-value" id="reviewMunicipio">-</span>
+            </div>
+            <div class="farm-info-item">
+              <span class="farm-info-label">Departamento</span>
+              <span class="farm-info-value" id="reviewDepartamento">-</span>
+            </div>
+            <div class="farm-info-item">
+              <span class="farm-info-label">Banco</span>
+              <span class="farm-info-value" id="reviewBanco">-</span>
+            </div>
+            <div class="farm-info-item">
+              <span class="farm-info-label">N° Cuenta</span>
+              <span class="farm-info-value" id="reviewCuenta">-</span>
             </div>
           </div>
         </div>
@@ -343,10 +389,9 @@
 
   <script src="/env-config.js"></script>
   <script src="js/config/constants.js"></script>
+  <script src="js/services/auth.service.js"></script>
   <script src="js/services/api.service.js"></script>
   <script src="js/core/store.js"></script>
   <script src="js/core/toast.js"></script>
-  <script src="js/services/auth.service.js"></script>
-  <script src="js/views/verifications.js"></script>
 </body>
 </html>

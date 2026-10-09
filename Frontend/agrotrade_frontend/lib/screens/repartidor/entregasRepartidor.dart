@@ -55,7 +55,8 @@ class _EntregasrepartidorState extends State<Entregasrepartidor> {
             );
           }
 
-          final pendingDeliveries = snapshot.data ?? <PendingDeliveryNotificationDto>[];
+          final pendingDeliveries =
+              snapshot.data ?? <PendingDeliveryNotificationDto>[];
 
           return DefaultTabController(
             length: 2,
@@ -79,7 +80,8 @@ class _EntregasrepartidorState extends State<Entregasrepartidor> {
                   ),
                 ),
               ],
-            ));
+            ),
+          );
         },
       ),
       bottomNavigationBar: RepartidorBottomNav(
@@ -101,12 +103,13 @@ class _Lista extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.local_shipping_outlined, size: 64, color: AppColors.TextSoft),
-            const SizedBox(height: 16),
-            Text(
-              'Sin entregas',
-              style: AppTextStyles.sectionTitle,
+            Icon(
+              Icons.local_shipping_outlined,
+              size: 64,
+              color: AppColors.TextSoft,
             ),
+            const SizedBox(height: 16),
+            Text('Sin entregas', style: AppTextStyles.sectionTitle),
             const SizedBox(height: 8),
             Text(
               'No hay pedidos pendientes en este momento.',
@@ -215,55 +218,58 @@ class _EntregaCard extends StatelessWidget {
                             const SizedBox(width: 4),
                             Text(
                               'Destino: $zonaEntrega',
-                              style: AppTextStyles.SubTitle.copyWith(fontSize: 13),
+                              style: AppTextStyles.SubTitle.copyWith(
+                                fontSize: 13,
+                              ),
                             ),
                           ],
                         ),
                       ],
                     ),
                   ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Total',
-                        style: AppTextStyles.SubTitle.copyWith(fontSize: 12),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '\$${totalPedido.toStringAsFixed(2)}',
-                        style: AppTextStyles.label.copyWith(fontSize: 16),
-                      ),
-                    ],
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Total',
+                          style: AppTextStyles.SubTitle.copyWith(fontSize: 12),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '\$${totalPedido.toStringAsFixed(2)}',
+                          style: AppTextStyles.label.copyWith(fontSize: 16),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Creada',
-                        style: AppTextStyles.SubTitle.copyWith(fontSize: 12),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        fechaCreacion != null
-                            ? '${fechaCreacion!.day}/${fechaCreacion!.month}/${fechaCreacion!.year}'
-                            : '—',
-                        style: AppTextStyles.label.copyWith(fontSize: 14),
-                      ),
-                    ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Creada',
+                          style: AppTextStyles.SubTitle.copyWith(fontSize: 12),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          fechaCreacion != null
+                              ? '${fechaCreacion!.day}/${fechaCreacion!.month}/${fechaCreacion!.year}'
+                              : '—',
+                          style: AppTextStyles.label.copyWith(fontSize: 14),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
       ),

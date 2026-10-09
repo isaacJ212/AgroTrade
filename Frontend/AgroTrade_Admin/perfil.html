@@ -110,7 +110,7 @@
             <div class="sidebar-user-name">María González</div>
             <div class="sidebar-user-role">Administrador</div>
           </div>
-          <button class="sidebar-logout-btn" title="Cerrar sesión" onclick="Toast.info('Sesión cerrada')">
+          <button class="sidebar-logout-btn" title="Cerrar sesión" onclick="authService.logout()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
               <polyline points="16 17 21 12 16 7"></polyline>
@@ -244,10 +244,9 @@
 
   <script src="/env-config.js"></script>
   <script src="js/config/constants.js"></script>
+  <script src="js/services/auth.service.js"></script>
   <script src="js/services/api.service.js"></script>
   <script src="js/core/store.js"></script>
   <script src="js/core/toast.js"></script>
-  <script src="js/services/auth.service.js"></script>
-  <script src="js/views/profile.js"></script>
 </body>
 </html>

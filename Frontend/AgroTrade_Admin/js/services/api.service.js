@@ -25,7 +25,9 @@ class ApiService {
         method: 'GET',
         headers: this.getHeaders()
       });
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) 
+        console.log(res);
+        throw new Error(await res.text());
       return await res.json();
     } catch (e) {
       console.error(`Error GET ${endpoint}:`, e);
