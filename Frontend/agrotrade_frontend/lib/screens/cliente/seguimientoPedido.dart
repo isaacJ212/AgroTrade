@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:io' show Platform;
 import '../../ui/app_theme.dart';
 import 'inicioComprador.dart';
 import '../../services/consumer_api_service.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 
 class SeguimientoPedidoScreen extends StatefulWidget {
   final String? idPedido;
@@ -14,6 +17,7 @@ class SeguimientoPedidoScreen extends StatefulWidget {
 class _SeguimientoPedidoScreenState extends State<SeguimientoPedidoScreen> {
   bool _isLoading = true;
   Map<String, dynamic> _pedidoData = {};
+  mapbox.MapboxMap? mapboxMap;
 
   static const List<_PasoEnvio> _pasosBase = [
     _PasoEnvio(label: 'Confirmado', descripcion: 'El vendedor ha aceptado el pedido.', estado: _EstadoPaso.pendiente),
@@ -31,6 +35,59 @@ class _SeguimientoPedidoScreenState extends State<SeguimientoPedidoScreen> {
   void initState() {
     super.initState();
     _cargarPedido();
+  }
+
+  void _onMapCreated(mapbox.MapboxMap mapboxMap) {
+    this.mapboxMap = mapboxMap;
+    // Set camera to center on the route
+    mapboxMap.setCamera(mapbox.CameraOptions(
+      center: mapbox.Point(coordinates: mapbox.Position(-86.2188, 11.8540)),
+      zoom: 11.5,
+    ));
+
+    // Coordenadas simuladas
+    final double productorLat = 11.8580;
+    final double productorLng = -86.2386;
+    final double repartidorLat = 11.8540;
+    final double repartidorLng = -86.2188;
+    final double clienteLat = 11.8499;
+    final double clienteLng = -86.1990;
+
+    // Draw Route Polyline
+    mapboxMap.annotations.createPolylineAnnotationManager().then((polylineAnnotationManager) async {
+      final polylineOptions = <mapbox.PolylineAnnotationOptions>[
+        mapbox.PolylineAnnotationOptions(
+          geometry: mapbox.LineString(coordinates: [
+            mapbox.Position(productorLng, productorLat),
+            mapbox.Position(repartidorLng, repartidorLat),
+            mapbox.Position(clienteLng, clienteLat)
+          ]),
+          lineColor: 0xFF3B82F6,
+          lineWidth: 4.0,
+          lineJoin: mapbox.LineJoin.ROUND,
+        )
+      ];
+      polylineAnnotationManager.createMulti(polylineOptions);
+    });
+
+    // Draw Pins
+    mapboxMap.annotations.createPointAnnotationManager().then((pointAnnotationManager) async {
+      final options = <mapbox.PointAnnotationOptions>[
+        mapbox.PointAnnotationOptions(
+          geometry: mapbox.Point(coordinates: mapbox.Position(productorLng, productorLat)),
+          iconSize: 1.5,
+        ),
+        mapbox.PointAnnotationOptions(
+          geometry: mapbox.Point(coordinates: mapbox.Position(clienteLng, clienteLat)),
+          iconSize: 1.5,
+        ),
+        mapbox.PointAnnotationOptions(
+          geometry: mapbox.Point(coordinates: mapbox.Position(repartidorLng, repartidorLat)),
+          iconSize: 1.5,
+        )
+      ];
+      pointAnnotationManager.createMulti(options);
+    });
   }
 
   Future<void> _cargarPedido() async {
@@ -313,43 +370,20 @@ class _SeguimientoPedidoScreenState extends State<SeguimientoPedidoScreen> {
           ],
         ),
         const SizedBox(height: 14),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            width: double.infinity,
-            height: 130,
-            color: const Color(0xFFD1FAE5),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                CustomPaint(
-                  size: const Size(double.infinity, 130),
-                  painter: _MapGridPainter(),
-                ),
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryColor,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primaryColor.withOpacity(0.4),
-                        blurRadius: 10,
-                        spreadRadius: 2,
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.location_on_rounded,
-                    size: 20,
-                    color: Colors.white,
+        (!kIsWeb && (Platform.isLinux || Platform.isWindows || Platform.isMacOS))
+            ? _buildDemoMap(context)
+            : ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  width: double.infinity,
+                  height: 140,
+                  color: const Color(0xFFD1FAE5),
+                  child: mapbox.MapWidget(
+                    onMapCreated: _onMapCreated,
+                    styleUri: mapbox.MapboxStyles.MAPBOX_STREETS,
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
+              ),
         const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
@@ -509,7 +543,139 @@ class _SeguimientoPedidoScreenState extends State<SeguimientoPedidoScreen> {
       ),
     );
   }
+
+  Widget _buildDemoMap(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 160,
+      decoration: BoxDecoration(
+        color: const Color(0xFFE2E8F0), 
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Stack(
+          children: [
+            CustomPaint(
+              size: const Size(double.infinity, 160),
+              painter: _MockMapPainter(),
+            ),
+            
+            Positioned(
+              left: 24,
+              bottom: 20,
+              child: _buildMapPin(Icons.storefront_rounded, AppColors.primaryColor),
+            ),
+            
+            Positioned(
+              right: 24,
+              top: 20,
+              child: _buildMapPin(Icons.home_rounded, const Color(0xFFEF4444)),
+            ),
+            
+            Positioned(
+              left: MediaQuery.of(context).size.width * 0.45,
+              top: 45,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.15),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.electric_moped_rounded,
+                  color: AppColors.primaryColor,
+                  size: 24,
+                ),
+              ),
+            ),
+            
+            Positioned(
+              top: 10,
+              left: 10,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 4,
+                    )
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF10B981),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    const Text(
+                      'En vivo',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.titleDark,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMapPin(IconData icon, Color color) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: color.withOpacity(0.4),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+            border: Border.all(color: Colors.white, width: 2),
+          ),
+          child: Icon(icon, color: Colors.white, size: 18),
+        ),
+        Container(
+          margin: const EdgeInsets.only(top: 4),
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(10),
+          ),
+        )
+      ],
+    );
+  }
 }
+
 
 enum _EstadoPaso { completado, activo, pendiente }
 
@@ -694,36 +860,70 @@ class _ProductorTile extends StatelessWidget {
   }
 }
 
-class _MapGridPainter extends CustomPainter {
+class _MockMapPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFFA7F3D0).withOpacity(0.6)
-      ..strokeWidth = 1;
-
-    for (double y = 0; y < size.height; y += 22) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-
-    for (double x = 0; x < size.width; x += 28) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-
     final streetPaint = Paint()
+      ..color = Colors.white
+      ..strokeWidth = 8.0
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
+    final secondaryStreetPaint = Paint()
       ..color = Colors.white.withOpacity(0.7)
-      ..strokeWidth = 4;
-    canvas.drawLine(
-      Offset(0, size.height * 0.5),
-      Offset(size.width, size.height * 0.5),
-      streetPaint,
-    );
-    canvas.drawLine(
-      Offset(size.width * 0.45, 0),
-      Offset(size.width * 0.45, size.height),
-      streetPaint,
-    );
+      ..strokeWidth = 4.0
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
+    canvas.drawLine(const Offset(-20, 40), Offset(size.width * 0.6, -10), streetPaint);
+    canvas.drawLine(Offset(size.width * 0.3, size.height + 20), Offset(size.width * 0.8, 20), streetPaint);
+    canvas.drawLine(Offset(10, size.height * 0.8), Offset(size.width * 0.9, size.height * 0.9), secondaryStreetPaint);
+    canvas.drawLine(Offset(size.width * 0.5, 0), Offset(size.width * 0.6, size.height), secondaryStreetPaint);
+
+    final path = Path();
+    final startX = 24.0 + 18.0;
+    final startY = size.height - 20.0 - 18.0;
+    
+    final endX = size.width - 24.0 - 18.0;
+    final endY = 20.0 + 18.0;
+
+    path.moveTo(startX, startY);
+    path.quadraticBezierTo(size.width * 0.4, size.height * 0.2, endX, endY);
+
+    final bgRoutePaint = Paint()
+      ..color = AppColors.primaryColor.withOpacity(0.3)
+      ..strokeWidth = 5.0
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+      
+    _drawDashedLine(canvas, path, bgRoutePaint, 10, 8);
+
+    final activeRoutePaint = Paint()
+      ..color = AppColors.primaryColor
+      ..strokeWidth = 5.0
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    final metrics = path.computeMetrics().toList();
+    if (metrics.isNotEmpty) {
+      final metric = metrics.first;
+      final activePath = metric.extractPath(0, metric.length * 0.6);
+      canvas.drawPath(activePath, activeRoutePaint);
+    }
+  }
+
+  void _drawDashedLine(Canvas canvas, Path path, Paint paint, double dashWidth, double dashSpace) {
+    for (var metric in path.computeMetrics()) {
+      double distance = 0.0;
+      while (distance < metric.length) {
+        final double nextDistance = distance + dashWidth;
+        final extractPath = metric.extractPath(distance, nextDistance);
+        canvas.drawPath(extractPath, paint);
+        distance = nextDistance + dashSpace;
+      }
+    }
   }
 
   @override
-  bool shouldRepaint(_) => false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

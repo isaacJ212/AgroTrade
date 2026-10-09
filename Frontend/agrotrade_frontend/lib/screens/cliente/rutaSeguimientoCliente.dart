@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:io' show Platform;
 import '../../ui/app_theme.dart';
 
 import '../../services/consumer_api_service.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 
 class RutaSeguimientoClienteScreen extends StatefulWidget {
   const RutaSeguimientoClienteScreen({super.key});
@@ -11,14 +14,69 @@ class RutaSeguimientoClienteScreen extends StatefulWidget {
 }
 
 class _RutaSeguimientoClienteScreenState extends State<RutaSeguimientoClienteScreen> {
-  double _repartidorLat = 0.5;
-  double _repartidorLng = 0.6;
+  double _repartidorLat = 11.8499;
+  double _repartidorLng = -86.1990;
   bool _cargando = true;
+
+  // Coordenadas simuladas de la ruta
+  final double _productorLat = 11.8580;
+  final double _productorLng = -86.2386;
+  final double _clienteLat = 11.8499;
+  final double _clienteLng = -86.1990;
+
+  mapbox.MapboxMap? mapboxMap;
 
   @override
   void initState() {
     super.initState();
     _cargarUbicacion();
+  }
+
+  _onMapCreated(mapbox.MapboxMap mapboxMap) {
+    this.mapboxMap = mapboxMap;
+    // Set camera to center on the route
+    mapboxMap.setCamera(mapbox.CameraOptions(
+      center: mapbox.Point(coordinates: mapbox.Position(-86.2188, 11.8540)),
+      zoom: 12.0,
+    ));
+
+    // Draw Route Polyline
+    mapboxMap.annotations.createPolylineAnnotationManager().then((polylineAnnotationManager) async {
+      final polylineOptions = <mapbox.PolylineAnnotationOptions>[
+        mapbox.PolylineAnnotationOptions(
+          geometry: mapbox.LineString(coordinates: [
+            mapbox.Position(_productorLng, _productorLat),
+            mapbox.Position(_repartidorLng, _repartidorLat), // Posición intermedia simulada
+            mapbox.Position(_clienteLng, _clienteLat)
+          ]),
+          lineColor: 0xFF3B82F6, // primaryColor
+          lineWidth: 5.0,
+          lineJoin: mapbox.LineJoin.ROUND,
+        )
+      ];
+      polylineAnnotationManager.createMulti(polylineOptions);
+    });
+
+    // Draw Pins
+    mapboxMap.annotations.createPointAnnotationManager().then((pointAnnotationManager) async {
+      final options = <mapbox.PointAnnotationOptions>[
+        mapbox.PointAnnotationOptions(
+          geometry: mapbox.Point(coordinates: mapbox.Position(_productorLng, _productorLat)),
+          // Se puede añadir image si tienen el asset, pero para rápido se dibuja nativamente o usa un icono
+          iconSize: 1.5,
+        ),
+        mapbox.PointAnnotationOptions(
+          geometry: mapbox.Point(coordinates: mapbox.Position(_clienteLng, _clienteLat)),
+          iconSize: 1.5,
+        ),
+        mapbox.PointAnnotationOptions(
+          geometry: mapbox.Point(coordinates: mapbox.Position(_repartidorLng, _repartidorLat)),
+          iconSize: 1.5,
+        )
+      ];
+      // Si no tienen las imagenes cargadas, el mapa mostrará las opciones de fallback o nada.
+      // Así que mantendremos los widgets posicionados de Flutter encima del mapa.
+    });
   }
 
   Future<void> _cargarUbicacion() async {
@@ -28,8 +86,8 @@ class _RutaSeguimientoClienteScreenState extends State<RutaSeguimientoClienteScr
     
     if (mounted && ubi.isNotEmpty) {
       setState(() {
-        _repartidorLat = ubi['lat'] ?? 0.5;
-        _repartidorLng = ubi['lng'] ?? 0.6;
+        _repartidorLat = ubi['lat'] ?? 11.8540;
+        _repartidorLng = ubi['lng'] ?? -86.2188;
         _cargando = false;
       });
     }
@@ -41,14 +99,23 @@ class _RutaSeguimientoClienteScreenState extends State<RutaSeguimientoClienteScr
       backgroundColor: AppColors.scaffoldBg,
       body: Stack(
         children: [
-          // Mapa simulado (fondo)
+          // Mapa Mapbox (con protección de plataforma para Desktop)
           Positioned.fill(
-            child: Container(
-              color: const Color(0xFFE0E0E0),
-              child: CustomPaint(
-                painter: _MapGridPainter(),
-              ),
-            ),
+            child: (!kIsWeb && (Platform.isLinux || Platform.isWindows || Platform.isMacOS))
+                ? Container(
+                    color: const Color(0xFFE2E8F0),
+                    child: const Center(
+                      child: Text(
+                        'Mapbox no es compatible con Linux Desktop.\nPor favor, ejecuta en Android/iOS o Web para ver el mapa real.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  )
+                : mapbox.MapWidget(
+                    onMapCreated: _onMapCreated,
+                    styleUri: mapbox.MapboxStyles.MAPBOX_STREETS,
+                  ),
           ),
           
           // AppBar transparente
@@ -73,10 +140,9 @@ class _RutaSeguimientoClienteScreenState extends State<RutaSeguimientoClienteScr
             ),
           ),
 
-          // Puntos del mapa (Productor y Cliente)
-          Positioned(
-            top: MediaQuery.of(context).size.height * 0.3,
-            left: MediaQuery.of(context).size.width * 0.2,
+          // Puntos del mapa (Productor y Cliente - Superpuestos encima del mapa para que se vean geniales)
+          Align(
+            alignment: const Alignment(-0.6, -0.4),
             child: const _MapPin(icon: Icons.storefront, label: 'Productor', color: AppColors.TextSoft),
           ),
           
@@ -89,15 +155,13 @@ class _RutaSeguimientoClienteScreenState extends State<RutaSeguimientoClienteScr
               ),
             )
           else
-            Positioned(
-              top: MediaQuery.of(context).size.height * _repartidorLat,
-              left: MediaQuery.of(context).size.width * _repartidorLng,
+            Align(
+              alignment: const Alignment(0.0, -0.1),
               child: const _MapPin(icon: Icons.delivery_dining, label: 'En camino', color: AppColors.primaryColor),
             ),
 
-          Positioned(
-            top: MediaQuery.of(context).size.height * 0.7,
-            left: MediaQuery.of(context).size.width * 0.4,
+          Align(
+            alignment: const Alignment(0.6, 0.2),
             child: const _MapPin(icon: Icons.home, label: 'Tu casa', color: AppColors.accentBlue),
           ),
 
@@ -218,24 +282,3 @@ class _MapPin extends StatelessWidget {
   }
 }
 
-class _MapGridPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 6
-      ..strokeCap = StrokeCap.round;
-      
-    canvas.drawLine(Offset(size.width * 0.2, size.height * 0.3), Offset(size.width * 0.6, size.height * 0.5), paint);
-    canvas.drawLine(Offset(size.width * 0.6, size.height * 0.5), Offset(size.width * 0.4, size.height * 0.7), paint);
-    
-    // Rutas alternativas
-    paint.color = Colors.white54;
-    paint.strokeWidth = 3;
-    canvas.drawLine(Offset(size.width * 0.8, size.height * 0.2), Offset(size.width * 0.9, size.height * 0.6), paint);
-    canvas.drawLine(Offset(size.width * 0.1, size.height * 0.6), Offset(size.width * 0.3, size.height * 0.9), paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}

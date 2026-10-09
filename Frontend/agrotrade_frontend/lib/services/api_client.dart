@@ -166,40 +166,10 @@ class ApiClient {
     }
     request.headers['Accept'] = 'application/json';
 
-    // 4. Enviar flujo de datos
-    var response = await _client.send(request).timeout(_timeout);
-    var httpResponse = await http.Response.fromStream(response);
-
-    // 5. Manejo del ciclo de vida del Token (Misma lógica que usas en _send)
-    final isRefreshOrLogout =
-        path.toLowerCase().endsWith('/refresh') ||
-        path.toLowerCase().endsWith('/logout');
-
-    if (authorized &&
-        httpResponse.statusCode == 401 &&
-        !isRefreshOrLogout &&
-        await refreshSession()) {
-      // Re-crear la petición si expiró el token (los streams no se pueden reutilizar)
-      var retryRequest = http.MultipartRequest('POST', uri);
-      retryRequest.fields.addAll(fields);
-
-      // Volver a adjuntar archivos para el reintento
-      for (final entry in filePaths.entries) {
-        if (entry.value.isEmpty) continue;
-        retryRequest.files.add(
-          await http.MultipartFile.fromPath(entry.key, entry.value),
-        );
-      }
-
-      retryRequest.headers.addAll(request.headers);
-      retryRequest.headers['Authorization'] =
-          'Bearer ${ApiSession.instance.token}';
-
-      var retryResponse = await _client.send(retryRequest).timeout(_timeout);
-      httpResponse = await http.Response.fromStream(retryResponse);
-    }
-
-    return ApiResponse.fromHttpResponse(httpResponse);
+    // FORCE MOCK API INMEDIATO PARA LA DEMO
+    print('DEBUG: [ApiClient] EnviarPostMultipart forzado a MockApi: $uri');
+    final mockResponse = MockApi.handle('POST', uri, jsonEncode(fields));
+    return ApiResponse.fromHttpResponse(mockResponse);
   }
 
   Future<http.Response> _sendRequest(
@@ -219,40 +189,10 @@ class ApiClient {
     }
 
     late final http.Response response;
-    try {
-      switch (method) {
-        case 'GET':
-          response = await _client.get(uri, headers: headers).timeout(_timeout);
-          break;
-        case 'POST':
-          response = await _client
-              .post(uri, headers: headers, body: payload)
-              .timeout(_timeout);
-          break;
-        case 'PUT':
-          response = await _client
-              .put(uri, headers: headers, body: payload)
-              .timeout(_timeout);
-          break;
-        case 'PATCH':
-          response = await _client
-              .patch(uri, headers: headers, body: payload)
-              .timeout(_timeout);
-          break;
-        case 'DELETE':
-          response = await _client
-              .delete(uri, headers: headers, body: payload)
-              .timeout(_timeout);
-          break;
-        default:
-          throw ApiException(0, 'Método HTTP no soportado: $method');
-      }
-
-      return response;
-    } catch (e) {
-      print('DEBUG: ApiClient network error $e -> fallback to MockApi');
-      return MockApi.handle(method, uri);
-    }
+    
+    // FORCE MOCK API INMEDIATO PARA LA DEMO
+    print('DEBUG: [ApiClient] _sendRequest forzado a MockApi: $method $uri');
+    return MockApi.handle(method, uri, payload);
   }
 
   Future<bool> refreshSession() async {
