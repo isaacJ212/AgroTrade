@@ -91,11 +91,7 @@ class _EntregaScreenState extends State<EntregaScreen> {
           ciudad: 'Toque para agregar',
           detalle: 'Pulsa el ícono ✏️ para registrar tu dirección de entrega.',
         ));
-        dirs.add(const _Direccion(
-          alias: 'Casa (Demo)',
-          ciudad: 'Jinotepe, Carazo',
-          detalle: 'Barrio San Felipe, De la iglesia 2c al sur',
-        ));
+       
       }
 
       if (!mounted) return;

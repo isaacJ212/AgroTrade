@@ -82,6 +82,11 @@ class ProductorApiService {
           return p;
         }).toList();
 
+        if (productos.isEmpty) {
+          print('DEBUG: [ProductorApiService] API devolvió inventario vacío, usando mocks para la demo');
+          return List<Producto>.from(ProductorStore.instance.productos);
+        }
+
         // Sincronizar al store local (para modo offline posterior)
         ProductorStore.instance.cargarDesdeApi(productos);
         print(
@@ -578,6 +583,11 @@ class ProductorApiService {
           return p;
         }).toList();
 
+        if (pedidos.isEmpty) {
+          print('DEBUG: [ProductorApiService] API devolvió pedidos vacíos, usando mocks para la demo');
+          return List<PedidoRecibido>.from(ProductorStore.instance.pedidos);
+        }
+
         // Sincronizar al store local
         ProductorStore.instance.cargarPedidosDesdeApi(pedidos);
         print('DEBUG: [ProductorApiService] ✓ Pedidos sincronizados al store');
@@ -667,6 +677,13 @@ class ProductorApiService {
           );
           return p;
         }).toList();
+
+        if (pedidos.isEmpty) {
+          print('DEBUG: [ProductorApiService] API devolvió pedidos pendientes vacíos, usando mocks para la demo');
+          return ProductorStore.instance.pedidos
+            .where((p) => p.estado == EstadoPedido.pendiente || p.estado == EstadoPedido.enPreparacion)
+            .toList();
+        }
 
         // Sincronizar al store local
         ProductorStore.instance.cargarPedidosDesdeApi(pedidos);
