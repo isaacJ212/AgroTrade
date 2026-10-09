@@ -135,3 +135,39 @@ Frontend/agrotrade_frontend/ios/Pods/
 Frontend/agrotrade_frontend/.flutter-plugins
 Frontend/agrotrade_frontend/.flutter-plugins-dependencies
 Frontend/agrotrade_frontend/.dart_tool/
+
+# -----------------------------------------------------------------------------
+# LANDING PAGE (Next.js) & AGROTRADE ADMIN
+# -----------------------------------------------------------------------------
+# v0 sandbox internal files
+__v0_runtime_loader.js
+__v0_devtools.tsx
+__v0_jsx-dev-runtime.ts
+.snowflake/
+.v0-trash/
+.vercel/
+
+# Next.js Build
+.next/
+out/
+*.tsbuildinfo
+
+# Node modules are already ignored globally via node_modules/
+
+# -----------------------------------------------------------------------------
+# FLUTTER (Adicionales)
+# -----------------------------------------------------------------------------
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.pub/
+app.*.symbols
+app.*.map.json
+**/android/app/debug
+**/android/app/profile
+**/android/app/release
+.widget_preview/
+.gemini/
+migrate_working_dir/
+.swiftpm/
+.buildlog/
+.class/

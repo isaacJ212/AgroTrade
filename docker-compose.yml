@@ -116,7 +116,29 @@ services:
           cpus: '0.25'
           memory: 128M
 
-
+  # -----------------------------------------------------------------------------
+  # LANDING PAGE: Next.js
+  # -----------------------------------------------------------------------------
+  landing:
+    build:
+      context: ./Frontend/Landing-Page/meseta-verde-landing-page
+      dockerfile: Dockerfile
+    container_name: agrotrade_landing
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "${LANDING_HOST_PORT:-3400}:3000"
+    networks:
+      - agrotrade_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
 
 # -----------------------------------------------------------------------------
 # VOLÚMENES PERSISTENTES

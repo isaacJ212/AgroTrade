@@ -1,0 +1,16 @@
+services:
+  web:
+    # Construimos la imagen directamente desde el código fuente en la VM
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      # Exponemos el puerto 80 de la Máquina Virtual (HTTP) hacia el 3000 del contenedor (Next.js)
+      # Esto permite acceder a la web usando directamente la IP pública de la VM sin poner puertos en la URL.
+      - "80:3000"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    # Cargamos las variables de entorno desde el archivo .env que debes crear en la VM
+    env_file:
+      - .env
