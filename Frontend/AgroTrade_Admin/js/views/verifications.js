@@ -129,23 +129,52 @@ async function initReviewVerification() {
 
   if (nameEl) nameEl.textContent = req.nombreUsuario;
   if (subEl) subEl.textContent = req.rolSubtext;
-  if (avatarEl) avatarEl.src = user.avatarUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150';
+  // Use photo URL from backend if available
+  if (avatarEl) avatarEl.src = req.fotoPerfil || user.avatarUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150';
 
   const docIdImg = document.getElementById('reviewDocIdentidadImg');
   const docVerifImg = document.getElementById('reviewDocVerifImg');
   const defaultDoc = 'https://images.unsplash.com/photo-1589330694653-dad6bc01cf0f?w=600';
   const defaultSelfie = 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600';
 
-  if (docIdImg) docIdImg.src = user.documentos?.identidad || defaultDoc;
-  if (docVerifImg) docVerifImg.src = user.documentos?.verificacion || defaultSelfie;
+  // Use actual photo URLs from the verification request (DatosRepartidor)
+  if (docIdImg) docIdImg.src = req.fotoCedula || defaultDoc;
+  if (docVerifImg) docVerifImg.src = req.fotoPerfil || defaultSelfie;
 
-  const farmName = document.getElementById('reviewFarmName');
-  const farmRuc = document.getElementById('reviewFarmRuc');
-  const farmExt = document.getElementById('reviewFarmExt');
+  // Add click handlers for lightbox
+  if (docIdImg) docIdImg.onclick = () => viewImageLightbox(docIdImg.src, 'Cédula de identidad');
+  if (docVerifImg) docVerifImg.onclick = () => viewImageLightbox(docVerifImg.src, 'Foto de perfil');
 
-  if (farmName) farmName.textContent = user.finca?.nombre || 'Agropecuaria La Esperanza S.A.';
-  if (farmRuc) farmRuc.textContent = user.finca?.ruc || '3004123456-7';
-  if (farmExt) farmExt.textContent = user.finca?.extension || '50 Hectáreas';
+  // Show additional verification data
+  const cedulaEl = document.getElementById('reviewCedula');
+  const placaEl = document.getElementById('reviewPlaca');
+  const tipoVehiculoEl = document.getElementById('reviewTipoVehiculo');
+  const marcaVehiculoEl = document.getElementById('reviewMarcaVehiculo');
+  const municipioEl = document.getElementById('reviewMunicipio');
+  const departamentoEl = document.getElementById('reviewDepartamento');
+  const bancoEl = document.getElementById('reviewBanco');
+  const cuentaEl = document.getElementById('reviewCuenta');
+
+  if (cedulaEl) cedulaEl.textContent = req.numeroCedula || '—';
+  if (placaEl) placaEl.textContent = req.placaVehiculo || '—';
+  if (tipoVehiculoEl) tipoVehiculoEl.textContent = req.tipoVehiculo || '—';
+  if (marcaVehiculoEl) marcaVehiculoEl.textContent = req.marcaVehiculo || '—';
+  if (municipioEl) municipioEl.textContent = req.municipio || '—';
+  if (departamentoEl) departamentoEl.textContent = req.departamento || '—';
+  if (bancoEl) bancoEl.textContent = req.bancoNombre || '—';
+  if (cuentaEl) cuentaEl.textContent = req.numeroCuenta || '—';
+
+  // Record policial and licencia
+  const recordImg = document.getElementById('reviewRecordPolicialImg');
+  const licenciaImg = document.getElementById('reviewLicenciaImg');
+  if (recordImg) {
+    recordImg.src = req.recordPolicial || 'https://images.unsplash.com/photo-1589330694653-dad6bc01cf0f?w=600';
+    recordImg.onclick = () => viewImageLightbox(recordImg.src, 'Record Policial');
+  }
+  if (licenciaImg) {
+    licenciaImg.src = req.licencia || 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600';
+    licenciaImg.onclick = () => viewImageLightbox(licenciaImg.src, 'Licencia de conducir');
+  }
 
   const approveBtn = document.getElementById('btnApproveVerificationAction');
   const rejectBtn = document.getElementById('btnRejectVerificationAction');
