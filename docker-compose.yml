@@ -53,7 +53,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__AgroTradeDatabase=${CONNECTION_STRING}
+      - ConnectionStrings__MesetaVerdeDatabase=${CONNECTION_STRING}
       - Jwt__Issuer=${JWT_ISSUER}
       - Jwt__Audience=${JWT_AUDIENCE}
       - Jwt__SigninKey=${JWT_KEY}
