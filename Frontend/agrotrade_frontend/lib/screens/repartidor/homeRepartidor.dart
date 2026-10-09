@@ -21,10 +21,10 @@ class InicioRepartidor extends StatefulWidget {
 }
 
 class _InicioRepartidorState extends State<InicioRepartidor> {
-  // URLs reales vendrán de la API, no mocks
-
-  final String _avatarUrl =
-      'https://frxxlbxlglvbgcvigpxa.supabase.co/storage/v1/object/public/imagenes_meseta_verde/fcb7e0aa-0241-42ef-be2d-734f53dd652a.jpg';
+  static const String _avatarUrl =
+      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=160&q=80';
+  static const String _mapUrl =
+      'https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=1200&q=80';
 
   late final Future<List<PendingDeliveryNotificationDto>> _pendingFuture;
 
@@ -34,28 +34,30 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
     _pendingFuture = DeliveryApiService.instance
         .getPendingDeliveries()
         .catchError((_) => <PendingDeliveryNotificationDto>[]);
-    // _verificarEstadoRepartidor(); // TEMPORAL: omitido para testear flujo
+    _verificarEstadoRepartidor();
   }
 
-  // Future<void> _verificarEstadoRepartidor() async {
-  //   try {
-  //     final estado = await RepartidorApiService.instance.getEstadoVerificacion();
-  //     if (mounted && !estado.estaVerificado) {
-  //       WidgetsBinding.instance.addPostFrameCallback((_) {
-  //         if (mounted) {
-  //           VerificacionRepartidorModal.show(
-  //             context: context,
-  //             estado: estado,
-  //             onCorregirReenviar: () => Navigator.pushNamed(context, AppRoutes.formularioSolicitudRepartidor),
-  //             onIrAOnboarding: () => Navigator.pushNamed(context, AppRoutes.onboardingRepartidor),
-  //           );
-  //         }
-  //       });
-  //     }
-  //   } catch (e) {
-  //     debugPrint('Error verificando estado repartidor: $e');
-  //   }
-  // }
+  Future<void> _verificarEstadoRepartidor() async {
+    try {
+      final estado = await RepartidorApiService.instance.getEstadoVerificacion();
+      if (mounted && !estado.estaVerificado) {
+        // Usar addPostFrameCallback para mostrar el modal después del primer frame
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            VerificacionRepartidorModal.show(
+              context: context,
+              estado: estado,
+              onCorregirReenviar: () => Navigator.pushNamed(context, AppRoutes.formularioSolicitudRepartidor),
+              onIrAOnboarding: () => Navigator.pushNamed(context, AppRoutes.onboardingRepartidor),
+            );
+          }
+        });
+      }
+    } catch (e) {
+      // Si falla la verificación, continuar sin bloquear
+      debugPrint('Error verificando estado repartidor: $e');
+    }
+  }
 
   String get _saludo {
     final hora = DateTime.now().hour;
@@ -134,7 +136,7 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '$_saludo, ${ApiSession.instance.userName ?? ''}',
+                              '$_saludo, ${ApiSession.instance.userName ?? 'José'}',
                               style: AppTextStyles.label.copyWith(
                                 fontSize: 16,
                                 color: AppColors.primarySoft,

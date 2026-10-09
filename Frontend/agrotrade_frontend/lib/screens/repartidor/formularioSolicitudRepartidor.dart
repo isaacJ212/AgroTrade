@@ -259,16 +259,23 @@ class _FormularioSolicitudRepartidorState
 
       if (_fotoPerfil != null) {
         filePaths['FotoPerfil'] = _fotoPerfil!.path;
+        print('DEBUG: FotoPerfil path: ${_fotoPerfil!.path}');
       }
       if (_fotoCedula != null) {
         filePaths['FotoCedula'] = _fotoCedula!.path;
+        print('DEBUG: FotoCedula path: ${_fotoCedula!.path}');
       }
       if (_fotoLicencia != null) {
         filePaths['FotoLicencia'] = _fotoLicencia!.path;
+        print('DEBUG: FotoLicencia path: ${_fotoLicencia!.path}');
       }
       if (_recordPolicial != null) {
         filePaths['RecordPolicial'] = _recordPolicial!.path;
+        print('DEBUG: RecordPolicial path: ${_recordPolicial!.path}');
       }
+
+      print('DEBUG: Fields to send: $fields');
+      print('DEBUG: FilePaths to send: $filePaths');
 
       // Enviar multipart (usa fromPath para auto-detectar Content-Type)
       final response = await ApiClient.instance.EnviaEnviapostMultipart(
@@ -279,7 +286,9 @@ class _FormularioSolicitudRepartidorState
       );
 
       if (!mounted) return;
-      print('DEBUG: etstaus  code del backend  ${response.statusCode}');
+      print('DEBUG: status code del backend  ${response.statusCode}');
+      print('DEBUG: response body: ${response.rawBody}');
+      print('DEBUG: response jsonBody: ${response.jsonBody}');
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         ScaffoldMessenger.of(context).showSnackBar(

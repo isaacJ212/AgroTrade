@@ -154,7 +154,8 @@ async function initUserDetail() {
     toggleStatusBtn.onclick = async () => {
       const res = await adminStore.toggleUserStatus(currentUserLoaded.id);
       if (res.success) {
-        currentUserLoaded = res.user;
+        // Actualizar solo el estado localmente para evitar perder datos del usuario
+        currentUserLoaded.estadoCuenta = res.newStatus;
         renderUserDetailView();
         Toast.success(`Estado de ${currentUserLoaded.nombreCompleto} cambiado a: ${res.newStatus}`);
       }

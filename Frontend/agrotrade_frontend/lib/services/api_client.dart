@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:async';
 
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 import '../models/api/auth_models.dart';
 import '../models/api/backend_result.dart';
@@ -22,7 +23,7 @@ class ApiClient {
   String get baseUrl {
     //local tunnerl solo para la demo
     const envBaseUrl =
-        "https://degrading-creamlike-enclose.ngrok-free.dev"; // CAMBIA ESTA IP EN DISPOSITIVO FÍSICO
+        "http://10.0.2.2:5080"; // CAMBIA ESTA IP EN DISPOSITIVO FÍSICO
     return envBaseUrl.endsWith('/')
         ? envBaseUrl.substring(0, envBaseUrl.length - 1)
         : envBaseUrl;
@@ -125,12 +126,24 @@ class ApiClient {
     // Agregar campos de texto
     request.fields.addAll(fields);
 
-    // Agregar archivos usando fromPath (auto-detecta Content-Type)
+    // Agregar archivos usando fromPath con Content-Type explícito
     for (final entry in filePaths.entries) {
       try {
-        request.files.add(
-          await http.MultipartFile.fromPath(entry.key, entry.value),
+        final filePath = entry.value;
+        final extension = filePath.split('.').last.toLowerCase();
+        final contentType = switch (extension) {
+          'jpg' || 'jpeg' => MediaType('image', 'jpeg'),
+          'png' => MediaType('image', 'png'),
+          'webp' => MediaType('image', 'webp'),
+          _ => MediaType('application', 'octet-stream'),
+        };
+        final multipartFile = await http.MultipartFile.fromPath(
+          entry.key,
+          filePath,
+          contentType: contentType,
         );
+        print('DEBUG: Adding file ${entry.key}: filename=${multipartFile.filename}, contentType=${multipartFile.contentType}, length=${multipartFile.length}');
+        request.files.add(multipartFile);
       } catch (e) {
         print('Error adjuntando archivo ${entry.key}: $e');
       }
