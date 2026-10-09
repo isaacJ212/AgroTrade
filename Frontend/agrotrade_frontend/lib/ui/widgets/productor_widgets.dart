@@ -7,6 +7,7 @@ import 'productor_bottom_nav.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
+import '../../config/env.dart';
 
 void mensajeProductor(BuildContext context, String text) {
   ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -561,41 +562,77 @@ class _ProductorMapState extends State<ProductorMap> {
   }
 
   void _agregarMarcadores() async {
-    mapboxMap?.annotations.createPointAnnotationManager().then((pointAnnotationManager) async {
-      final options = <mapbox.PointAnnotationOptions>[];
-      
-      if (widget.pedidos != null && widget.pedidos!.isNotEmpty) {
-        for (var pedido in widget.pedidos!) {
-          if (pedido.latitud != null && pedido.longitud != null) {
-            options.add(mapbox.PointAnnotationOptions(
-              geometry: mapbox.Point(coordinates: mapbox.Position(pedido.longitud!, pedido.latitud!)),
-              textField: pedido.direccion.split(',').first,
-              iconImage: 'marker-15', // Icono por defecto en mapbox
-            ));
-          }
+    // Generar GeoJSON para la capa de mapa de calor
+    String features = "";
+    if (widget.pedidos != null && widget.pedidos!.isNotEmpty) {
+      features = widget.pedidos!
+          .where((p) => p.latitud != null && p.longitud != null)
+          .map((p) => '''
+        {
+          "type": "Feature",
+          "geometry": { "type": "Point", "coordinates": [${p.longitud}, ${p.latitud}] },
+          "properties": { "weight": 1.0 }
         }
-      }
+      ''').join(',');
+    }
 
-      // DATOS HARDCODEADOS DE PRUEBA
-      // Solo se agregan si no se encontraron coordenadas reales, o para forzar que se vean datos de ejemplo
-      if (options.isEmpty) {
-        final mockData = [
-          {'lat': 11.8499, 'lng': -86.1990, 'title': 'Jinotepe Centro'},
-          {'lat': 11.8580, 'lng': -86.2386, 'title': 'Diriamba'},
-          {'lat': 11.8480, 'lng': -86.2000, 'title': 'Mercado'},
+    // MOCKS de mapa de calor si no hay datos
+    if (features.isEmpty) {
+      features = '''
+        { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-86.1990, 11.8499] }, "properties": { "weight": 1.0 } },
+        { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-86.2386, 11.8580] }, "properties": { "weight": 0.6 } },
+        { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-86.2000, 11.8480] }, "properties": { "weight": 0.4 } },
+        { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-86.1950, 11.8520] }, "properties": { "weight": 0.8 } },
+        { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-86.1900, 11.8505] }, "properties": { "weight": 0.5 } }
+      ''';
+    }
+
+    String geoJson = '''
+    {
+      "type": "FeatureCollection",
+      "features": [$features]
+    }
+    ''';
+
+    try {
+      // 1. Agregar la fuente GeoJSON
+      await mapboxMap?.style.addSource(mapbox.GeoJsonSource(id: "heatmap-source", data: geoJson));
+      
+      // 2. Crear y agregar la capa de Heatmap
+      var heatmapLayer = mapbox.HeatmapLayer(
+        id: "heatmap-layer",
+        sourceId: "heatmap-source",
+      );
+      // Configurar intensidad básica del heatmap
+      heatmapLayer.heatmapRadius = 40.0;
+      heatmapLayer.heatmapOpacity = 0.7;
+      
+      await mapboxMap?.style.addLayer(heatmapLayer);
+    } catch (e) {
+      debugPrint("Error añadiendo HeatmapLayer: \$e");
+    }
+
+    // Añadimos también etiquetas de punto para mostrar el texto si es necesario
+    mapboxMap?.annotations.createPointAnnotationManager().then((pointAnnotationManager) async {
+      final textOptions = <mapbox.PointAnnotationOptions>[];
+      if (widget.pedidos == null || widget.pedidos!.isEmpty) {
+        final mockDataText = [
+          {'lat': 11.8499, 'lng': -86.1990, 'title': 'Jinotepe Centro (Alta demanda)'},
+          {'lat': 11.8580, 'lng': -86.2386, 'title': 'Diriamba (Media demanda)'},
         ];
-
-        for (var data in mockData) {
-          options.add(mapbox.PointAnnotationOptions(
+        for (var data in mockDataText) {
+          textOptions.add(mapbox.PointAnnotationOptions(
             geometry: mapbox.Point(coordinates: mapbox.Position(data['lng'] as double, data['lat'] as double)),
             textField: data['title'] as String,
-            iconImage: 'marker-15', 
+            textColor: Colors.black.value,
+            textHaloColor: Colors.white.value,
+            textHaloWidth: 2.0,
+            textOffset: [0.0, -2.0], // offset text above circle
           ));
         }
       }
-      
-      if (options.isNotEmpty) {
-        await pointAnnotationManager.createMulti(options);
+      if (textOptions.isNotEmpty) {
+        await pointAnnotationManager.createMulti(textOptions);
       }
     });
   }
