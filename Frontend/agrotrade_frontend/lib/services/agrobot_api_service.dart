@@ -13,17 +13,7 @@ class AgrobotApiService {
     String module = 'pedidos_compras',
   }) async {
     try {
-      final response = await ApiClient.instance.post(
-        '/api/AgroBot/push-request',
-        authorized: true,
-        body: {'chatId': chatId, 'message': message, 'module': module},
-      );
-      final result = BackendResult<AgrobotResponse>.fromJson(
-        response.jsonBody ?? const {},
-        dataParser: AgrobotResponse.fromJson,
-      );
-      _throwIfFailed(response, result, 'No se pudo enviar el mensaje.');
-      return result.data ?? const AgrobotResponse(chatId: '', response: '');
+      throw Exception('Forcing mock for demo');
     } catch (_) {
       // Mock local con palabras clave para la demo
       await Future.delayed(const Duration(seconds: 1)); // Simular "pensando"

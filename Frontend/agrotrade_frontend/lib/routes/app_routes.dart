@@ -69,6 +69,7 @@ class AppRoutes {
   static const String mapaCalorDemanda = '/productor/mapa-demanda';
   static const String editarFinca = '/productor/editar-finca';
   static const String tableroImpacto = '/productor/impacto';
+  static const String recursosTecnicos = '/productor/recursos';
 
   // ── Repartidor ────────────────────────────────────────────────────────────
   static const String inicioRepartidor = '/repartidor/inicio';

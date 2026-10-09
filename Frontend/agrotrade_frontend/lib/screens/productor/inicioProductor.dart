@@ -210,6 +210,15 @@ class InicioProductor extends StatelessWidget {
                     icon: Icons.calculate_outlined,
                     onTap: () => _calcularPrecio(context),
                   ),
+                  const Divider(height: 1),
+                  ProductorMenuItem(
+                    label: 'Recursos Técnicos MAG',
+                    icon: Icons.book_outlined,
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      AppRoutes.recursosTecnicos,
+                    ),
+                  ),
                 ],
               ),
             ),

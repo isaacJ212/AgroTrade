@@ -21,6 +21,7 @@ import '../screens/productor/configuracionProductor.dart';
 import '../screens/productor/contrasenaProductor.dart';
 import '../screens/productor/ayudaProductor.dart';
 import '../screens/productor/notificacionesProductor.dart';
+import '../screens/productor/recursos_tecnicos.dart';
 import '../screens/shared/chat_screen.dart';
 import 'app_routes.dart';
 
@@ -111,6 +112,9 @@ class ProductorRouter {
         break;
       case AppRoutes.tableroImpacto:
         page = const TableroImpacto();
+        break;
+      case AppRoutes.recursosTecnicos:
+        page = const RecursosTecnicosScreen();
         break;
       case '/productor/perfil-publico':
         page = const PerfilPublicoProductor();
