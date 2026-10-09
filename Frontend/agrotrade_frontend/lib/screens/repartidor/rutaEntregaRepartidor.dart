@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../ui/app_theme.dart';
 import '../../ui/components.dart';
+import '../../ui/widgets/mapaRutaRepartidor.dart';
 import 'detalleEntregaRepartidor.dart';
 
 class RutaEntregaRepartidor extends StatefulWidget {
@@ -27,33 +28,14 @@ class _RutaEntregaRepartidorState extends State<RutaEntregaRepartidor> {
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
             children: [
               // Mapa placeholder
-              Container(
+              // Mapa
+              SizedBox(
                 height: (constraints.maxHeight * 0.55).clamp(300.0, 400.0).toDouble(),
-                decoration: BoxDecoration(
-                  color: AppColors.primarySoftBg,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.cardBorder),
-                ),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.map_outlined, size: 64, color: AppColors.primaryColor),
-                      const SizedBox(height: 16),
-                      Text('Mapa de ruta', style: AppTextStyles.sectionTitle),
-                      const SizedBox(height: 8),
-                      Text(
-                        'El mapa se cargará cuando el backend exponga el endpoint de ruta',
-                        style: AppTextStyles.SubTitle,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Tiempo estimado: — min | Distancia: — km',
-                        style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
-                      ),
-                    ],
-                  ),
+                child: const MapaRutaRepartidor(
+                  zonaRecogida: 'Tienda Central',
+                  zonaDestino: 'Cliente',
+                  estado: 'en_curso',
+                  recogido: true,
                 ),
               ),
               const SizedBox(height: 16),
