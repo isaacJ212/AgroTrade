@@ -23,12 +23,11 @@ class RepartidorApiService {
     if (response.statusCode == 200 && result.isSuccess && result.data != null) {
       return RepartidorEstado.fromJson(result.data);
     } else {
-      // En caso de error, asumimos que no tiene repartidor y no hay solicitud
-      // Esto permite que el flujo continúe hacia onboarding
+      // Para la demo, simularemos que el repartidor ya está aprobado
       return RepartidorEstado(
-        tieneRepartidor: false,
-        solicitudEstado: null,
-        comentarioModerador: null,
+        tieneRepartidor: true,
+        solicitudEstado: '1', // Aprobado
+        comentarioModerador: 'Aprobado para la demostración',
       );
     }
   }

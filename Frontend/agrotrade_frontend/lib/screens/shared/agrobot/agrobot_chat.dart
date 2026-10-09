@@ -320,13 +320,40 @@ class _AgrobotChatState extends State<AgrobotChat> {
                       bottomRight: Radius.circular(16),
                     ),
                   ),
-                  child: Text(
-                    msg.text,
-                    style: AppTextStyles.SubTitle.copyWith(
-                      fontSize: 14,
-                      color: const Color(0xFF1F2937),
-                      height: 1.5,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        msg.text.split('|ROUTE|')[0].trim(),
+                        style: AppTextStyles.SubTitle.copyWith(
+                          fontSize: 14,
+                          color: const Color(0xFF1F2937),
+                          height: 1.5,
+                        ),
+                      ),
+                      if (msg.text.contains('|ROUTE|')) ...[
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.White,
+                              foregroundColor: const Color(0xFF064E3B),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                            ),
+                            onPressed: () {
+                              final route = msg.text.split('|ROUTE|')[1].trim();
+                              Navigator.pushNamed(context, route);
+                            },
+                            child: const Text('Ir a la sección'),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ],

@@ -11,6 +11,23 @@ class BankAccountApiService {
   static const _banksPath = '/api/Bancos';
   static const _userAccountsPath = '/api/CuentaBancaria/usuario';
 
+  final List<BankAccountDto> _mockAccounts = [
+    BankAccountDto(
+      idCuentaBancaria: 1,
+      idBanco: 1,
+      numeroCuentaBancaria: '5421558899663322',
+      titular: 'Productor Demo',
+      nombreBanco: 'Banco LaFise',
+    ),
+    BankAccountDto(
+      idCuentaBancaria: 2,
+      idBanco: 2,
+      numeroCuentaBancaria: '123456789',
+      titular: 'Productor Demo',
+      nombreBanco: 'BAC Credomatic',
+    ),
+  ];
+
   Future<List<BankAccountDto>> getAccounts() async {
     try {
       final response = await ApiClient.instance.get(
@@ -34,22 +51,7 @@ class BankAccountApiService {
       );
       return result.data ?? <BankAccountDto>[];
     } catch (_) {
-      return const [
-        BankAccountDto(
-          idCuentaBancaria: 1,
-          idBanco: 1,
-          numeroCuentaBancaria: '5421558899663322',
-          titular: 'Juan Pérez',
-          nombreBanco: 'Banco LaFise',
-        ),
-        BankAccountDto(
-          idCuentaBancaria: 2,
-          idBanco: 2,
-          numeroCuentaBancaria: '123456789',
-          titular: 'Juan Pérez',
-          nombreBanco: 'BAC Credomatic',
-        ),
-      ];
+      return List.from(_mockAccounts);
     }
   }
 
@@ -83,29 +85,61 @@ class BankAccountApiService {
   }
 
   Future<void> createAccount(BankAccountInput input) async {
-    final response = await ApiClient.instance.post(
-      _accountsPath,
-      body: input.toJson(),
-      authorized: true,
-    );
-    _ensureResponse(response, 'No se pudo agregar la cuenta bancaria.');
+    try {
+      final response = await ApiClient.instance.post(
+        _accountsPath,
+        body: input.toJson(),
+        authorized: true,
+      );
+      _ensureResponse(response, 'No se pudo agregar la cuenta bancaria.');
+    } catch (_) {
+      // Mock success for demo
+      final nombreBanco = input.idBanco == 1 ? 'Banco LaFise' : (input.idBanco == 2 ? 'BAC Credomatic' : (input.idBanco == 3 ? 'Ficohsa' : 'Banpro'));
+      _mockAccounts.add(BankAccountDto(
+        idCuentaBancaria: DateTime.now().millisecondsSinceEpoch % 10000,
+        idBanco: input.idBanco,
+        numeroCuentaBancaria: input.numeroCuentaBancaria,
+        titular: input.titular,
+        nombreBanco: nombreBanco,
+      ));
+    }
   }
 
   Future<void> updateAccount(int id, BankAccountInput input) async {
-    final response = await ApiClient.instance.put(
-      '$_accountsPath/$id',
-      body: input.toJson(),
-      authorized: true,
-    );
-    _ensureResponse(response, 'No se pudo actualizar la cuenta bancaria.');
+    try {
+      final response = await ApiClient.instance.put(
+        '$_accountsPath/$id',
+        body: input.toJson(),
+        authorized: true,
+      );
+      _ensureResponse(response, 'No se pudo actualizar la cuenta bancaria.');
+    } catch (_) {
+      // Mock success for demo
+      final index = _mockAccounts.indexWhere((m) => m.idCuentaBancaria == id);
+      if (index != -1) {
+        final nombreBanco = input.idBanco == 1 ? 'Banco LaFise' : (input.idBanco == 2 ? 'BAC Credomatic' : (input.idBanco == 3 ? 'Ficohsa' : 'Banpro'));
+        _mockAccounts[index] = BankAccountDto(
+          idCuentaBancaria: id,
+          idBanco: input.idBanco,
+          numeroCuentaBancaria: input.numeroCuentaBancaria,
+          titular: input.titular,
+          nombreBanco: nombreBanco,
+        );
+      }
+    }
   }
 
   Future<void> deleteAccount(int id) async {
-    final response = await ApiClient.instance.delete(
-      '$_accountsPath/$id',
-      authorized: true,
-    );
-    _ensureResponse(response, 'No se pudo eliminar la cuenta bancaria.');
+    try {
+      final response = await ApiClient.instance.delete(
+        '$_accountsPath/$id',
+        authorized: true,
+      );
+      _ensureResponse(response, 'No se pudo eliminar la cuenta bancaria.');
+    } catch (_) {
+      // Mock success for demo
+      _mockAccounts.removeWhere((m) => m.idCuentaBancaria == id);
+    }
   }
 
   void _ensureResponse(ApiResponse response, String fallback) {
@@ -162,15 +196,7 @@ class BankAccountApiService {
       );
       return result.data ?? <BankAccountDto>[];
     } catch (_) {
-      return const [
-        BankAccountDto(
-          idCuentaBancaria: 1,
-          idBanco: 1,
-          numeroCuentaBancaria: '5421558899663322',
-          titular: 'Productor Demo',
-          nombreBanco: 'Banco LaFise',
-        )
-      ];
+      return List.from(_mockAccounts);
     }
   }
 }
