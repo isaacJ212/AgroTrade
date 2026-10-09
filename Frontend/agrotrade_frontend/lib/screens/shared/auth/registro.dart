@@ -20,15 +20,14 @@ class Registro extends StatefulWidget {
 
 class _RegistroState extends State<Registro> {
   final TextEditingController _nombreController = TextEditingController();
-  final TextEditingController _primerApellidoController = TextEditingController();
-  final TextEditingController _segundoApellidoController = TextEditingController();
+  final TextEditingController _primerApellidoController =
+      TextEditingController();
+  final TextEditingController _segundoApellidoController =
+      TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmController = TextEditingController();
   final TextEditingController _numberController = TextEditingController();
-  final TextEditingController _departamentController = TextEditingController();
-  final TextEditingController _municipioController = TextEditingController();
-  final TextEditingController _direccionExactaController = TextEditingController();
 
   String? _nombreError;
   String? _primerApellidoError;
@@ -37,13 +36,33 @@ class _RegistroState extends State<Registro> {
   String? _passwordError;
   String? _confirmError;
   String? _numberError;
-  String? _departamentoError;
-  String? _municipioError;
-  String? _direccionExactaError;
 
   bool _terminosAcepta = false;
   bool _isLoading = false;
   int? _idRol;
+  String? _selectedDepartamento;
+  final TextEditingController _municipioController = TextEditingController();
+  String? _municipioError;
+
+  static const List<String> _departamentosNicaragua = [
+    'Managua',
+    'León',
+    'Granada',
+    'Masaya',
+    'Matagalpa',
+    'Estelí',
+    'Chinandega',
+    'Jinotega',
+    'Boaco',
+    'Carazo',
+    'Chontales',
+    'Madriz',
+    'Nueva Segovia',
+    'Rivas',
+    'Río San Juan',
+    'Región Autónoma Costa Caribe Norte',
+    'Región Autónoma Costa Caribe Sur',
+  ];
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     serverClientId:
@@ -79,9 +98,7 @@ class _RegistroState extends State<Registro> {
     _passwordController.dispose();
     _confirmController.dispose();
     _numberController.dispose();
-    _departamentController.dispose();
     _municipioController.dispose();
-    _direccionExactaController.dispose();
     super.dispose();
   }
 
@@ -93,9 +110,7 @@ class _RegistroState extends State<Registro> {
     String? passwordError;
     String? confirmError;
     String? numberError;
-    String? departamentoError;
     String? municipioError;
-    String? direccionExactaError;
 
     //Lectura
 
@@ -105,23 +120,24 @@ class _RegistroState extends State<Registro> {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
     final confirm = _confirmController.text.trim();
-    final departamento = _departamentController.text.trim();
-    final municipio = _municipioController.text.trim();
-    final direccionExacta = _direccionExactaController.text.trim();
     final telefono = _numberController.text.trim();
+    final municipio = _municipioController.text.trim();
 
+    // --- NOMBRE: backend exige al menos 2 caracteres ---
     if (nombre.isEmpty) {
       nombreError = "El nombre es obligatorio";
     } else if (nombre.length < 2) {
       nombreError = "Mínimo 2 caracteres";
     }
 
+    // --- PRIMER APELLIDO: backend exige al menos 2 caracteres ---
     if (primerApellido.isEmpty) {
       primerApellidoError = "El primer apellido es obligatorio";
     } else if (primerApellido.length < 2) {
       primerApellidoError = "Mínimo 2 caracteres";
     }
 
+    // --- SEGUNDO APELLIDO: backend exige al menos 2 caracteres ---
     if (segundoApellido.isEmpty) {
       segundoApellidoError = "El segundo apellido es obligatorio";
     } else if (segundoApellido.length < 2) {
@@ -143,20 +159,10 @@ class _RegistroState extends State<Registro> {
     }
 
     // --- CONFIRMAR CONTRASEÑA: debe coincidir ---
-    // APRENDIZAJE: aquí comparamos DOS controllers entre sí
     if (confirm.isEmpty) {
       confirmError = "Confirma tu contraseña";
     } else if (password != confirm) {
       confirmError = "Las contraseñas no coinciden";
-    }
-    if (departamento.isEmpty) {
-      departamentoError = "El departamento es obligatorio";
-    }
-    if (municipio.isEmpty) {
-      municipioError = "El municipio es obligatorio";
-    }
-    if (direccionExacta.isEmpty) {
-      direccionExactaError = "La dirección exacta es obligatoria";
     }
 
     // --- TELÉFONO: backend valida 8 dígitos y debe comenzar con 5, 7 u 8 ---
@@ -165,6 +171,11 @@ class _RegistroState extends State<Registro> {
       numberError = "El teléfono es obligatorio";
     } else if (!regexTelefono.hasMatch(telefono)) {
       numberError = "Teléfono inválido (8 dígitos, inicia con 5, 7 u 8)";
+    }
+
+    // --- MUNICIPIO: opcional pero si se ingresa debe tener al menos 2 caracteres ---
+    if (municipio.isNotEmpty && municipio.length < 2) {
+      municipioError = "Mínimo 2 caracteres";
     }
 
     // Un solo setState al final → redibuja todos los errores de una vez
@@ -176,21 +187,19 @@ class _RegistroState extends State<Registro> {
       _passwordError = passwordError;
       _confirmError = confirmError;
       _numberError = numberError;
-      _departamentoError = departamentoError;
       _municipioError = municipioError;
-      _direccionExactaError = direccionExactaError;
     });
 
     // Válido si TODOS los errores son null Y aceptó los términos
+    // Nota: Departamento se valida en el FormField del dropdown
     return nombreError == null &&
         primerApellidoError == null &&
         segundoApellidoError == null &&
         emailError == null &&
         passwordError == null &&
+        confirmError == null &&
         numberError == null &&
-        departamentoError == null &&
         municipioError == null &&
-        direccionExactaError == null &&
         _terminosAcepta;
   }
 
@@ -231,9 +240,10 @@ class _RegistroState extends State<Registro> {
           email: _emailController.text.trim(),
           password: _passwordController.text,
           telefono: _numberController.text.trim(),
-          departamento: _departamentController.text.trim(),
-          municipio: _municipioController.text.trim(),
-          direccionExacta: _direccionExactaController.text.trim(),
+          departamento: _selectedDepartamento,
+          municipio: _municipioController.text.trim().isNotEmpty
+              ? _municipioController.text.trim()
+              : null,
           idRol: _idRol,
         ),
       );
@@ -432,25 +442,51 @@ class _RegistroState extends State<Registro> {
                   errorText: _numberError,
                 ),
                 const SizedBox(height: 16),
-                AppTextField(
-                  hint: "Managua",
-                  label: 'Departamento',
-                  errorText: _departamentoError,
-                  controller: _departamentController,
+                FormField<String>(
+                  initialValue: _selectedDepartamento,
+                  validator: (v) => v == null || v.isEmpty
+                      ? 'El departamento es obligatorio'
+                      : null,
+                  builder: (state) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        DropdownButtonFormField<String>(
+                          value: _selectedDepartamento,
+                          isExpanded: true,
+                          decoration: appInputDecoration(
+                            label: 'Departamento *',
+                            hint: 'Selecciona el departamento',
+                            errorText: state.errorText,
+                          ),
+                          items: _departamentosNicaragua
+                              .map(
+                                (d) => DropdownMenuItem(
+                                  value: d,
+                                  child: Text(
+                                    d,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (v) {
+                            setState(() => _selectedDepartamento = v);
+                            state.didChange(v);
+                          },
+                          menuMaxHeight: 300,
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 16),
                 AppTextField(
-                  hint: "Managua",
-                  label: 'Municipio',
-                  errorText: _municipioError,
+                  hint: "Ej: Managua",
+                  label: "Municipio",
                   controller: _municipioController,
-                ),
-                const SizedBox(height: 16),
-                AppTextField(
-                  hint: "Del parque 1c al lago",
-                  label: 'Dirección Exacta',
-                  errorText: _direccionExactaError,
-                  controller: _direccionExactaController,
+                  errorText: _municipioError,
                 ),
                 const SizedBox(height: 16),
 

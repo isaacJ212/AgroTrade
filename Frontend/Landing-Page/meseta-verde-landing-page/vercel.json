@@ -1,0 +1,6 @@
+{
+  "name": "Meseta Verde",
+  "framework": "nextjs",
+  "regions": ["iad1"],
+  "buildCommand": "next build"
+}

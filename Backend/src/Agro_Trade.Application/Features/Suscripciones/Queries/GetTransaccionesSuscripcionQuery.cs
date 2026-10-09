@@ -1,13 +1,13 @@
 using MediatR;
 using Agro_Trade.Application.Common;
-using Agro_Trade.Domain.Entities;
 using Agro_Trade.Application.Common.Interface;
+using Agro_Trade.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace Agro_Trade.Application.Features.Suscripciones.Queries
 {
@@ -36,7 +36,7 @@ namespace Agro_Trade.Application.Features.Suscripciones.Queries
                 {
                     IdSuscripcion = s.IdSuscripcionApp,
                     IdUsuario = s.IdUsuario,
-                    NombreUsuario = s.Usuario.Nombre + " " + s.Usuario.PrimerApellido,
+                    NombreUsuario = $"{s.Usuario.Nombre} {s.Usuario.PrimerApellido} {s.Usuario.SegundoApellido}".Trim(),
                     Plan = s.TipoPlan.NombrePlan,
                     MontoPagado = s.TarifaPago,
                     FechaTransaccion = s.CreadaEn,

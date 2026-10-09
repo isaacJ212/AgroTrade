@@ -86,14 +86,7 @@ class _SuscripcionesScreenState extends State<SuscripcionesScreen> {
   }
 
   void _crearSuscripcion() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Crear nueva suscripción (próximamente)'),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.primaryColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-    );
+    Navigator.pushNamed(context, '/planes-suscripcion');
   }
 
   void _administrarSuscripcion(_SuscripcionItem item) {

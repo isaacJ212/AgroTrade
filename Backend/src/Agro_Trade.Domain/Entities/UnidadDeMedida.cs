@@ -8,17 +8,15 @@ public class UnidadDeMedida
     [Required]
     public int Id { get; set; }
 
-    //kilogramo
-    public string Nombre { get; set; }
+    // kilogramo
+    public string Nombre { get; set; } = null!;
     // Kg
-    public string Codigo { get; set; }
-    // 1 kilogramo 2 kilogramos
+    public string Codigo { get; set; } = null!;
+    // 1 kilogramo → 2 kilogramos
     public int Factor { get; set; }
-    
-    //POR EJEMPLO EL ID 1 SERIA GRAMOS QUE SERIA LA BASE DE KILOGRAMO
-    public int? IdBase { get; set; }// base 1 osea kilogramo
-    //nullable por que hay algunos que no necesitan base 
-    
-    
 
+    // ID de la unidad base (ej.: gramos para kilogramo); nullable porque algunas unidades son base
+    public int? IdBase { get; set; }
+
+    public ICollection<Producto> Productos { get; set; } = new List<Producto>();
 }

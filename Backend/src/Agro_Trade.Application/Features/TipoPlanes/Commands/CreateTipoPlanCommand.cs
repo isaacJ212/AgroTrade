@@ -10,7 +10,7 @@ namespace Agro_Trade.Application.Features.TipoPlanes.Commands
     public class CreateTipoPlanDto
     {
         public string NombrePlan { get; set; } = null!;
-        public string Descripcion { get; set; } = null!;
+        public string Descripcion { get; set; } = null;
         public string Beneficios { get; set; } = null!;
         public decimal Precio { get; set; }
         public decimal Coste { get; set; }

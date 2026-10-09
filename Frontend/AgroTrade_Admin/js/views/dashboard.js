@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   authService.guardRoute();
 
   await initDashboard();
-  renderRecentActivities();
+  await renderRecentActivities();
 });
 
 async function initDashboard() {
@@ -25,7 +25,7 @@ async function renderDashboardStats() {
 }
 
 async function renderPendingReviews() {
-  const container = document.getElementById('dashPendingReviewsContainer');
+  const container = document.getElementById('dashPendingReviewsList');
   if (!container) return;
 
   const pending = await adminStore.getPendingVerifications();
@@ -80,11 +80,12 @@ async function renderPendingReviews() {
   }).join('');
 }
 
-function renderRecentActivities() {
+async function renderRecentActivities() {
   const list = document.getElementById('dashRecentActivitiesList');
   if (!list) return;
 
-  const activities = adminStore.getActivities();
+  const res = await adminStore.getActivities(1, 10);
+  const activities = res.items || [];
 
   list.innerHTML = activities.map(act => {
     let iconSvg = '';

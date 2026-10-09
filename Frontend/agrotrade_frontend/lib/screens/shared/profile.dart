@@ -1,3 +1,4 @@
+import 'package:agrotrade_frontend/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import '../../services/api_session.dart';
 import '../../services/auth_api_service.dart';
@@ -10,45 +11,10 @@ import 'auth/Login.dart';
 import 'editarPerfil.dart';
 import 'change_password_dialog.dart';
 import 'centroAyuda.dart';
+import 'bank_accounts_screen.dart';
 
-import '../../services/users_api_service.dart';
-import '../../models/api/user_models.dart';
-
-class Profile extends StatefulWidget {
+class Profile extends StatelessWidget {
   const Profile({super.key});
-
-  @override
-  State<Profile> createState() => _ProfileState();
-}
-
-class _ProfileState extends State<Profile> {
-  UserDto? _user;
-  bool _cargando = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _cargarUsuario();
-  }
-
-  Future<void> _cargarUsuario() async {
-    final email = ApiSession.instance.userEmail;
-    if (email != null && email.isNotEmpty) {
-      try {
-        final user = await UsersApiService.instance.getUserByEmail(email);
-        if (mounted) {
-          setState(() {
-            _user = user;
-            _cargando = false;
-          });
-        }
-      } catch (e) {
-        if (mounted) setState(() => _cargando = false);
-      }
-    } else {
-      if (mounted) setState(() => _cargando = false);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,9 +51,7 @@ class _ProfileState extends State<Profile> {
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: AppColors.cardBorder),
               ),
-              child: _cargando 
-                  ? const Center(child: CircularProgressIndicator())
-                  : Column(
+              child: Column(
                 children: [
                   Stack(
                     clipBehavior: Clip.none,
@@ -111,33 +75,35 @@ class _ProfileState extends State<Profile> {
                           ),
                         ),
                       ),
-                      if (_user?.identidadVerificada == true)
-                        Positioned(
-                          right: -2,
-                          bottom: 2,
-                          child: Container(
-                            width: 24,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              color: AppColors.primaryColor,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: AppColors.White,
-                                width: 2,
-                              ),
-                            ),
-                            child: const Icon(
-                              Icons.verified_user_outlined,
-                              size: 14,
+                      Positioned(
+                        right: -2,
+                        bottom: 2,
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryColor,
+                            shape: BoxShape.circle,
+                            border: Border.all(
                               color: AppColors.White,
+                              width: 2,
                             ),
                           ),
+                          child: const Icon(
+                            Icons.verified_user_outlined,
+                            size: 14,
+                            color: AppColors.White,
+                          ),
                         ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    _user?.name ?? ApiSession.instance.userName ?? 'Usuario AgroTrade',
+                    ApiSession.instance.userName != null &&
+                            ApiSession.instance.userName!.isNotEmpty
+                        ? ApiSession.instance.userName!
+                        : 'Usuario AgroTrade',
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
@@ -145,42 +111,42 @@ class _ProfileState extends State<Profile> {
                     ),
                   ),
 
-                  if (_user?.identidadVerificada == true) ...[
-                    const SizedBox(height: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primarySoftBg,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.verified_outlined,
-                            size: 14,
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primarySoftBg,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.verified_outlined,
+                          size: 14,
+                          color: AppColors.primaryColor,
+                        ),
+                        SizedBox(width: 5),
+                        Text(
+                          'Cuenta Verificada',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
                             color: AppColors.primaryColor,
                           ),
-                          SizedBox(width: 5),
-                          Text(
-                            'Cuenta Verificada',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.primaryColor,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
 
                   const SizedBox(height: 12),
                   Text(
-                    _user?.email ?? ApiSession.instance.userEmail ?? 'Sin correo electrónico',
+                    ApiSession.instance.userLocation?.isNotEmpty == true
+                        ? ApiSession.instance.userLocation!
+                        : 'Ubicación no registrada',
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -224,6 +190,30 @@ class _ProfileState extends State<Profile> {
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const EditarPerfil()),
+                    ),
+                  ),
+
+                  const Divider(
+                    height: 1,
+                    indent: 48,
+                    color: AppColors.cardBorder,
+                  ),
+
+                  ProfileMenuItem(
+                    icon: Icons.card_membership,
+                    title: 'Mis Suscripciones',
+                    onTap: () =>
+                        Navigator.pushNamed(context, AppRoutes.suscripciones),
+                  ),
+
+                  ProfileMenuItem(
+                    icon: Icons.account_balance_outlined,
+                    title: 'Cuentas bancarias',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const BankAccountsScreen(),
+                      ),
                     ),
                   ),
 
@@ -296,52 +286,6 @@ class _ProfileState extends State<Profile> {
             const SizedBox(height: 12),
           ],
         ),
-      ),
-
-      bottomNavigationBar: ProductorBottomNav(
-        items: const [
-          NavElemento(
-            label: 'Inicio',
-            icon: Icons.home_outlined,
-            activeIcon: Icons.home,
-          ),
-          NavElemento(
-            label: 'Explorar',
-            icon: Icons.search_outlined,
-            activeIcon: Icons.search,
-          ),
-          NavElemento(
-            label: 'Pedidos',
-            icon: Icons.shopping_bag_outlined,
-            activeIcon: Icons.shopping_bag,
-          ),
-          NavElemento(
-            label: 'Perfil',
-            icon: Icons.person_outline,
-            activeIcon: Icons.person,
-          ),
-        ],
-        currentIndex: 3,
-        onTap: (index) {
-          final Widget pagina;
-          switch (index) {
-            case 0:
-              pagina = const InicioComprador();
-              break;
-            case 1:
-              pagina = const ExploradorProductos();
-              break;
-            case 2:
-              pagina = const MisPedidosScreen();
-              break;
-            default:
-              return;
-          }
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => pagina),
-          );
-        },
       ),
     );
   }

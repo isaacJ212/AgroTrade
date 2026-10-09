@@ -1,21 +1,156 @@
-version: '3.8'
+# =============================================================================
+# Docker Compose para AgroTrade - Producción
+# Servicios: API Backend, Panel Admin, Base de Datos PostgreSQL
+# =============================================================================
+# =============================================================================
 
 services:
-  backend_api:
+  # -----------------------------------------------------------------------------
+  # BASE DE DATOS: PostgreSQL 16
+  # -----------------------------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    container_name: agrotrade_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./Backend/scripts/init-db:/docker-entrypoint-initdb.d:ro
+    # Puertos comentados para NO exponer la base de datos a internet
+    # ports:
+    #   - "${DB_PORT}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - agrotrade_network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # -----------------------------------------------------------------------------
+  # API BACKEND: ASP.NET Core 8.0
+  # -----------------------------------------------------------------------------
+  api:
     build:
       context: ./Backend
       dockerfile: Dockerfile
-    container_name: meseta_verde_api
-    restart: always
-    ports:
-      - "5000:8080"
+      target: final
+    container_name: agrotrade_api
+    restart: unless-stopped
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      # Reemplaza los valores con la URL/Credenciales reales de tu PostgreSQL en la nube
-      - environment:
-  - ConnectionStrings__MesetaVerdeDatabase=Host=${DB_HOST};Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASS};
-      # Configuración de JWT
-      - Jwt__Issuer=MesetaVerdeApi
-      - Jwt__Audience=MesetaVerdeApp
-      - Jwt__Key=EstaEsUnaClaveSuperSecretaYLarga12345!
-      
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__MesetaVerdeDatabase=${CONNECTION_STRING}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
+      - Jwt__SigninKey=${JWT_KEY}
+      - Jwt__AccessTokenMinutes=${JWT_ACCESS_TOKEN_MINUTES}
+      - Jwt__RefreshTokenDays=${JWT_REFRESH_TOKEN_DAYS}
+      - Google__ClientId=${GOOGLE_CLIENT_ID}
+      - Google__ClientSecret=${GOOGLE_CLIENT_SECRET}
+      - GmailSmtp__SmtpLogin=${GMAIL_SMTP_LOGIN}
+      - GmailSmtp__SmtpPassword=${GMAIL_SMTP_PASSWORD}
+      - GmailSmtp__EmailSender=${GMAIL_EMAIL_SENDER}
+      - GmailSmtp__FromName=${GMAIL_FROM_NAME}
+      - GmailSmtp__SmtpHost=${GMAIL_SMTP_HOST}
+      - GmailSmtp__SmtpPort=${GMAIL_SMTP_PORT}
+      - Supabase__Url=${SUPABASE_URL}
+      - Supabase__ServiceRoleKey=${SUPABASE_SERVICE_ROLE_KEY}
+      - Gemini__ApiKey=${GEMINI_API_KEY}
+      - AllowedHosts=*
+    ports:
+      - "${API_HOST_PORT}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - agrotrade_network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # -----------------------------------------------------------------------------
+  # PANEL DE ADMINISTRACIÓN: Node.js + Express (Static Files)
+  # -----------------------------------------------------------------------------
+  admin:
+    build:
+      context: ./Frontend/AgroTrade_Admin
+      dockerfile: Dockerfile
+      target: production
+    container_name: agrotrade_admin
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=${ADMIN_PORT}
+      - API_BASE_URL=${API_BASE_URL}
+    ports:
+      - "${ADMIN_HOST_PORT}:3000"
+    depends_on:
+      - api
+    networks:
+      - agrotrade_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+  # -----------------------------------------------------------------------------
+  # LANDING PAGE: Next.js
+  # -----------------------------------------------------------------------------
+  landing:
+    build:
+      context: ./Frontend/Landing-Page/meseta-verde-landing-page
+      dockerfile: Dockerfile
+    container_name: agrotrade_landing
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - RESEND_API_KEY=${RESEND_API_KEY}
+    ports:
+      - "${LANDING_HOST_PORT:-3400}:3000"
+    networks:
+      - agrotrade_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+# -----------------------------------------------------------------------------
+# VOLÚMENES PERSISTENTES
+# -----------------------------------------------------------------------------
+volumes:
+  postgres_data:
+    driver: local
+
+# -----------------------------------------------------------------------------
+# REDES
+# -----------------------------------------------------------------------------
+networks:
+  agrotrade_network:
+    driver: bridge
+    name: agrotrade_network

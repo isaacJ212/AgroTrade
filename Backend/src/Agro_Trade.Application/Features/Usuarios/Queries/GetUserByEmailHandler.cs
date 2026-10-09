@@ -19,6 +19,7 @@ namespace Agro_Trade.Application.Features.Usuarios.Queries
             if (user is null)
                 return Result<UserDto>.Failure(404, "Usuario No Encontrado");
 
+            var roles = await context.Users.GetRolesByUserIdAsync(user.IdUsuario, ct);
             var dto = new UserDto
             {
                 Id = user.IdUsuario,
@@ -28,7 +29,10 @@ namespace Agro_Trade.Application.Features.Usuarios.Queries
                 Telefono = user.Telefono,
                 DireccionBase = $"{user.Departamento}, {user.Municipio}, {user.DireccionExacta}".Trim(new char[] { ',' , ' ' }),
                 FechaRegistro = user.FechaRegistro,
-                Departamento = user.Departamento
+                Departamento = user.Departamento,
+                Municipio = user.Municipio,
+                EstadoCuenta = user.EstadoCuenta,
+                Roles = roles.ToList()
             };
 
             return Result<UserDto>.Success(200, dto, "Exit", true);

@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Agro_Trade.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -16,7 +12,6 @@ namespace Agro_Trade.Infrastructure.Persistence.Configurations
             builder.HasKey(p => p.IdProducto);
 
             builder.Property(p => p.Nombre).IsRequired().HasMaxLength(200);
-            builder.Property(p => p.UnidadMedida).IsRequired().HasMaxLength(50);
 
             builder.HasMany(p => p.Inventarios)
                .WithOne(i => i.Producto)
@@ -29,6 +24,12 @@ namespace Agro_Trade.Infrastructure.Persistence.Configurations
             builder.HasOne(p => p.Proveedor)
                .WithMany(pv => pv.Productos)
                .HasForeignKey(p => p.IdProveedor);
+
+            builder.HasOne(p => p.UnidadDeMedida)
+               .WithMany(u => u.Productos)
+               .HasForeignKey(p => p.IdUnidadDeMedida)
+               .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
+

@@ -17,6 +17,7 @@ namespace Agro_Trade.Infrastructure.Persistence.Configurations
             builder.ToTable("solicitud_repartidor");
             builder.HasKey(p => p.IdSolicitud);
             builder.HasOne(p => p.Usuario).WithMany().HasForeignKey(P => P.IdUsuario);
+            
 
             builder.Property(e => e.DatosRepartidor).HasColumnType("jsonb");
         }

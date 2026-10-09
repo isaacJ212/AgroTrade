@@ -1,6 +1,5 @@
 using MediatR;
 using Agro_Trade.Application.Common;
-using Agro_Trade.Domain.Entities;
 using Agro_Trade.Application.Common.Interface;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,25 +8,25 @@ namespace Agro_Trade.Application.Features.TipoPlanes.Commands
 {
     public class UpdateTipoPlanDto
     {
-        public int IdPlan { get; set; }
+        public int IdTipoPlan { get; set; }
         public string NombrePlan { get; set; } = null!;
-        public string Descripcion { get; set; } = null!;
+        public string Descripcion { get; set; } = null;
         public string Beneficios { get; set; } = null!;
         public decimal Precio { get; set; }
         public decimal Coste { get; set; }
-        public bool IsActive { get; set; }
+        public bool Estado { get; set; }
     }
 
-    public sealed record UpdateTipoPlanCommand(UpdateTipoPlanDto Dto) : IRequest<Result<bool>>;
+    public sealed record UpdateTipoPlanCommand(UpdateTipoPlanDto Dto) : IRequest<Result<int>>;
 
-    public class UpdateTipoPlanHandler(IUnitofWork unitOfWork) : IRequestHandler<UpdateTipoPlanCommand, Result<bool>>
+    public class UpdateTipoPlanHandler(IUnitofWork unitOfWork) : IRequestHandler<UpdateTipoPlanCommand, Result<int>>
     {
-        public async Task<Result<bool>> Handle(UpdateTipoPlanCommand request, CancellationToken ct)
+        public async Task<Result<int>> Handle(UpdateTipoPlanCommand request, CancellationToken ct)
         {
-            var plan = await unitOfWork.TipoPlanes.FirstOrDefaultAsync(p => p.Id == request.Dto.IdPlan, ct);
+            var plan = await unitOfWork.TipoPlanes.GetByIdAsync(request.Dto.IdTipoPlan, ct);
             if (plan == null)
             {
-                return Result<bool>.Failure(404, $"Plan con ID {request.Dto.IdPlan} no encontrado.");
+                return Result<int>.Failure(404, "Plan no encontrado.");
             }
 
             plan.NombrePlan = request.Dto.NombrePlan;
@@ -35,12 +34,12 @@ namespace Agro_Trade.Application.Features.TipoPlanes.Commands
             plan.Beneficios = request.Dto.Beneficios;
             plan.Precio = request.Dto.Precio;
             plan.Coste = request.Dto.Coste;
-            plan.IsActive = request.Dto.IsActive;
+            plan.IsActive = request.Dto.Estado;
 
             await unitOfWork.TipoPlanes.UpdateAsync(plan, ct);
             await unitOfWork.SaveChangesAsync(ct);
 
-            return Result<bool>.Success(200, true, "Plan actualizado con éxito.", true);
+            return Result<int>.Success(200, plan.Id, "Plan actualizado con éxito.", true);
         }
     }
 }

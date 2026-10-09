@@ -1,4 +1,5 @@
 import 'package:agrotrade_frontend/screens/repartidor/perfilRepartidor.dart';
+import 'package:agrotrade_frontend/screens/repartidor/verificacionRepartidorModal.dart';
 import 'package:flutter/material.dart';
 import '../../routes/app_routes.dart';
 import '../../ui/app_theme.dart';
@@ -7,8 +8,8 @@ import '../../ui/widgets/repartidor_bottom_nav.dart';
 import 'detalleEntregaRepartidor.dart';
 import 'entregasRepartidor.dart';
 import 'rutaEntregaRepartidor.dart';
-import 'repartidor_demo.dart';
 import '../../services/delivery_api_service.dart';
+import '../../services/repartidor_api_service.dart';
 import '../../services/api_session.dart';
 import 'package:agrotrade_frontend/models/api/delivery_models.dart';
 
@@ -32,11 +33,30 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
     super.initState();
     _pendingFuture = DeliveryApiService.instance
         .getPendingDeliveries()
-        .then((deliveries) {
-          RepartidorDemo.instance.registrarPendientesApi(deliveries);
-          return deliveries;
-        })
         .catchError((_) => <PendingDeliveryNotificationDto>[]);
+    _verificarEstadoRepartidor();
+  }
+
+  Future<void> _verificarEstadoRepartidor() async {
+    try {
+      final estado = await RepartidorApiService.instance.getEstadoVerificacion();
+      if (mounted && !estado.estaVerificado) {
+        // Usar addPostFrameCallback para mostrar el modal después del primer frame
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            VerificacionRepartidorModal.show(
+              context: context,
+              estado: estado,
+              onCorregirReenviar: () => Navigator.pushNamed(context, AppRoutes.formularioSolicitudRepartidor),
+              onIrAOnboarding: () => Navigator.pushNamed(context, AppRoutes.onboardingRepartidor),
+            );
+          }
+        });
+      }
+    } catch (e) {
+      // Si falla la verificación, continuar sin bloquear
+      debugPrint('Error verificando estado repartidor: $e');
+    }
   }
 
   String get _saludo {
@@ -74,7 +94,8 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
         return Scaffold(
           backgroundColor: AppColors.scaffoldBg,
           floatingActionButton: SupportFab(
-            onPressed: () => Navigator.pushNamed(context, AppRoutes.agrobotWelcome),
+            onPressed: () =>
+                Navigator.pushNamed(context, AppRoutes.agrobotWelcome),
           ),
           body: SafeArea(
             bottom: false,
@@ -171,7 +192,11 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
                         style: AppTextStyles.sectionTitle,
                       ),
                       const SizedBox(height: 12),
-                      _StatsGrid(pendingCount: pendingDeliveries.length),
+                      _StatsGrid(
+                        pendingCount: pendingDeliveries.length,
+                        enCursoCount: 0,
+                        completadasCount: 0,
+                      ),
                       const SizedBox(height: 24),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -191,7 +216,7 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
                             ),
                             child: Text(
                               nextDelivery == null
-                                  ? '#AT-2051'
+                                  ? 'Sin entregas'
                                   : '#AT-${nextDelivery.pedidoId}',
                               style: AppTextStyles.chip.copyWith(
                                 color: AppColors.chipGrey,
@@ -201,24 +226,26 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
                         ],
                       ),
                       const SizedBox(height: 12),
-                      _NextDeliveryCard(
-                        mapUrl: _mapUrl,
-                        delivery: nextDelivery,
-                        onVerEntrega: () => _navigate(
-                          context,
-                          DetalleEntregaRepartidor(
-                            pedidoId: nextDelivery?.pedidoId,
-                            zonaEntrega: nextDelivery?.zonaEntrega,
-                            totalPedido: nextDelivery?.totalPedido,
-                          ),
-                        ),
-                      ),
+                      nextDelivery != null
+                          ? _NextDeliveryCard(
+                              delivery: nextDelivery,
+                              onVerEntrega: () => _navigate(
+                                context,
+                                DetalleEntregaRepartidor(
+                                  pedidoId: nextDelivery.pedidoId,
+                                  zonaEntrega: nextDelivery.zonaEntrega,
+                                  totalPedido: nextDelivery.totalPedido,
+                                ),
+                              ),
+                            )
+                          : _EmptyDeliveryCard(),
                       const SizedBox(height: 24),
                       Text('Ruta del día', style: AppTextStyles.sectionTitle),
                       const SizedBox(height: 12),
                       _RouteSummaryCard(
                         onVerRuta: () =>
                             _navigate(context, const RutaEntregaRepartidor()),
+                        paradasCount: pendingDeliveries.length,
                       ),
                     ],
                   ),
@@ -251,8 +278,14 @@ class _InicioRepartidorState extends State<InicioRepartidor> {
 
 class _StatsGrid extends StatelessWidget {
   final int pendingCount;
+  final int enCursoCount;
+  final int completadasCount;
 
-  const _StatsGrid({required this.pendingCount});
+  const _StatsGrid({
+    required this.pendingCount,
+    required this.enCursoCount,
+    required this.completadasCount,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -272,10 +305,10 @@ class _StatsGrid extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            const Expanded(
+            Expanded(
               child: _StatCard(
                 title: 'En curso',
-                value: '1',
+                value: '$enCursoCount',
                 icon: Icons.local_shipping,
                 background: AppColors.primaryColor,
                 iconColor: AppColors.fabIcon,
@@ -287,12 +320,12 @@ class _StatsGrid extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        const Row(
+        Row(
           children: [
             Expanded(
               child: _StatCard(
                 title: 'Completadas',
-                value: '2',
+                value: '$completadasCount',
                 icon: Icons.check_circle_outline,
                 background: Color(0xFFE7E8E9),
                 iconColor: AppColors.bodyText,
@@ -382,15 +415,10 @@ class _StatCard extends StatelessWidget {
 }
 
 class _NextDeliveryCard extends StatelessWidget {
-  final String mapUrl;
-  final PendingDeliveryNotificationDto? delivery;
+  final PendingDeliveryNotificationDto delivery;
   final VoidCallback onVerEntrega;
 
-  const _NextDeliveryCard({
-    required this.mapUrl,
-    required this.delivery,
-    required this.onVerEntrega,
-  });
+  const _NextDeliveryCard({required this.delivery, required this.onVerEntrega});
 
   @override
   Widget build(BuildContext context) {
@@ -410,38 +438,40 @@ class _NextDeliveryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            child: SizedBox(
-              height: 128,
-              width: double.infinity,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.network(
-                    mapUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      color: AppColors.primarySoftBg,
-                      alignment: Alignment.center,
-                      child: const Icon(
-                        Icons.agriculture_outlined,
-                        color: AppColors.primaryColor,
-                        size: 48,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Color(0x0AFFFFFF), Color(0x11FFFFFF)],
-                      ),
-                    ),
-                  ),
-                ],
+          // Header con info de la entrega (sin mock map)
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.primarySoftBg,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
               ),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.local_shipping_outlined,
+                  color: AppColors.primaryColor,
+                  size: 28,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Entrega #AT-${delivery.pedidoId}',
+                        style: AppTextStyles.cardTitle.copyWith(fontSize: 20),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Destino: ${delivery.zonaEntrega}',
+                        style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
           Padding(
@@ -449,30 +479,6 @@ class _NextDeliveryCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  delivery == null
-                      ? 'Finca La Esperanza'
-                      : 'Entrega #AT-${delivery!.pedidoId}',
-                  style: AppTextStyles.cardTitle.copyWith(fontSize: 20),
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.location_on_outlined,
-                      size: 16,
-                      color: AppColors.bodyText,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      delivery == null
-                          ? 'Destino: Jinotepe'
-                          : 'Destino: ${delivery!.zonaEntrega}',
-                      style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
                 const Divider(height: 1, color: AppColors.cardBorder),
                 const SizedBox(height: 14),
                 Row(
@@ -482,7 +488,7 @@ class _NextDeliveryCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Contenido',
+                            'Total',
                             style: AppTextStyles.SubTitle.copyWith(
                               fontSize: 13,
                             ),
@@ -491,15 +497,13 @@ class _NextDeliveryCard extends StatelessWidget {
                           Row(
                             children: [
                               const Icon(
-                                Icons.inventory_2_outlined,
+                                Icons.attach_money,
                                 size: 18,
                                 color: AppColors.primaryColor,
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                delivery == null
-                                    ? '3 productos'
-                                    : '\$${delivery!.totalPedido.toStringAsFixed(2)}',
+                                '\$${delivery.totalPedido.toStringAsFixed(2)}',
                                 style: AppTextStyles.label.copyWith(
                                   fontSize: 14,
                                 ),
@@ -514,7 +518,7 @@ class _NextDeliveryCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Recogida',
+                            'Fecha',
                             style: AppTextStyles.SubTitle.copyWith(
                               fontSize: 13,
                             ),
@@ -523,15 +527,15 @@ class _NextDeliveryCard extends StatelessWidget {
                           Row(
                             children: [
                               const Icon(
-                                Icons.schedule_outlined,
+                                Icons.calendar_today,
                                 size: 18,
                                 color: AppColors.primaryColor,
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                delivery?.fechaCreacion == null
-                                    ? '10:30 a. m.'
-                                    : '${delivery!.fechaCreacion!.toLocal().year.toString().padLeft(4, '0')}-${delivery!.fechaCreacion!.toLocal().month.toString().padLeft(2, '0')}-${delivery!.fechaCreacion!.toLocal().day.toString().padLeft(2, '0')} ${delivery!.fechaCreacion!.toLocal().hour.toString().padLeft(2, '0')}:${delivery!.fechaCreacion!.toLocal().minute.toString().padLeft(2, '0')}',
+                                delivery.fechaCreacion != null
+                                    ? '${delivery.fechaCreacion!.toLocal().day}/${delivery.fechaCreacion!.toLocal().month}/${delivery.fechaCreacion!.toLocal().year}'
+                                    : '—',
                                 style: AppTextStyles.label.copyWith(
                                   fontSize: 14,
                                 ),
@@ -560,7 +564,7 @@ class _NextDeliveryCard extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Icon(
-                            Icons.error_outline,
+                            Icons.pending_actions,
                             size: 14,
                             color: AppColors.inputErrorColor,
                           ),
@@ -609,10 +613,47 @@ class _NextDeliveryCard extends StatelessWidget {
   }
 }
 
+class _EmptyDeliveryCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: Column(
+        children: [
+          const Icon(Icons.inbox_outlined, size: 48, color: AppColors.TextSoft),
+          const SizedBox(height: 12),
+          Text(
+            'No hay entregas pendientes',
+            style: AppTextStyles.cardTitle.copyWith(fontSize: 18),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Las entregas aparecerán aquí cuando se asignen',
+            style: AppTextStyles.SubTitle.copyWith(
+              color: AppColors.TextSoft,
+              fontSize: 14,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _RouteSummaryCard extends StatelessWidget {
   final VoidCallback onVerRuta;
+  final int paradasCount;
 
-  const _RouteSummaryCard({required this.onVerRuta});
+  const _RouteSummaryCard({
+    required this.onVerRuta,
+    required this.paradasCount,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -647,7 +688,7 @@ class _RouteSummaryCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '3 paradas pendientes',
+                      '$paradasCount paradas pendientes',
                       style: AppTextStyles.SubTitle.copyWith(fontSize: 14),
                     ),
                   ],

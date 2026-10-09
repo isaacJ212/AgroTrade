@@ -1,13 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../services/productor_api_service.dart';
 import '../../../ui/app_theme.dart';
 import '../../../ui/components.dart';
 import '../../../ui/widgets/app_text_field.dart';
 import '../../../ui/widgets/buttons.dart';
 import '../../../ui/widgets/app_dropdown.dart';
 import '../../../models/productor_models.dart';
+import '../../../services/productor_api_service.dart';
 import 'registroCosecha.dart';
 
 class AgregarProducto extends StatefulWidget {
@@ -24,41 +24,38 @@ class _AgregarProductoState extends State<AgregarProducto> {
   final _precioController = TextEditingController();
 
   String? _categoriaSeleccionada;
-  String? _unidadSeleccionada;
+  UnidadMedidaModel? _unidadSeleccionada;
   final List<XFile> _imagenes = [];
   final ImagePicker _picker = ImagePicker();
 
-  List<String> _categorias = const [];
-  final List<String> _unidades = ['kg', 'Tonelada', 'Caja', 'Docena'];
-  bool _cargandoCategorias = true;
+  final List<String> _categorias = ['Frutas', 'Verduras', 'Granos', 'Lácteos'];
+  List<UnidadMedidaModel> _unidades = UnidadMedidaModel.defaultUnidades;
+  bool _cargandoUnidades = false;
 
   @override
   void initState() {
     super.initState();
-    _cargarCategorias();
+    _cargarUnidades();
   }
 
-  Future<void> _cargarCategorias() async {
+  Future<void> _cargarUnidades() async {
+    setState(() => _cargandoUnidades = true);
     try {
-      final categorias = await ProductorApiService.instance.getCategoriasDisponibles();
-      if (!mounted) return;
-
-      final nombres = ProductorApiService.normalizarCategorias(categorias);
-
-      setState(() {
-        _categorias = nombres;
-        _categoriaSeleccionada = nombres.contains(_categoriaSeleccionada)
-            ? _categoriaSeleccionada
-            : null;
-        _cargandoCategorias = false;
-      });
+      final list = await ProductorApiService.instance.getUnidadesDeMedida();
+      if (mounted && list.isNotEmpty) {
+        setState(() {
+          _unidades = list;
+          _cargandoUnidades = false;
+          if (_unidadSeleccionada != null) {
+            _unidadSeleccionada = _unidades.firstWhere(
+              (u) => u.id == _unidadSeleccionada!.id,
+              orElse: () => _unidadSeleccionada!,
+            );
+          }
+        });
+      }
     } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _categorias = const [];
-        _categoriaSeleccionada = null;
-        _cargandoCategorias = false;
-      });
+      if (mounted) setState(() => _cargandoUnidades = false);
     }
   }
 
@@ -133,7 +130,8 @@ class _AgregarProductoState extends State<AgregarProducto> {
       id: 0, // 0 significa nuevo producto
       nombre: _nombreController.text.trim(),
       categoria: _categoriaSeleccionada!,
-      unidad: _unidadSeleccionada!,
+      unidad: _unidadSeleccionada!.codigo,
+      idUnidadMedida: _unidadSeleccionada!.id,
       descripcion: _descripcionController.text.trim(),
       precio: double.tryParse(_precioController.text.trim()) ?? 0.0,
       cantidad: 0,
@@ -240,7 +238,7 @@ class _AgregarProductoState extends State<AgregarProducto> {
                     value: _categoriaSeleccionada,
                     items: _categorias,
                     itemLabel: (item) => item,
-                    hint: _cargandoCategorias ? 'Cargando categorías...' : 'Seleccione una categoría',
+                    hint: 'Seleccione una categoría',
                     onChanged: (val) =>
                         setState(() => _categoriaSeleccionada = val),
                   ),
@@ -265,12 +263,12 @@ class _AgregarProductoState extends State<AgregarProducto> {
                   const SizedBox(height: 16),
 
                   //  Unidad de Medida
-                  AppDropdown<String>(
+                  AppDropdown<UnidadMedidaModel>(
                     label: 'Unidad de Medida *',
                     value: _unidadSeleccionada,
                     items: _unidades,
-                    itemLabel: (item) => item,
-                    hint: 'Seleccione unidad',
+                    itemLabel: (item) => '${item.nombre} (${item.codigo})',
+                    hint: _cargandoUnidades ? 'Cargando unidades...' : 'Seleccione unidad de medida',
                     onChanged: (val) =>
                         setState(() => _unidadSeleccionada = val),
                   ),

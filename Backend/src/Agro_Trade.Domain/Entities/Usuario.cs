@@ -25,13 +25,15 @@ namespace Agro_Trade.Domain.Entities
         public string? Telefono { get; set; }
         public string? Departamento { get; set; }
         public string? Municipio { get; set; }
+
         public string? DireccionExacta { get; set; } // esta es para tipo de las chancha repato x cuadras 
+
         public DateTime? FechaRegistro { get; set; }
 
-        
-        public virtual ICollection<UsuarioRol> UsuariosRoles { get; set; } = new List<UsuarioRol>();
         public virtual ICollection<Pedido> Pedidos { get; set; } = new List<Pedido>();
+        public virtual ICollection<UsuarioRol> UsuariosRoles { get; set; } = new List<UsuarioRol>();
         public virtual ICollection<ConversacionParticipante> ConversacionParticipantes { get; set; } = new List<ConversacionParticipante>();
         public virtual ICollection<Valoracion> ValoracionesRealizadas { get; set; } = new List<Valoracion>();
+        public virtual ICollection<Valoracion> ValoracionesRecibidas { get; set; } = new List<Valoracion>();
     }
 }

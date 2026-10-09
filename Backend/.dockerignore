@@ -1,17 +1,60 @@
-**/.classpath
-**/.dockerignore
-**/.env
-**/.git
-**/.gitignore
-**/.project
-**/.settings
-**/.toolstarget
-**/.vs
-**/.vscode
-**/*.*proj.user
-**/bin
-**/charts
-**/docker-compose*
-**/obj
-**/out
-**/node_modules
+# =============================================================================
+# .dockerignore para Backend (ASP.NET Core)
+# =============================================================================
+
+# Control de versiones
+.git
+.gitignore
+
+# Archivos de Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Archivos de entorno
+.env
+.env.*
+!.env.example
+
+# IDE y editores
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+**/bin/
+**/obj/
+.vs/
+
+# Paquetes NuGet
+packages/
+*.nupkg
+*.snupkg
+
+# Logs
+*.log
+logs/
+
+# Tests
+TestResults/
+*.trx
+coverage/
+
+# Documentación
+docs/
+*.md
+!README.md
+
+# Base de datos local
+*.db
+*.sqlite
+
+# Archivos temporales
+tmp/
+temp/
+*.tmp
+
+# OS
+.DS_Store
+Thumbs.db

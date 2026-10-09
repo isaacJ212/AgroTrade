@@ -16,6 +16,7 @@ import '../screens/shared/editarPerfil.dart';
 import '../screens/shared/notificaciones.dart';
 import '../screens/shared/centroAyuda.dart';
 import '../screens/shared/chat_screen.dart';
+import '../screens/shared/planes_suscripcion.dart';
 
 // ── AgroBot ───────────────────────────────────────────────────────────────────
 import '../screens/shared/agrobot/agrobot_welcome.dart';
@@ -72,6 +73,8 @@ import '../screens/repartidor/recogerPedidoRepartidor.dart';
 import '../screens/repartidor/entregaEnCursoRepartidor.dart';
 import '../screens/repartidor/rutaEntregaRepartidor.dart';
 import '../screens/repartidor/confirmarEntregaRepartidor.dart';
+import '../screens/repartidor/onboardingRepartidor.dart';
+import '../screens/repartidor/formularioSolicitudRepartidor.dart';
 
 import 'app_routes.dart';
 import 'productor_router.dart';
@@ -131,6 +134,9 @@ class AppRouter {
       case AppRoutes.centroAyuda:
         return _slide(const CentroAyuda());
 
+      case AppRoutes.planesSuscripcion:
+        return _slide(const PlanesSuscripcionScreen());
+
       // ── AgroBot ──────────────────────────────────────────────────────────
       case AppRoutes.agrobotWelcome:
         return _slide(const AgrobotWelcome());
@@ -182,7 +188,18 @@ class AppRouter {
         return _slide(DetalleProductoCliente(producto: args));
 
       case AppRoutes.perfilProductor:
-        return _slide(const PerfilProductorScreen());
+        final productorArg = args is ProductorDestacado ? args : null;
+        if (productorArg == null) {
+          return _slide(
+            Scaffold(
+              appBar: AppBar(title: const Text('Perfil del Productor')),
+              body: const Center(
+                child: Text('Selecciona un productor para ver su perfil.'),
+              ),
+            ),
+          );
+        }
+        return _slide(PerfilProductorScreen(productor: productorArg));
 
       case AppRoutes.productoresCercanos:
         return _slide(const ProductoresCercanos());
@@ -355,6 +372,13 @@ class AppRouter {
 
       case AppRoutes.confirmarEntregaRepartidor:
         return _slide(const ConfirmarEntregaRepartidor());
+
+      // ── Repartidor Verificación ──────────────────────────────────────────────
+      case AppRoutes.onboardingRepartidor:
+        return _slide(const OnboardingRepartidor());
+
+      case AppRoutes.formularioSolicitudRepartidor:
+        return _slide(const FormularioSolicitudRepartidor());
 
       // ── Ruta no encontrada ────────────────────────────────────────────────
       default:

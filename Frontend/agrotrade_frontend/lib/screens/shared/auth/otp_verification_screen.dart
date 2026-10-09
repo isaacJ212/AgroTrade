@@ -18,7 +18,7 @@ class OtpVerificationScreen extends StatefulWidget {
     required this.email,
     this.title = 'Verificar código',
     this.description = 'Ingresa el código de verificación enviado a',
-    this.validity = const Duration(minutes: 5),
+    this.validity = const Duration(minutes: 15),
     this.onVerify,
     this.onResend,
   });

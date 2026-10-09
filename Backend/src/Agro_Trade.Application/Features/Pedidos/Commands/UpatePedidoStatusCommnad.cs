@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿
+using MediatR;
 using Agro_Trade.Domain.Entities;
 using Agro_Trade.Application.Common;
 using Agro_Trade.Application.Common.DTOs.ComprasDtos;
@@ -32,7 +33,7 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
             var pedidos = await pedidoRepository.FindAsync(
                 p => p.IdPedido == request.PedidoId && p.EstadoPago == "PENDIENTE",
                 cancellationToken,
-                "Detalles.Inventario.Producto.Proveedor"
+                "Detalles.Inventario.Producto.Proveedor.CuentaBancaria.Banco"
             );
 
             var pedido = pedidos.FirstOrDefault();
@@ -42,6 +43,20 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
             var cliente = await usuarioRepository.GetByIdAsync(pedido.IdUsuarioCliente, cancellationToken);
             if (cliente is null)
                 return Result<bool>.Failure(404, "El cliente asociado al pedido no existe.");
+
+            foreach (var detalle in pedido.Detalles)
+            {
+                var proveedor = detalle.Inventario.Producto.Proveedor;
+                var cuentaBancaria = proveedor.CuentaBancaria;
+                if (cuentaBancaria is null
+                    || !cuentaBancaria.isActive
+                    || cuentaBancaria.IdUsuario != proveedor.IdUsuario
+                    || cuentaBancaria.Banco is null)
+                {
+                    return Result<bool>.Failure(409,
+                        $"El productor '{proveedor.NombreProveedor}' no tiene una cuenta bancaria activa válida.");
+                }
+            }
 
             try
             {
@@ -89,8 +104,8 @@ namespace Agro_Trade.Application.Features.Pedidos.Commands
                         IdTransferencia = Guid.NewGuid().ToString("N"),
                         IdPedido = pedido.IdPedido,
                         Proveedor = inventario.Producto.Proveedor.NombreProveedor,
-                        BancoDestino = inventario.Producto.Proveedor.Banco,
-                        Cuenta = inventario.Producto.Proveedor.CuentaBancaria,
+                        BancoDestino = inventario.Producto.Proveedor.CuentaBancaria!.Banco.NombreBanco,
+                        Cuenta = inventario.Producto.Proveedor.CuentaBancaria.NumeroCuenta,
                         MontoEnviado = detalle.Subtotal,
                         Estado = EstadoTransferenciaExitosa
                     };

@@ -111,7 +111,11 @@ namespace Agro_Trade
                 });
             builder.Services.AddAuthorization();
             builder.Services.AddSignalR();
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+                });
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
@@ -156,6 +160,7 @@ namespace Agro_Trade
 
 
             builder.Services.AddHttpContextAccessor();
+            builder.Services.AddHealthChecks();
 
             var app = builder.Build();
 
@@ -180,26 +185,29 @@ namespace Agro_Trade
 
 
             app.MapControllers();
+            app.MapHealthChecks("/health");
             app.MapHub<Agro_Trade.Hubs.ChatHub>("/chathub");
 
 
-            // Aplicar migraciones de EF Core automáticamente al iniciar el contenedor
+          
+
+
+
+            // Ejecutar migraciones pendientes automáticamente al arrancar (Docker Compose)
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
                 try
                 {
-                    var dbContext = services.GetRequiredService<AgroTradeDbContext>();
-                    dbContext.Database.Migrate();
+                    var context = services.GetRequiredService<AgroTradeDbContext>();
+                    context.Database.Migrate();
                 }
                 catch (Exception ex)
                 {
                     var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "Ocurrió un error al aplicar las migraciones en PostgreSQL.");
+                    logger.LogError(ex, "Ocurrió un error al aplicar las migraciones a la base de datos.");
                 }
             }
-
-
 
             app.Run();
 

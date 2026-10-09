@@ -29,7 +29,7 @@ namespace Agro_Trade.Application.Features.Suscripciones.Queries
         {
 
             var suscripciones = await _unitOfWork.Suscripciones.FindAsync(
-                s => s.IdUsuario == request.IdUsuario, ct);
+                s => s.IdUsuario == request.IdUsuario, includes: p=> p.TipoPlan, cancellationToken: ct);
 
 
             if (suscripciones == null || !suscripciones.Any())

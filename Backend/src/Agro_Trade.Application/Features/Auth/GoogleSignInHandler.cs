@@ -54,14 +54,20 @@ namespace Agro_Trade.Application.Features.Auth
             var user = await _unitOfWork.Users.GetByEmailAsync(payload.Email, cancellationToken);
             if (user == null)
             {
+                var partes = payload.Name?.Split(' ') ?? Array.Empty<string>();
+                var nombres = partes.Length > 0 ? partes[0] : string.Empty;
+                var apellidos = partes.Length > 1 ? string.Join(" ", partes.Skip(1)) : string.Empty;
+
                 user = new Agro_Trade.Domain.Entities.Usuario
                 {
-                    Nombre = payload.GivenName ?? payload.Name, PrimerApellido = payload.FamilyName ?? "", SegundoApellido = "",
+                    Nombre = payload.GivenName ?? (partes.Length > 0 ? partes[0] : payload.Name ?? ""),
+                    PrimerApellido = payload.FamilyName ?? (partes.Length > 1 ? partes[1] : ""),
+                    SegundoApellido = partes.Length > 2 ? string.Join(" ", partes.Skip(2)) : "",
                     Email = payload.Email,
                     OAuthProvider = "Google",
                     OAuthProviderId = payload.Subject,
                     IdentidadVerificada = false,
-                    FechaRegistro = DateTime.Now,
+                    FechaRegistro = DateTime.UtcNow,
                 };
                 await _unitOfWork.Users.AddAsync(user, cancellationToken);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -70,6 +76,14 @@ namespace Agro_Trade.Application.Features.Auth
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                
+            }
+            else
+            {
+                // Verificar identidad para usuarios existentes
+                if (!user.IdentidadVerificada)
+                {
+                    return Result<LoginResponse>.Failure(401, "La identidad no ha sido verificada.");
+                }
             }
             //CAMBIOS PARA LA GENERACION DE RefreshToken
             var token = _tokenServices.GenerateRefreshToken();

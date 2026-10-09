@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Agro_Trade.Application.Common;
@@ -44,10 +45,20 @@ namespace Agro_Trade.Controllers
 
 
 
+        // Jafet: Se añadió el parámetro 'estado' para filtrar el inventario (Disponible, poco inventario, agotado)
         [HttpGet]
-        public async Task<ActionResult<Result<List<InventarioDtos>>>> Get(CancellationToken ct)
+        public async Task<ActionResult<Result<List<InventarioDtos>>>> Get([FromQuery] string? estado, CancellationToken ct)
         {
-            var query = new GetInventariosQuery();
+            int? userId = null;
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out var parsedId))
+                {
+                    userId = parsedId;
+                }
+            }
+            var query = new GetInventariosQuery(userId);
             var result = await _mediator.Send(query, ct);
     
             return result.IsSuccess ? Ok(result) : StatusCode(result.StatusCode, result);

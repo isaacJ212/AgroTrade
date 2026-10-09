@@ -20,6 +20,7 @@ class AppRoutes {
   static const String notificaciones = '/notificaciones';
   static const String centroAyuda = '/centro-ayuda';
   static const String chat = '/chat';
+  static const String planesSuscripcion = '/planes-suscripcion';
 
   // ── AgroBot (compartido – todos los roles) ────────────────────────────────
   static const String agrobotWelcome = '/agrobot/bienvenida';
@@ -79,4 +80,7 @@ class AppRoutes {
   static const String rutaEntregaRepartidor = '/repartidor/pedido/ruta';
   static const String confirmarEntregaRepartidor =
       '/repartidor/pedido/confirmar';
+  // Verificación y Onboarding
+  static const String onboardingRepartidor = '/repartidor/onboarding';
+  static const String formularioSolicitudRepartidor = '/repartidor/solicitud';
 }

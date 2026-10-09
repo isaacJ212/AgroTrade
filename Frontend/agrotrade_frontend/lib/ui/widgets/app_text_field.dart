@@ -5,10 +5,12 @@ InputDecoration appInputDecoration({
   String? label,
   String? hint,
   Widget? suffixIcon,
+  String? errorText,
 }) {
   return InputDecoration(
     labelText: label,
     hintText: hint,
+    errorText: errorText,
     floatingLabelBehavior: FloatingLabelBehavior.always,
     suffixIcon: suffixIcon,
     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
@@ -19,6 +21,14 @@ InputDecoration appInputDecoration({
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
       borderSide: const BorderSide(color: AppColors.primarySoft, width: 1.5),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: const BorderSide(color: AppColors.inputErrorColor, width: 1.5),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: const BorderSide(color: AppColors.inputErrorColor, width: 1.5),
     ),
   );
 }

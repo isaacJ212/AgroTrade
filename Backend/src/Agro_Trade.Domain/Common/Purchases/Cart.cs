@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +9,6 @@ namespace Agro_Trade.Domain.Common.Purchases
     public class Cart
     {
         public int UserId { get; set; }
-        public ICollection<CartItem> Items = new List<CartItem>();
-
+        public ICollection<CartItem> Items { get; set; } = new List<CartItem>();
     }
 }

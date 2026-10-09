@@ -3,6 +3,7 @@ import '../models/api/json_helpers.dart';
 import '../models/api/user_models.dart';
 import '../routes/user_routes.dart';
 import 'api_client.dart';
+import 'api_session.dart';
 
 class UsersApiService {
   UsersApiService._();
@@ -52,6 +53,56 @@ class UsersApiService {
       );
     }
     return result.data!;
+  }
+
+  Future<UserDto> getUserById(int id) async {
+    final response = await ApiClient.instance.get(
+      UserRoutes.byId(id),
+      authorized: true,
+    );
+    final result = _decodeResult<UserDto>(
+      response.jsonBody,
+      (json) => UserDto.fromJson(ensureJsonMap(json)),
+    );
+    if (!result.isSuccess || result.data == null) {
+      throw ApiException(
+        response.statusCode,
+        result.message.isNotEmpty
+            ? result.message
+            : 'No se pudo obtener el usuario.',
+      );
+    }
+    return result.data!;
+  }
+
+  Future<UserDto?> getPerfilActual() async {
+    try {
+      final uid = ApiSession.instance.userId;
+      if (uid != null && int.tryParse(uid) != null) {
+        final user = await getUserById(int.parse(uid));
+        await ApiSession.instance.updateUserProfile(
+          name: user.name.isNotEmpty ? user.name : null,
+          email: user.email.isNotEmpty ? user.email : null,
+          phone: user.telefono,
+          location: user.direccionBase ?? user.departamento,
+        );
+        return user;
+      }
+      final email = ApiSession.instance.userEmail;
+      if (email != null && email.isNotEmpty) {
+        final user = await getUserByEmail(email);
+        await ApiSession.instance.updateUserProfile(
+          name: user.name.isNotEmpty ? user.name : null,
+          email: user.email.isNotEmpty ? user.email : null,
+          phone: user.telefono,
+          location: user.direccionBase ?? user.departamento,
+        );
+        return user;
+      }
+    } catch (e) {
+      print('DEBUG: [UsersApiService] getPerfilActual: $e');
+    }
+    return null;
   }
 
   Future<void> sendPasswordCode({required int userId}) async {
@@ -141,7 +192,7 @@ class UsersApiService {
   }) async {
     final response = await ApiClient.instance.put(
       UserRoutes.byId(userId),
-      body: dto.toJson(),
+      body: dto.toJsonForUpdate(),
       authorized: true,
     );
 

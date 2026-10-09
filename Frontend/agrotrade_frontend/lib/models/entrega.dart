@@ -4,7 +4,7 @@ class NotificacionEntrega {
   final double totalPedido;
   final DateTime fechaCreacion;
   final String horaLabel;
-  final String estado ;
+  final String estado;
 
   const NotificacionEntrega({
     required this.estado,

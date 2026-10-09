@@ -1,8 +1,11 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../models/api/user_models.dart';
 import '../../models/productor_models.dart';
+import '../../services/api_session.dart';
 import '../../services/productor_store.dart';
+import '../../services/users_api_service.dart';
 import '../../ui/widgets/productor_widgets.dart';
 
 class DatosPersonalesProductor extends StatefulWidget {
@@ -14,13 +17,62 @@ class DatosPersonalesProductor extends StatefulWidget {
 
 class _DatosPersonalesProductorState extends State<DatosPersonalesProductor> {
   final _form = GlobalKey<FormState>();
-  late final _datos = ProductorStore.instance.persona;
-  late final _nombre = TextEditingController(text: _datos.nombre);
-  late final _correo = TextEditingController(text: _datos.correo);
-  late final _telefono = TextEditingController(text: _datos.telefono);
-  late final _ubicacion = TextEditingController(text: _datos.ubicacion);
-  late Uint8List? _foto = _datos.foto;
+  late final TextEditingController _nombre;
+  late final TextEditingController _correo;
+  late final TextEditingController _telefono;
+  late final TextEditingController _ubicacion;
+  late Uint8List? _foto;
   bool _cargando = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final store = ProductorStore.instance;
+    final sesion = ApiSession.instance;
+
+    final nombreInicial = (sesion.userName?.isNotEmpty ?? false)
+        ? sesion.userName!
+        : store.persona.nombre;
+    final correoInicial = (sesion.userEmail?.isNotEmpty ?? false)
+        ? sesion.userEmail!
+        : store.persona.correo;
+    final telefonoInicial = (sesion.userPhone?.isNotEmpty ?? false)
+        ? sesion.userPhone!
+        : store.persona.telefono;
+    final ubicacionInicial = (sesion.userLocation?.isNotEmpty ?? false)
+        ? sesion.userLocation!
+        : store.persona.ubicacion;
+
+    _nombre = TextEditingController(text: nombreInicial);
+    _correo = TextEditingController(text: correoInicial);
+    _telefono = TextEditingController(text: telefonoInicial);
+    _ubicacion = TextEditingController(text: ubicacionInicial);
+    _foto = store.persona.foto;
+
+    _cargarPerfilServidor();
+  }
+
+  Future<void> _cargarPerfilServidor() async {
+    try {
+      final user = await UsersApiService.instance.getPerfilActual();
+      if (mounted && user != null) {
+        setState(() {
+          if (user.name.isNotEmpty) _nombre.text = user.name;
+          if (user.email.isNotEmpty) _correo.text = user.email;
+          if (user.telefono != null && user.telefono!.isNotEmpty) {
+            _telefono.text = user.telefono!;
+          }
+          if (user.direccionBase != null && user.direccionBase!.isNotEmpty) {
+            _ubicacion.text = user.direccionBase!;
+          } else if (user.departamento != null &&
+              user.departamento!.isNotEmpty) {
+            _ubicacion.text = user.departamento!;
+          }
+        });
+      }
+    } catch (_) {}
+  }
+
   @override
   void dispose() {
     _nombre.dispose();
@@ -53,17 +105,47 @@ class _DatosPersonalesProductorState extends State<DatosPersonalesProductor> {
     }
   }
 
-  void _guardar() {
+  Future<void> _guardar() async {
     if (!_form.currentState!.validate()) return;
+    setState(() => _cargando = true);
+
+    final nombre = _nombre.text.trim();
+    final correo = _correo.text.trim();
+    final telefono = _telefono.text.trim();
+    final ubicacion = _ubicacion.text.trim();
+
     ProductorStore.instance.guardarPersona(
       DatosProductor(
-        nombre: _nombre.text.trim(),
-        correo: _correo.text.trim(),
-        telefono: _telefono.text.trim(),
-        ubicacion: _ubicacion.text.trim(),
+        nombre: nombre,
+        correo: correo,
+        telefono: telefono,
+        ubicacion: ubicacion,
         foto: _foto,
       ),
     );
+
+    try {
+      final userId = ApiSession.instance.userId;
+      if (userId != null && int.tryParse(userId) != null) {
+        await UsersApiService.instance.updateUser(
+          userId: int.parse(userId),
+          dto: UpdateUserRequestDto(
+            nombres: nombre,
+            email: correo,
+            telefono: telefono,
+            direccionBase: ubicacion,
+          ),
+        );
+      }
+    } catch (e) {
+      print(
+        'DEBUG: [datosPersonalesProductor] Error al sincronizar con backend: $e',
+      );
+    } finally {
+      if (mounted) setState(() => _cargando = false);
+    }
+
+    if (!mounted) return;
     mensajeProductor(context, 'Perfil actualizado.');
     Navigator.pop(context, true);
   }

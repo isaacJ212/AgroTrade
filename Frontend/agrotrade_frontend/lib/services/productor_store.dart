@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../models/productor_models.dart';
 import 'api_session.dart';
+import 'users_api_service.dart';
 
 /// Estado de sesión del frontend. No sustituye la API ni una base de datos.
 /// Las pantallas comparten esta instancia; los formularios editan copias.
@@ -130,10 +131,11 @@ class ProductorStore extends ChangeNotifier {
       final cantidades = <int, double>{};
       for (final linea in p.productos) {
         final item = producto(linea.productoId);
-        if (item != null && (!item.publicado ||
+        if (item == null ||
+            !item.publicado ||
             item.unidad != linea.unidad ||
             !linea.cantidad.isFinite ||
-            linea.cantidad <= 0)) {
+            linea.cantidad <= 0) {
           throw StateError(
             'Revisa la disponibilidad de los productos del pedido.',
           );
@@ -142,8 +144,7 @@ class ProductorStore extends ChangeNotifier {
             (cantidades[linea.productoId] ?? 0) + linea.cantidad;
       }
       for (final cantidad in cantidades.entries) {
-        final item = producto(cantidad.key);
-        if (item != null && item.cantidad < cantidad.value) {
+        if (producto(cantidad.key)!.cantidad < cantidad.value) {
           throw StateError(
             'No hay inventario suficiente para confirmar este pedido.',
           );
@@ -152,21 +153,19 @@ class ProductorStore extends ChangeNotifier {
       // Solo se descuenta al confirmar; volver a preparar no vuelve a descontar.
       for (final cantidad in cantidades.entries) {
         final index = _productos.indexWhere((item) => item.id == cantidad.key);
-        if (index >= 0) {
-          final item = _productos[index];
-          _productos[index] = item.copyWith(
-            cantidad: item.cantidad - cantidad.value,
+        final item = _productos[index];
+        _productos[index] = item.copyWith(
+          cantidad: item.cantidad - cantidad.value,
+        );
+        final o = _ofertas[item.id];
+        if (o != null && o.cantidad > _productos[index].cantidad) {
+          _ofertas[item.id] = OfertaProductor(
+            productoId: o.productoId,
+            cantidad: o.cantidad,
+            descuento: o.descuento,
+            fin: o.fin,
+            activa: false,
           );
-          final o = _ofertas[item.id];
-          if (o != null && o.cantidad > _productos[index].cantidad) {
-            _ofertas[item.id] = OfertaProductor(
-              productoId: o.productoId,
-              cantidad: o.cantidad,
-              descuento: o.descuento,
-              fin: o.fin,
-              activa: false,
-            );
-          }
         }
       }
     }
@@ -219,8 +218,35 @@ class ProductorStore extends ChangeNotifier {
 
   void guardarPersona(DatosProductor datos) {
     persona = datos;
-    ApiSession.instance.userName = datos.nombre;
+    ApiSession.instance.updateUserProfile(
+      name: datos.nombre,
+      email: datos.correo,
+      phone: datos.telefono,
+      location: datos.ubicacion,
+    );
     notifyListeners();
+  }
+
+  Future<void> cargarPerfilDesdeApi() async {
+    try {
+      final user = await UsersApiService.instance.getPerfilActual();
+      if (user != null) {
+        persona = DatosProductor(
+          nombre: user.name.isNotEmpty ? user.name : persona.nombre,
+          correo: user.email.isNotEmpty ? user.email : persona.correo,
+          telefono: (user.telefono != null && user.telefono!.isNotEmpty)
+              ? user.telefono!
+              : persona.telefono,
+          ubicacion: (user.direccionBase != null && user.direccionBase!.isNotEmpty)
+              ? user.direccionBase!
+              : (user.departamento ?? persona.ubicacion),
+          foto: persona.foto,
+        );
+        notifyListeners();
+      }
+    } catch (e) {
+      print('DEBUG: [ProductorStore] cargarPerfilDesdeApi error: $e');
+    }
   }
 
   void configurarNotificaciones(bool value) {
@@ -234,9 +260,11 @@ class ProductorStore extends ChangeNotifier {
   }
 
   void asegurarSesion() {
-    if (_sessionToken == ApiSession.instance.token) return;
-    _cargar(DateTime.now());
-    notifyListeners();
+    if (_sessionToken != ApiSession.instance.token) {
+      _cargar(DateTime.now());
+      notifyListeners();
+    }
+    cargarPerfilDesdeApi();
   }
 
   void _cargar(DateTime now) {
@@ -256,11 +284,25 @@ class ProductorStore extends ChangeNotifier {
       portadaUrl:
           'https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=1200&q=80',
     );
+    final sesion = ApiSession.instance;
+    final nombre = (sesion.userName != null && sesion.userName!.trim().isNotEmpty)
+        ? sesion.userName!.trim()
+        : 'Carlos Martínez';
+    final correo = (sesion.userEmail != null && sesion.userEmail!.trim().isNotEmpty)
+        ? sesion.userEmail!.trim()
+        : 'carlos@agrotrade.com';
+    final telefono = (sesion.userPhone != null && sesion.userPhone!.trim().isNotEmpty)
+        ? sesion.userPhone!.trim()
+        : '8888 1234';
+    final ubicacion = (sesion.userLocation != null && sesion.userLocation!.trim().isNotEmpty)
+        ? sesion.userLocation!.trim()
+        : finca.ubicacion;
+
     persona = DatosProductor(
-      nombre: ApiSession.instance.userName ?? 'Carlos Martínez',
-      correo: 'carlos@agrotrade.com',
-      telefono: '8888 1234',
-      ubicacion: finca.ubicacion,
+      nombre: nombre,
+      correo: correo,
+      telefono: telefono,
+      ubicacion: ubicacion,
     );
     _productos.addAll([
       Producto(
@@ -380,6 +422,22 @@ class ProductorStore extends ChangeNotifier {
             'San Marcos, Carazo',
             'Barrio San Antonio, Jinotepe',
             'Masaya, Masaya',
+          ][i],
+          latitud: [
+            11.8499,
+            11.8580,
+            11.8480,
+            11.9054,
+            11.8450,
+            11.9744,
+          ][i],
+          longitud: [
+            -86.1990,
+            -86.2386,
+            -86.2000,
+            -86.2036,
+            -86.1950,
+            -86.0942,
           ][i],
           nota: i == 0
               ? 'Casa de portón verde, frente al parque.'

@@ -7,9 +7,9 @@ class CreateUserRequestDto {
   final String email;
   final String password;
   final String? telefono;
+  final String? direccionBase;
   final String? departamento;
   final String? municipio;
-  final String? direccionExacta;
   final int? idRol;
 
   const CreateUserRequestDto({
@@ -19,48 +19,79 @@ class CreateUserRequestDto {
     required this.email,
     required this.password,
     this.telefono,
+    this.direccionBase,
     this.departamento,
     this.municipio,
-    this.direccionExacta,
     this.idRol,
   });
 
   Map<String, dynamic> toJson() => {
-    'nombre': nombre,
-    'primerApellido': primerApellido,
-    'segundoApellido': segundoApellido,
-    'email': email,
-    'password': password,
-    if (telefono != null && telefono!.isNotEmpty) 'telefono': telefono,
-    if (departamento != null && departamento!.isNotEmpty) 'departamento': departamento,
-    if (municipio != null && municipio!.isNotEmpty) 'municipio': municipio,
-    if (direccionExacta != null && direccionExacta!.isNotEmpty) 'direccionExacta': direccionExacta,
-    if (idRol != null) 'idRol': idRol,
+    'Nombre': nombre,
+    'PrimerApellido': primerApellido,
+    'SegundoApellido': segundoApellido,
+    'Email': email,
+    'Password': password,
+    if (telefono != null && telefono!.isNotEmpty) 'Telefono': telefono,
+    if (direccionBase != null && direccionBase!.isNotEmpty)
+      'DireccionExacta': direccionBase,
+    if (departamento != null && departamento!.isNotEmpty)
+      'Departamento': departamento,
+    if (municipio != null && municipio!.isNotEmpty) 'Municipio': municipio,
+    if (idRol != null) 'IdRol': idRol,
   };
 }
 
 class UpdateUserRequestDto {
-  final String? nombreCompleto;
+  final String? nombres;
+  final String? apellidos;
   final String? email;
   final String? telefono;
   final String? direccionBase;
   final String? departamento;
+  final String? municipio;
 
   const UpdateUserRequestDto({
-    this.nombreCompleto,
+    this.nombres,
+    this.apellidos,
     this.email,
     this.telefono,
     this.direccionBase,
     this.departamento,
+    this.municipio,
   });
 
-  Map<String, dynamic> toJson() => {
-    if (nombreCompleto != null) 'nombreCompleto': nombreCompleto,
-    if (email != null) 'email': email,
-    if (telefono != null) 'telefono': telefono,
-    if (direccionBase != null) 'direccionBase': direccionBase,
-    if (departamento != null) 'departamento': departamento,
-  };
+  // Split nombreCompleto into Nombre, PrimerApellido, SegundoApellido
+  // Mapea direccionBase -> DireccionExacta, departamento -> Departamento
+  Map<String, dynamic> toJsonForUpdate() {
+    final parts = (nombres ?? '').trim().split(RegExp(r'\s+'));
+    String nombre = '';
+    String primerApellido = '';
+    String segundoApellido = '';
+
+    if (parts.isNotEmpty) nombre = parts[0];
+    if (parts.length > 1) primerApellido = parts[1];
+    if (parts.length > 2) segundoApellido = parts.skip(2).join(' ');
+
+    // Validaciones mínimas para evitar 400
+    if (nombre.length < 2) nombre = 'User';
+    if (primerApellido.length < 2) primerApellido = 'Name';
+    if (segundoApellido.length < 2) segundoApellido = 'Name';
+
+    // Teléfono: solo dígitos, backend valida 8 dígitos empezando 5/7/8
+    final telefonoLimpio = (telefono ?? '').replaceAll(RegExp(r'\D'), '');
+
+    return {
+      'Nombre': nombre,
+      'PrimerApellido': primerApellido,
+      'SegundoApellido': segundoApellido,
+      if (email != null && email!.isNotEmpty) 'Email': email,
+      if (telefonoLimpio.isNotEmpty) 'Telefono': telefonoLimpio,
+      if (departamento != null && departamento!.isNotEmpty)
+        'Departamento': departamento,
+      if (direccionBase != null && direccionBase!.isNotEmpty)
+        'DireccionExacta': direccionBase,
+    };
+  }
 }
 
 class UpdatePasswordRequestDto {
@@ -86,6 +117,7 @@ class UserDto {
   final String? telefono;
   final String? direccionBase;
   final String? departamento;
+  final String? municipio;
   final String estadoCuenta;
   final DateTime? fechaRegistro;
   final List<String> roles;
@@ -98,6 +130,7 @@ class UserDto {
     this.telefono,
     this.direccionBase,
     this.departamento,
+    this.municipio,
     this.estadoCuenta = '',
     this.fechaRegistro,
     this.roles = const [],

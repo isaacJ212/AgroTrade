@@ -171,6 +171,36 @@ class DetalleProducto extends StatelessWidget {
                       arguments: p,
                     ),
             ),
+            const SizedBox(height: 12),
+            // Jafet: Botón para dar de baja un producto lógicamente
+            ProductorButton(
+              label: 'Dar de baja',
+              outlined: true,
+              onPressed: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('Dar de baja'),
+                    content: const Text('¿Estás seguro que deseas dar de baja este producto? No será visible para los compradores.'),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
+                      TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Dar de baja', style: TextStyle(color: Colors.red))),
+                    ],
+                  )
+                );
+                if (confirm == true && context.mounted) {
+                  final success = await ProductorApiService.instance.eliminarProducto(p.id);
+                  if (context.mounted) {
+                    if (success) {
+                      mensajeProductor(context, 'Producto dado de baja exitosamente.');
+                      Navigator.pop(context);
+                    } else {
+                      mensajeProductor(context, 'Hubo un error al dar de baja el producto.');
+                    }
+                  }
+                }
+              },
+            ),
           ],
         );
       },

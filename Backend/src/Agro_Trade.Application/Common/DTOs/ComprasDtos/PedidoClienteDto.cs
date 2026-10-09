@@ -18,9 +18,11 @@ namespace Agro_Trade.Application.Common.DTOs.ComprasDtos
     {
         public int Id { get; set; }
         public int PedidoId { get; set; }
+        public int IdProducto { get; set; }
         public string? Producto { get; set; }
+        public string? UnidadMedida { get; set; }
         public float Cantidad { get; set; }
+        public decimal PrecioUnitario { get; set; }
         public decimal TotalLinea { get; set; }
-        public int IdProveedor { get; set; }
     }
 }

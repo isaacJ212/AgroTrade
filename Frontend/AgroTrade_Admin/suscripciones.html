@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Resumen - AgroTrade Admin</title>
+  <title>Suscripciones - AgroTrade Admin</title>
   <meta name="description" content="Panel de administración de AgroTrade para gestión de usuarios, categorías y verificación de productores y repartidores." />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -40,7 +40,7 @@
       <div class="sidebar-nav-section">
         <div class="sidebar-nav-group-label">Principal</div>
         <nav class="sidebar-nav-list">
-          <a href="index.html" class="sidebar-nav-link ">
+          <a href="index.html" class="sidebar-nav-link">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
               <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
@@ -83,13 +83,13 @@
             </svg>
             <span>Suscripciones</span>
           </a>
+
           <a href="planes.html" class="sidebar-nav-link">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
             </svg>
             <span>Planes</span>
           </a>
-
         </nav>
 
         <div class="sidebar-nav-group-label">Sistema</div>
@@ -138,7 +138,7 @@
 
         <div class="header-right">
           <div class="header-search-box">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
@@ -165,74 +165,50 @@
 
         <div class="dashboard-page-header">
           <h1 class="dashboard-page-title">Suscripciones</h1>
-          <p class="dashboard-page-subtitle">Gestión de Suscripciones y Transacciones.</p>
+          <p class="dashboard-page-subtitle">Gestiona y visualiza las métricas de suscripciones.</p>
         </div>
 
         <div class="stats-grid-2x2">
           <div class="stat-box-card">
-            <span class="stat-title-label">TOTAL SUSCRIPCIONES</span>
-            <div class="stat-big-number" id="statTotalSub">-</div>
-          </div>
-          <div class="stat-box-card stat-amber-card">
-            <span class="stat-title-label">SUSCRIPCIONES ACTIVAS</span>
-            <div class="stat-big-number" id="statActiveSub">-</div>
+            <div>
+              <span class="stat-title-label">SUSCRIPCIONES ACTIVAS</span>
+              <div class="stat-big-number" id="dashStatActivas">-</div>
+            </div>
           </div>
           <div class="stat-box-card">
-            <span class="stat-title-label">INGRESOS TOTALES</span>
-            <div class="stat-big-number" id="statTotalRevenue">-</div>
+            <div>
+              <span class="stat-title-label">SUSCRIPCIONES CANCELADAS</span>
+              <div class="stat-big-number" id="dashStatCanceladas">-</div>
+            </div>
           </div>
           <div class="stat-box-card">
-            <span class="stat-title-label">INGRESOS MENSUALES</span>
-            <div class="stat-big-number" id="statMonthlyRevenue">-</div>
+            <div>
+              <span class="stat-title-label">INGRESOS GENERADOS</span>
+              <div class="stat-big-number" id="dashStatIngresos">-</div>
+            </div>
           </div>
         </div>
 
-        <div class="card-widget-container" style="margin-top:20px;">
-            <div class="card-widget-header">
-                <h3 class="card-widget-title">Suscripciones de Usuarios</h3>
-                <select id="roleFilter" class="table-search-input" style="width:200px;">
-                    <option value="">Todos los Roles</option>
-                    <option value="2">Productores</option>
-                </select>
-            </div>
-            <div class="table-responsive-wrapper">
-                <table class="data-list-table">
-                    <thead>
-                        <tr>
-                            <th>Usuario</th>
-                            <th>Plan</th>
-                            <th>Precio</th>
-                            <th>F. Inicio</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody id="subTableBody">
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="card-widget-container" style="margin-top:20px;">
-            <div class="card-widget-header">
-                <h3 class="card-widget-title">Historial de Transacciones</h3>
-            </div>
-            <div class="table-responsive-wrapper">
-                <table class="data-list-table">
-                    <thead>
-                        <tr>
-                            <th>ID Transacción</th>
-                            <th>Usuario</th>
-                            <th>Plan</th>
-                            <th>Monto</th>
-                            <th>Fecha</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transTableBody">
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <section class="section-block-group" style="margin-top: 2rem;">
+          <div class="section-block-header">
+            <h2 class="section-block-title">Lista de Suscripciones</h2>
+          </div>
+          <div class="table-responsive">
+            <table style="width: 100%; text-align: left; border-collapse: collapse;">
+              <thead>
+                <tr>
+                  <th style="padding: 10px; border-bottom: 1px solid #ddd;">Usuario</th>
+                  <th style="padding: 10px; border-bottom: 1px solid #ddd;">Plan</th>
+                  <th style="padding: 10px; border-bottom: 1px solid #ddd;">Tarifa</th>
+                  <th style="padding: 10px; border-bottom: 1px solid #ddd;">Estado</th>
+                  <th style="padding: 10px; border-bottom: 1px solid #ddd;">Fecha Inicio</th>
+                </tr>
+              </thead>
+              <tbody id="suscripcionesTableBody">
+              </tbody>
+            </table>
+          </div>
+        </section>
 
       </div>
 
@@ -273,23 +249,6 @@
           </svg>
           <span>Catálogo</span>
         </a>
-
-          <a href="suscripciones.html" class="sidebar-nav-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-            <span>Suscripciones</span>
-          </a>
-          <a href="planes.html" class="sidebar-nav-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-            </svg>
-            <span>Planes</span>
-          </a>
-
 
         <a href="perfil.html" class="bottom-tab-item" aria-label="Perfil">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

@@ -74,9 +74,17 @@ class _MapaCalorDemandaState extends State<MapaCalorDemanda> {
             ),
           ],
           children: [
+            const ProductorSection('Mapa de cobertura y demanda'),
+            ProductorMap(
+              label: ordenadas.isEmpty
+                  ? store.finca.ubicacion
+                  : ordenadas.first.key,
+              pedidos: pedidos,
+            ),
+            const SizedBox(height: 20),
             if (productos.isEmpty)
               const ProductorEmpty(
-                'Agrega productos para consultar su demanda.',
+                'Agrega productos reales o conecta al backend para consultar su demanda real por zona.',
               )
             else ...[
               DropdownButtonFormField<int>(
@@ -106,12 +114,6 @@ class _MapaCalorDemandaState extends State<MapaCalorDemanda> {
                     )
                     .toList(),
                 onChanged: (v) => setState(() => _dias = v!),
-              ),
-              const SizedBox(height: 20),
-              ProductorMap(
-                label: ordenadas.isEmpty
-                    ? store.finca.ubicacion
-                    : ordenadas.first.key,
               ),
               const SizedBox(height: 12),
               const Text(

@@ -20,6 +20,7 @@ class AuthService {
   setSession(token, user) {
     localStorage.setItem(this.tokenKey, token);
     localStorage.setItem(this.userKey, JSON.stringify(user || APP_CONSTANTS.DEFAULT_ADMIN));
+    this.populateUserUI();
   }
 
   logout() {
@@ -33,8 +34,29 @@ class AuthService {
     if (this.isAuthenticated()) {
       if (isLoginPage) window.location.href = 'index.html';
     } else {
-      if (!isLoginPage) window.location.href = 'login.html';
+     if (!isLoginPage) window.location.href = 'login.html';
+     return;
     }
+  }
+
+  populateUserUI() {
+    const user = this.getUser();
+    // Sidebar user card
+    const sidebarAvatar = document.querySelector('.sidebar-user-avatar');
+    const sidebarName = document.querySelector('.sidebar-user-name');
+    const sidebarRole = document.querySelector('.sidebar-user-role');
+    // Header user dropdown
+    const headerName = document.querySelector('.header-user-name');
+    const headerEmail = document.querySelector('.header-user-email');
+    const headerAvatar = document.querySelector('.avatar-mini');
+
+    if (sidebarName) sidebarName.textContent = user.nombreCompleto || 'Administrador';
+    if (sidebarRole) sidebarRole.textContent = user.rolLabel || 'Administrador';
+    if (sidebarAvatar) sidebarAvatar.src = user.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+
+    if (headerName) headerName.textContent = user.nombreCompleto || 'Administrador';
+    if (headerEmail) headerEmail.textContent = user.email || 'admin@agrotrade.com';
+    if (headerAvatar) headerAvatar.src = user.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
   }
 
   async login(email, password) {
@@ -51,7 +73,7 @@ class AuthService {
            return { success: false, message: 'Respuesta inválida del servidor.' };
         }
 
-        const token = data.data.tokenResponse ? data.data.tokenResponse.accessToken : data.data.token;
+        const token = data.data.token;
         const roles = data.data.roles || [];
         
         const isAdmin = roles.some(r => r.toLowerCase() === 'administrador' || r.toLowerCase() === 'admin');
@@ -61,8 +83,10 @@ class AuthService {
 
         const user = {
           nombreCompleto: data.data.userName || 'Administrador',
+          email: email,
           roles: roles,
-          rolLabel: roles.join(', ')
+          rolLabel: roles.join(', '),
+          avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.data.userName || 'Admin')}&background=006E2C&color=fff`
         };
 
         return { success: true, data: { token, user } };
@@ -78,3 +102,10 @@ class AuthService {
 }
 
 const authService = new AuthService();
+
+// Auto-populate UI on page load if authenticated
+document.addEventListener('DOMContentLoaded', () => {
+  if (authService.isAuthenticated()) {
+    authService.populateUserUI();
+  }
+});

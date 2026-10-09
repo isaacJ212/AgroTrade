@@ -1,6 +1,6 @@
 class ApiService {
   constructor() {
-    this.baseUrl = typeof APP_CONSTANTS !== 'undefined' ? APP_CONSTANTS.API_BASE_URL : 'https://agrotrade-1.onrender.com/api';
+    this.baseUrl = typeof APP_CONSTANTS !== 'undefined' ? APP_CONSTANTS.API_BASE_URL : 'http://localhost:5080/api';
   }
 
   getHeaders() {
@@ -25,7 +25,9 @@ class ApiService {
         method: 'GET',
         headers: this.getHeaders()
       });
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) 
+        console.log(res);
+        throw new Error(await res.text());
       return await res.json();
     } catch (e) {
       console.error(`Error GET ${endpoint}:`, e);

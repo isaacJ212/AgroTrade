@@ -1,4 +1,4 @@
-using Google.Apis.Util;
+﻿using Google.Apis.Util;
 using MediatR;
 using Agro_Trade.Domain.Entities;
 using Agro_Trade.Application.Common;
@@ -19,7 +19,7 @@ namespace Agro_Trade.Application.Features.Pedidos.Queries
         {
             if (request.IdPedido <= 0) return Result<PedidoClienteDto>.Failure(400, "Id Invalido");
 
-            var pedido = await pedidosRepository.FirstOrDefaultAsync(p => p.IdPedido == request.IdPedido, ct, "Detalles.Inventario.Producto");
+            var pedido = await pedidosRepository.FirstOrDefaultAsync(p => p.IdPedido == request.IdPedido, ct, "Detalles.Inventario.Producto.UnidadDeMedida");
 
             var dto = new PedidoClienteDto
             {
@@ -33,10 +33,12 @@ namespace Agro_Trade.Application.Features.Pedidos.Queries
                 {
                     Id = p.IdDetallePedido,
                     PedidoId = p.IdPedido,
-                    Cantidad = p.Cantidad,
+                    IdProducto = p.Inventario.IdProducto,
                     Producto = p.Inventario.Producto.Nombre,
-                    TotalLinea = p.Subtotal,
-                    IdProveedor = p.Inventario.IdProveedor
+                    UnidadMedida = p.Inventario.Producto.UnidadDeMedida?.Codigo ?? "und",
+                    Cantidad = p.Cantidad,
+                    PrecioUnitario = (decimal)p.PrecioUnitario,
+                    TotalLinea = p.Subtotal
 
                 }).ToList()
             };
