@@ -16,14 +16,13 @@ class ApiClient {
   static final ApiClient instance = ApiClient._();
 
   final http.Client _client = http.Client();
-  // Timeout global para que no se quede colgado en dispositivo físico con IP incorrecta
-  static const Duration _timeout = Duration(seconds: 10);
+  // Timeout aumentado para permitir operaciones que envían emails (registro, recuperación de contraseña)
+  static const Duration _timeout = Duration(seconds: 60);
   Future<bool>? _refreshOperation;
 
   String get baseUrl {
     //local tunnerl solo para la demo
-    const envBaseUrl =
-        "http://10.0.2.2:5080"; // CAMBIA ESTA IP EN DISPOSITIVO FÍSICO
+    const envBaseUrl = "http://10.0.2.2:5080"; // ip azure
     return envBaseUrl.endsWith('/')
         ? envBaseUrl.substring(0, envBaseUrl.length - 1)
         : envBaseUrl;
@@ -114,29 +113,25 @@ class ApiClient {
 
   /// Envía una petición multipart/form-data (para subida de archivos)
   /// Usa MultipartFile.fromPath para auto-detectar Content-Type (como en productos)
-  Future<ApiResponse> EnviaEnviapostMultipart(
+  Future<ApiResponse> EnviarPostMultipart(
     String path, {
     required Map<String, String> fields,
-    required Map<String, String> filePaths, // fieldName -> file path
+    required Map<String, String>
+    filePaths, // fieldName -> file path (.jpg, .png, etc)
     bool authorized = false,
   }) async {
     final uri = _buildUri(path);
     var request = http.MultipartRequest('POST', uri);
 
-    // Agregar campos de texto
+    // 1. Agregar campos de texto normales (ej: nombre, precio, descripción)
     request.fields.addAll(fields);
 
-    // Agregar archivos
-    files.forEach((fieldName, bytes) {
-      final fileName = fileNames[fieldName] ?? 'file';
-      request.files.add(
-        http.MultipartFile.fromBytes(fieldName, bytes, filename: fileName),
-      );
-    });
-    // Agregar archivos usando fromPath con Content-Type explícito
+    // 2. Agregar archivos físicos usando fromPath con Content-Type explícito
     for (final entry in filePaths.entries) {
       try {
         final filePath = entry.value;
+        if (filePath.isEmpty) continue;
+
         final extension = filePath.split('.').last.toLowerCase();
         final contentType = switch (extension) {
           'jpg' || 'jpeg' => MediaType('image', 'jpeg'),
@@ -144,18 +139,24 @@ class ApiClient {
           'webp' => MediaType('image', 'webp'),
           _ => MediaType('application', 'octet-stream'),
         };
+
         final multipartFile = await http.MultipartFile.fromPath(
-          entry.key,
+          entry
+              .key, // El nombre del parámetro que espera tu backend (ej: "Imagen")
           filePath,
           contentType: contentType,
         );
-        print('DEBUG: Adding file ${entry.key}: filename=${multipartFile.filename}, contentType=${multipartFile.contentType}, length=${multipartFile.length}');
+
+        print(
+          'DEBUG HACKATHON: Añadiendo archivo [${entry.key}]: nombre=${multipartFile.filename}, tipo=${multipartFile.contentType}',
+        );
         request.files.add(multipartFile);
       } catch (e) {
-        print('Error adjuntando archivo ${entry.key}: $e');
+        print('Error crítico adjuntando archivo ${entry.key}: $e');
       }
     }
 
+    // 3. Configurar cabeceras de autorización
     if (authorized) {
       final token = ApiSession.instance.token;
       if (token != null && token.isNotEmpty) {
@@ -164,20 +165,37 @@ class ApiClient {
     }
     request.headers['Accept'] = 'application/json';
 
-    var response = await _client.send(request);
+    // 4. Enviar flujo de datos
+    var response = await _client.send(request).timeout(_timeout);
     var httpResponse = await http.Response.fromStream(response);
 
+    // 5. Manejo del ciclo de vida del Token (Misma lógica que usas en _send)
     final isRefreshOrLogout =
         path.toLowerCase().endsWith('/refresh') ||
         path.toLowerCase().endsWith('/logout');
+
     if (authorized &&
         httpResponse.statusCode == 401 &&
         !isRefreshOrLogout &&
         await refreshSession()) {
-      // Reintentar con nuevo token
-      request.headers['Authorization'] = 'Bearer ${ApiSession.instance.token}';
-      response = await _client.send(request);
-      httpResponse = await http.Response.fromStream(response);
+      // Re-crear la petición si expiró el token (los streams no se pueden reutilizar)
+      var retryRequest = http.MultipartRequest('POST', uri);
+      retryRequest.fields.addAll(fields);
+
+      // Volver a adjuntar archivos para el reintento
+      for (final entry in filePaths.entries) {
+        if (entry.value.isEmpty) continue;
+        retryRequest.files.add(
+          await http.MultipartFile.fromPath(entry.key, entry.value),
+        );
+      }
+
+      retryRequest.headers.addAll(request.headers);
+      retryRequest.headers['Authorization'] =
+          'Bearer ${ApiSession.instance.token}';
+
+      var retryResponse = await _client.send(retryRequest).timeout(_timeout);
+      httpResponse = await http.Response.fromStream(retryResponse);
     }
 
     return ApiResponse.fromHttpResponse(httpResponse);
@@ -264,7 +282,7 @@ class ApiClient {
             },
             body: jsonEncode({'refreshToken': currentRefreshToken}),
           )
-          .timeout(const Duration(seconds: 8));
+          .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 401) {
         await session.clear();
